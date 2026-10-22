@@ -26,6 +26,7 @@ import {
 } from "../ui/kit";
 import { Markdown } from "../ui/Markdown";
 import { soundEngine } from "../engines/soundEngine";
+import { faNum } from "../lib/format";
 
 type Tab = "skills" | "brands";
 
@@ -184,7 +185,7 @@ export const SkillsStudio: React.FC = () => {
         <div className="space-y-4">
           <Panel
             title={tab === "skills" ? "مهارت‌ها" : "برندها"}
-            subtitle={`${tab === "skills" ? skills.length : brands.length} نتیجه`}
+            subtitle={`${faNum(tab === "skills" ? skills.length : brands.length)} نتیجه`}
             padded={false}
           >
             <div className="space-y-2 border-b border-white/[0.06] p-2">

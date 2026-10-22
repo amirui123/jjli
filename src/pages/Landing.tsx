@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
 import {
   ArrowLeft,
   Boxes,
@@ -67,6 +67,121 @@ const STUDIOS = [
   },
 ];
 
+
+/* ------------------------------------------------------- motion teaser */
+
+const MagneticButton: React.FC<{ label: string }> = ({ label }) => {
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const x = useSpring(mx, { stiffness: 320, damping: 22, mass: 0.5 });
+  const y = useSpring(my, { stiffness: 320, damping: 22, mass: 0.5 });
+  const rotate = useTransform(x, [-40, 40], [-6, 6]);
+
+  return (
+    <div
+      className="flex h-full items-center justify-center"
+      onPointerMove={(e) => {
+        const r = e.currentTarget.getBoundingClientRect();
+        mx.set(((e.clientX - r.left) / r.width - 0.5) * 70);
+        my.set(((e.clientY - r.top) / r.height - 0.5) * 46);
+      }}
+      onPointerLeave={() => {
+        mx.set(0);
+        my.set(0);
+      }}
+    >
+      <motion.button
+        style={{ x, y, rotate }}
+        onClick={() => soundEngine.playThock()}
+        className="rounded-xl border border-[color:var(--accent)]/40 bg-[color:var(--accent)]/10 px-5 py-2.5 text-[12px] font-bold text-[color:var(--accent)]"
+      >
+        {label}
+      </motion.button>
+    </div>
+  );
+};
+
+const StackCards: React.FC = () => (
+  <div className="relative flex h-full items-center justify-center [perspective:800px]">
+    {[0, 1, 2].map((i) => (
+      <motion.div
+        key={i}
+        className="absolute h-16 w-32 rounded-xl border border-white/10 bg-gradient-to-br from-[#17171C] to-[#0B0B0E]"
+        style={{ translateY: i * -7, scale: 1 - i * 0.06, zIndex: 3 - i }}
+        whileHover={{ y: -22 - i * 8, rotate: i === 0 ? -3 : i === 1 ? 3 : 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      >
+        <div className="flex h-full items-center justify-center">
+          <span className="font-mono text-[9px] text-zinc-600">0{i + 1}</span>
+        </div>
+      </motion.div>
+    ))}
+  </div>
+);
+
+const KineticWords: React.FC = () => {
+  const [n, setN] = useState(0);
+  return (
+    <button
+      onMouseEnter={() => setN((v) => v + 1)}
+      onClick={() => setN((v) => v + 1)}
+      className="flex h-full w-full flex-col items-center justify-center gap-1"
+    >
+      <span key={n} className="flex gap-1.5">
+        {"حرکت زنده".split(" ").map((w, i) => (
+          <motion.span
+            key={`${n}-${i}`}
+            initial={{ y: 18, opacity: 0, filter: "blur(8px)" }}
+            animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+            transition={{ type: "spring", stiffness: 300, damping: 22, delay: i * 0.08 }}
+            className="font-hasti text-[24px] text-zinc-100"
+          >
+            {w}
+          </motion.span>
+        ))}
+      </span>
+      <span className="font-mono text-[9px] text-zinc-600">hover to replay</span>
+    </button>
+  );
+};
+
+const MotionTeaser: React.FC = () => (
+  <section>
+    <div className="mb-5 flex items-end justify-between gap-4">
+      <div>
+        <h2 className="text-[20px] font-bold text-white sm:text-[24px]">حرکت را لمس کن</h2>
+        <p className="mt-1 text-[12px] text-zinc-500">
+          سه نمونه واقعی با فیزیک فنر — همان موتوری که در استودیو موشن تنظیم می‌کنید.
+        </p>
+      </div>
+      <button
+        onClick={() => navigate("/studio/motion")}
+        className="hidden items-center gap-1 text-[11.5px] text-[color:var(--accent)] hover:underline sm:flex"
+      >
+        استودیو موشن
+        <ArrowLeft className="h-3 w-3" />
+      </button>
+    </div>
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      {[
+        { title: "دکمه مغناطیسی", node: <MagneticButton label="مرا بکش" /> },
+        { title: "پشته فنری", node: <StackCards /> },
+        { title: "واژه‌های جنبشی", node: <KineticWords /> },
+      ].map((t) => (
+        <div
+          key={t.title}
+          className="relative h-[150px] overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0C0C0F] bg-engineering-dots"
+        >
+          {t.node}
+          <span className="absolute bottom-2 start-3 font-mono text-[9px] text-zinc-600">
+            {t.title}
+          </span>
+        </div>
+      ))}
+    </div>
+  </section>
+);
+
 export const Landing: React.FC = () => {
   const { settings, motionScale } = useAppSettings();
   const reduce = useReducedMotion();
@@ -105,7 +220,7 @@ export const Landing: React.FC = () => {
   const marqueeSkills = TOOLKIT_SKILL_SLUGS.slice(0, 34);
 
   const stats = [
-    { v: "۴٬۱۹۷", l: "فایل کامپوننت واقعی", s: "۱۲ رجیستری" },
+    { v: TOOLKIT_STATS.components.toLocaleString("fa-IR"), l: "فایل کامپوننت واقعی", s: `${TOOLKIT_STATS.registries.length} رجیستری` },
     { v: PERSIAN_FONT_CATALOG.length.toLocaleString("fa-IR"), l: "خانواده فونت فارسی", s: "نستعلیق تا مدرن" },
     { v: TOOLKIT_STATS.skills.toLocaleString("fa-IR"), l: "اسکیل مهندسی", s: "SKILL.md" },
     { v: TOOLKIT_STATS.brands.toLocaleString("fa-IR"), l: "سیستم طراحی برند", s: "DESIGN.md" },
@@ -359,6 +474,8 @@ export const Landing: React.FC = () => {
           ))}
         </div>
       </section>
+
+      <MotionTeaser />
 
       {/* ------------------------------------------------------------- fonts */}
       <section>

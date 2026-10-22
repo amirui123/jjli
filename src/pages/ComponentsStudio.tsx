@@ -23,6 +23,7 @@ import {
 } from "../ui/kit";
 import { UniversalComponentPreview } from "../components/BentoShowcase";
 import { soundEngine } from "../engines/soundEngine";
+import { faNum, faCount } from "../lib/format";
 
 interface RegistryPayload {
   id: string;
@@ -104,7 +105,7 @@ export const ComponentsStudio: React.FC = () => {
             استودیو کامپوننت
           </h1>
           <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-zinc-500">
-            کاوشگر واقعی سورس‌کد {totalComponents.toLocaleString("fa-IR")} فایل در ۱۲
+            کاوشگر واقعی سورس‌کد {faCount(totalComponents)} فایل در ۱۲
             رجیستری متن‌باز. کد هر فایل مستقیماً از مخزن خوانده می‌شود و فقط هنگام
             باز کردن رجیستری بارگذاری می‌گردد.
           </p>
@@ -144,7 +145,7 @@ export const ComponentsStudio: React.FC = () => {
                     {r.id}
                   </span>
                   <span className="shrink-0 font-mono text-[9.5px] text-zinc-600">
-                    {r.totalFiles}
+                    {faNum(r.totalFiles)}
                   </span>
                 </button>
               ))}
@@ -156,7 +157,7 @@ export const ComponentsStudio: React.FC = () => {
             title={<span className="font-mono text-[11.5px]">{regId}</span>}
             subtitle={
               payload
-                ? `${files.length} فایل · ${(totalBytes / 1024).toFixed(0)}KB سورس`
+                ? `${faNum(files.length)} فایل · ${(totalBytes / 1024).toFixed(0)}KB سورس`
                 : "در حال خواندن…"
             }
             padded={false}
@@ -319,7 +320,7 @@ export const ComponentsStudio: React.FC = () => {
             <Boxes className="h-3 w-3" /> کل فایل‌ها
           </div>
           <div className="mt-1 font-mono text-[18px] text-zinc-100">
-            {totalComponents.toLocaleString("fa-IR")}
+            {faCount(totalComponents)}
           </div>
         </div>
         <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-3">

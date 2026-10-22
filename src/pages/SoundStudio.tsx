@@ -3,6 +3,7 @@ import { Download, Pause, Play, RotateCcw, Volume2, Waves } from "lucide-react";
 import { ALL_SOUND_RECIPES_MANIFEST, type SoundRecipeItem } from "../data/soundsManifest";
 import { soundEngine, type PlayOptions } from "../engines/soundEngine";
 import { usePersisted } from "../lib/store";
+import { faNum } from "../lib/format";
 import {
   Badge,
   CodeBlock,
@@ -242,7 +243,7 @@ soundEngine.playRecipe(
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge tone="accent">{ALL_SOUND_RECIPES_MANIFEST.length} رسیپی</Badge>
+          <Badge tone="accent">{faNum(ALL_SOUND_RECIPES_MANIFEST.length)} رسیپی</Badge>
           <Badge>۰ فایل صوتی</Badge>
         </div>
       </header>
@@ -264,7 +265,7 @@ soundEngine.playRecipe(
                         : "border-white/[0.07] text-zinc-500 hover:text-zinc-200"
                     )}
                   >
-                    {CATEGORY_LABEL[c]} <span className="font-mono opacity-60">{counts[c] ?? 0}</span>
+                    {CATEGORY_LABEL[c]} <span className="font-mono opacity-60">{faNum(counts[c] ?? 0)}</span>
                   </button>
                 ))}
               </div>
@@ -323,7 +324,7 @@ soundEngine.playRecipe(
               </div>
             </div>
             <div className="border-t border-white/[0.06] px-3 py-1.5 text-[10px] text-zinc-600">
-              {filtered.length} صدا · پنجره‌بندی مجازی برای عملکرد روان
+              {faNum(filtered.length)} صدا · پنجره‌بندی مجازی برای عملکرد روان
             </div>
           </Panel>
 

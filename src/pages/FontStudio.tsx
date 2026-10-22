@@ -26,6 +26,7 @@ import {
   cn,
 } from "../ui/kit";
 import { soundEngine } from "../engines/soundEngine";
+import { faNum } from "../lib/format";
 
 type Category = "all" | PersianFontItem["category"];
 
@@ -273,14 +274,14 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
             استودیو تایپوگرافی فارسی
           </h1>
           <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-zinc-500">
-            هر {PERSIAN_FONT_CATALOG.length} خانواده فونت نستعلیق، هنری، مدرن و کد — با کنترل کامل وزن، رده‌بندی،
+            هر {faNum(PERSIAN_FONT_CATALOG.length)} خانواده فونت نستعلیق، هنری، مدرن و کد — با کنترل کامل وزن، رده‌بندی،
             فاصله‌گذاری و انیمیشن. هر تغییری که می‌دهید روی پیش‌نمایش و کد خروجی
             به‌صورت هم‌زمان اعمال می‌شود.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge tone="accent">{PERSIAN_FONT_CATALOG.length} خانواده</Badge>
-          <Badge>{PERSIAN_FONT_CATALOG.filter((f) => f.isVariable).length} متغیر</Badge>
+          <Badge tone="accent">{faNum(PERSIAN_FONT_CATALOG.length)} خانواده</Badge>
+          <Badge>{faNum(PERSIAN_FONT_CATALOG.filter((f) => f.isVariable).length)} متغیر</Badge>
           <button
             onClick={() => {
               reset();
@@ -467,7 +468,7 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
         <aside className="space-y-4">
           <Panel
             title="انتخاب فونت"
-            subtitle={`${filtered.length} از ${PERSIAN_FONT_CATALOG.length}`}
+            subtitle={`${faNum(filtered.length)} از ${faNum(PERSIAN_FONT_CATALOG.length)}`}
           >
             <div className="space-y-2.5">
               <SearchField value={q} onChange={setQ} placeholder="نام فونت…" />
@@ -488,7 +489,7 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
                           : "border-white/[0.07] bg-white/[0.02] text-zinc-500 hover:text-zinc-200"
                       )}
                     >
-                      {c.label} <span className="font-mono opacity-60">{n}</span>
+                      {c.label} <span className="font-mono opacity-60">{faNum(n)}</span>
                     </button>
                   );
                 })}
