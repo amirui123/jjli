@@ -3,20 +3,56 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>آزمایشگاه موشن فارسی | RTL Motion Lab — پلتفرم مهندسی انیمیشن، سه‌بعدی و هوش مصنوعی</title>
+    <title>آزمایشگاه موشن فارسی | RTL Motion Lab</title>
+    <meta
+      name="description"
+      content="آزمایشگاه موشن فارسی: استودیوهای مستقل تایپوگرافی، فیزیک حرکت، ۴٬۱۹۷ کامپوننت متن‌باز، ۲۰۰ افکت صوتی و موتورهای فین‌تک ایران. صددرصد رایگان و متن‌باز."
+    />
+    <meta name="theme-color" content="#08080A" />
+    <meta property="og:title" content="آزمایشگاه موشن فارسی | RTL Motion Lab" />
+    <meta
+      property="og:description"
+      content="پلتفرم رایگان مهندسی رابط فارسی: ۴۰ فونت، ۴٬۱۹۷ کامپوننت، ۱۷۹ اسکیل و ۲۰۰ افکت صوتی."
+    />
+    <meta property="og:type" content="website" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Gulzar&family=Katibeh&family=Lalezar&family=Mirza:wght@700&family=Rubik:wght@400;700;900&family=Vazirmatn:wght@100..900&display=swap"
       rel="stylesheet"
     />
-    <meta
-      name="description"
-      content="نخستین پلتفرم ۱۰۰٪ رایگان و متن‌باز مهندسی کامپوننت‌های انیمیشنی ۶۰ فریم، شیدرهای WebGL، تایپوگرافی جنبشی فارسی و مدل هوش مصنوعی اختصاصی."
+    <link
+      rel="preload"
+      href="/fonts/02-special-and-display/Hasti-Heavy.woff"
+      as="font"
+      type="font/woff"
+      crossorigin
     />
+    <link
+      rel="preload"
+      href="/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-Variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <style>
+      html { background: #08080a; color-scheme: dark; }
+      body { margin: 0; background: #08080a; }
+      #boot {
+        position: fixed; inset: 0; display: grid; place-items: center;
+        background: #08080a; z-index: 100;
+        transition: opacity .35s ease;
+      }
+      #boot span {
+        font-family: "Vazirmatn", sans-serif; color: #5b5b63; font-size: 12px;
+        letter-spacing: 0; animation: bootpulse 1.4s ease-in-out infinite;
+      }
+      @keyframes bootpulse { 0%,100%{opacity:.35} 50%{opacity:.9} }
+    </style>
   </head>
-  <body class="bg-[#09090B] text-[#FAFAFA] antialiased selection:bg-indigo-500/30 selection:text-indigo-200 overflow-x-hidden">
+  <body class="bg-[#08080A] text-[#FAFAFA] antialiased overflow-x-hidden">
     <div id="root"></div>
+    <div id="boot"><span>آزمایشگاه موشن فارسی</span></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -1,3 +1,9 @@
 node_modules/
 dist/
 .DS_Store
+
+# vendored source corpus (76MB / 7035 files) — regenerate the derived vault with `npm run generate`
+toolkit/
+
+# temporary build artifacts
+dist-vercel/

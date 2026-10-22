@@ -13,7 +13,8 @@ export interface CatalogComponentItem {
     | "Cult UI"
     | "Magic UI"
     | "Rasa FarsiUI"
-    | "Tailark Blocks";
+    | "Tailark Blocks"
+    | "Motion Primitives";
   category:
     | "3d-fintech"
     | "kinetic-typography"

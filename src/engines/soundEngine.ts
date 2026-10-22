@@ -4,7 +4,64 @@
  * toolkit/07-core-engines/03-procedural-sound-engine/ in real time.
  */
 
-import type { SoundRecipeItem } from "../data/toolkitManifest";
+import type { SoundRecipeItem } from "../data/soundsManifest";
+
+/* ------------------------------------------------------------------ helpers */
+
+export interface PlayOptions {
+  /** pitch multiplier (0.25 – 4) */
+  pitch?: number;
+  /** output gain multiplier (0 – 2.5) */
+  gain?: number;
+  /** lowpass cutoff multiplier (0.15 – 4) */
+  cutoff?: number;
+  /** duration multiplier (0.25 – 4) */
+  stretch?: number;
+  /** force the procedural noise burst on/off */
+  noise?: boolean;
+}
+
+function clamp(v: number, min: number, max: number) {
+  return Math.min(Math.max(Number.isFinite(v) ? v : min, min), max);
+}
+
+function encodeWav(buffer: AudioBuffer): Blob {
+  const numChannels = 1;
+  const sampleRate = buffer.sampleRate;
+  const samples = buffer.getChannelData(0);
+  const dataSize = samples.length * 2;
+  const out = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(out);
+
+  const writeStr = (offset: number, str: string) => {
+    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+  };
+
+  writeStr(0, "RIFF");
+  view.setUint32(4, 36 + dataSize, true);
+  writeStr(8, "WAVE");
+  writeStr(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * numChannels * 2, true);
+  view.setUint16(32, numChannels * 2, true);
+  view.setUint16(34, 16, true);
+  writeStr(36, "data");
+  view.setUint32(40, dataSize, true);
+
+  let offset = 44;
+  for (let i = 0; i < samples.length; i++) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+    offset += 2;
+  }
+
+  return new Blob([out], { type: "audio/wav" });
+}
+
+
 
 class ProceduralSoundEngine {
   private ctx: AudioContext | null = null;
@@ -27,41 +84,57 @@ class ProceduralSoundEngine {
     return this.ctx;
   }
 
-  /** Synthesize any of the 200 procedural sound recipes from the toolkit */
-  playRecipe(recipe: SoundRecipeItem, pitchMultiplier = 1) {
+  /**
+   * Synthesize any of the 200 procedural sound recipes from the toolkit.
+   * Accepts optional overrides so the Sound Studio edits are audible & real.
+   */
+  playRecipe(recipe: SoundRecipeItem, opts: PlayOptions | number = {}) {
+    const options: PlayOptions = typeof opts === "number" ? { pitch: opts } : opts;
     const ctx = this.getContext();
     if (!ctx) return;
-    const now = ctx.currentTime;
-    const dur = Math.min(Math.max(recipe.duration || 0.18, 0.04), 1.6);
+    this.schedule(ctx, ctx.destination, recipe, options, ctx.currentTime);
+  }
 
-    // Master lowpass filter
+  /** Shared scheduler used by live playback (AudioContext) and WAV export (OfflineAudioContext). */
+  private schedule(
+    ctx: BaseAudioContext,
+    destination: AudioNode,
+    recipe: SoundRecipeItem,
+    options: PlayOptions,
+    startAt: number
+  ) {
+    const pitch = clamp(options.pitch ?? 1, 0.25, 4);
+    const gainScale = clamp(options.gain ?? 1, 0, 2.5);
+    const cutoffScale = clamp(options.cutoff ?? 1, 0.15, 4);
+    const stretch = clamp(options.stretch ?? 1, 0.25, 4);
+    const noiseOn = options.noise ?? recipe.hasNoise;
+
+    const now = startAt;
+    const dur = clamp((recipe.duration || 0.18) * stretch, 0.03, 3.2);
+
     const filter = ctx.createBiquadFilter();
     filter.type = "lowpass";
     filter.frequency.setValueAtTime(
-      Math.min(Math.max(recipe.lowpass || 5000, 300), 16000),
+      clamp((recipe.lowpass || 5000) * cutoffScale, 200, 18000),
       now
     );
-    filter.connect(ctx.destination);
+    filter.connect(destination);
 
-    // Primary harmonic oscillator sweep
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = recipe.freqFrom > recipe.freqTo ? "triangle" : "sine";
 
-    const fStart = Math.min(
-      Math.max((recipe.freqFrom || 320) * pitchMultiplier, 55),
-      4000
-    );
-    const fEnd = Math.min(
-      Math.max((recipe.freqTo || 520) * pitchMultiplier, 45),
-      4500
-    );
+    const fStart = clamp((recipe.freqFrom || 320) * pitch, 40, 12000);
+    const fEnd = clamp((recipe.freqTo || 520) * pitch, 30, 14000);
 
     osc.frequency.setValueAtTime(fStart, now);
     osc.frequency.exponentialRampToValueAtTime(fEnd, now + dur * 0.75);
 
     gain.gain.setValueAtTime(0.001, now);
-    gain.gain.linearRampToValueAtTime(0.14, now + Math.min(0.012, dur * 0.2));
+    gain.gain.linearRampToValueAtTime(
+      clamp(0.14 * gainScale, 0, 0.9),
+      now + Math.min(0.012, dur * 0.2)
+    );
     gain.gain.exponentialRampToValueAtTime(0.0008, now + dur);
 
     osc.connect(gain);
@@ -69,22 +142,20 @@ class ProceduralSoundEngine {
     osc.start(now);
     osc.stop(now + dur + 0.02);
 
-    // Secondary harmonic partial for richer timbre
     const osc2 = ctx.createOscillator();
     const gain2 = ctx.createGain();
     osc2.type = "sine";
     osc2.frequency.setValueAtTime(fStart * 1.5, now);
     osc2.frequency.exponentialRampToValueAtTime(fEnd * 1.5, now + dur * 0.65);
-    gain2.gain.setValueAtTime(0.04, now);
+    gain2.gain.setValueAtTime(clamp(0.04 * gainScale, 0, 0.5), now);
     gain2.gain.exponentialRampToValueAtTime(0.0005, now + dur * 0.8);
     osc2.connect(gain2);
     gain2.connect(filter);
     osc2.start(now);
     osc2.stop(now + dur);
 
-    // Optional procedural noise burst for tactile clicks/thocks/air
-    if (recipe.hasNoise) {
-      const bufferSize = Math.floor(ctx.sampleRate * Math.min(dur, 0.15));
+    if (noiseOn) {
+      const bufferSize = Math.max(64, Math.floor(ctx.sampleRate * Math.min(dur, 0.15)));
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = buffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) {
@@ -93,12 +164,38 @@ class ProceduralSoundEngine {
       const noise = ctx.createBufferSource();
       noise.buffer = buffer;
       const nGain = ctx.createGain();
-      nGain.gain.setValueAtTime(0.05, now);
+      nGain.gain.setValueAtTime(clamp(0.05 * gainScale, 0, 0.6), now);
       nGain.gain.exponentialRampToValueAtTime(0.001, now + Math.min(dur, 0.15));
       noise.connect(nGain);
       nGain.connect(filter);
       noise.start(now);
     }
+  }
+
+  /** Offline render → AudioBuffer (used for real waveform drawing). */
+  async renderBuffer(recipe: SoundRecipeItem, options: PlayOptions = {}): Promise<AudioBuffer | null> {
+    const OfflineCtor =
+      typeof window !== "undefined"
+        ? window.OfflineAudioContext ||
+          (window as unknown as { webkitOfflineAudioContext?: typeof OfflineAudioContext })
+            .webkitOfflineAudioContext
+        : undefined;
+    const stretch = clamp(options.stretch ?? 1, 0.25, 4);
+    const seconds = clamp((recipe.duration || 0.18) * stretch + 0.12, 0.2, 4);
+    const sampleRate = 44100;
+
+    if (!OfflineCtor) return null;
+
+    const offline = new OfflineCtor(1, Math.ceil(sampleRate * seconds), sampleRate);
+    this.schedule(offline, offline.destination, recipe, options, 0);
+    return offline.startRendering();
+  }
+
+  /** Offline render of a recipe to a downloadable 16-bit WAV. */
+  async renderWav(recipe: SoundRecipeItem, options: PlayOptions = {}): Promise<Blob> {
+    const rendered = await this.renderBuffer(recipe, options);
+    if (!rendered) return new Blob([new ArrayBuffer(44)], { type: "audio/wav" });
+    return encodeWav(rendered);
   }
 
   /** Mechanical Topre/Cherry switch "thock" for primary buttons */

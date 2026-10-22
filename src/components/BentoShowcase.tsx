@@ -14,10 +14,8 @@ import {
   Compass,
   ShieldCheck,
   Calendar,
-  Code2,
   Sliders,
   Check,
-  Copy,
   Wand2,
   Cpu,
   Volume2,
@@ -260,7 +258,7 @@ export const MagneticRtlDockWidget: React.FC<{
 
   const items = [
     { label: "ویترین", icon: Compass, badge: "۶۰fps" },
-    { label: "فونت هستی", icon: Type, badge: "۳۹ فونت" },
+    { label: "فونت هستی", icon: Type, badge: "۴۰ فونت" },
     { label: "استودیو فیزیک", icon: Sliders, badge: "AST" },
     { label: "شیدر WebGL", icon: Layers, badge: "OGL" },
     { label: "صداهای تعاملی", icon: Volume2, badge: "۲۰۰+" },
@@ -806,7 +804,7 @@ export const BentoShowcaseGrid: React.FC<{
               <div className="flex items-center gap-2">
                 <Type className="h-4 w-4 text-amber-400" />
                 <h3 className="text-base font-bold text-white">
-                  آزمایشگاه تایپوگرافی جنبشی و ۳۹ فونت فارسی (هستی، نستعلیق، کهربا و مربع)
+                  آزمایشگاه تایپوگرافی جنبشی و ۴۰ فونت فارسی (هستی، نستعلیق، کهربا و مربع)
                 </h3>
               </div>
               <p className="mt-1 text-xs text-zinc-400">
