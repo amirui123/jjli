@@ -75,28 +75,48 @@ export const Slider: React.FC<{
   hint?: string;
   onChange: (v: number) => void;
   format?: (v: number) => string;
-}> = ({ label, value, min, max, step = 1, unit, hint, onChange, format }) => {
-  const pct = ((value - min) / (max - min)) * 100;
+  disabled?: boolean;
+}> = ({ label, value, min, max, step = 1, unit, hint, onChange, format, disabled }) => {
+  const safe = Number.isFinite(value) ? value : min;
+  const pct = Math.min(1, Math.max(0, (safe - min) / (max - min || 1)));
+  // Geometry: a 12px thumb travels inside the track; both fill and thumb share
+  // the same coordinate space, so nothing can ever overflow the track ends.
+  const travel = `calc((100% - 12px) * ${pct})`;
+
   return (
-    <label className="block select-none">
+    <label className={cn("block select-none", disabled && "opacity-50")}>
       <div className="mb-1.5 flex items-baseline justify-between gap-2">
         <span className="text-[11.5px] font-medium text-zinc-300">{label}</span>
         <span className="font-mono text-[11px] tabular-nums text-[color:var(--accent)]">
-          {format ? format(value) : value}
+          {format ? format(safe) : safe}
           {unit ? <span className="text-zinc-500"> {unit}</span> : null}
         </span>
       </div>
-      <input
-        type="range"
-        className="ui-range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        style={{ ["--pct" as string]: `${pct}%` }}
-        aria-label={label}
-      />
+
+      <div className="relative h-4 rounded-md focus-within:ring-2 focus-within:ring-[color:var(--accent)]/40" dir="ltr">
+        <div className="pointer-events-none absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-white/10" />
+        <div
+          className="pointer-events-none absolute top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-[color:var(--accent)]"
+          style={{ left: "6px", width: travel }}
+        />
+        <div
+          className="pointer-events-none absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full border-2 border-[color:var(--accent)] bg-white shadow-[0_0_0_3px_rgba(var(--accent-glow),0.14)] transition-transform duration-100 peer-hover:scale-110"
+          style={{ left: travel }}
+        />
+        <input
+          type="range"
+          dir="ltr"
+          min={min}
+          max={max}
+          step={step}
+          value={safe}
+          disabled={disabled}
+          onChange={(e) => onChange(Number(e.target.value))}
+          aria-label={label}
+          className="absolute inset-0 h-full w-full cursor-pointer appearance-none bg-transparent opacity-0 disabled:cursor-not-allowed"
+        />
+      </div>
+
       {hint && <p className="mt-1 text-[10px] leading-snug text-zinc-600">{hint}</p>}
     </label>
   );

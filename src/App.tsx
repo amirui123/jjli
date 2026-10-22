@@ -1,7 +1,8 @@
 import React, { Suspense, lazy, useEffect } from "react";
 import { AppShell } from "./shell/AppShell";
 import { AppSettingsProvider } from "./lib/store";
-import { useRouter } from "./lib/router";
+import { ROUTES, useRouter } from "./lib/router";
+import { ToastProvider } from "./ui/Toast";
 
 const Landing = lazy(() => import("./pages/Landing"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -12,65 +13,70 @@ const SoundStudio = lazy(() => import("./pages/SoundStudio"));
 const SkillsStudio = lazy(() => import("./pages/SkillsStudio"));
 const EnginesStudio = lazy(() => import("./pages/EnginesStudio"));
 const AiStudio = lazy(() => import("./pages/AiStudio"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
-const PageLoader: React.FC = () => (
-  <div className="space-y-4 py-10">
-    <div className="h-4 w-40 animate-pulse rounded bg-white/[0.05]" />
-    <div className="h-8 w-72 animate-pulse rounded bg-white/[0.05]" />
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
-      <div className="h-[320px] animate-pulse rounded-2xl border border-white/[0.06] bg-white/[0.02]" />
-      <div className="h-[320px] animate-pulse rounded-2xl border border-white/[0.06] bg-white/[0.02]" />
+const PAGES: Record<string, React.LazyExoticComponent<React.FC>> = {
+  home: Landing,
+  dashboard: Dashboard,
+  fonts: FontStudio,
+  motion: MotionStudio,
+  components: ComponentsStudio,
+  sounds: SoundStudio,
+  skills: SkillsStudio,
+  engines: EnginesStudio,
+  ai: AiStudio,
+};
+
+const TITLES: Record<string, string> = {
+  home: "آزمایشگاه موشن فارسی — پلتفرم رایگان موشن، فونت و کامپوننت RTL",
+  dashboard: "داشبورد",
+  fonts: "استودیو فونت",
+  motion: "استودیو موشن",
+  components: "استودیو کامپوننت",
+  sounds: "استودیو صدا",
+  skills: "استودیو مهارت",
+  engines: "استودیو موتور",
+  ai: "استودیو هوش مصنوعی",
+};
+
+const PageSkeleton: React.FC = () => (
+  <div className="space-y-5 py-2" aria-busy="true" aria-live="polite">
+    <div className="space-y-2">
+      <div className="skeleton h-3 w-28 rounded-full" />
+      <div className="skeleton h-7 w-64 rounded-lg" />
+      <div className="skeleton h-3 w-full max-w-xl rounded-full" />
+    </div>
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="skeleton h-[420px] rounded-2xl" />
+      <div className="skeleton h-[420px] rounded-2xl" />
     </div>
   </div>
 );
 
-const PAGE_TITLES: Record<string, string> = {
-  home: "آزمایشگاه موشن فارسی — پلتفرم موشن، فونت و کامپوننت RTL",
-  dashboard: "داشبورد | آزمایشگاه موشن فارسی",
-  fonts: "استودیو فونت | آزمایشگاه موشن فارسی",
-  motion: "استودیو موشن | آزمایشگاه موشن فارسی",
-  components: "استودیو کامپوننت | آزمایشگاه موشن فارسی",
-  sounds: "استودیو صدا | آزمایشگاه موشن فارسی",
-  skills: "استودیو مهارت | آزمایشگاه موشن فارسی",
-  engines: "استودیو موتور | آزمایشگاه موشن فارسی",
-  ai: "استودیو هوش مصنوعی | آزمایشگاه موشن فارسی",
-};
-
-function Router() {
-  const { route } = useRouter();
+const Router: React.FC = () => {
+  const { route, path, meta } = useRouter();
+  const known = path === "/" || ROUTES.some((r) => r.path === path.replace(/\/+$/, ""));
+  const Page = known ? PAGES[meta.id] ?? NotFound : NotFound;
 
   useEffect(() => {
-    document.title = PAGE_TITLES[route] ?? PAGE_TITLES.home;
-    try {
-      localStorage.setItem("rtmlab.v1.last-route", route);
-    } catch {
-      /* ignore */
-    }
-  }, [route]);
+    document.title = `${known ? TITLES[meta.id] ?? "استودیو" : "صفحه پیدا نشد"} | آزمایشگاه موشن فارسی`;
+  }, [meta.id, known]);
 
   return (
     <AppShell>
-      <Suspense fallback={<PageLoader />}>
-        {route === "home" && <Landing />}
-        {route === "dashboard" && <Dashboard />}
-        {route === "fonts" && <FontStudio />}
-        {route === "motion" && <MotionStudio />}
-        {route === "components" && <ComponentsStudio />}
-        {route === "sounds" && <SoundStudio />}
-        {route === "skills" && <SkillsStudio />}
-        {route === "engines" && <EnginesStudio />}
-        {route === "ai" && <AiStudio />}
+      <Suspense key={route} fallback={<PageSkeleton />}>
+        <Page />
       </Suspense>
     </AppShell>
   );
-}
+};
 
-export function App() {
-  return (
-    <AppSettingsProvider>
+export const App: React.FC = () => (
+  <AppSettingsProvider>
+    <ToastProvider>
       <Router />
-    </AppSettingsProvider>
-  );
-}
+    </ToastProvider>
+  </AppSettingsProvider>
+);
 
 export default App;

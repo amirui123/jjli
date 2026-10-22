@@ -2,12 +2,11 @@ import React, { useMemo, useState } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
-  CreditCard,
   Cpu,
+  CreditCard,
+  Fingerprint,
   Hash,
-  Landmark,
   ShieldCheck,
-  Sparkles,
   Wand2,
 } from "lucide-react";
 import {
@@ -22,17 +21,11 @@ import {
   validateIranianNationalCode,
   validateShetabLuhn,
 } from "../engines/persianEngines";
-import {
-  Badge,
-  CodeBlock,
-  CopyButton,
-  Panel,
-  Segmented,
-  Slider,
-  cn,
-} from "../ui/kit";
+import { Badge, CodeBlock, CopyButton, Panel, Segmented, Slider, cn } from "../ui/kit";
 import { EngineShader } from "../components/EngineShaders";
 import { soundEngine } from "../engines/soundEngine";
+import { usePersisted } from "../lib/store";
+import { faNum } from "../lib/format";
 
 type EngineTab = "fintech" | "rtl" | "shaders";
 
@@ -45,199 +38,200 @@ const DEMO_CODE = `export function Card({ title }) {
   );
 }`;
 
+const SAMPLE_TEXT =
+  "این   متن  با  فاصله های   اضافی و ميخواهم و نمي توانم نوشته شده است";
+
 export const EnginesStudio: React.FC = () => {
   const [tab, setTab] = useState<EngineTab>("fintech");
   const [card, setCard] = useState("6274 1212 3456 7890");
   const [nationalCode, setNationalCode] = useState("0067689416");
   const [amount, setAmount] = useState("۲۵۰۰۰۰۰");
-  const [dirtyText, setDirtyText] = useState(
-    "این   متن  با  فاصله های   اضافی و ميخواهم و نمي توانم نوشته شده است"
-  );
+  const [dirtyText, setDirtyText] = useState(SAMPLE_TEXT);
   const [code, setCode] = useState(DEMO_CODE);
   const [shaderMode, setShaderMode] = useState<"matrix" | "gravity" | "aurora">("matrix");
   const [shaderSpeed, setShaderSpeed] = useState(1);
   const [accentName, setAccentName] = useState<keyof typeof ACCENT_PALETTES>("firoozeh");
+  const [bankQuery, setBankQuery] = useState("");
+  const [auditTab, setAuditTab] = usePersisted<{ severity: "all" | "critical" }>("studio-engines", {
+    severity: "all",
+  });
 
   const bank = useMemo(() => detectIranianBank(card), [card]);
   const luhnOk = useMemo(() => validateShetabLuhn(card), [card]);
   const sheba = useMemo(() => generateShebaFromCard(card), [card]);
   const nc = useMemo(() => validateIranianNationalCode(nationalCode), [nationalCode]);
   const words = useMemo(() => {
-    const numeric = amount.replace(/[۰-۹]/g, (d) =>
-      String("۰۱۲۳۴۵۶۷۸۹".indexOf(d))
-    );
+    const numeric = amount.replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)));
     return numberToPersianWords(numeric);
   }, [amount]);
   const lint = useMemo(() => cleanupPersianText(dirtyText), [dirtyText]);
   const audit = useMemo(() => auditRtlMotionCode(code), [code]);
+  const issues = useMemo(
+    () => (auditTab.severity === "all" ? audit.issues : audit.issues.filter((i) => i.severity === "critical")),
+    [audit, auditTab.severity]
+  );
 
-  const groupedBanks = IRANIAN_BANKS;
+  const banks = useMemo(
+    () =>
+      IRANIAN_BANKS.filter(
+        (b) => !bankQuery.trim() || b.nameFa.includes(bankQuery) || b.bins.some((x) => x.startsWith(bankQuery))
+      ),
+    [bankQuery]
+  );
+
+  const loadBankSample = (bins: string) => {
+    setCard(bins + "0".repeat(Math.max(0, 16 - bins.length)));
+    if (tab !== "fintech") setTab("fintech");
+    soundEngine.playTick(1.1);
+  };
+
+  const shaderSnippet = `import { EngineShader } from "@/components/EngineShaders";
+
+<EngineShader
+  mode="${shaderMode}"
+  speed={${shaderSpeed.toFixed(1)}}
+  accent="${ACCENT_PALETTES[accentName]?.hex ?? "#E8B33A"}"
+  height={420}
+/>`;
+
+  const auditReport = `# گزارش ممیزی RTL و موشن
+
+- فایل‌های بررسی‌شده: ۱
+- یافته‌ها: ${faNum(audit.issues.length)}
+- بحرانی: ${faNum(audit.issues.filter((i) => i.severity === "critical").length)}
+
+${audit.issues.length === 0 ? "✅ هیچ مشکلی پیدا نشد." : ""}
+${audit.issues
+  .map(
+    (i, n) =>
+      `## ${n + 1}. ${i.titleFa} — ${i.severity === "critical" ? "بحرانی" : "هشدار"}\n\n${
+        i.match ? "```\n" + i.match + "\n```\n\n" : ""
+      }${i.fixFa}\n`
+  )
+  .join("\n")}`;
 
   return (
-    <div className="space-y-5">
-      <header className="flex flex-wrap items-end justify-between gap-4">
+    <div className="space-y-4">
+      <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 text-[11px] text-[color:var(--accent)]">
             <Cpu className="h-3.5 w-3.5" />
-            <span className="font-mono tracking-wide">ENGINES STUDIO</span>
+            <span className="font-mono tracking-[0.18em]">ENGINES STUDIO</span>
           </div>
-          <h1 className="mt-1 text-[26px] font-bold leading-tight text-white sm:text-[30px]">
+          <h1 className="mt-1 text-[24px] font-bold leading-tight text-white sm:text-[28px]">
             استودیو موتورها
           </h1>
           <p className="mt-1 max-w-2xl text-[12px] leading-relaxed text-zinc-500">
-            موتورهای واقعی و قابل استفاده: تشخیص ۱۸ بانک ایران، اعتبارسنجی شبا و کد ملی،
-            تبدیل عدد به حروف فارسی، پاک‌ساز نیم‌فاصله و ممیز RTL — همه در مرورگر و بدون
-            سرور.
+            موتورهای واقعی در مرورگر: تشخیص {faNum(18)} بانک ایران، Luhn شتاب، شبا ISO-7064،
+            کد ملی، عدد به حروف فارسی، پاک‌ساز نیم‌فاصله و ممیزی کد RTL.
           </p>
         </div>
         <Segmented
           value={tab}
-          onChange={(v) => setTab(v)}
+          onChange={setTab}
           options={[
             { value: "fintech", label: "فین‌تک ایران" },
             { value: "rtl", label: "ممیزی RTL" },
-            { value: "shaders", label: "شیدرها" },
+            { value: "shaders", label: "شیدر" },
           ]}
         />
       </header>
 
       {tab === "fintech" && (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
           <div className="space-y-4">
             <Panel
-              title="تشخیص بانک و اعتبارسنجی کارت"
-              subtitle="پیش‌شماره‌های واقعی شتاب + الگوریتم Luhn"
-              actions={<Badge tone={luhnOk ? "success" : "danger"}>{luhnOk ? "معتبر" : "نامعتبر"}</Badge>}
+              title="کارت بانک: تشخیص + اعتبارسنجی"
+              subtitle="پیش‌شماره واقعی شتاب و الگوریتم Luhn"
+              actions={
+                <Badge tone={luhnOk ? "success" : "danger"}>
+                  {luhnOk ? "شماره معتبر" : "شماره نامعتبر"}
+                </Badge>
+              }
             >
-              <input
-                value={card}
-                onChange={(e) => setCard(e.target.value)}
-                dir="ltr"
-                className="w-full rounded-xl border border-white/[0.08] bg-black/40 px-3 py-2.5 text-center font-mono text-[16px] tracking-[0.14em] text-zinc-100 outline-none focus:border-[color:var(--accent)]/50"
-                placeholder="6104 3377 1234 5678"
-                maxLength={25}
-              />
-              <div className="mt-3 flex items-center justify-between gap-2 rounded-xl border border-white/[0.07] bg-white/[0.02] p-3">
-                <div className="flex items-center gap-2.5">
+              <div className="rounded-2xl border border-white/[0.07] bg-gradient-to-br from-[#141418] to-[#0A0A0C] p-4">
+                <div className="flex items-start justify-between">
+                  <span className="font-mono text-[9.5px] tracking-[0.18em] text-zinc-500">SHETAB · RTL</span>
                   <span
-                    className="flex h-9 w-9 items-center justify-center rounded-lg text-[13px] font-bold text-white"
-                    style={{ background: bank.accentHex }}
+                    className="rounded px-1.5 py-0.5 text-[9px] text-white/90"
+                    style={{ background: `${bank.accentHex}33` }}
                   >
-                    {bank.nameFa.slice(0, 1)}
+                    {bank.nameFa}
                   </span>
-                  <div>
-                    <div className="text-[12px] font-medium text-zinc-100">{bank.nameFa}</div>
-                    <div className="font-mono text-[10px] text-zinc-500" dir="ltr">
-                      {bank.bins.slice(0, 3).join(" · ")}
-                    </div>
-                  </div>
                 </div>
-                <div className="text-end">
-                  <div className="font-mono text-[13px] text-zinc-200" dir="rtl">
-                    {formatCardNumberFa(card)}
+                <input
+                  value={card}
+                  onChange={(e) => setCard(e.target.value)}
+                  dir="ltr"
+                  placeholder="6104 3377 1234 5678"
+                  maxLength={25}
+                  className="mt-6 w-full bg-transparent font-mono text-[19px] tracking-[0.12em] text-zinc-100 outline-none placeholder:text-zinc-700"
+                />
+                <div className="mt-5 flex items-end justify-between">
+                  <div>
+                    <div className="text-[8.5px] text-zinc-600">شماره فارسی</div>
+                    <div className="font-mono text-[11px] text-zinc-300">{formatCardNumberFa(card)}</div>
                   </div>
-                  <div className="text-[9.5px] text-zinc-600">قالب‌بندی فارسی</div>
+                  <div className="h-6 w-9 rounded bg-gradient-to-br from-[color:var(--accent)]/70 to-transparent" />
                 </div>
               </div>
 
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                <div className="rounded-lg border border-white/[0.06] bg-black/30 p-2">
-                  <div className="text-[9.5px] text-zinc-500">شبا تولیدشده (ISO-7064)</div>
+              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <div className="rounded-lg border border-white/[0.06] bg-black/30 p-2.5">
+                  <div className="text-[9.5px] text-zinc-500">شبا (ISO 7064 mod 97-10)</div>
                   <div className="mt-1 break-all font-mono text-[11px] text-teal-300" dir="ltr">
                     {sheba || "—"}
                   </div>
                 </div>
-                <div className="rounded-lg border border-white/[0.06] bg-black/30 p-2">
-                  <div className="text-[9.5px] text-zinc-500">رنگ برند</div>
-                  <div className="mt-1 flex items-center gap-1.5">
-                    <span className="h-4 w-4 rounded" style={{ background: bank.accentHex }} />
-                    <span className="font-mono text-[11px] text-zinc-300" dir="ltr">
-                      {bank.accentHex}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <CopyButton text={sheetCode(card, sheba)} label="کپی کد اعتبارسنجی" className="mt-3 w-full justify-center" />
-            </Panel>
-
-            <Panel title="کد ملی و عدد به حروف">
-              <div className="space-y-3">
-                <div>
-                  <label className="mb-1 block text-[11px] text-zinc-400">کد ملی</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      value={nationalCode}
-                      onChange={(e) => setNationalCode(e.target.value)}
-                      dir="ltr"
-                      maxLength={12}
-                      className="min-w-0 flex-1 rounded-lg border border-white/[0.08] bg-black/40 px-3 py-2 font-mono text-[13px] text-zinc-100 outline-none focus:border-[color:var(--accent)]/50"
-                    />
-                    <span
-                      className={cn(
-                        "flex items-center gap-1 rounded-lg border px-2 py-1.5 text-[10.5px] whitespace-nowrap",
-                        nc.valid
-                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
-                          : "border-rose-500/30 bg-rose-500/10 text-rose-300"
-                      )}
-                    >
-                      {nc.valid ? <CheckCircle2 className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
-                      {nc.valid ? nc.cityFa : "نامعتبر"}
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-[11px] text-zinc-400">مبلغ (تومان)</label>
-                  <input
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    dir="ltr"
-                    className="w-full rounded-lg border border-white/[0.08] bg-black/40 px-3 py-2 font-mono text-[13px] text-zinc-100 outline-none focus:border-[color:var(--accent)]/50"
-                  />
-                  <div className="mt-2 rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5">
-                    <div className="text-[9.5px] text-zinc-500">به حروف فارسی</div>
-                    <div className="mt-1 text-[13px] leading-relaxed text-zinc-100">
-                      {words || "—"}
-                    </div>
+                <div className="rounded-lg border border-white/[0.06] bg-black/30 p-2.5">
+                  <div className="text-[9.5px] text-zinc-500">پیش‌شماره‌های شناسایی‌شده</div>
+                  <div className="mt-1 font-mono text-[11px] text-zinc-300" dir="ltr">
+                    {bank.bins.slice(0, 4).join(" · ")}
                   </div>
                 </div>
               </div>
             </Panel>
-          </div>
 
-          <div className="space-y-4">
-            <Panel title="۱۸ بانک و مؤسسه ایران" subtitle="پیش‌شماره‌های واقعی کارت">
-              <div className="grid max-h-[300px] grid-cols-2 gap-1.5 overflow-y-auto pe-1 sm:grid-cols-3">
-                {groupedBanks.map((b) => (
-                  <button
-                    key={b.id}
-                    onClick={() => {
-                      setCard(`${b.bins[0]}${"0".repeat(16 - b.bins[0].length)}`);
-                      soundEngine.playTick(1.1);
-                    }}
-                    className={cn(
-                      "rounded-lg border p-2 text-start transition-colors",
-                      bank.id === b.id
-                        ? "border-[color:var(--accent)]/40 bg-[color:var(--accent)]/[0.08]"
-                        : "border-white/[0.06] hover:border-white/20"
-                    )}
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <span className="h-2 w-2 rounded-full" style={{ background: b.accentHex }} />
-                      <span className="truncate text-[10.5px] text-zinc-200">{b.nameFa}</span>
-                    </div>
-                    <div className="mt-0.5 truncate font-mono text-[9px] text-zinc-600" dir="ltr">
-                      {b.bins.slice(0, 2).join(", ")}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </Panel>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Panel title="کد ملی" subtitle="رقابت با الگوریتم رسمی + شهر">
+                <input
+                  value={nationalCode}
+                  onChange={(e) => setNationalCode(e.target.value)}
+                  dir="ltr"
+                  maxLength={12}
+                  className="w-full rounded-lg border border-white/[0.08] bg-black/40 px-3 py-2 font-mono text-[15px] tracking-wider text-zinc-100 outline-none focus:border-[color:var(--accent)]/50"
+                />
+                <div
+                  className={cn(
+                    "mt-2 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px]",
+                    nc.valid
+                      ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-300"
+                      : "border-rose-500/25 bg-rose-500/10 text-rose-300"
+                  )}
+                >
+                  {nc.valid ? <CheckCircle2 className="h-3.5 w-3.5" /> : <AlertTriangle className="h-3.5 w-3.5" />}
+                  {nc.valid ? `معتبر — ${nc.cityFa}` : "کد ملی نامعتبر است"}
+                </div>
+              </Panel>
+
+              <Panel title="عدد به حروف فارسی">
+                <input
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  dir="ltr"
+                  className="w-full rounded-lg border border-white/[0.08] bg-black/40 px-3 py-2 font-mono text-[15px] text-zinc-100 outline-none focus:border-[color:var(--accent)]/50"
+                />
+                <div className="mt-2 min-h-[52px] rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5 text-[13px] leading-relaxed text-zinc-100">
+                  {words || "—"}
+                </div>
+                {words && <CopyButton text={words} label="کپی" compact className="mt-2 w-full justify-center" />}
+              </Panel>
+            </div>
 
             <Panel
-              title="پاک‌ساز متن فارسی (fa_lint)"
-              subtitle="نیم‌فاصله، ی/ک عربی، فاصله‌های تکراری"
-              actions={<Badge tone="accent">{lint.fixesCount} اصلاح</Badge>}
+              title="پاک‌ساز متن فارسی"
+              subtitle="نیم‌فاصله، ی/ک عربی، فاصله‌های تکراری، ارقام"
+              actions={<Badge tone={lint.fixesCount ? "accent" : "success"}>{faNum(lint.fixesCount)} اصلاح</Badge>}
             >
               <textarea
                 value={dirtyText}
@@ -245,102 +239,160 @@ export const EnginesStudio: React.FC = () => {
                 rows={3}
                 className="w-full resize-none rounded-lg border border-white/[0.08] bg-black/40 p-2.5 text-[12px] leading-relaxed text-zinc-300 outline-none focus:border-[color:var(--accent)]/50"
               />
-              <div className="mt-2 rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5 text-[12px] leading-relaxed text-zinc-100">
+              <div className="mt-2 rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5 text-[12.5px] leading-relaxed text-zinc-100">
                 {lint.cleaned}
               </div>
-              <div className="mt-2 flex flex-wrap gap-1">
-                {describeFixes(dirtyText).map((c, i) => (
-                  <Badge key={i}>{c}</Badge>
+              <CopyButton text={lint.cleaned} label="کپی متن پاک" compact className="mt-2 w-full justify-center" />
+            </Panel>
+          </div>
+
+          <div className="space-y-4">
+            <Panel
+              title={`${faNum(IRANIAN_BANKS.length)} بانک و مؤسسه`}
+              subtitle="روی هر بانک بزنید تا نمونه کارتش بارگذاری شود"
+            >
+              <input
+                value={bankQuery}
+                onChange={(e) => setBankQuery(e.target.value)}
+                placeholder="جستجوی بانک یا پیش‌شماره…"
+                className="mb-2 w-full rounded-lg border border-white/[0.07] bg-black/40 px-2 py-1.5 text-[11px] text-zinc-300 outline-none placeholder:text-zinc-600 focus:border-[color:var(--accent)]/40"
+              />
+              <div className="grid max-h-[430px] grid-cols-2 gap-1.5 overflow-y-auto pe-1">
+                {banks.map((b) => (
+                  <button
+                    key={b.id}
+                    onClick={() => loadBankSample(b.bins[0] ?? "")}
+                    className={cn(
+                      "rounded-lg border p-2 text-start transition-colors",
+                      bank.id === b.id
+                        ? "border-[color:var(--accent)]/40 bg-[color:var(--accent)]/[0.08]"
+                        : "border-white/[0.06] hover:border-white/20"
+                    )}
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: b.accentHex }} />
+                      <span className="truncate text-[10.5px] text-zinc-200">{b.nameFa}</span>
+                    </span>
+                    <span className="mt-0.5 block truncate font-mono text-[8.5px] text-zinc-600" dir="ltr">
+                      {b.bins.slice(0, 2).join(", ")}
+                    </span>
+                  </button>
                 ))}
               </div>
-              <CopyButton text={lint.cleaned} label="کپی متن پاک" className="mt-2 w-full justify-center" />
+            </Panel>
+
+            <Panel tone="inset" title="کد استفاده">
+              <CodeBlock
+                code={`import { detectIranianBank, generateShebaFromCard } from "@/engines/persianEngines";
+
+const bank = detectIranianBank("${card}");
+const sheba = generateShebaFromCard("${card}");
+// ${bank.nameFa} · ${sheba || "—"}`}
+                language="ts"
+                maxLines={8}
+                filename="fintech.ts"
+              />
             </Panel>
           </div>
         </div>
       )}
 
       {tab === "rtl" && (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <Panel
-            title="ممیزی زنده کد RTL و موشن"
-            subtitle="کلاس‌های فیزیکی، letter-spacing فارسی، تداخل transition و انیمیشن"
-            actions={
-              <Badge tone={audit.issues.length === 0 ? "success" : audit.issues.length > 2 ? "danger" : "warn"}>
-                {audit.issues.length} مورد
-              </Badge>
-            }
-          >
-            <textarea
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              rows={14}
-              dir="ltr"
-              className="w-full resize-none rounded-lg border border-white/[0.08] bg-black/40 p-2.5 font-mono text-[11px] leading-relaxed text-zinc-300 outline-none focus:border-[color:var(--accent)]/50"
-            />
-            <div className="mt-2 flex gap-1.5">
-              <button
-                onClick={() => setCode(DEMO_CODE)}
-                className="flex-1 rounded-lg border border-white/10 py-1.5 text-[10.5px] text-zinc-400 hover:text-white"
-              >
-                نمونه باگ‌دار
-              </button>
-              <button
-                onClick={() => setCode(audit.issues.length ? "" : DEMO_CODE)}
-                className="flex-1 rounded-lg border border-white/10 py-1.5 text-[10.5px] text-zinc-400 hover:text-white"
-              >
-                پاک کردن
-              </button>
-            </div>
-          </Panel>
-
-          <Panel title="یافته‌ها" subtitle="هر مورد با پیشنهاد اصلاح" padded={false}>
-            <div className="max-h-[440px] space-y-2 overflow-y-auto p-3">
-              {audit.issues.length === 0 && (
-                <div className="flex flex-col items-center gap-2 py-14 text-center">
-                  <ShieldCheck className="h-7 w-7 text-emerald-400" />
-                  <p className="text-[12px] text-zinc-300">هیچ باگی پیدا نشد</p>
-                  <p className="text-[10.5px] text-zinc-600">
-                    کد از قواعد RTL و موشن ۶۰ فریم پیروی می‌کند.
-                  </p>
-                </div>
-              )}
-              {audit.issues.map((issue, i) => (
-                <div
-                  key={i}
-                  className="rounded-lg border border-white/[0.07] bg-white/[0.02] p-2.5"
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <Panel
+              title="ممیزی زنده کد"
+              subtitle="کلاس‌های فیزیکی، letter-spacing فارسی، تداخل transition، ارقام لاتین"
+              actions={
+                <Badge tone={audit.issues.length === 0 ? "success" : audit.issues.length > 2 ? "danger" : "warn"}>
+                  {faNum(audit.issues.length)} یافته
+                </Badge>
+              }
+            >
+              <textarea
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                rows={14}
+                dir="ltr"
+                spellCheck={false}
+                className="w-full resize-none rounded-lg border border-white/[0.08] bg-black/40 p-2.5 font-mono text-[11px] leading-relaxed text-zinc-300 outline-none focus:border-[color:var(--accent)]/50"
+              />
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                <button
+                  onClick={() => setCode(DEMO_CODE)}
+                  className="flex-1 rounded-lg border border-white/10 py-1.5 text-[10.5px] text-zinc-400 hover:text-white"
                 >
-                  <div className="flex items-center gap-1.5">
-                    <span
-                      className={cn(
-                        "h-1.5 w-1.5 rounded-full",
-                        issue.severity === "critical" ? "bg-rose-400" : "bg-amber-400"
-                      )}
-                    />
-                    <span className="text-[11.5px] font-medium text-zinc-200">{issue.titleFa}</span>
-                    <Badge className="ms-auto" tone={issue.severity === "critical" ? "danger" : "warn"}>
-                      {issue.severity === "critical" ? "بحرانی" : "هشدار"}
-                    </Badge>
-                  </div>
-                  <p className="mt-1 text-[10.5px] leading-relaxed text-zinc-500">{issue.fixFa}</p>
-                  {issue.match && (
-                    <p className="mt-1 font-mono text-[10px] text-rose-300/70" dir="ltr">
-                      {issue.match}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </Panel>
+                  نمونه باگ‌دار
+                </button>
+                <button
+                  onClick={() => setCode("")}
+                  className="flex-1 rounded-lg border border-white/10 py-1.5 text-[10.5px] text-zinc-400 hover:text-white"
+                >
+                  پاک کردن
+                </button>
+                <CopyButton text={auditReport} label="گزارش" compact />
+              </div>
+            </Panel>
 
-          <Panel className="lg:col-span-2" title="قواعدی که موتور بررسی می‌کند">
+            <Panel
+              title="یافته‌ها"
+              subtitle="هر مورد با پیشنهاد اصلاح دقیق"
+              padded={false}
+              actions={
+                <Segmented
+                  size="sm"
+                  value={auditTab.severity}
+                  onChange={(v) => setAuditTab({ severity: v })}
+                  options={[
+                    { value: "all", label: "همه" },
+                    { value: "critical", label: "بحرانی" },
+                  ]}
+                />
+              }
+            >
+              <div className="max-h-[420px] space-y-2 overflow-y-auto p-3">
+                {issues.length === 0 && (
+                  <div className="flex flex-col items-center gap-2 py-14 text-center">
+                    <ShieldCheck className="h-7 w-7 text-emerald-400" />
+                    <p className="text-[12px] text-zinc-300">موردی پیدا نشد</p>
+                    <p className="text-[10.5px] text-zinc-600">کد شما با قواعد RTL و موشن سازگار است.</p>
+                  </div>
+                )}
+                {issues.map((issue, i) => (
+                  <div key={i} className="rounded-lg border border-white/[0.07] bg-white/[0.02] p-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className={cn(
+                          "h-1.5 w-1.5 rounded-full",
+                          issue.severity === "critical" ? "bg-rose-400" : "bg-amber-400"
+                        )}
+                      />
+                      <span className="text-[11.5px] font-medium text-zinc-200">{issue.titleFa}</span>
+                      <Badge className="ms-auto" tone={issue.severity === "critical" ? "danger" : "warn"}>
+                        {issue.severity === "critical" ? "بحرانی" : "هشدار"}
+                      </Badge>
+                    </div>
+                    <p className="mt-1 text-[10.5px] leading-relaxed text-zinc-500">{issue.fixFa}</p>
+                    {issue.match && (
+                      <p className="mt-1 truncate rounded bg-black/40 px-1.5 py-1 font-mono text-[10px] text-rose-300/80" dir="ltr">
+                        {issue.match}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Panel>
+          </div>
+
+          <Panel title="قواعد موتور">
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {[
-                { icon: Wand2, t: "کلاس‌های فیزیکی", d: "ml/mr/pl/pr/left/right → ms/me/ps/pe/start/end" },
-                { icon: Hash, t: "ارقام فارسی", d: "تشخیص ارقام لاتین در متون و مبالغ فارسی" },
-                { icon: AlertTriangle, t: "letter-spacing فارسی", d: "tracking-* روی متن فارسی حروف را می‌شکند" },
-                { icon: Sparkles, t: "تداخل transition", d: "transition-all روی motion.div باعث پرش فریم می‌شود" },
-                { icon: CreditCard, t: "حسابرسی Luhn", d: "اعتبارسنجی شماره کارت شتاب پیش از ارسال" },
-                { icon: Landmark, t: "نیم‌فاصله", d: "می‌خواهم → میخواهم، نیم‌فاصله‌های گم‌شده" },
+                { icon: Wand2, t: "کلاس‌های فیزیکی", d: "ml/mr/pl/pr/left/right باید ms/me/ps/pe/start/end شوند" },
+                { icon: Hash, t: "ارقام لاتین", d: "در متن فارسی باید ارقام فارسی به‌کار رود" },
+                { icon: AlertTriangle, t: "letter-spacing", d: "tracking روی متن فارسی اتصال حروف را می‌شکند" },
+                { icon: SparklesIcon, t: "transition-all", d: "روی motion.* باعث jumping و افت فریم می‌شود" },
+                { icon: CreditCard, t: "Luhn شتاب", d: "اعتبارسنجی پیش از ارسال به درگاه" },
+                { icon: Fingerprint, t: "کد ملی", d: "کنترل رقم کنترلی و استخراج شهر" },
               ].map((r) => (
                 <div key={r.t} className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5">
                   <div className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-200">
@@ -359,27 +411,30 @@ export const EnginesStudio: React.FC = () => {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
           <Panel
             title="پیش‌نمایش شیدر"
-            subtitle="۶۰ فریم، متوقف‌شونده خارج از دید، سازگار با دستگاه‌های ضعیف"
+            subtitle="۶۰ فریم · توقف خودکار خارج از دید · DPR حداکثر ۲"
+            padded={false}
             actions={
               <Segmented
                 size="sm"
                 value={shaderMode}
                 onChange={setShaderMode}
                 options={[
-                  { value: "matrix", label: "ماتریس فارسی" },
+                  { value: "matrix", label: "ماتریس" },
                   { value: "gravity", label: "گرانش" },
                   { value: "aurora", label: "شفق" },
                 ]}
               />
             }
           >
-            <EngineShader
-              mode={shaderMode}
-              speed={shaderSpeed}
-              accent={ACCENT_PALETTES[accentName]?.hex ?? "#E8B33A"}
-              height={420}
-            />
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="p-2">
+              <EngineShader
+                mode={shaderMode}
+                speed={shaderSpeed}
+                accent={ACCENT_PALETTES[accentName]?.hex ?? "#E8B33A"}
+                height={430}
+              />
+            </div>
+            <div className="grid grid-cols-1 gap-3 border-t border-white/[0.06] p-3 sm:grid-cols-2">
               <Slider
                 label="سرعت"
                 value={shaderSpeed}
@@ -398,15 +453,10 @@ export const EnginesStudio: React.FC = () => {
                       onClick={() => setAccentName(k)}
                       className={cn(
                         "flex items-center gap-1 rounded-md border px-1.5 py-1 text-[10px]",
-                        accentName === k
-                          ? "border-white/30 text-white"
-                          : "border-white/[0.07] text-zinc-500"
+                        accentName === k ? "border-white/30 text-white" : "border-white/[0.07] text-zinc-500"
                       )}
                     >
-                      <span
-                        className="h-2.5 w-2.5 rounded-full"
-                        style={{ background: ACCENT_PALETTES[k].hex }}
-                      />
+                      <span className="h-2.5 w-2.5 rounded-full" style={{ background: ACCENT_PALETTES[k].hex }} />
                       {ACCENT_PALETTES[k].labelFa}
                     </button>
                   ))}
@@ -417,25 +467,13 @@ export const EnginesStudio: React.FC = () => {
 
           <div className="space-y-4">
             <Panel title="کد استفاده">
-              <CodeBlock
-                code={`import { EngineShader } from "@/components/EngineShaders";
-
-<EngineShader
-  mode="${shaderMode}"
-  speed={${shaderSpeed.toFixed(1)}}
-  accent="${ACCENT_PALETTES[accentName]?.hex}"
-  height={420}
-/>`}
-                language="tsx"
-                maxLines={12}
-                filename="shader.tsx"
-              />
+              <CodeBlock code={shaderSnippet} language="tsx" maxLines={12} filename="shader.tsx" />
             </Panel>
-            <Panel tone="inset" title="نکته عملکرد">
-              <p className="text-[11.5px] leading-relaxed text-zinc-400">
-                هر شیدر با <code className="font-mono text-[10.5px] text-teal-300">IntersectionObserver</code>{" "}
-                خاموش می‌شود و در حالت پنهان‌شدن تب هم متوقف می‌گردد. ضریب پیکسل حداکثر ۲
-                است تا روی نمایشگرهای Retina هم فریم حفظ شود.
+            <Panel tone="inset" title="عملکرد">
+              <p className="text-[11px] leading-relaxed text-zinc-400">
+                هر شیدر با <code className="font-mono text-[10.5px] text-teal-300">IntersectionObserver</code> و
+                رویداد <code className="font-mono text-[10.5px] text-teal-300">visibilitychange</code> متوقف می‌شود؛
+                ضریب پیکسل روی ۲ محدود است.
               </p>
             </Panel>
           </div>
@@ -445,22 +483,6 @@ export const EnginesStudio: React.FC = () => {
   );
 };
 
-function describeFixes(raw: string): string[] {
-  const out: string[] = [];
-  if (/[يك]/.test(raw)) out.push("ي/ك عربی → ی/ک فارسی");
-  if (/(^|\s)\S+\s{2,}\S+/.test(raw)) out.push("فاصله‌های تکراری حذف شد");
-  if (/\d/.test(raw)) out.push("ارقام لاتین → فارسی");
-  if (/(^|\s)ن?می\s+/.test(raw)) out.push("نیم‌فاصله «می» اضافه شد");
-  if (/(^|\s)\S+\s+های?\b/.test(raw)) out.push("نیم‌فاصله «ها» اصلاح شد");
-  return out.length ? out : ["متنی برای اصلاح یافت نشد"];
-}
-
-function sheetCode(card: string, sheba: string) {
-  return `// RTL Motion Lab — fintech validators (real output for current input)
-const card = ${JSON.stringify(card)};
-const bank = detectIranianBank(card);   // ${detectIranianBank(card).nameFa}
-const luhnOk = validateShetabLuhn(card); // ${validateShetabLuhn(card)}
-const sheba = "${sheba}";               // ISO-7064 mod-97`;
-}
+const SparklesIcon = Wand2;
 
 export default EnginesStudio;

@@ -4,13 +4,14 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "generate": "node scripts/generate-toolkit-manifest.mjs && node scripts/generate-public-vault.mjs",
+    "generate": "node scripts/generate-toolkit-manifest.mjs && node scripts/generate-public-vault.mjs && node scripts/generate-font-files.mjs && node scripts/generate-component-chunks.mjs && node scripts/generate-light-data.mjs",
     "dev": "npm run generate && vite --host 0.0.0.0 --port 5173",
     "build": "npm run generate && vite build",
     "preview": "vite preview --host 0.0.0.0 --port 5173",
     "serve": "node scripts/serve-static.mjs",
     "typecheck": "tsc --noEmit",
-    "smoke": "npm run build && node scripts/smoke-test.mjs"
+    "smoke": "npm run build && node scripts/smoke-test.mjs",
+    "chunks": "node scripts/generate-component-chunks.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",
