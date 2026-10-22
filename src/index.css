@@ -10,7 +10,7 @@
    -------------------------------------------------------------------------- */
 @font-face {
   font-family: "IranNastaliq";
-  src: url("/fonts/01-nastaliq-and-calligraphy/IranNastaliq-Web.woff2") format("woff2");
+  src: url("/fonts/01-nastaliq-and-calligraphy/IranNastaliq-Web.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/IranNastaliq-Web.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -18,7 +18,7 @@
 
 @font-face {
   font-family: "GulzarNastaliq";
-  src: url("/fonts/01-nastaliq-and-calligraphy/GulzarNastaliq-Regular.woff2") format("woff2");
+  src: url("/fonts/01-nastaliq-and-calligraphy/GulzarNastaliq-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/GulzarNastaliq-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -26,7 +26,7 @@
 
 @font-face {
   font-family: "Darvish";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Darvish-VF.woff") format("woff-variations");
+  src: url("/fonts/01-nastaliq-and-calligraphy/Darvish-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Darvish-VF.woff") format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -34,7 +34,7 @@
 
 @font-face {
   font-family: "Hafez";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Hafez-Regular.woff2") format("woff2");
+  src: url("/fonts/01-nastaliq-and-calligraphy/Hafez-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Hafez-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -42,21 +42,21 @@
 
 @font-face {
   font-family: "Tahrir";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Tahrir-Medium.woff") format("woff");
+  src: url("/fonts/01-nastaliq-and-calligraphy/Tahrir-Medium.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Tahrir-Medium.woff") format("woff");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Tahrir";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Tahrir-Bold.woff") format("woff");
+  src: url("/fonts/01-nastaliq-and-calligraphy/Tahrir-Bold.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Tahrir-Bold.woff") format("woff");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Tahrir";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Tahrir-Black.woff") format("woff");
+  src: url("/fonts/01-nastaliq-and-calligraphy/Tahrir-Black.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Tahrir-Black.woff") format("woff");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -64,7 +64,7 @@
 
 @font-face {
   font-family: "Katibeh";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Katibeh-Web.woff") format("woff");
+  src: url("/fonts/01-nastaliq-and-calligraphy/Katibeh-Web.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Katibeh-Web.woff") format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -72,7 +72,7 @@
 
 @font-face {
   font-family: "Behdad";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Behdad-Regular.woff2") format("woff2");
+  src: url("/fonts/01-nastaliq-and-calligraphy/Behdad-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Behdad-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -80,14 +80,14 @@
 
 @font-face {
   font-family: "Parastoo FD";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Parastoo-FD.woff2") format("woff2");
+  src: url("/fonts/01-nastaliq-and-calligraphy/Parastoo-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Parastoo-FD.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Parastoo FD";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Parastoo-Bold-FD.woff2") format("woff2");
+  src: url("/fonts/01-nastaliq-and-calligraphy/Parastoo-Bold-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Parastoo-Bold-FD.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -95,7 +95,7 @@
 
 @font-face {
   font-family: "Tanha FD";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Tanha-FD.woff2") format("woff2");
+  src: url("/fonts/01-nastaliq-and-calligraphy/Tanha-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Tanha-FD.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -106,7 +106,7 @@
    -------------------------------------------------------------------------- */
 @font-face {
   font-family: "Hasti";
-  src: url("/fonts/02-special-and-display/Hasti-Heavy.woff") format("woff");
+  src: url("/fonts/02-special-and-display/Hasti-Heavy.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Hasti-Heavy.woff") format("woff");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
@@ -114,28 +114,28 @@
 
 @font-face {
   font-family: "Peyda";
-  src: url("/fonts/02-special-and-display/PeydaWeb-Regular.woff") format("woff");
+  src: url("/fonts/02-special-and-display/PeydaWeb-Regular.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/PeydaWeb-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Peyda";
-  src: url("/fonts/02-special-and-display/PeydaWeb-Medium.woff") format("woff");
+  src: url("/fonts/02-special-and-display/PeydaWeb-Medium.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/PeydaWeb-Medium.woff") format("woff");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Peyda";
-  src: url("/fonts/02-special-and-display/PeydaWeb-Bold.woff") format("woff");
+  src: url("/fonts/02-special-and-display/PeydaWeb-Bold.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/PeydaWeb-Bold.woff") format("woff");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Peyda";
-  src: url("/fonts/02-special-and-display/PeydaWeb-Black.woff") format("woff");
+  src: url("/fonts/02-special-and-display/PeydaWeb-Black.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/PeydaWeb-Black.woff") format("woff");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -143,7 +143,7 @@
 
 @font-face {
   font-family: "Morabba";
-  src: url("/fonts/02-special-and-display/Morabba-VF.woff") format("woff-variations");
+  src: url("/fonts/02-special-and-display/Morabba-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Morabba-VF.woff") format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -151,7 +151,7 @@
 
 @font-face {
   font-family: "Doran";
-  src: url("/fonts/02-special-and-display/Doran-VF.woff") format("woff-variations");
+  src: url("/fonts/02-special-and-display/Doran-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Doran-VF.woff") format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -159,7 +159,7 @@
 
 @font-face {
   font-family: "Kahroba FD";
-  src: url("/fonts/02-special-and-display/Kahroba-VF-FD.woff2") format("woff2-variations");
+  src: url("/fonts/02-special-and-display/Kahroba-VF-FD.woff2") format("woff2-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Kahroba-VF-FD.woff2") format("woff2-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -167,28 +167,28 @@
 
 @font-face {
   font-family: "Pinar FD";
-  src: url("/fonts/02-special-and-display/Pinar-FD-Medium.woff2") format("woff2");
+  src: url("/fonts/02-special-and-display/Pinar-FD-Medium.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Pinar-FD-Medium.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Pinar FD";
-  src: url("/fonts/02-special-and-display/Pinar-FD-Bold.woff2") format("woff2");
+  src: url("/fonts/02-special-and-display/Pinar-FD-Bold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Pinar-FD-Bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Pinar FD";
-  src: url("/fonts/02-special-and-display/Pinar-FD-ExtraBold.woff2") format("woff2");
+  src: url("/fonts/02-special-and-display/Pinar-FD-ExtraBold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Pinar-FD-ExtraBold.woff2") format("woff2");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Pinar FD";
-  src: url("/fonts/02-special-and-display/Pinar-FD-Black.woff2") format("woff2");
+  src: url("/fonts/02-special-and-display/Pinar-FD-Black.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Pinar-FD-Black.woff2") format("woff2");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -196,21 +196,21 @@
 
 @font-face {
   font-family: "Kalameh";
-  src: url("/fonts/02-special-and-display/KalamehWeb-Regular.woff") format("woff");
+  src: url("/fonts/02-special-and-display/KalamehWeb-Regular.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/KalamehWeb-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Kalameh";
-  src: url("/fonts/02-special-and-display/KalamehWeb-Medium.woff") format("woff");
+  src: url("/fonts/02-special-and-display/KalamehWeb-Medium.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/KalamehWeb-Medium.woff") format("woff");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Kalameh";
-  src: url("/fonts/02-special-and-display/KalamehWeb-Black.woff") format("woff");
+  src: url("/fonts/02-special-and-display/KalamehWeb-Black.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/KalamehWeb-Black.woff") format("woff");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -218,7 +218,7 @@
 
 @font-face {
   font-family: "Aviny";
-  src: url("/fonts/02-special-and-display/Aviny-Web.woff") format("woff");
+  src: url("/fonts/02-special-and-display/Aviny-Web.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Aviny-Web.woff") format("woff");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -226,7 +226,7 @@
 
 @font-face {
   font-family: "Lalezar";
-  src: url("/fonts/02-special-and-display/Lalezar-Regular.woff2") format("woff2");
+  src: url("/fonts/02-special-and-display/Lalezar-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Lalezar-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -234,7 +234,7 @@
 
 @font-face {
   font-family: "Potk";
-  src: url("/fonts/02-special-and-display/Potk.woff") format("woff");
+  src: url("/fonts/02-special-and-display/Potk.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Potk.woff") format("woff");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -242,7 +242,7 @@
 
 @font-face {
   font-family: "Gofteh";
-  src: url("/fonts/02-special-and-display/GoftehWeb-Heavy.woff") format("woff");
+  src: url("/fonts/02-special-and-display/GoftehWeb-Heavy.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/GoftehWeb-Heavy.woff") format("woff");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
@@ -250,7 +250,7 @@
 
 @font-face {
   font-family: "Onvan";
-  src: url("/fonts/02-special-and-display/Onvan.woff2") format("woff2");
+  src: url("/fonts/02-special-and-display/Onvan.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Onvan.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -258,21 +258,21 @@
 
 @font-face {
   font-family: "Ekraan";
-  src: url("/fonts/02-special-and-display/Ekraan-Regular.woff2") format("woff2");
+  src: url("/fonts/02-special-and-display/Ekraan-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Ekraan-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Ekraan";
-  src: url("/fonts/02-special-and-display/Ekraan-Medium.woff2") format("woff2");
+  src: url("/fonts/02-special-and-display/Ekraan-Medium.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Ekraan-Medium.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Ekraan";
-  src: url("/fonts/02-special-and-display/Ekraan-Bold.woff2") format("woff2");
+  src: url("/fonts/02-special-and-display/Ekraan-Bold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Ekraan-Bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -280,7 +280,7 @@
 
 @font-face {
   font-family: "Liana";
-  src: url("/fonts/02-special-and-display/Liana-VF.woff2") format("woff2-variations");
+  src: url("/fonts/02-special-and-display/Liana-VF.woff2") format("woff2-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Liana-VF.woff2") format("woff2-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -288,7 +288,7 @@
 
 @font-face {
   font-family: "Edameh";
-  src: url("/fonts/02-special-and-display/Edameh-ExtraBlack.woff") format("woff");
+  src: url("/fonts/02-special-and-display/Edameh-ExtraBlack.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Edameh-ExtraBlack.woff") format("woff");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -296,7 +296,7 @@
 
 @font-face {
   font-family: "Shoor";
-  src: url("/fonts/02-special-and-display/Shoor-VF.woff") format("woff-variations");
+  src: url("/fonts/02-special-and-display/Shoor-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Shoor-VF.woff") format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -304,7 +304,7 @@
 
 @font-face {
   font-family: "Rokh";
-  src: url("/fonts/02-special-and-display/Rokh-VF.ttf") format("truetype-variations");
+  src: url("/fonts/02-special-and-display/Rokh-VF.ttf") format("truetype-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Rokh-VF.ttf") format("truetype-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -315,7 +315,7 @@
    -------------------------------------------------------------------------- */
 @font-face {
   font-family: "Vazirmatn";
-  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-Variable.woff2") format("woff2-variations");
+  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-Variable.woff2") format("woff2-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-Variable.woff2") format("woff2-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -323,28 +323,28 @@
 
 @font-face {
   font-family: "Vazirmatn FD";
-  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Regular.woff2") format("woff2");
+  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Vazirmatn FD";
-  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Medium.woff2") format("woff2");
+  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Medium.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Medium.woff2") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Vazirmatn FD";
-  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-SemiBold.woff2") format("woff2");
+  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-SemiBold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-SemiBold.woff2") format("woff2");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Vazirmatn FD";
-  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Bold.woff2") format("woff2");
+  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Bold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -352,42 +352,42 @@
 
 @font-face {
   font-family: "YekanBakh";
-  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Light.woff2") format("woff2");
+  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Light.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Light.woff2") format("woff2");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "YekanBakh";
-  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Regular.woff2") format("woff2");
+  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Regular.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "YekanBakh";
-  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-SemiBold.woff2") format("woff2");
+  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-SemiBold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-SemiBold.woff2") format("woff2");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "YekanBakh";
-  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Bold.woff2") format("woff2");
+  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Bold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Bold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "YekanBakh";
-  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-ExtraBold.woff2") format("woff2");
+  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-ExtraBold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-ExtraBold.woff2") format("woff2");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "YekanBakh";
-  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Black.woff2") format("woff2");
+  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Black.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Black.woff2") format("woff2");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -395,7 +395,7 @@
 
 @font-face {
   font-family: "IRANSansX";
-  src: url("/fonts/03-modern-ui-and-variable/IRANSansX-VF.woff") format("woff-variations");
+  src: url("/fonts/03-modern-ui-and-variable/IRANSansX-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/IRANSansX-VF.woff") format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -403,7 +403,7 @@
 
 @font-face {
   font-family: "IRANYekanX";
-  src: url("/fonts/03-modern-ui-and-variable/IRANYekanX-VF.woff") format("woff-variations");
+  src: url("/fonts/03-modern-ui-and-variable/IRANYekanX-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/IRANYekanX-VF.woff") format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -411,7 +411,7 @@
 
 @font-face {
   font-family: "Dana";
-  src: url("/fonts/03-modern-ui-and-variable/Dana-VF.woff") format("woff-variations");
+  src: url("/fonts/03-modern-ui-and-variable/Dana-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Dana-VF.woff") format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -419,7 +419,7 @@
 
 @font-face {
   font-family: "AnjomanMax";
-  src: url("/fonts/03-modern-ui-and-variable/AnjomanMax-VF.woff") format("woff-variations");
+  src: url("/fonts/03-modern-ui-and-variable/AnjomanMax-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/AnjomanMax-VF.woff") format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -427,7 +427,7 @@
 
 @font-face {
   font-family: "Abar";
-  src: url("/fonts/03-modern-ui-and-variable/Abar-VF.woff") format("woff-variations");
+  src: url("/fonts/03-modern-ui-and-variable/Abar-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Abar-VF.woff") format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -435,7 +435,7 @@
 
 @font-face {
   font-family: "Modam";
-  src: url("/fonts/03-modern-ui-and-variable/Modam-VF.woff") format("woff-variations");
+  src: url("/fonts/03-modern-ui-and-variable/Modam-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Modam-VF.woff") format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -443,7 +443,7 @@
 
 @font-face {
   font-family: "Farhang";
-  src: url("/fonts/03-modern-ui-and-variable/Farhang-VF.woff") format("woff-variations");
+  src: url("/fonts/03-modern-ui-and-variable/Farhang-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Farhang-VF.woff") format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -451,7 +451,7 @@
 
 @font-face {
   font-family: "Borna";
-  src: url("/fonts/03-modern-ui-and-variable/Borna-VF.woff") format("woff-variations");
+  src: url("/fonts/03-modern-ui-and-variable/Borna-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Borna-VF.woff") format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -459,7 +459,7 @@
 
 @font-face {
   font-family: "Arad";
-  src: url("/fonts/03-modern-ui-and-variable/Arad-VF.woff2") format("woff2-variations");
+  src: url("/fonts/03-modern-ui-and-variable/Arad-VF.woff2") format("woff2-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Arad-VF.woff2") format("woff2-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -467,7 +467,7 @@
 
 @font-face {
   font-family: "Estedad";
-  src: url("/fonts/03-modern-ui-and-variable/estedad/Estedad-Variable.woff2") format("woff2-variations");
+  src: url("/fonts/03-modern-ui-and-variable/estedad/Estedad-Variable.woff2") format("woff2-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/estedad/Estedad-Variable.woff2") format("woff2-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -475,7 +475,7 @@
 
 @font-face {
   font-family: "Sahel";
-  src: url("/fonts/03-modern-ui-and-variable/sahel/Sahel-Variable.woff2") format("woff2-variations");
+  src: url("/fonts/03-modern-ui-and-variable/sahel/Sahel-Variable.woff2") format("woff2-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/sahel/Sahel-Variable.woff2") format("woff2-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -483,7 +483,7 @@
 
 @font-face {
   font-family: "Shabnam FD";
-  src: url("/fonts/03-modern-ui-and-variable/shabnam/Shabnam-FD.woff2") format("woff2");
+  src: url("/fonts/03-modern-ui-and-variable/shabnam/Shabnam-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/shabnam/Shabnam-FD.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -494,7 +494,7 @@
    -------------------------------------------------------------------------- */
 @font-face {
   font-family: "Vazir Code";
-  src: url("/fonts/04-code-monospace/Vazir-Code-Hack.woff2") format("woff2");
+  src: url("/fonts/04-code-monospace/Vazir-Code-Hack.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/04-code-monospace/Vazir-Code-Hack.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
