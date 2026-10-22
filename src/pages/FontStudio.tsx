@@ -457,7 +457,7 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
       </Panel>
 
       {/* editable sentence — the user's own words drive every preview */}
-      <Panel title="جمله شما" subtitle="هرچه اینجا بنویسید، هم در پیش‌نمایش و هم در تمام ۴۰ فونت فهرست اعمال می‌شود">
+      <Panel title="جمله شما" subtitle={`هرچه اینجا بنویسید، هم در پیش‌نمایش و هم در تمام ${faNum(PERSIAN_FONT_CATALOG.length)} فونت فهرست اعمال می‌شود`}>
         <textarea
           value={s.text}
           onChange={(e) => set({ text: e.target.value })}

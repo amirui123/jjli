@@ -356,7 +356,8 @@ export const CodeBlock: React.FC<{
   showCopy?: boolean;
   filename?: string;
   toolbar?: React.ReactNode;
-}> = ({ code, language = "tsx", maxLines = 260, className, showCopy = true, filename, toolbar }) => {
+  fontSize?: number;
+}> = ({ code, language = "tsx", maxLines = 260, className, showCopy = true, filename, toolbar, fontSize }) => {
   const [expanded, setExpanded] = useState(false);
   const lines = useMemo(() => code.replace(/\t/g, "  ").split("\n"), [code]);
   const visible = expanded ? lines : lines.slice(0, maxLines);
@@ -381,7 +382,10 @@ export const CodeBlock: React.FC<{
         </div>
       </div>
       <div className="code-scroll max-h-[460px] overflow-auto" dir="ltr">
-        <pre className="min-w-full py-2 text-[11.5px] leading-[1.65]">
+        <pre
+          className="min-w-full py-2 text-[11.5px] leading-[1.65]"
+          style={fontSize ? { fontSize: `${fontSize}px` } : undefined}
+        >
           <code>
             {html.map((h, i) => (
               <div key={i} className="code-line flex">

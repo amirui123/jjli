@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 import {
   ArrowLeft,
   Boxes,
@@ -212,6 +212,120 @@ const SpecimenStack: React.FC = () => {
   );
 };
 
+
+const MagneticTile: React.FC = () => {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const sx = useSpring(x, { stiffness: 260, damping: 18, mass: 0.6 });
+  const sy = useSpring(y, { stiffness: 260, damping: 18, mass: 0.6 });
+
+  return (
+    <div
+      className="relative flex h-[150px] items-center justify-center overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0C0C0F]"
+      onPointerMove={(e) => {
+        const r = e.currentTarget.getBoundingClientRect();
+        x.set(((e.clientX - r.left) / r.width - 0.5) * 60);
+        y.set(((e.clientY - r.top) / r.height - 0.5) * 40);
+      }}
+      onPointerLeave={() => {
+        x.set(0);
+        y.set(0);
+      }}
+    >
+      <motion.button
+        style={{ x: sx, y: sy }}
+        whileTap={{ scale: 0.94 }}
+        onClick={() => soundEngine.playSnap()}
+        className="rounded-full border border-[color:var(--accent)]/40 bg-[color:var(--accent)]/12 px-5 py-2.5 text-[12.5px] font-bold text-[color:var(--accent)]"
+      >
+        دکمه مغناطیسی
+      </motion.button>
+      <span className="absolute bottom-2.5 start-3 font-mono text-[9px] text-zinc-600">useSpring</span>
+    </div>
+  );
+};
+
+const SpringStack: React.FC = () => {
+  const [hover, setHover] = useState(false);
+  return (
+    <div
+      className="relative flex h-[150px] items-center justify-center overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0C0C0F]"
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      {[0, 1, 2].map((i) => (
+        <motion.div
+          key={i}
+          className="absolute h-[74px] w-[150px] rounded-xl border border-white/10 bg-gradient-to-br from-[#1A1A20] to-[#0D0D11]"
+          animate={{
+            y: hover ? -i * 12 : i * 10,
+            rotate: hover ? (i - 1) * 5 : (i - 1) * 2,
+            scale: hover ? 1 - i * 0.04 : 1 - i * 0.06,
+          }}
+          transition={{ type: "spring", stiffness: 320, damping: 22, delay: i * 0.03 }}
+          style={{ zIndex: 3 - i }}
+        >
+          <span className="absolute bottom-2 start-2 font-mono text-[8.5px] text-zinc-600">card {i + 1}</span>
+        </motion.div>
+      ))}
+      <span className="absolute bottom-2.5 start-3 font-mono text-[9px] text-zinc-600">stagger + spring</span>
+    </div>
+  );
+};
+
+const KineticTile: React.FC = () => {
+  const [run, setRun] = useState(0);
+  const words = ["حرکت", "با", "وزن", "و", "معنا"];
+  return (
+    <button
+      onClick={() => {
+        setRun((r) => r + 1);
+        soundEngine.playTick(1);
+      }}
+      className="relative flex h-[150px] flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0C0C0F]"
+    >
+      <span key={run} className="flex flex-wrap justify-center gap-1.5 px-3">
+        {words.map((w, i) => (
+          <motion.span
+            key={`${run}-${w}-${i}`}
+            initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ delay: i * 0.06, type: "spring", stiffness: 260, damping: 22 }}
+            className="font-hasti text-[19px] text-zinc-100"
+          >
+            {w}
+          </motion.span>
+        ))}
+      </span>
+      <span className="absolute bottom-2.5 start-3 font-mono text-[9px] text-zinc-600">click to replay</span>
+    </button>
+  );
+};
+
+const MotionTeaser: React.FC = () => (
+  <section>
+    <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+      <div>
+        <h2 className="font-hasti text-[26px] leading-tight text-white">حرکت را لمس کن</h2>
+        <p className="mt-1 text-[12px] text-zinc-500">
+          سه نمونه واقعی با فیزیک فنر؛ همان چیزی که در استودیو موشن قابل تنظیم است.
+        </p>
+      </div>
+      <button
+        onClick={() => navigate("/studio/motion")}
+        className="text-[11px] text-[color:var(--accent)] hover:underline"
+      >
+        باز کردن استودیو موشن
+      </button>
+    </div>
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <MagneticTile />
+      <SpringStack />
+      <KineticTile />
+    </div>
+  </section>
+);
+
 export const Landing: React.FC = () => {
   const { settings } = useAppSettings();
   const [copied, setCopied] = useState(false);
@@ -387,6 +501,8 @@ export const Landing: React.FC = () => {
           ))}
         </div>
       </section>
+
+      <MotionTeaser />
 
       {/* ------------------------------------------------------------- fonts */}
       <section>

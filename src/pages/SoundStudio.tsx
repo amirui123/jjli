@@ -386,7 +386,7 @@ soundEngine.playRecipe(
                   : "border-white/[0.07] text-zinc-500 hover:text-zinc-200"
               )}
             >
-              {CATEGORY_LABEL[c]} <span className="font-mono opacity-60">{faNum(counts[c] ?? 0)}</span>
+              {CATEGORY_LABEL[c]} <span className="opacity-60">{faNum(counts[c] ?? 0)}</span>
             </button>
           ))}
         </div>

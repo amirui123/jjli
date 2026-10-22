@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Download, FileCode2, FolderTree, Layers, Loader2, Search } from "lucide-react";
 import { CHUNK_SIZE, REGISTRY_FILES } from "../data/registryFiles";
 import { COMPONENT_CATALOG } from "../data/componentCatalog";
@@ -56,7 +56,6 @@ const DEFAULT_CODE: CodeSettings = {
 };
 
 const ROW_H = 30;
-const LIST_H = 448;
 
 const TOTAL_FILES = REGISTRY_FILES.reduce((a, r) => a + r.totalFiles, 0);
 const TOTAL_SOURCE = REGISTRY_FILES.reduce((a, r) => a + r.sourceFiles, 0);
@@ -69,6 +68,8 @@ export const ComponentsStudio: React.FC = () => {
   const [code, setCode] = useState<ChunkFile | null>(null);
   const [loadingCode, setLoadingCode] = useState(false);
   const [scrollTop, setScrollTop] = useState(0);
+  const [viewH, setViewH] = useState(448);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
   const [previewOpen, setPreviewOpen] = useState(true);
   const cache = useRef(new Map<string, ChunkFile[]>());
   const reqId = useRef(0);
@@ -220,12 +221,21 @@ import Component from "./${base}";
   /* ------------------------------------------------------------- list view */
 
   const start = Math.max(0, Math.floor(scrollTop / ROW_H) - 6);
-  const end = Math.min(filtered.length, start + Math.ceil(LIST_H / ROW_H) + 12);
+  const end = Math.min(filtered.length, start + Math.ceil(viewH / ROW_H) + 12);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => setViewH(el.clientHeight || 448));
+    ro.observe(el);
+    setViewH(el.clientHeight || 448);
+    return () => ro.disconnect();
+  }, []);
 
   const list = (
     <StudioList
       title="فایل‌های واقعی"
-      subtitle={`${faCount(filtered.length)} فایل · ${(filtered.reduce((a, r) => a + r.bytes, 0) / 1048576).toFixed(1)}MB`}
+      subtitle={`${faNum(filtered.length)} فایل · ${(filtered.reduce((a, r) => a + r.bytes, 0) / 1048576).toFixed(1)}MB`}
       className="h-[calc(100vh-186px)] min-h-[460px]"
       listClassName="flex min-h-0 flex-col overflow-hidden p-1.5"
       footer={`${faNum(TOTAL_FILES)} فایل کل · ${faNum(TOTAL_SOURCE)} سورس`}
@@ -260,7 +270,11 @@ import Component from "./${base}";
         </select>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto" onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}>
+      <div
+        ref={scrollRef}
+        className="min-h-0 flex-1 overflow-y-auto"
+        onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
+      >
         <div style={{ height: filtered.length * ROW_H, position: "relative" }}>
           <div style={{ transform: `translateY(${start * ROW_H}px)` }}>
             {Array.from({ length: end - start }, (_, i) => {
@@ -383,7 +397,7 @@ import Component from "./${base}";
               language={selected.path.endsWith(".tsx") ? "tsx" : selected.path.endsWith(".json") ? "json" : "ts"}
               maxLines={420}
               showCopy={false}
-              className="[&_pre]:!text-[var(--code-size)]"
+              fontSize={s.fontSize}
             />
           </div>
         )}
@@ -561,9 +575,7 @@ import Component from "./${base}";
   );
 
   return (
-    <>
-      <style>{`:root{--code-size:${s.fontSize}px}`}</style>
-      <StudioShell
+    <StudioShell
         eyebrow="COMPONENT STUDIO"
         title="استودیو کامپوننت"
         description={`کاوشگر واقعی ${faCount(TOTAL_SOURCE)} فایل سورس در ${faNum(REGISTRY_FILES.length)} رجیستری متن‌باز (${faCount(TOTAL_FILES)} فایل با متادیتا). هر فایل جداگانه یا به‌صورت کیت قابل دانلود است.`}
@@ -582,9 +594,8 @@ import Component from "./${base}";
         settingsWidth="292px"
         list={list}
         stage={stage}
-        settings={settings}
-      />
-    </>
+      settings={settings}
+    />
   );
 };
 
