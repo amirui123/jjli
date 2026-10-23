@@ -210,16 +210,28 @@ export const SoundStudio: React.FC = () => {
     );
   };
 
+  useEffect(
+    () => () => {
+      if (playTimer.current) window.clearTimeout(playTimer.current);
+    },
+    []
+  );
+
   useEffect(() => {
     if (s.autoPreview && interacted.current) play(selected);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, s.pitch, s.gain, s.cutoff, s.stretch, s.noise]);
 
   const downloadWav = async () => {
-    const blob = await soundEngine.renderWav(selected, options);
-    const { saveBlob } = await import("../lib/download");
-    saveBlob(blob, `${selected.id}.wav`);
-    return true;
+    try {
+      const blob = await soundEngine.renderWav(selected, options);
+      if (blob.size < 100) return false;
+      const { saveBlob } = await import("../lib/download");
+      saveBlob(blob, `${selected.id}.wav`);
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   const downloadKit = async () => {
@@ -510,7 +522,7 @@ soundEngine.playRecipe(
     <StudioShell
       eyebrow="SOUND STUDIO"
       title="استودیو صدای رویه"
-      description="۲۰۰ افکت سینتز که همه با Web Audio ساخته می‌شوند. شکل موج، خروجی واقعی رندر آفلاین است و می‌توانید هر صدا را با پارامترهای خودتان دانلود کنید."
+      description={`${faNum(ALL_SOUND_RECIPES_MANIFEST.length)} افکت سینتز که همه با Web Audio ساخته می‌شوند. شکل موج، خروجی واقعی رندر آفلاین است و می‌توانید هر صدا را با پارامترهای خودتان دانلود کنید.`}
       icon={Waves}
       stats={
         <>

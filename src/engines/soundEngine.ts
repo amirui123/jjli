@@ -194,7 +194,10 @@ class ProceduralSoundEngine {
   /** Offline render of a recipe to a downloadable 16-bit WAV. */
   async renderWav(recipe: SoundRecipeItem, options: PlayOptions = {}): Promise<Blob> {
     const rendered = await this.renderBuffer(recipe, options);
-    if (!rendered) return new Blob([new ArrayBuffer(44)], { type: "audio/wav" });
+    // never hand the user an empty 44-byte header: fail loudly so the UI can say so
+    if (!rendered || rendered.length === 0) {
+      throw new Error("offline audio rendering is unavailable in this browser");
+    }
     return encodeWav(rendered);
   }
 

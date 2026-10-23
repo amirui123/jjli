@@ -133,6 +133,7 @@ export const ComponentsStudio: React.FC = () => {
     async (row: Row) => {
       setSelected(row);
       soundEngine.playTick(1.2);
+      focusStudioPreview();
       const my = ++reqId.current;
       // locate index inside its own registry (deterministic chunk mapping)
       const registryFiles = REGISTRY_FILES.find((r) => r.id === row.reg)?.files ?? [];

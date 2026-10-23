@@ -286,7 +286,7 @@ await wait(700);
 const tabs = [...document.querySelectorAll('nav[aria-label="پنل‌های استودیو"] button')];
 tabs[2]?.dispatchEvent(new window.MouseEvent("click", { bubbles: true })); // list
 await wait(250);
-let listRail = document.querySelector('[data-rail="list"]');
+const listRail = document.querySelector('[data-rail="list"]');
 if (!listRail || listRail.className.split(/\s+/).includes("hidden")) {
   errors.push("MOBILE: list tab did not reveal the list rail");
 }
