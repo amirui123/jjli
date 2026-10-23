@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Generates lazy-loadable data vault for the platform:
- *   public/regcode/<registry>.json  — REAL source of all 4,197 component files
+ *   public/regcode/chunks/*.json    — real sources, written by generate-component-chunks.mjs
  *   public/vault/skills/<id>.md     — REAL full SKILL.md bodies (179)
  *   public/vault/brands/<id>.md     — REAL full DESIGN.md bodies (84)
  *   public/ai/dataset.json          — parsed QLoRA training pairs
@@ -45,41 +45,10 @@ function writeJson(file, data) {
 }
 
 // ---------------------------------------------------------------- registry code
-const compRoot = path.join(TK, "04-motion-primitives-and-ui");
-const regDir = path.join(PUB, "regcode");
-rmrf(regDir);
-fs.mkdirSync(regDir, { recursive: true });
-
-let totalFiles = 0;
-let totalBytes = 0;
-const index = [];
-
-for (const reg of fs.readdirSync(compRoot, { withFileTypes: true })) {
-  if (!reg.isDirectory()) continue;
-  const regPath = path.join(compRoot, reg.name);
-  const files = walk(regPath, (f, n) => n.endsWith(".tsx") || n.endsWith(".ts"));
-  const payload = {
-    id: reg.name,
-    total: files.length,
-    files: files.map((f) => {
-      const rel = path.relative(regPath, f).split(path.sep).join("/");
-      let code = fs.readFileSync(f, "utf8");
-      const original = code.length;
-      if (code.length > CAP) code = code.slice(0, CAP);
-      totalBytes += original;
-      return {
-        p: rel,
-        s: original,
-        c: code,
-        t: original > code.length ? 1 : 0,
-      };
-    }),
-  };
-  writeJson(path.join(regDir, `${reg.name}.json`), payload);
-  totalFiles += files.length;
-  index.push({ id: reg.name, total: files.length });
-  console.log(`  regcode/${reg.name}.json  ${files.length} files`);
-}
+/* The component explorer does not ship one 27 MB JSON per registry any more.
+   `scripts/generate-component-chunks.mjs` (run later in `npm run generate`)
+   writes the same real sources as 47 lazy chunks under public/regcode/chunks.
+   It owns that directory, so nothing is deleted here. */
 
 // --------------------------------------------------------------------- skills
 const skillsRoot = path.join(TK, "01-skills-and-standards");

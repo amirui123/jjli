@@ -262,6 +262,26 @@ export const PERSIAN_FONT_CATALOG: PersianFontItem[] = [
 
   // ۳. فونت‌های مدرن رابط کاربری و متغیر
   {
+    id: "vazirmatn",
+    nameFa: "وزیرمتن (نسخه متغیر اصلی)",
+    nameEn: "Vazirmatn",
+    family: '"Vazirmatn", sans-serif',
+    category: "modern-ui",
+    isVariable: true,
+    recommendedLineHeight: 1.75,
+    descriptionFa: "نسخه متغیر اصلی وزیرمتن؛ سبک‌ترین و استانداردترین انتخاب برای متن فارسی وب",
+  },
+  {
+    id: "shabnam",
+    nameFa: "شبنم (ارقام فارسی)",
+    nameEn: "Shabnam FD",
+    family: '"Shabnam FD", "Vazirmatn", sans-serif',
+    category: "modern-ui",
+    hasFarsiDigits: true,
+    recommendedLineHeight: 1.8,
+    descriptionFa: "فونت شبنم با ارقام فارسی توکار؛ نرم و خوانا برای متن‌های بلند و یادداشت",
+  },
+  {
     id: "vazirmatn-fd",
     nameFa: "وزیرمتن (ارقام فارسی)",
     nameEn: "Vazirmatn FD",

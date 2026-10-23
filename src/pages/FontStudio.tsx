@@ -352,6 +352,59 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
     [filtered, s.fontId, selectFont, rowText]
   );
 
+  /** Bundles every real font file + a catalog sheet into one archive. */
+  const downloadAllFonts = useCallback(async () => {
+    const entries = await Promise.all(
+      PERSIAN_FONT_CATALOG.map(async (f) => {
+        const info = fontFileFor(f.family);
+        if (!info) return null;
+        const blob = await fetchAsBlob(info.url);
+        if (!blob) return null;
+        return { font: f, info, blob };
+      })
+    );
+    const ok = entries.filter((e): e is NonNullable<typeof e> => Boolean(e));
+    if (ok.length === 0) return false;
+    const sheet = ok
+      .map(
+        ({ font: f, info }) =>
+          `.${f.id} {\n  font-family: "${f.nameEn}", "Vazirmatn", sans-serif;\n  line-height: ${
+            f.recommendedLineHeight ?? 1.8
+          };\n}\n@font-face {\n  font-family: "${f.nameEn}";\n  src: url("./${info.file}") format("${info.format}");\n  font-weight: ${info.weight};\n  font-display: swap;\n}`
+      )
+      .join("\n\n");
+    return saveKit("rtl-motion-all-fonts", [
+      ...ok.map(({ info, blob }) => ({ name: info.file, content: blob })),
+      { name: "fonts.css", content: `/* ${ok.length} خانواده فونت فارسی — RTL Motion Lab */\n\n${sheet}\n` },
+      {
+        name: "catalog.json",
+        content: JSON.stringify(
+          ok.map(({ font: f, info }) => ({
+            id: f.id,
+            nameFa: f.nameFa,
+            nameEn: f.nameEn,
+            category: f.category,
+            file: info.file,
+            format: info.format,
+            variable: Boolean(f.isVariable),
+            farsiDigits: Boolean(f.hasFarsiDigits),
+          })),
+          null,
+          2
+        ),
+      },
+      {
+        name: "README.txt",
+        content: `RTL Motion Lab — آرشیو کامل خانواده‌های فونت فارسی
+تعداد: ${ok.length} خانواده
+شامل فایل اصلی هر فونت + fonts.css + catalog.json
+
+مجوز هر فونت مطابق مخزن اصلی آن است؛ پیش از استفاده تجاری بررسی کنید.
+`,
+      },
+    ]);
+  }, []);
+
   /* ---------------------------------------------------------------- stage */
 
   const stage = (
@@ -381,9 +434,40 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
           </div>
         </div>
 
+        {/* the visitor's own sentence drives every preview and every list row */}
+        <div className="flex flex-wrap items-center gap-1.5 border-b border-white/[0.06] px-2.5 py-2">
+          <input
+            value={s.text}
+            onChange={(e) => set({ text: e.target.value })}
+            dir="rtl"
+            placeholder="جمله خودتان را بنویسید…"
+            aria-label="متن نمونه"
+            className="min-w-[160px] flex-1 rounded-lg border border-white/[0.08] bg-black/40 px-2.5 py-1.5 text-[12px] text-zinc-200 outline-none transition-colors focus:border-[color:var(--accent)]/50"
+          />
+          <div className="flex items-center gap-1">
+            {SAMPLES.slice(0, 3).map((sample) => (
+              <button
+                key={sample.label}
+                onClick={() => set({ text: sample.text })}
+                className="hidden rounded-md border border-white/[0.07] bg-white/[0.02] px-1.5 py-1 text-[9.5px] text-zinc-400 transition-colors hover:border-white/20 hover:text-zinc-100 sm:block"
+              >
+                {sample.label}
+              </button>
+            ))}
+            <button
+              onClick={() => setReplay((r) => r + 1)}
+              title="پخش دوباره حرکت"
+              aria-label="پخش دوباره حرکت"
+              className="flex h-7 w-7 items-center justify-center rounded-md border border-[color:var(--accent)]/30 bg-[color:var(--accent)]/10 text-[color:var(--accent)]"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+
         <div
           className={cn(
-            "relative flex min-h-[280px] items-center justify-center overflow-hidden p-5 sm:min-h-[330px] sm:p-9",
+            "relative flex min-h-[240px] items-center justify-center overflow-hidden p-5 sm:min-h-[290px] sm:p-8",
             backdropClass
           )}
         >
@@ -456,36 +540,6 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
         </div>
       </Panel>
 
-      {/* editable sentence — the user's own words drive every preview */}
-      <Panel title="جمله شما" subtitle={`هرچه اینجا بنویسید، هم در پیش‌نمایش و هم در تمام ${faNum(PERSIAN_FONT_CATALOG.length)} فونت فهرست اعمال می‌شود`}>
-        <textarea
-          value={s.text}
-          onChange={(e) => set({ text: e.target.value })}
-          rows={2}
-          dir="rtl"
-          placeholder="جمله دلخواه خود را بنویسید…"
-          className="w-full resize-none rounded-lg border border-white/[0.08] bg-black/40 p-2.5 text-[12.5px] leading-relaxed text-zinc-200 outline-none transition-colors focus:border-[color:var(--accent)]/50"
-        />
-        <div className="mt-2 flex flex-wrap gap-1">
-          {SAMPLES.map((sample) => (
-            <button
-              key={sample.label}
-              onClick={() => set({ text: sample.text })}
-              className="rounded-md border border-white/[0.07] bg-white/[0.02] px-2 py-1 text-[10px] text-zinc-400 transition-colors hover:border-white/20 hover:text-zinc-100"
-            >
-              {sample.label}
-            </button>
-          ))}
-          <button
-            onClick={() => setReplay((r) => r + 1)}
-            className="ms-auto flex items-center gap-1 rounded-md border border-[color:var(--accent)]/30 bg-[color:var(--accent)]/10 px-2 py-1 text-[10px] text-[color:var(--accent)]"
-          >
-            <Sparkles className="h-3 w-3" />
-            پخش حرکت
-          </button>
-        </div>
-      </Panel>
-
       <Panel title="نمونه کامل حروف" subtitle={`ابجد، ارقام فارسی و لاتین در ${font.nameFa}`}>
         <div className="space-y-3">
           <div style={{ fontFamily: font.family, fontWeight: s.weight }} className="text-[clamp(18px,3vw,30px)] leading-[2] text-zinc-200">
@@ -539,6 +593,42 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
 
   const settings = (
     <div className="space-y-4">
+      <Panel title="متن نمونه" subtitle="جمله خودتان یا یکی از این‌ها">
+        <textarea
+          value={s.text}
+          onChange={(e) => set({ text: e.target.value })}
+          rows={2}
+          dir="rtl"
+          className="w-full resize-none rounded-lg border border-white/[0.08] bg-black/40 p-2 text-[12px] leading-relaxed text-zinc-200 outline-none focus:border-[color:var(--accent)]/50"
+        />
+        <div className="mt-2 flex flex-wrap gap-1">
+          {SAMPLES.map((sample) => (
+            <button
+              key={sample.label}
+              onClick={() => set({ text: sample.text })}
+              className={cn(
+                "rounded-md border px-1.5 py-1 text-[9.5px] transition-colors",
+                s.text === sample.text
+                  ? "border-[color:var(--accent)]/40 bg-[color:var(--accent)]/12 text-[color:var(--accent)]"
+                  : "border-white/[0.07] text-zinc-400 hover:border-white/20 hover:text-zinc-100"
+              )}
+            >
+              {sample.label}
+            </button>
+          ))}
+        </div>
+      </Panel>
+
+      <Panel tone="inset" title="آرشیو کامل" subtitle={`همه ${faNum(PERSIAN_FONT_CATALOG.length)} فایل فونت + fonts.css`}>
+        <DownloadButton
+          label="دانلود همه فونت‌ها"
+          filename="rtl-motion-all-fonts.zip"
+          onDownload={downloadAllFonts}
+          variant="solid"
+          className="w-full justify-center"
+        />
+      </Panel>
+
       <Panel title="تایپوگرافی" subtitle="کنترل کامل قلم">
         <div className="space-y-3.5">
           <Slider label="اندازه قلم" value={s.size} min={12} max={140} unit="px" onChange={(v) => set({ size: v })} />
@@ -692,7 +782,7 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
           title="همه فونت‌ها"
           subtitle={`${faNum(filtered.length)} از ${faNum(PERSIAN_FONT_CATALOG.length)}`}
           toolbar={<Badge tone="accent">{faNum(PERSIAN_FONT_CATALOG.length)}</Badge>}
-          className="h-[calc(100vh-190px)] min-h-[420px]"
+          className="min-h-[360px] xl:min-h-0"
           footer="روی هر فونت دانلود فایل اصلی فعال است"
         >
           <div className="sticky top-0 z-10 -m-1.5 mb-1.5 space-y-2 bg-[#0D0D10]/95 p-1.5 backdrop-blur">

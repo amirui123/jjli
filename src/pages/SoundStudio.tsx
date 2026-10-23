@@ -232,6 +232,39 @@ soundEngine.playRecipe(
     ]);
   };
 
+  /** Bundles the current filter into a JSON recipe pack (no audio rendering). */
+  const downloadFiltered = async () => {
+    if (filtered.length === 0) return false;
+    return saveKit(`rtl-motion-sounds-${cat}`, [
+      {
+        name: "recipes.json",
+        content: JSON.stringify(
+          filtered.map((r) => ({ ...r, category: categoryOf(r), options })),
+          null,
+          2
+        ),
+      },
+      {
+        name: "play.ts",
+        content: `import { soundEngine } from "@/engines/soundEngine";
+import recipes from "./recipes.json";
+
+// ${filtered.length} رسیپی سینتز — بدون فایل صوتی، همه در مرورگر ساخته می‌شوند
+export function playAll(gap = 220) {
+  recipes.forEach((recipe, i) => window.setTimeout(() => soundEngine.playRecipe(recipe), i * gap));
+}
+`,
+      },
+      {
+        name: "README.txt",
+        content: `RTL Motion Lab — بسته صدای ${CATEGORY_LABEL[cat]}
+تعداد: ${filtered.length}
+هر صدا با Web Audio ساخته می‌شود؛ هیچ MP3 یا آدرس خارجی لازم نیست.
+`,
+      },
+    ]);
+  };
+
   const counts = useMemo(() => {
     const base: Record<string, number> = { all: ALL_SOUND_RECIPES_MANIFEST.length };
     for (const r of ALL_SOUND_RECIPES_MANIFEST) {
@@ -355,6 +388,16 @@ soundEngine.playRecipe(
         </div>
       </Panel>
 
+      <Panel tone="inset" title="بسته صدا" subtitle={`${faNum(filtered.length)} رسیپی در فیلتر فعلی`}>
+        <DownloadButton
+          label="دانلود رسیپی‌ها"
+          filename={`rtl-motion-sounds-${cat}.zip`}
+          onDownload={downloadFiltered}
+          variant="solid"
+          className="w-full justify-center"
+        />
+      </Panel>
+
       <Panel title="راهنما">
         <p className="text-[11px] leading-relaxed text-zinc-400">
           همه صداها در زمان اجرا با نوسان‌ساز و فیلتر ساخته می‌شوند؛ حجم صفر و کیفیت
@@ -368,7 +411,7 @@ soundEngine.playRecipe(
     <StudioList
       title="همه صداها"
       subtitle={`${faNum(filtered.length)} از ${faNum(ALL_SOUND_RECIPES_MANIFEST.length)}`}
-      className="h-[calc(100vh-190px)] min-h-[420px]"
+      className="min-h-[360px] xl:min-h-0"
       footer="برای شنیدن، روی هر ردیف کلیک کنید"
       toolbar={<Badge tone="accent">{faNum(ALL_SOUND_RECIPES_MANIFEST.length)}</Badge>}
     >

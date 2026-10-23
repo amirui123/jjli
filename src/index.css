@@ -841,3 +841,26 @@ html[data-motion="reduced"] *::after {
     animation: none !important;
   }
 }
+
+/* --------------------------------------------------------------------------
+   ریل‌های استودیو: اسکرول‌بار نازک و نامرئی تا صفحه تک‌نمایی بماند
+   -------------------------------------------------------------------------- */
+.studio-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+  overscroll-behavior: contain;
+}
+.studio-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.studio-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.studio-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+.studio-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}

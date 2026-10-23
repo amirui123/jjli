@@ -395,11 +395,14 @@ const Footer: React.FC = () => {
 
 /* ------------------------------------------------------------------- shell */
 
+const STUDIO_ROUTES = new Set(["fonts", "motion", "components", "sounds", "skills", "engines", "ai"]);
+
 export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { route } = useRouter();
+  const isStudio = STUDIO_ROUTES.has(route);
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#08080A] text-zinc-100">
+    <div dir="rtl" className={cn("bg-[#08080A] text-zinc-100", isStudio ? "xl:h-[100dvh] xl:overflow-hidden" : "min-h-screen")}>
       <TopBar />
       <AnimatePresence mode="wait" initial={false}>
         <motion.main
@@ -408,12 +411,18 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -4 }}
           transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-          className="mx-auto min-h-[calc(100vh-3.5rem)] max-w-[1440px] px-4 pb-24 pt-6 sm:px-6"
+          className={cn(
+            "mx-auto max-w-[1440px] px-4 sm:px-6",
+            isStudio
+              ? // full-height studio: no page scroll on desktop, the rails scroll instead
+                "min-h-[calc(100dvh-3.5rem)] pb-24 pt-3 xl:h-[calc(100dvh-3.5rem)] xl:min-h-0 xl:overflow-hidden xl:pb-[68px] xl:pt-3"
+              : "min-h-[calc(100vh-3.5rem)] pb-24 pt-6"
+          )}
         >
           {children}
         </motion.main>
       </AnimatePresence>
-      <Footer />
+      {!isStudio && <Footer />}
       <BottomDock />
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[-1] h-28 bg-gradient-to-t from-[#08080A] to-transparent" />
     </div>

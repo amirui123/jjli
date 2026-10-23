@@ -160,6 +160,38 @@ export const ComponentsStudio: React.FC = () => {
     [code, selected, fetchChunk]
   );
 
+  const downloadRegistry = useCallback(async () => {
+    const reg = REGISTRY_FILES.find((r) => r.id === regId);
+    if (!reg) return false;
+    const files: { name: string; content: string }[] = [];
+    for (let i = 0; i < reg.chunks; i++) {
+      const chunk = await fetchChunk(reg.id, i);
+      for (const f of chunk) files.push({ name: `${reg.id}/${f.p}`, content: f.c });
+    }
+    if (files.length === 0) return false;
+    return saveKit(`rtl-motion-registry-${reg.id}`, [
+      ...files,
+      {
+        name: "README.md",
+        content: `# ${reg.label} (${reg.id})
+
+${faNum(files.length)} فایل سورس، مستقیماً از مخزن متن‌باز.
+
+- کل فایل‌های رجیستری: ${faNum(reg.totalFiles)}
+- فایل سورس قابل نمایش: ${faNum(reg.readable)}
+
+## وابستگی‌ها
+\`\`\`bash
+npm i framer-motion clsx tailwind-merge lucide-react
+\`\`\`
+
+## RTL
+از کلاس‌های منطقی استفاده کنید و \`letter-spacing\` مثبت روی متن فارسی نگذارید.
+`,
+      },
+    ]);
+  }, [regId, fetchChunk]);
+
   const downloadFile = useCallback(async () => {
     const file = await ensureCode(selected);
     if (!file) return false;
@@ -236,7 +268,7 @@ import Component from "./${base}";
     <StudioList
       title="فایل‌های واقعی"
       subtitle={`${faNum(filtered.length)} فایل · ${(filtered.reduce((a, r) => a + r.bytes, 0) / 1048576).toFixed(1)}MB`}
-      className="h-[calc(100vh-186px)] min-h-[460px]"
+      className="min-h-[420px] xl:min-h-0"
       listClassName="flex min-h-0 flex-col overflow-hidden p-1.5"
       footer={`${faNum(TOTAL_FILES)} فایل کل · ${faNum(TOTAL_SOURCE)} سورس`}
       toolbar={<Badge tone="accent">{faCount(filtered.length)}</Badge>}
@@ -563,6 +595,19 @@ import Component from "./${base}";
             );
           })}
         </div>
+      </Panel>
+
+      <Panel tone="inset" title={`آرشیو رجیستری`} subtitle={REGISTRY_FILES.find((r) => r.id === regId)?.label}>
+        <p className="text-[10.5px] leading-relaxed text-zinc-400">
+          همه فایل‌های این رجیستری (تا {faNum(REGISTRY_FILES.find((r) => r.id === regId)?.readable ?? 0)} فایل) در یک ZIP.
+        </p>
+        <DownloadButton
+          label="دانلود کل رجیستری"
+          filename={`rtl-motion-registry-${regId}.zip`}
+          onDownload={downloadRegistry}
+          variant="solid"
+          className="mt-2 w-full justify-center"
+        />
       </Panel>
 
       <Panel tone="inset" title="چطور کار می‌کند">

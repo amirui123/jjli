@@ -209,6 +209,43 @@ export const SkillsStudio: React.FC = () => {
     ]);
   };
 
+  /** Fetches every skill document and bundles them, plus an index. */
+  const downloadAllSkills = async () => {
+    const docs = await Promise.all(
+      ALL_SKILLS_MANIFEST.map(async (skill) => {
+        const text = await loadAsset<string>(skillFile(skill.id)).catch(() => skill.excerpt);
+        return { skill, text };
+      })
+    );
+    const ok = docs.filter((d) => d.text && d.text.length > 0);
+    if (ok.length === 0) return false;
+    return saveKit("rtl-motion-skills", [
+      ...ok.map(({ skill, text }) => ({ name: `${skill.id.replace(/\//g, "__")}.md`, content: text })),
+      {
+        name: "index.json",
+        content: JSON.stringify(
+          ok.map(({ skill }) => ({
+            id: skill.id,
+            title: skill.title,
+            category: skill.categoryFolder,
+            path: skill.path,
+          })),
+          null,
+          2
+        ),
+      },
+      {
+        name: "README.md",
+        content: `# خزانه مهارت‌های RTL Motion Lab
+
+${ok.length} سند \`SKILL.md\` کامل، مستقیماً از مخزن.
+
+هر سند را می‌توانید به‌عنوان دستورالعمل به یک مدل هوش مصنوعی بدهید.
+`,
+      },
+    ]);
+  };
+
   const readFont = PERSIAN_FONT_CATALOG.find((f) => f.id === read.fontId) ?? PERSIAN_FONT_CATALOG[0];
 
   /* ----------------------------------------------------------------- list */
@@ -217,7 +254,7 @@ export const SkillsStudio: React.FC = () => {
     <StudioList
       title={tab === "skills" ? "مهارت‌ها" : "برندها"}
       subtitle={`${faNum(tab === "skills" ? skills.length : brands.length)} نتیجه`}
-      className="h-[calc(100vh-190px)] min-h-[420px]"
+      className="min-h-[360px] xl:min-h-0"
       footer="هر سند با متن کامل و قابل دانلود"
       toolbar={<Badge tone="accent">{faNum(tab === "skills" ? ALL_SKILLS_MANIFEST.length : ALL_BRAND_DESIGNS_MANIFEST.length)}</Badge>}
     >
@@ -408,7 +445,7 @@ export const SkillsStudio: React.FC = () => {
         )}
 
         <div
-          className={cn("max-h-[calc(100vh-330px)] min-h-[360px] overflow-y-auto p-4", read.theme === "paper" && "paper rounded-b-2xl")}
+          className={cn("studio-scroll max-h-[52vh] min-h-[280px] overflow-y-auto p-4 xl:max-h-[46vh]", read.theme === "paper" && "paper rounded-b-2xl")}
         >
           {docLoading ? (
             <Spinner className="py-16" />
@@ -498,6 +535,16 @@ export const SkillsStudio: React.FC = () => {
             </div>
           ))}
         </div>
+      </Panel>
+
+      <Panel tone="inset" title="کل خزانه" subtitle={`${faNum(ALL_SKILLS_MANIFEST.length)} سند کامل`}>
+        <DownloadButton
+          label="دانلود همه اسناد"
+          filename="rtl-motion-skills.zip"
+          onDownload={downloadAllSkills}
+          variant="solid"
+          className="w-full justify-center"
+        />
       </Panel>
 
       <Panel tone="inset" title="دانلود">

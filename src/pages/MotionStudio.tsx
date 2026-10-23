@@ -576,7 +576,7 @@ ${preset?.hintFa ?? ""}
         <StudioList
           title="حرکت‌های آماده"
           subtitle={`${faNum(MOTION_PRESETS.length)} رسیپی · قابل ویرایش`}
-          className="h-[calc(100vh-190px)] min-h-[420px]"
+          className="min-h-[360px] xl:min-h-0"
           footer="با انتخاب هر مورد، پیش‌نمایش و اعداد به‌روز می‌شوند"
         >
           {rows}

@@ -171,6 +171,17 @@ else {
   if (before === after) errors.push("FONT: speciment style did not change on font switch");
 }
 
+// studio layout: every studio must expose the three rails
+for (const studio of ["fonts", "motion", "components", "sounds", "skills", "engines", "ai"]) {
+  mod.setHash(`#/studio/${studio}`);
+  await wait(450);
+  const main = document.querySelector("main");
+  const shell = main?.firstElementChild;
+  const rails = shell?.lastElementChild?.children?.length ?? 0;
+  if (rails !== 3) errors.push(`RAILS ${studio}: expected 3 columns, found ${rails}`);
+  if (main && main.textContent.trim().length < 200) errors.push(`RAILS ${studio}: stage content is empty`);
+}
+
 // interaction 2: component file opens real source
 mod.setHash("#/studio/components");
 await wait(600);
