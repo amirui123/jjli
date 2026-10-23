@@ -39,7 +39,7 @@ const TopBar: React.FC = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#08080A]/80 backdrop-blur-xl">
+      <header className="app-topbar sticky top-0 z-40 border-b border-white/[0.06] bg-[#08080A]/80 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6">
           <button
             onClick={() => navigate("/")}
@@ -84,11 +84,12 @@ const TopBar: React.FC = () => {
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => setCmdOpen(true)}
-              className="hidden items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1.5 text-[11px] text-zinc-400 transition-colors hover:border-white/20 hover:text-zinc-100 sm:flex"
+              aria-label="جستجوی سریع"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-zinc-400 transition-colors hover:border-white/20 hover:text-zinc-100 sm:h-auto sm:w-auto sm:gap-2 sm:px-2.5 sm:py-1.5 sm:text-[11px]"
             >
-              <Command className="h-3 w-3" />
-              <span>جستجوی سریع</span>
-              <kbd className="rounded border border-white/10 bg-black/40 px-1 font-mono text-[9px] text-zinc-500">
+              <Command className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">جستجوی سریع</span>
+              <kbd className="hidden rounded border border-white/10 bg-black/40 px-1 font-mono text-[9px] text-zinc-500 sm:inline">
                 ⌘K
               </kbd>
             </button>
@@ -106,7 +107,13 @@ const TopBar: React.FC = () => {
                 />
               </button>
               {paletteOpen && (
-                <div className="fixed inset-0 z-40" onClick={() => setPaletteOpen(false)} />
+                <button
+                  type="button"
+                  aria-label="بستن انتخاب رنگ"
+                  tabIndex={-1}
+                  className="fixed inset-0 z-40 cursor-default"
+                  onClick={() => setPaletteOpen(false)}
+                />
               )}
               <AnimatePresence>
                 {paletteOpen && (
@@ -294,12 +301,12 @@ const BottomDock: React.FC = () => {
   const { settings } = useAppSettings();
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center pb-3 sm:pb-4">
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-2 pb-safe sm:pb-4">
       <motion.nav
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 260, damping: 26, delay: 0.15 }}
-        className="pointer-events-auto flex max-w-[calc(100vw-16px)] items-center gap-1 overflow-x-auto rounded-2xl border border-white/[0.09] bg-[#0B0B0E]/90 p-1.5 shadow-[0_16px_50px_-12px_rgba(0,0,0,0.9)] backdrop-blur-2xl scrollbar-none"
+        className="pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto rounded-2xl border border-white/[0.09] bg-[#0B0B0E]/92 p-1.5 shadow-[0_16px_50px_-12px_rgba(0,0,0,0.9)] backdrop-blur-2xl scrollbar-none snap-x-soft"
         aria-label="ناوبری بخش‌ها"
       >
         {ROUTES.map((r) => {
@@ -312,10 +319,11 @@ const BottomDock: React.FC = () => {
                 navigate(r.path);
               }}
               className={cn(
-                "group relative flex shrink-0 items-center gap-1.5 rounded-xl px-2.5 py-2 transition-colors duration-150",
+                "tap-target group relative flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 transition-colors duration-150",
                 active ? "text-white" : "text-zinc-500 hover:text-zinc-200"
               )}
               aria-current={active ? "page" : undefined}
+              aria-label={r.labelFa}
               title={`${r.labelFa} — ${r.descFa}`}
             >
               {active && (
@@ -334,8 +342,8 @@ const BottomDock: React.FC = () => {
               </span>
               <span
                 className={cn(
-                  "relative z-10 hidden text-[10.5px] font-medium whitespace-nowrap sm:block",
-                  active ? "inline" : "inline opacity-90"
+                  "relative z-10 whitespace-nowrap text-[10.5px] font-medium",
+                  active ? "inline" : "hidden sm:inline"
                 )}
               >
                 {r.shortFa}
@@ -415,7 +423,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
             "mx-auto max-w-[1440px] px-4 sm:px-6",
             isStudio
               ? // full-height studio: no page scroll on desktop, the rails scroll instead
-                "min-h-[calc(100dvh-3.5rem)] pb-24 pt-3 desk:h-[calc(100dvh-3.5rem)] desk:min-h-0 desk:overflow-hidden desk:pb-[68px] desk:pt-3"
+                "min-h-[calc(100dvh-3.5rem)] pb-28 pt-3 desk:h-[calc(100dvh-3.5rem)] desk:min-h-0 desk:overflow-hidden desk:pb-[68px] desk:pt-3"
               : "min-h-[calc(100vh-3.5rem)] pb-24 pt-6"
           )}
         >

@@ -4,6 +4,8 @@
  * (Vercel, GitHub Pages, plain file server) without rewrite rules.
  */
 import { useSyncExternalStore, useCallback } from "react";
+import { TOOLKIT_STATS } from "../data/toolkitStats";
+import { faCount, faNum } from "./format";
 
 export type RouteId =
   | "home"
@@ -54,7 +56,7 @@ export const ROUTES: RouteMeta[] = [
     labelFa: "استودیو فونت",
     labelEn: "Font Studio",
     shortFa: "فونت",
-    descFa: "۴۰ خانواده فونت فارسی و نستعلیق",
+    descFa: `${faNum(TOOLKIT_STATS.fonts)} خانواده فونت فارسی و نستعلیق`,
     accent: "#E8B33A",
     glyph: "ی",
   },
@@ -74,7 +76,7 @@ export const ROUTES: RouteMeta[] = [
     labelFa: "استودیو کامپوننت",
     labelEn: "Components",
     shortFa: "کامپوننت",
-    descFa: "۴,۱۹۷ فایل در ۱۲ رجیستری",
+    descFa: `${faCount(TOOLKIT_STATS.components)} فایل در ${faNum(TOOLKIT_STATS.registries.length)} رجیستری`,
     accent: "#5EEAD4",
     glyph: "❖",
   },
@@ -84,7 +86,7 @@ export const ROUTES: RouteMeta[] = [
     labelFa: "استودیو صدا",
     labelEn: "Sound Studio",
     shortFa: "صدا",
-    descFa: "۲۰۰ افکت سینتز زنده",
+    descFa: `${faNum(TOOLKIT_STATS.sounds)} افکت سینتز زنده`,
     accent: "#FB7185",
     glyph: "♪",
   },
@@ -94,7 +96,7 @@ export const ROUTES: RouteMeta[] = [
     labelFa: "استودیو اسکیل",
     labelEn: "Skills Studio",
     shortFa: "اسکیل",
-    descFa: "۱۷۹ اسکیل و ۸۴ سیستم برند",
+    descFa: `${faNum(TOOLKIT_STATS.skills)} اسکیل و ${faNum(TOOLKIT_STATS.brands)} سیستم برند`,
     accent: "#A78BFA",
     glyph: "✧",
   },

@@ -132,7 +132,7 @@ export const ComponentsStudio: React.FC = () => {
       soundEngine.playTick(1.2);
       const my = ++reqId.current;
       // locate index inside its own registry (deterministic chunk mapping)
-      const registryFiles = REGISTRY_FILES.find((r) => r.id === row.reg)!.files;
+      const registryFiles = REGISTRY_FILES.find((r) => r.id === row.reg)?.files ?? [];
       const idx = registryFiles.findIndex(([p]) => p === row.path);
       if (idx < 0) {
         setCode(null);
@@ -157,7 +157,7 @@ export const ComponentsStudio: React.FC = () => {
     async (row: Row | null): Promise<ChunkFile | null> => {
       if (!row) return null;
       if (code && selected && code.p === selected.path) return code;
-      const registryFiles = REGISTRY_FILES.find((r) => r.id === row.reg)!.files;
+      const registryFiles = REGISTRY_FILES.find((r) => r.id === row.reg)?.files ?? [];
       const idx = registryFiles.findIndex(([p]) => p === row.path);
       if (idx < 0) return null;
       const files = await fetchChunk(row.reg, Math.floor(idx / CHUNK_SIZE));

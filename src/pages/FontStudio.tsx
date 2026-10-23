@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   AlignCenter,
@@ -104,20 +104,6 @@ export const FontStudio: React.FC = () => {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<Category>("all");
   const [replay, setReplay] = useState(0);
-
-  // deep-link from the landing page: ?font=<id> stored under "studio-fonts.pick"
-  useEffect(() => {
-    try {
-      const pick = localStorage.getItem("studio-fonts.pick");
-      if (pick && PERSIAN_FONT_CATALOG.some((f) => f.id === pick)) {
-        set({ fontId: pick });
-        localStorage.removeItem("studio-fonts.pick");
-      }
-    } catch {
-      /* ignore */
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const font = PERSIAN_FONT_CATALOG.find((f) => f.id === s.fontId) ?? PERSIAN_FONT_CATALOG[0];
   const compareFont = PERSIAN_FONT_CATALOG.find((f) => f.id === s.compareId) ?? PERSIAN_FONT_CATALOG[1];

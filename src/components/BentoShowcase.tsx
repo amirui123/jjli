@@ -207,14 +207,16 @@ export const PersianKineticTypographyWidget: React.FC<{
         </div>
       )}
 
-      <div
+      <button
+        type="button"
         key={replayKey}
         onClick={() => {
           soundEngine.playSpring();
           setReplayKey((k) => k + 1);
         }}
         title="برای تکرار انیمیشن کلیک کنید"
-        className="flex min-h-[108px] cursor-pointer flex-wrap items-center justify-center gap-x-2.5 gap-y-2 rounded-xl border border-white/10 bg-zinc-950/90 px-4 py-5 text-center"
+        aria-label="پخش دوباره انیمیشن نمونه"
+        className="flex min-h-[108px] w-full cursor-pointer flex-wrap items-center justify-center gap-x-2.5 gap-y-2 rounded-xl border border-white/10 bg-zinc-950/90 px-4 py-5 text-center"
       >
         {words.map((word, idx) => (
           <motion.span
@@ -237,7 +239,7 @@ export const PersianKineticTypographyWidget: React.FC<{
             {word}
           </motion.span>
         ))}
-      </div>
+      </button>
 
       <div className="flex items-center justify-between text-[11px] text-zinc-400">
         <span>حفظ ۱۰۰٪ اتصال حروف و نیم‌فاصله (ZWNJ-Safe)</span>

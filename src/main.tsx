@@ -9,7 +9,8 @@ if (boot) {
   window.setTimeout(() => boot.remove(), 400);
 }
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+const container = document.getElementById("root");
+if (container) ReactDOM.createRoot(container).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>

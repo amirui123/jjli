@@ -18,7 +18,7 @@ import { TOOLKIT_SKILL_SLUGS, TOOLKIT_STATS } from "../data/toolkitStats";
 import { FEATURED_SOUNDS } from "../data/featuredSounds";
 import { IRANIAN_BANKS } from "../engines/persianEngines";
 import { navigate } from "../lib/router";
-import { useAppSettings } from "../lib/store";
+import { useAppSettings, writePersisted } from "../lib/store";
 import { soundEngine } from "../engines/soundEngine";
 import { faCount, faNum } from "../lib/format";
 import { cn } from "../ui/kit";
@@ -33,6 +33,9 @@ const FEATURED_FONTS = [
   { id: "darvish", word: "درویش", family: '"Darvish", serif', note: "دست‌نویس" },
   { id: "vazirmatn", word: "وزیرمتن", family: '"Vazirmatn", sans-serif', note: "متن" },
 ];
+
+/** real pair count of public/ai/dataset.json (kept in sync by the generator) */
+const AI_DATASET_PAIRS = 40;
 
 const STUDIO_CARDS = [
   {
@@ -57,7 +60,7 @@ const STUDIO_CARDS = [
     id: "components",
     path: "/studio/components",
     title: "استودیو کامپوننت",
-    desc: "کاوشگر سورس واقعی ۱۲ رجیستری متن‌باز با دانلود فایل و کیت.",
+    desc: `کاوشگر سورس واقعی ${faNum(TOOLKIT_STATS.registries.length)} رجیستری متن‌باز با دانلود فایل و کیت.`,
     count: `${faNum(TOOLKIT_STATS.components)} فایل`,
     icon: Layers,
     accent: "#5EEAD4",
@@ -66,7 +69,7 @@ const STUDIO_CARDS = [
     id: "sounds",
     path: "/studio/sounds",
     title: "استودیو صدا",
-    desc: "۲۰۰ افکت رویه‌ای با Web Audio — قابل تنظیم، پخش و دانلود WAV.",
+    desc: `${faNum(TOOLKIT_STATS.sounds)} افکت رویه‌ای با Web Audio — قابل تنظیم، پخش و دانلود WAV.`,
     count: `${faNum(TOOLKIT_STATS.sounds)} رسیپی`,
     icon: Waves,
     accent: "#FB7185",
@@ -75,7 +78,7 @@ const STUDIO_CARDS = [
     id: "skills",
     path: "/studio/skills",
     title: "استودیو مهارت",
-    desc: "۱۷۹ سند مهارتی و ۸۴ سیستم برند، با متن کامل و پرامپت آماده.",
+    desc: `${faNum(TOOLKIT_STATS.skills)} سند مهارتی و ${faNum(TOOLKIT_STATS.brands)} سیستم برند، با متن کامل و پرامپت آماده.`,
     count: `${faNum(TOOLKIT_STATS.skills)} اسکیل`,
     icon: BookOpen,
     accent: "#A78BFA",
@@ -88,6 +91,15 @@ const STUDIO_CARDS = [
     count: `${faNum(IRANIAN_BANKS.length)} بانک`,
     icon: Cpu,
     accent: "#34D399",
+  },
+  {
+    id: "ai",
+    path: "/studio/ai",
+    title: "استودیو هوش مصنوعی",
+    desc: `${faNum(AI_DATASET_PAIRS)} جفت‌داده آموزش، QLoRA و بنچمارک — آماده تریس برای مدل‌های فارسی.`,
+    count: `${faNum(AI_DATASET_PAIRS)} جفت‌داده`,
+    icon: Sparkles,
+    accent: "#F472B6",
   },
 ];
 
@@ -147,7 +159,7 @@ const SpecimenStack: React.FC = () => {
             <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-500">SPECIMEN</span>
             <button
               onClick={() => setFontIdx((i) => i + 1)}
-              className="rounded-md border border-white/10 px-1.5 py-0.5 text-[9px] text-zinc-400 hover:text-white"
+              className="tap-target rounded-md border border-white/10 px-2 py-1 text-[10px] text-zinc-400 hover:text-white"
             >
               فونت بعدی ←
             </button>
@@ -306,7 +318,7 @@ const MotionTeaser: React.FC = () => (
   <section>
     <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
       <div>
-        <h2 className="font-hasti text-[26px] leading-tight text-white">حرکت را لمس کن</h2>
+        <h2 className="font-hasti text-[22px] leading-tight text-white sm:text-[26px]">حرکت را لمس کن</h2>
         <p className="mt-1 text-[12px] text-zinc-500">
           سه نمونه واقعی با فیزیک فنر؛ همان چیزی که در استودیو موشن قابل تنظیم است.
         </p>
@@ -352,7 +364,7 @@ export const Landing: React.FC = () => {
               کاملاً رایگان · بدون حساب کاربری · همه‌چیز در مرورگر
             </div>
 
-            <h1 className="mt-4 font-hasti text-[40px] leading-[1.35] text-white sm:text-[58px]">
+            <h1 className="mt-4 font-hasti text-[31px] leading-[1.35] text-white sm:text-[46px] lg:text-[58px]">
               {HEADLINE.map((word, i) => (
                 <motion.span
                   key={word}
@@ -370,7 +382,7 @@ export const Landing: React.FC = () => {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.34 }}
-              className="mt-4 max-w-xl text-[13.5px] leading-relaxed text-zinc-400"
+              className="mt-4 max-w-xl text-[13px] leading-relaxed text-zinc-400 sm:text-[13.5px]"
             >
               یک آزمایشگاه مهندسی کامل برای رابط‌های فارسی: {faNum(TOOLKIT_STATS.fonts)} خانواده فونت،
               فیزیک حرکت با شبیه‌سازی واقعی، {faCount(componentTotal)} فایل کامپوننت متن‌باز،{" "}
@@ -452,7 +464,9 @@ export const Landing: React.FC = () => {
       <section>
         <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
           <div>
-            <h2 className="font-hasti text-[26px] leading-tight text-white">شش استودیو، یک زبان طراحی</h2>
+            <h2 className="font-hasti text-[24px] leading-tight text-white sm:text-[26px]">
+              {faNum(STUDIO_CARDS.length)} استودیو، یک زبان طراحی
+            </h2>
             <p className="mt-1 text-[12px] text-zinc-500">
               هر بخش صفحه مستقل، تنظیمات کامل و خروجی واقعی دارد — نه دموی تزئینی.
             </p>
@@ -506,9 +520,9 @@ export const Landing: React.FC = () => {
 
       {/* ------------------------------------------------------------- fonts */}
       <section>
-        <div className="mb-3 flex items-end justify-between">
+        <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
           <div>
-            <h2 className="font-hasti text-[26px] leading-tight text-white">فونت‌هایی که واقعاً فارسی‌اند</h2>
+            <h2 className="font-hasti text-[22px] leading-tight text-white sm:text-[26px]">فونت‌هایی که واقعاً فارسی‌اند</h2>
             <p className="mt-1 text-[12px] text-zinc-500">
               نستعلیق، خوشنویسی، نمایشی و متغیر — هر کدام با فایل واقعی و پیش‌نمایش زنده.
             </p>
@@ -526,11 +540,8 @@ export const Landing: React.FC = () => {
             <button
               key={f.id}
               onClick={() => {
-                try {
-                  localStorage.setItem("studio-fonts.pick", f.id);
-                } catch {
-                  /* ignore */
-                }
+                // hand the choice to the font studio through its own persisted key
+                writePersisted<{ fontId: string }>("studio-fonts", { fontId: f.id });
                 navigate("/studio/fonts");
               }}
               className="group rounded-2xl border border-white/[0.07] bg-[#0B0B0E] p-3 text-center transition-all hover:-translate-y-1 hover:border-[color:var(--accent)]/30"
@@ -549,16 +560,16 @@ export const Landing: React.FC = () => {
 
       {/* ------------------------------------------------------------ motion */}
       <section className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="rounded-3xl border border-white/[0.07] bg-gradient-to-br from-[#0E0E12] to-[#08080A] p-6">
+        <div className="rounded-3xl border border-white/[0.07] bg-gradient-to-br from-[#0E0E12] to-[#08080A] p-5 sm:p-6">
           <span className="font-mono text-[9.5px] tracking-[0.2em] text-[color:var(--accent)]">REAL PHYSICS</span>
-          <h2 className="mt-2 font-hasti text-[30px] leading-tight text-white">
+          <h2 className="mt-2 font-hasti text-[24px] leading-tight text-white sm:text-[30px]">
             حرکت را با ریاضی بساز، نه با حدس
           </h2>
           <p className="mt-2 text-[12px] leading-relaxed text-zinc-400">
             استودیو موشن فنر را عددی انتگرال می‌گیرد: زمان نشست، نسبت میرایی، فراجهش و منحنی
             واقعی. همان اعداد داخل کد و کیت دانلودی قرار می‌گیرند.
           </p>
-          <div className="mt-4 flex gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             <button
               onClick={() => {
                 if (settings.sound) soundEngine.playSpring();
@@ -596,16 +607,16 @@ export const Landing: React.FC = () => {
       </section>
 
       {/* --------------------------------------------------------------- cta */}
-      <section className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-[#0B0B0E] px-6 py-12 text-center">
+      <section className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-[#0B0B0E] px-5 py-10 text-center sm:px-6 sm:py-12">
         <div className="pointer-events-none absolute inset-0 -z-0 opacity-70">
           <div className="absolute start-1/4 top-0 h-56 w-56 rounded-full bg-[color:var(--accent)]/12 aurora-blob" />
           <div className="absolute end-1/4 bottom-0 h-52 w-52 rounded-full bg-[#6366F1]/12 aurora-blob" />
         </div>
         <div className="relative">
-          <p className="font-nastaliq text-[26px] leading-[2] text-[color:var(--accent)] sm:text-[32px]">
+          <p className="font-nastaliq text-[22px] leading-[2] text-[color:var(--accent)] sm:text-[32px]">
             هر چه بسازی، از آنِ خودت است
           </p>
-          <h2 className="mt-2 font-hasti text-[30px] leading-tight text-white sm:text-[36px]">
+          <h2 className="mt-2 font-hasti text-[25px] leading-tight text-white sm:text-[36px]">
             همین حالا شروع کن — بدون ثبت‌نام
           </h2>
           <p className="mx-auto mt-2 max-w-lg text-[12px] leading-relaxed text-zinc-500">

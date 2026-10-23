@@ -910,3 +910,91 @@ html[data-motion="reduced"] *::after {
    سه‌ریله و تک‌صفحه می‌شود (لپ‌تاپ‌های ۱۳ اینچ هم شامل می‌شوند).
    -------------------------------------------------------------------------- */
 @custom-variant desk (@media (width >= 1200px));
+
+/* ==========================================================================
+   لایه موبایل: لمس، امن‌ترین ناحیه صفحه و جلوگیری از پرش افقی
+   ========================================================================== */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  overscroll-behavior-x: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+[role="button"],
+a,
+label {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* ارتفاع کف صفحه در آیفون‌های با نوار خانه */
+.pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+/* کنترل‌های لمسی در موبایل حداقل ۴۰ پیکسل ارتفاع می‌گیرند */
+@media (max-width: 640px) {
+  .tap-target {
+    min-height: 40px;
+  }
+}
+
+/* اسکرول افقی نرم برای نوارهای افقی موبایل */
+.snap-x-soft {
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+.snap-x-soft > * {
+  scroll-snap-align: center;
+}
+
+/* روی موبایل بلورهای سنگین ارزان‌تر رندر می‌شوند تا اسکرول روان بماند */
+@media (max-width: 767px) {
+  .mobile-blur-off {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* حالت تمرکز روی صفحه‌های لمسی معنا ندارد */
+@media (hover: none) {
+  .hover-only {
+    display: none !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   موبایل: جلوگیری از زوم خودکار iOS روی فوکوس ورودی‌ها (فونت < ۱۶px زوم می‌کند)
+   -------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+  }
+
+  /* نوار بالا روی گوشی مات‌تر اما ارزان‌تر رندر می‌شود */
+  .app-topbar {
+    background-color: rgba(8, 8, 10, 0.94) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* هاله‌های نوری هنگام اسکرول روی گوشی ثابت می‌مانند تا GPU درگیر نشود */
+  .aurora-blob {
+    animation: none !important;
+  }
+}
+
+/* حلقه فوکوس واضح برای پیمایش با کیبورد */
+:where(button, a, [role="button"], input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 75%, white 10%);
+  outline-offset: 2px;
+  border-radius: 8px;
+}

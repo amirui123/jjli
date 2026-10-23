@@ -83,6 +83,7 @@ export const Slider: React.FC<{
   // Geometry: a 12px thumb travels inside the track; both fill and thumb share
   // the same coordinate space, so nothing can ever overflow the track ends.
   const travel = `calc((100% - 12px) * ${pct})`;
+  const fill = pct === 0 ? "0px" : `calc(${travel} + 6px)`;
 
   return (
     <label className={cn("block select-none", disabled && "opacity-50")}>
@@ -98,7 +99,7 @@ export const Slider: React.FC<{
         <div className="pointer-events-none absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-white/10" />
         <div
           className="pointer-events-none absolute top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-[color:var(--accent)]"
-          style={{ left: "6px", width: travel }}
+          style={{ left: "6px", width: fill }}
         />
         <div
           className="pointer-events-none absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full border-2 border-[color:var(--accent)] bg-white shadow-[0_0_0_3px_rgba(var(--accent-glow),0.14)] transition-transform duration-100 group-hover/range:scale-110"
@@ -114,7 +115,7 @@ export const Slider: React.FC<{
           disabled={disabled}
           onChange={(e) => onChange(Number(e.target.value))}
           aria-label={label}
-          className="absolute inset-0 h-full w-full cursor-pointer appearance-none bg-transparent opacity-0 disabled:cursor-not-allowed"
+          className="absolute inset-x-0 top-1/2 h-8 w-full -translate-y-1/2 cursor-pointer appearance-none bg-transparent opacity-0 disabled:cursor-not-allowed"
         />
       </div>
 
@@ -135,7 +136,7 @@ export const Toggle: React.FC<{
       click();
       onChange(!checked);
     }}
-    className="flex w-full items-center justify-between gap-3 rounded-lg py-1 text-start"
+    className="flex min-h-[34px] w-full items-center justify-between gap-3 rounded-lg py-1.5 text-start"
     aria-pressed={checked}
   >
     <span className="min-w-0">
@@ -157,7 +158,7 @@ export const Toggle: React.FC<{
             ? "start-[2px] translate-x-0 bg-[color:var(--accent)]"
             : "start-[2px] bg-zinc-500"
         )}
-        style={checked ? { transform: "translateX(-14px)" } : undefined}
+        style={checked ? { transform: "translateX(-16px)" } : undefined}
       />
     </span>
   </button>

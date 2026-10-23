@@ -24,11 +24,22 @@ function readJSON<T>(key: string, fallback: T): T {
 }
 
 /** Persisted object state with shallow-merge hydration + debounced writes. */
+/** Writes a patch to a persisted key — used for cross-page deep links. */
+export function writePersisted<T extends object>(key: string, patch: Partial<T>) {
+  try {
+    const current = readJSON<T>(key, {} as T);
+    localStorage.setItem(PREFIX + key, JSON.stringify({ ...current, ...patch }));
+  } catch {
+    /* quota or private mode — ignore */
+  }
+}
+
 export function usePersisted<T extends object>(
   key: string,
   initial: T
 ): [T, (patch: Partial<T> | ((prev: T) => T)) => void, () => void] {
   const [state, setState] = useState<T>(() => readJSON(key, initial));
+  const initialRef = useRef(initial);
   const timer = useRef<number | null>(null);
 
   useEffect(() => {
@@ -54,13 +65,12 @@ export function usePersisted<T extends object>(
   }, []);
 
   const reset = useCallback(() => {
-    setState(initial);
+    setState(initialRef.current);
     try {
       localStorage.removeItem(PREFIX + key);
     } catch {
       /* ignore */
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
   return [state, update, reset];

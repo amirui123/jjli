@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Maximize2, Minimize2, RotateCcw } from "lucide-react";
+import { Eye, List, Maximize2, Minimize2, RotateCcw, SlidersHorizontal } from "lucide-react";
 import { cn } from "./kit";
 import { usePersisted } from "../lib/store";
 
@@ -15,7 +15,8 @@ import { usePersisted } from "../lib/store";
  * Each rail scrolls on its own, so the page itself never scrolls. The two
  * dividers are draggable (and double-clickable to reset), widths are persisted,
  * and `F` toggles a distraction-free focus mode that hides both rails.
- * Below 1200px the rails stack and the page scrolls normally.
+ * Below 1200px the three rails turn into three tabs (preview / settings / list)
+ * so a phone never has to scroll past one panel to reach another.
  */
 
 interface Layout {
@@ -33,6 +34,14 @@ const HANDLE_W = 7;
 const GAP = 12;
 
 const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max);
+
+type MobileTab = "stage" | "settings" | "list";
+
+const MOBILE_TABS: { id: MobileTab; label: string; icon: React.ElementType }[] = [
+  { id: "stage", label: "پیش‌نمایش", icon: Eye },
+  { id: "settings", label: "تنظیمات", icon: SlidersHorizontal },
+  { id: "list", label: "فهرست", icon: List },
+];
 
 export const StudioShell: React.FC<{
   eyebrow: string;
@@ -66,6 +75,9 @@ export const StudioShell: React.FC<{
     settings: parseInt(settingsWidth, 10) || 306,
     focus: false,
   });
+
+  const [mobile, setMobile] = usePersisted<{ tab: MobileTab }>("studio-tab", { tab: "stage" });
+  const tab: MobileTab = MOBILE_TABS.some((t) => t.id === mobile.tab) ? mobile.tab : "stage";
 
   const gridRef = useRef<HTMLDivElement | null>(null);
   const [drag, setDrag] = useState<{ side: "list" | "settings"; startX: number; start: number } | null>(null);
@@ -117,6 +129,17 @@ export const StudioShell: React.FC<{
   const resetWidths = useCallback(() => {
     setLayout({ list: 248, settings: 306 });
   }, [setLayout]);
+
+  /* ------------------------------------------------ mobile tab → top of page */
+  const pickTab = useCallback(
+    (next: MobileTab) => {
+      setMobile({ tab: next });
+      if (typeof window !== "undefined" && window.scrollY > 80) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    },
+    [setMobile]
+  );
 
   /* ------------------------------------------------------------ focus mode */
 
@@ -189,19 +212,21 @@ export const StudioShell: React.FC<{
           </span>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className="truncate font-hasti text-[17px] leading-tight text-white">{title}</h1>
+              <h1 className="truncate font-hasti text-[15px] leading-tight text-white sm:text-[17px]">
+                {title}
+              </h1>
               <span className="hidden shrink-0 font-mono text-[9px] tracking-[0.16em] text-zinc-600 sm:inline">
                 {eyebrow}
               </span>
             </div>
-            <p className="mt-0.5 hidden max-w-2xl truncate text-[10.5px] leading-tight text-zinc-500 lg:block">
+            <p className="mt-0.5 hidden max-w-2xl truncate text-[10.5px] leading-tight text-zinc-500 sm:block">
               {description}
             </p>
           </div>
         </div>
 
         <div className="flex shrink-0 items-center gap-1.5">
-          {stats}
+          {stats && <div className="hidden items-center gap-1.5 sm:flex">{stats}</div>}
           {actions}
           <button
             onClick={() => setLayout({ focus: !layout.focus })}
@@ -231,6 +256,35 @@ export const StudioShell: React.FC<{
         </div>
       </header>
 
+      {/* -------------------------------------------------- mobile panel tabs */}
+      <nav
+        aria-label="پنل‌های استودیو"
+        className="sticky top-14 z-20 flex shrink-0 items-center gap-1 rounded-xl border border-white/[0.07] bg-[#0B0B0E]/95 p-1 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.9)] backdrop-blur-xl desk:hidden"
+      >
+        {MOBILE_TABS.map(({ id, label, icon: TabIcon }) => {
+          const active = tab === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => pickTab(id)}
+              aria-pressed={active}
+              className={cn(
+                "tap-target flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-medium transition-colors",
+                active
+                  ? "bg-white/[0.08] text-white"
+                  : "text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-300"
+              )}
+            >
+              <TabIcon
+                className={cn("h-3.5 w-3.5", active ? "text-[color:var(--accent)]" : "text-zinc-500")}
+              />
+              {label}
+            </button>
+          );
+        })}
+      </nav>
+
       {/* ------------------------------------------------------------ rails */}
       <div
         ref={gridRef}
@@ -240,7 +294,11 @@ export const StudioShell: React.FC<{
         {/* list — first in the DOM = right rail in RTL */}
         <div
           data-rail="list"
-          className={cn("order-2 min-h-0 desk:order-none desk:h-full desk:overflow-hidden", layout.focus && "desk:hidden")}
+          className={cn(
+            "order-2 min-h-0 desk:order-none desk:h-full desk:overflow-hidden",
+            layout.focus && "desk:hidden",
+            tab !== "list" && "hidden desk:block"
+          )}
         >
           {list}
         </div>
@@ -250,7 +308,10 @@ export const StudioShell: React.FC<{
         {/* stage — live preview, scrolls inside its own rail */}
         <div
           data-rail="stage"
-          className="order-1 min-w-0 desk:order-none desk:h-full desk:overflow-y-auto desk:pe-1 studio-scroll"
+          className={cn(
+            "order-1 min-w-0 desk:order-none desk:h-full desk:overflow-y-auto desk:pe-1 studio-scroll",
+            tab !== "stage" && "hidden desk:block"
+          )}
         >
           {stage}
         </div>
@@ -262,7 +323,8 @@ export const StudioShell: React.FC<{
           data-rail="settings"
           className={cn(
             "order-3 min-h-0 desk:order-none desk:h-full desk:overflow-y-auto desk:pe-1 studio-scroll",
-            layout.focus && "desk:hidden"
+            layout.focus && "desk:hidden",
+            tab !== "settings" && "hidden desk:block"
           )}
         >
           {settings}

@@ -1,8 +1,10 @@
 import React, { Suspense, lazy, useEffect } from "react";
+import { MotionConfig } from "framer-motion";
 import { AppShell } from "./shell/AppShell";
 import { AppSettingsProvider } from "./lib/store";
 import { ROUTES, useRouter } from "./lib/router";
 import { ToastProvider } from "./ui/Toast";
+import { ErrorBoundary } from "./ui/ErrorBoundary";
 
 const Landing = lazy(() => import("./pages/Landing"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -64,19 +66,23 @@ const Router: React.FC = () => {
 
   return (
     <AppShell>
-      <Suspense key={route} fallback={<PageSkeleton />}>
-        <Page />
-      </Suspense>
+      <ErrorBoundary key={route}>
+        <Suspense key={route} fallback={<PageSkeleton />}>
+          <Page />
+        </Suspense>
+      </ErrorBoundary>
     </AppShell>
   );
 };
 
 export const App: React.FC = () => (
-  <AppSettingsProvider>
-    <ToastProvider>
-      <Router />
-    </ToastProvider>
-  </AppSettingsProvider>
+  <MotionConfig reducedMotion="user">
+    <AppSettingsProvider>
+      <ToastProvider>
+        <Router />
+      </ToastProvider>
+    </AppSettingsProvider>
+  </MotionConfig>
 );
 
 export default App;

@@ -80,7 +80,6 @@ globalThis.IntersectionObserver = Obs;
 globalThis.localStorage = window.localStorage;
 
 // ---- static file fetch shim: serve /public assets out of dist ---------------
-const ROOT = process.cwd();
 const nativeFetch = globalThis.fetch;
 globalThis.fetch = async (input, init) => {
   const url = String(input);
@@ -197,6 +196,101 @@ else {
     const r = await fetch("/regcode/chunks/animate-ui/0.json");
     console.log("DEBUG fetch ok:", r.ok, "rows:", document.querySelectorAll("[data-file-row]").length);
   }
+}
+
+// interaction 3: a featured font on the landing page must pre-select the studio
+mod.setHash("#/");
+await wait(600);
+const featuredBtn = [...document.querySelectorAll("main button")].find((b) =>
+  (b.textContent || "").includes("هستی")
+);
+if (!featuredBtn) errors.push("DEEPLINK: featured font tile not found on the landing page");
+else {
+  featuredBtn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  await wait(700);
+  const specimen = document.querySelector("[data-testid=font-specimen]");
+  const style = specimen?.getAttribute("style") ?? "";
+  if (!/Hasti/i.test(style)) errors.push(`DEEPLINK: specimen did not pick Hasti (${style.slice(0, 60)})`);
+}
+
+// interaction 4: accent choice must reach the CSS custom properties
+mod.setHash("#/dashboard");
+await wait(400);
+const accentButton = [...document.querySelectorAll("button")].find(
+  (b) => b.getAttribute("aria-label") === "رنگ پلتفرم"
+);
+if (!accentButton) errors.push("THEME: accent picker button missing");
+else {
+  accentButton.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  await wait(200);
+  const turquoise = [...document.querySelectorAll("button")].find((b) =>
+    (b.textContent || "").includes("فیروزه")
+  );
+  if (!turquoise) errors.push("THEME: accent option فیروزه missing");
+  else {
+    turquoise.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+    await wait(250);
+    const applied = document.documentElement.style.getPropertyValue("--accent").toLowerCase();
+    if (applied !== "#2dd4bf") errors.push(`THEME: --accent not applied (${applied || "empty"})`);
+    const saffron = [...document.querySelectorAll("button")].find(
+      (b) => b.getAttribute("aria-label") === "رنگ پلتفرم"
+    );
+    saffron?.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+    await wait(150);
+    const back = [...document.querySelectorAll("button")].find((b) =>
+      (b.textContent || "").includes("زعفران")
+    );
+    back?.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+    await wait(200);
+  }
+}
+
+// ---------------------------------------------------------------- mobile tabs
+mod.setHash("#/studio/fonts");
+await wait(600);
+const tabBar = document.querySelector('nav[aria-label="پنل‌های استودیو"]');
+if (!tabBar) errors.push("MOBILE: studio tab bar missing");
+else {
+  const buttons = [...tabBar.querySelectorAll("button")];
+  if (buttons.length !== 3) errors.push(`MOBILE: expected 3 tabs, found ${buttons.length}`);
+  const visibleRail = () =>
+    [...document.querySelectorAll("[data-rail]")].filter(
+      (el) => !el.className.split(/\s+/).includes("hidden")
+    ).length;
+  if (visibleRail() !== 1) errors.push(`MOBILE: expected 1 visible rail, found ${visibleRail()}`);
+  const settingsTab = buttons[1];
+  settingsTab?.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  await wait(250);
+  const settingsRail = document.querySelector('[data-rail="settings"]');
+  if (!settingsRail || settingsRail.className.split(/\s+/).includes("hidden")) {
+    errors.push("MOBILE: settings tab did not reveal the settings rail");
+  }
+  if (visibleRail() !== 1) errors.push(`MOBILE: settings tab left ${visibleRail()} rails visible`);
+  buttons[0]?.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  await wait(200);
+}
+
+// ------------------------------------------------------------ a11y sanity pass
+for (const [path] of ROUTES) {
+  mod.setHash(`#${path}`);
+  await wait(320);
+  const h1s = document.querySelectorAll("main h1").length;
+  if (h1s !== 1) errors.push(`A11Y ${path}: expected exactly one h1, found ${h1s}`);
+  const nameless = [...document.querySelectorAll("main button")].filter((b) => {
+    const label = (b.getAttribute("aria-label") || b.textContent || "").trim();
+    return label.length === 0;
+  });
+  if (nameless.length) errors.push(`A11Y ${path}: ${nameless.length} button(s) without a name`);
+}
+
+// dock must expose every section with a real label on every screen size
+const dock = document.querySelector('nav[aria-label="ناوبری بخش‌ها"]');
+if (!dock) errors.push("DOCK: navigation dock missing");
+else {
+  const items = [...dock.querySelectorAll("button")];
+  if (items.length !== 9) errors.push(`DOCK: expected 9 sections, found ${items.length}`);
+  const anonymous = items.filter((b) => !(b.getAttribute("aria-label") || "").trim());
+  if (anonymous.length) errors.push(`DOCK: ${anonymous.length} section(s) without aria-label`);
 }
 
 console.error = origError;

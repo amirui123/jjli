@@ -60,6 +60,23 @@ const WaveformCanvas: React.FC<{ recipe: SoundRecipeItem; options: PlayOptions; 
 }) => {
   const ref = useRef<HTMLCanvasElement | null>(null);
   const [peaks, setPeaks] = useState<number[] | null>(null);
+  const [boxWidth, setBoxWidth] = useState(0);
+
+  /* The canvas lives in a rail that is hidden while another mobile tab is
+     active, so it must redraw by itself whenever its real width changes. */
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    const measure = () => setBoxWidth(canvas.clientWidth);
+    measure();
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", measure);
+      return () => window.removeEventListener("resize", measure);
+    }
+    const ro = new ResizeObserver(measure);
+    ro.observe(canvas);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -91,6 +108,8 @@ const WaveformCanvas: React.FC<{ recipe: SoundRecipeItem; options: PlayOptions; 
       alive = false;
       window.clearTimeout(id);
     };
+    // options is memoised upstream; the primitive fields are the real inputs
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recipe, options.pitch, options.gain, options.cutoff, options.stretch, options.noise, version]);
 
   useEffect(() => {
@@ -101,6 +120,7 @@ const WaveformCanvas: React.FC<{ recipe: SoundRecipeItem; options: PlayOptions; 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
+    if (w < 2 || h < 2) return; // hidden panel: skip instead of drawing a 0px canvas
     canvas.width = w * dpr;
     canvas.height = h * dpr;
     ctx.scale(dpr, dpr);
@@ -131,7 +151,7 @@ const WaveformCanvas: React.FC<{ recipe: SoundRecipeItem; options: PlayOptions; 
       ctx.fillRect(i * barW, mid - amp, Math.max(barW - 0.6, 0.7), amp * 2);
     });
     ctx.globalAlpha = 1;
-  }, [peaks]);
+  }, [peaks, boxWidth]);
 
   return <canvas ref={ref} className="h-24 w-full" />;
 };

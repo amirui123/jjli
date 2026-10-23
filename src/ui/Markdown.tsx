@@ -14,23 +14,24 @@ export const Markdown: React.FC<{ source: string; className?: string }> = ({
     <div className={cn("markdown-body space-y-2.5 text-[12px] leading-[1.9] text-zinc-300", className)} dir="rtl">
       {blocks.map((b, i) => {
         switch (b.type) {
+          // documents are embedded inside a panel, so their headings start at h2
           case "h1":
             return (
-              <h1 key={i} className="mt-1 border-b border-white/[0.07] pb-2 text-[17px] font-bold text-white">
-                {b.text}
-              </h1>
-            );
-          case "h2":
-            return (
-              <h2 key={i} className="mt-4 text-[14px] font-bold text-zinc-100">
+              <h2 key={i} className="mt-1 border-b border-white/[0.07] pb-2 text-[17px] font-bold text-white">
                 {b.text}
               </h2>
             );
-          case "h3":
+          case "h2":
             return (
-              <h3 key={i} className="mt-3 text-[12.5px] font-semibold text-zinc-200">
+              <h3 key={i} className="mt-4 text-[14px] font-bold text-zinc-100">
                 {b.text}
               </h3>
+            );
+          case "h3":
+            return (
+              <h4 key={i} className="mt-3 text-[12.5px] font-semibold text-zinc-200">
+                {b.text}
+              </h4>
             );
           case "code":
             return (

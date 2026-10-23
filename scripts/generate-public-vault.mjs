@@ -10,8 +10,10 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = "/home/user/jjli";
+// resolve from this script, never from a hard-coded home directory
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const TK = path.join(ROOT, "toolkit");
 const PUB = path.join(ROOT, "public");
 /* Safety guard: if the vendored toolkit is absent (e.g. shallow CI checkout),
@@ -22,8 +24,23 @@ if (!fs.existsSync(TOOLKIT_DIR) || fs.readdirSync(TOOLKIT_DIR).length < 4) {
   process.exit(0);
 }
 
-
-const CAP = 120_000; // per-file guard for pathological outliers
+/** Reads the generated registry manifest so the vault index never lies. */
+function registrySummary() {
+  const file = path.join(ROOT, "src/data/registryFiles.ts");
+  if (!fs.existsSync(file)) return { registries: [], components: 0 };
+  const raw = fs.readFileSync(file, "utf8");
+  const open = raw.indexOf("= [");
+  const close = raw.lastIndexOf("]");
+  if (open < 0 || close < open) return { registries: [], components: 0 };
+  try {
+    const rows = JSON.parse(raw.slice(open + 2, close + 1));
+    const registries = rows.map((r) => ({ id: r.id, total: r.totalFiles ?? 0 }));
+    const components = registries.reduce((a, r) => a + r.total, 0);
+    return { registries, components };
+  } catch {
+    return { registries: [], components: 0 };
+  }
+}
 
 function walk(dir, filterFn, list = []) {
   if (!fs.existsSync(dir)) return list;
@@ -111,13 +128,14 @@ fs.writeFileSync(
     : ""
 );
 
+const summary = registrySummary();
 writeJson(path.join(PUB, "vault/index.json"), {
   skills: skillFiles.length,
   brands: brandFiles.length,
-  registries: index,
-  components: totalFiles,
+  registries: summary.registries,
+  components: summary.components,
 });
 
 console.log(
-  `\nDONE  components=${totalFiles} (${(totalBytes / 1048576).toFixed(1)} MB real source)  skills=${skillFiles.length}  brands=${brandFiles.length}  datasetPairs=${pairs.length}`
+  `\nDONE  components=${summary.components} in ${summary.registries.length} registries  skills=${skillFiles.length}  brands=${brandFiles.length}  datasetPairs=${pairs.length}`
 );

@@ -58,7 +58,7 @@ const STUDIOS = [
     id: "components",
     path: "/studio/components",
     title: "کامپوننت",
-    desc: `کاوشگر ${faCount(TOOLKIT_STATS.components)} فایل سورس در ۱۲ رجیستری`,
+    desc: `کاوشگر ${faCount(TOOLKIT_STATS.components)} فایل سورس در ${faNum(TOOLKIT_STATS.registries.length)} رجیستری`,
     icon: Layers,
     accent: "#5EEAD4",
     stat: faCount(TOOLKIT_STATS.components),
@@ -78,7 +78,7 @@ const STUDIOS = [
     id: "sounds",
     path: "/studio/sounds",
     title: "صدا",
-    desc: "۲۰۰ افکت رویه‌ای، قابل تنظیم و قابل دانلود به‌صورت WAV",
+    desc: `${faNum(TOOLKIT_STATS.sounds)} افکت رویه‌ای، قابل تنظیم و قابل دانلود به‌صورت WAV`,
     icon: Waves,
     accent: "#FB7185",
     stat: `${faNum(TOOLKIT_STATS.sounds)} صدا`,
@@ -100,7 +100,7 @@ const STUDIOS = [
     id: "skills",
     path: "/studio/skills",
     title: "مهارت",
-    desc: "۱۷۹ سند مهندسی و ۸۴ سیستم برند با متن کامل و پرامپت آماده",
+    desc: `${faNum(TOOLKIT_STATS.skills)} سند مهندسی و ${faNum(TOOLKIT_STATS.brands)} سیستم برند با متن کامل و پرامپت آماده`,
     icon: BookOpen,
     accent: "#A78BFA",
     stat: `${faNum(TOOLKIT_STATS.skills)} سند`,
@@ -126,6 +126,28 @@ const STUDIOS = [
           <span className="absolute bottom-1.5 start-1.5 h-1 w-8 rounded bg-emerald-300/40" />
           <span className="absolute bottom-1.5 end-1.5 h-2.5 w-3.5 rounded bg-emerald-300/25" />
         </div>
+      </div>
+    ),
+  },
+  {
+    id: "ai",
+    path: "/studio/ai",
+    title: "هوش مصنوعی",
+    desc: "۴۰ جفت‌داده آموزشی، پیکربندی QLoRA و بنچمارک — آماده تریس برای مدل فارسی",
+    icon: Sparkles,
+    accent: "#F472B6",
+    stat: "۴۰ جفت",
+    preview: (
+      <div className="flex h-full items-center justify-center gap-1.5">
+        {[8, 14, 22, 30, 22, 14, 9, 16, 24, 12].map((h, i) => (
+          <motion.span
+            key={i}
+            className="w-1 rounded-full bg-pink-300/60"
+            animate={{ height: [h, h * 1.6, h] }}
+            transition={{ duration: 1.4 + i * 0.06, repeat: Infinity, ease: "easeInOut" }}
+            style={{ height: h }}
+          />
+        ))}
       </div>
     ),
   },
@@ -216,7 +238,7 @@ export const Dashboard: React.FC = () => {
       <section>
         <div className="mb-3 flex items-end justify-between">
           <h2 className="text-[13px] font-bold text-zinc-200">استودیوها</h2>
-          <span className="text-[10.5px] text-zinc-600">۶ استودیو · همه آزاد</span>
+          <span className="text-[10.5px] text-zinc-600">{faNum(STUDIOS.length)} استودیو · همه آزاد</span>
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {STUDIOS.map((s, i) => (
@@ -298,10 +320,10 @@ export const Dashboard: React.FC = () => {
           <h2 className="text-[13px] font-bold text-zinc-200">وضعیت محتوا</h2>
           <ul className="mt-3 space-y-2.5">
             {[
-              { k: "فونت با فایل واقعی", v: `${TOOLKIT_STATS.fonts} از ${TOOLKIT_STATS.fonts}`, pct: 100 },
-              { k: "اسکیل با متن کامل", v: `${TOOLKIT_STATS.skills} سند`, pct: 100 },
-              { k: "برند با پالت", v: `${TOOLKIT_STATS.brands} برند`, pct: 100 },
-              { k: "افکت صوتی سینتز", v: `${TOOLKIT_STATS.sounds} رسیپی`, pct: 100 },
+              { k: "فونت با فایل واقعی", v: `${faNum(TOOLKIT_STATS.fonts)} از ${faNum(TOOLKIT_STATS.fonts)}`, pct: 100 },
+              { k: "اسکیل با متن کامل", v: `${faNum(TOOLKIT_STATS.skills)} سند`, pct: 100 },
+              { k: "برند با پالت", v: `${faNum(TOOLKIT_STATS.brands)} برند`, pct: 100 },
+              { k: "افکت صوتی سینتز", v: `${faNum(TOOLKIT_STATS.sounds)} رسیپی`, pct: 100 },
             ].map((row) => (
               <li key={row.k}>
                 <div className="flex items-center justify-between text-[10.5px]">

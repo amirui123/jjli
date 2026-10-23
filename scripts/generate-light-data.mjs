@@ -8,7 +8,6 @@
  *   src/data/featuredSounds.ts — 8 real recipes for instant audition
  */
 import fs from "node:fs";
-import path from "node:path";
 import { build } from "esbuild";
 
 async function loadModule(entry) {
