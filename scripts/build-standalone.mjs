@@ -4,7 +4,9 @@
  * تا فایل نهایی بدون هیچ درخواست شبکه‌ای باز شود.
  *
  * ورودی : standalone/template.html
- * خروجی : public/showcase.html  (سرو شده در /showcase.html)
+ * خروجی : share/rtl-motion-lab-showcase.html
+ * نکته  : این فایل جزو سایت منتشرشده نیست؛ فقط نسخه‌ای است که می‌شود در چت
+ *         فرستاد. تنها آدرس عمومی پروژه https://amirui123.github.io/jjli/ است.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -39,7 +41,7 @@ if (html.includes("__FONT_")) {
   process.exit(1);
 }
 
-const out = path.join(ROOT, "public/showcase.html");
+const out = path.join(ROOT, "share/rtl-motion-lab-showcase.html");
 fs.writeFileSync(out, html, "utf8");
 const kb = (Buffer.byteLength(html) / 1024).toFixed(0);
 console.log(`✅ showcase.html: ${kb} KB · ${injected} fonts inlined · zero network requests`);

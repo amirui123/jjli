@@ -23,7 +23,6 @@
 | `#/studio/skills` | استودیو مهارت | ۱۷۹ سند مهندسی + ۸۴ سیستم برند، متن کامل و پرامپت آماده |
 | `#/studio/engines` | آزمایشگاه شیدر | ۱۸ شیدر GLSL زنده با یونیفرم و سورس قابل دانلود + ممیزی RTL با اصلاح خودکار |
 | `#/studio/ai` | استودیو هوش مصنوعی | نمودار زنده مسیر آموزش، پرامپت‌ساز، دیتاست، پیکربندی QLoRA |
-| `/showcase.html` | نمایش تک‌فایلی | یک HTML مستقل با ۸ بخش قابل انتخاب (فونت، حرکت، صدا، شیدر، ممیزی، AI، کیت) |
 
 ناوبری از طریق **داک پایین صفحه**، نوار بالا و `⌘K` انجام می‌شود. صفحات با
 `React.lazy` تقسیم شده‌اند تا هر بخش فقط کد خودش را دانلود کند.
@@ -47,11 +46,11 @@
 ### دستورها
 
 ```bash
-npm run build      # تولید داده + بیلد تولیدی (شامل showcase.html)
+npm run build      # تولید داده + بیلد تولیدی اپ
 npm run lint       # ESLint (react-hooks + jsx-a11y) روی src و scripts
 npm run smoke      # بیلد + اجرای ۱۰ مسیر در jsdom با تست تعامل و دسترس‌پذیری
 node scripts/serve-static.mjs   # سرو کردن dist روی پورت 5173
-node scripts/build-standalone.mjs  # ساخت دوباره public/showcase.html
+node scripts/build-standalone.mjs  # ساخت دوباره نسخهٔ ۸ بخشی در share/
 ```
 
 ---
@@ -158,24 +157,16 @@ npm run smoke         # تست دود واقعی با jsdom روی همه مسی
   کنتراست محاسبه‌شده.
 - **RTL:** فقط کلاس‌های منطقی (`ms/me/ps/pe/start/end`)، ارقام فارسی، بدون
   `letter-spacing` مثبت روی متن؛ ۲۰ قاعده ممیزی که هم تشخیص می‌دهد و هم اصلاح می‌کند.
-- **تک‌فایلی:** `public/showcase.html` همه فونت‌ها را base64 در خود دارد و بدون
-  هیچ درخواست شبکه‌ای باز می‌شود؛ هر بخش را می‌توان در چت انتخاب و بازخورد داد.
+- **تک‌فایلی:** `share/rtl-motion-lab-standalone.html` همه فونت‌ها را base64 در خود
+  دارد و بدون هیچ درخواست شبکه‌ای باز می‌شود (فقط برای فرستادن به دیگران؛ روی سایت
+  منتشر نمی‌شود).
 
-## لینک‌ها (GitHub)
+## آدرس پروژه
 
-| چه چیزی | لینک |
-| --- | --- |
-| مخزن | https://github.com/amirui123/jjli |
-| همین شاخه | https://github.com/amirui123/jjli/tree/arena/66e11543-jjli |
-| تاریخچه کامیت‌ها | https://github.com/amirui123/jjli/commits/arena/66e11543-jjli |
-| دانلود فایل کامل تک‌فایلی (۲۲٫۸MB) | https://github.com/amirui123/jjli/raw/arena/66e11543-jjli/share/rtl-motion-lab-standalone.html |
-| نمایش همان فایل در GitHub | https://github.com/amirui123/jjli/blob/arena/66e11543-jjli/share/rtl-motion-lab-standalone.html |
-| دانلود نسخه سبک ۸ بخشی (۵۴۰KB) | https://github.com/amirui123/jjli/raw/arena/66e11543-jjli/share/rtl-motion-lab-showcase.html |
+**https://amirui123.github.io/jjli/**
 
-لینک‌های `raw` مستقیم دانلود می‌کنند (در مرورگر باز نمی‌شوند، چون GitHub آن‌ها را با
-`text/plain` می‌فرستد): فایل را دانلود کنید و بعد باز کنید. لینک `blob` صفحهٔ GitHub
-است که دکمهٔ «Download raw file» دارد. برای فرستادن به دیگران، چه‌بهتر که همین لینک
-`raw` را بدهید؛ حجمی برای گیرنده ندارد و همیشه آخرین نسخه است.
+همین یک آدرس، همین یک اپ. نسخه‌های دموی تک‌فایلی دیگر روی سایت منتشر نمی‌شوند؛
+فقط فایل‌های خروجی در `share/` داخل مخزن نگه داشته می‌شوند.
 
 ## نسخهٔ تک‌فایلی کامل (برای فرستادن به دیگران)
 
@@ -206,34 +197,24 @@ Firefox 113+، Safari 16.4+؛ دلیلش `DecompressionStream` است). روی �
 - ایمیل معمولی برای ۲۳ مگابایت مناسب نیست (پس از کدگذاری از سقف ۲۵ مگابایت می‌گذرد)؛
   از Google Drive یا لینک مستقیم استفاده کنید
 
-## سایت زنده (GitHub Pages) ✅
+## انتشار روی GitHub Pages (سرورهای خود گیت‌هاب)
 
-| چه چیزی | لینک |
-| --- | --- |
-| اپ کامل | **https://amirui123.github.io/jjli/** |
-| نسخه تک‌صفحه‌ای (۸ بخش) | https://amirui123.github.io/jjli/showcase.html |
-| نسخهٔ کامل تک‌فایلی (۲۲٫۸MB) | https://amirui123.github.io/jjli/standalone.html |
+ورک‌فلوی `.github/workflows/pages.yml` اپ را با `VITE_BASE=/<repo>/` می‌سازد و روی
+GitHub Pages منتشر می‌کند؛ نتیجه بدون محافظت و لاگین برای همه باز می‌شود و کاری به
+Deployment Protection ورسل ندارد.
 
-هر سه روی سرورهای GitHub سرو می‌شوند: بدون محافظت، بدون لاگین، قابل فرستادن به هر کسی.
+تنها یک صفحه منتشر می‌شود: خود اپ. `dist/index.html` به‌عنوان `dist/404.html` هم کپی
+می‌شود تا مسیرهای هش‌دار (`#/studio/fonts`) و آدرس‌های ناشناخته هر دو اپ را بوت کنند.
+نسخهٔ تک‌فایلی و دموی ۸ بخشی از انتشار حذف شده‌اند و فقط در `share/` می‌مانند.
 
-**جریان انتشار:** ورک‌فلوی `.github/workflows/pages.yml` روی هر push به `main` اجرا می‌شود
+**جریان انتشار:** روی هر push به `main` خودکار اجرا می‌شود
 (`npm ci` → `npm run build` با `VITE_BASE=/jjli/` → آپلود آرتیفکت → deploy). محیط
 `github-pages` تنها شاخهٔ `main` را می‌پذیرد، پس تغییرات با PR از شاخهٔ کاری به `main`
 می‌رسند و بعد خودکار منتشر می‌شوند. (توکن ربات اجازهٔ تغییر همین تنظیم را ندارد؛ در
 Settings → Environments → github-pages می‌توانید شاخهٔ دیگری را هم مجاز کنید.)
 
-## انتشار روی GitHub Pages (سرورهای خود گیت‌هاب)
-
-ورک‌فلوی `.github/workflows/pages.yml` اپ را با `VITE_BASE=/<repo>/` می‌سازد و روی
-GitHub Pages منتشر می‌کند؛ نتیجه برای همه باز می‌شود و به محافظت Vercel کاری ندارد.
-
-- آدرس سایت: **https://amirui123.github.io/jjli/**
-- نسخهٔ تک‌فایلی همان‌جا: **https://amirui123.github.io/jjli/standalone.html**
-- نسخهٔ ۸ بخشی: **https://amirui123.github.io/jjli/showcase.html**
-
 فقط یک تنظیم یک‌باره لازم است (توکن ربات اجازهٔ آن را ندارد):
 **Settings → Pages → Build and deployment → Source: GitHub Actions**
-بعد از آن، هر push خودکار منتشر می‌شود.
 
 برای اینکه اپ از زیرمسیر `/jjli/` هم کار کند:
 
@@ -243,22 +224,10 @@ GitHub Pages منتشر می‌کند؛ نتیجه برای همه باز می�
   `.smoke/base-path.mjs` — بیلد را روی `/jjli/` سرو می‌کند و مطمئن می‌شود هیچ
   درخواستی بدون پیشوند نرود.
 
-### لینک CDN گیت‌هاب (برای نمایش سریع)
-
-`share/rtl-motion-lab-showcase.html` (۵۴۰ کیلوبایت) از CDN جی‌اس‌دلیور — که مستقیم از
-همین مخزن می‌خواند — در مرورگر باز می‌شود:
-
-https://cdn.jsdelivr.net/gh/amirui123/jjli@v1/share/rtl-motion-lab-showcase.html
-
-(نسخهٔ ۲۲٫۸ مگابایتی از سقف ۲۰ مگابایتی این CDN بزرگ‌تر است؛ آن یکی از Pages می‌آید.)
-
-تگ `v1` با هر انتشار جابه‌جا می‌شود، پس این لینک همیشه آخرین نسخه را می‌دهد؛ برای
-لینک تغییرناپذیر، به‌جای `v1` هش کامیت را بگذارید.
-
 ## انتشار روی Vercel
 
-نسخهٔ زنده: **https://rtl-motion-lab-farbootaleb-4429.vercel.app** (پروژهٔ `rtl-motion-lab`،
-فریم‌ورک Vite، دستور ساخت `npm run build`، خروجی `dist`).
+پروژهٔ `rtl-motion-lab` با فریم‌ورک Vite، دستور ساخت `npm run build` و خروجی `dist`
+(نشر آن پشت Deployment Protection است، پس آدرس عمومی پروژه همان GitHub Pages است).
 
 سه نکته‌ای که باعث می‌شد بیلد روی سرور شکست بخورد و برای همیشه اصلاح شد:
 

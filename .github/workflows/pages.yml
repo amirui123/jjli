@@ -4,7 +4,8 @@ name: Deploy to GitHub Pages
 # works for anyone without Vercel's deployment protection in the way.
 #
 # The site is served from https://<owner>.github.io/<repo>/ — hence VITE_BASE.
-# The 22.8 MB single-file deliverable is copied in as /standalone.html too.
+# Only the app itself is published; the standalone/single-file builds stay in the
+# repository (share/) and are never served from the site.
 
 on:
   push:
@@ -41,12 +42,9 @@ jobs:
           VITE_BASE: /${{ github.event.repository.name }}/
         run: npm run build
 
-      - name: Add the single-file build next to the app
+      - name: Hash routing — any unknown path boots the app
         run: |
-          if [ -f share/rtl-motion-lab-standalone.html ]; then
-            cp share/rtl-motion-lab-standalone.html dist/standalone.html
-          fi
-          cp dist/index.html dist/404.html # hash routing: any unknown path boots the app
+          cp dist/index.html dist/404.html
           ls -lh dist | head -12
 
       # The workflow token can read Pages but not enable it (that needs repo admin),
