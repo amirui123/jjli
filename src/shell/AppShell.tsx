@@ -165,6 +165,28 @@ const TopBar: React.FC = () => {
                         )}
                       </button>
                     ))}
+
+                    {/* رنگ سفارشی: تا وقتی پالت نهایی را نفرستادی، همیشه یک جای امن برای تست */}
+                    <div className="mt-1.5 flex items-center gap-1.5 border-t border-white/[0.07] pt-2">
+                      <label className="flex items-center gap-1.5 text-[10px] text-zinc-500">
+                        <input
+                          type="color"
+                          value={settings.customAccent ?? accent.hex}
+                          onChange={(e) => update({ customAccent: e.target.value })}
+                          className="h-6 w-6 cursor-pointer rounded border border-white/10 bg-transparent"
+                          aria-label="انتخاب رنگ سفارشی"
+                        />
+                        رنگ دلخواه
+                      </label>
+                      {settings.customAccent && (
+                        <button
+                          onClick={() => update({ customAccent: null })}
+                          className="ms-auto rounded-md border border-white/10 px-1.5 py-0.5 text-[9.5px] text-zinc-400 hover:text-white"
+                        >
+                          بازگشت به پالت
+                        </button>
+                      )}
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>

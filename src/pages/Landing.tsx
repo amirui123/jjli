@@ -686,6 +686,14 @@ export const Landing: React.FC = () => {
             >
               مرور کامپوننت‌ها
             </button>
+            <a
+              href="/showcase.html"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/12 px-4 py-2.5 text-[12px] text-zinc-300 hover:border-white/25"
+            >
+              نسخه تک‌فایلی (برای چت)
+            </a>
           </div>
         </div>
       </section>
