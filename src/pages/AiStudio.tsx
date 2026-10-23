@@ -21,6 +21,7 @@ import { Markdown } from "../ui/Markdown";
 import { faNum } from "../lib/format";
 import { soundEngine } from "../engines/soundEngine";
 import { AiPipeline } from "../components/AiPipeline";
+import { AiTour } from "../components/AiTour";
 
 interface Pair {
   registry: string;
@@ -649,8 +650,10 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
   );
 
   return (
-    <StudioShell
-      eyebrow="AI STUDIO"
+    <>
+      <AiTour />
+      <StudioShell
+        eyebrow="AI STUDIO"
       title="استودیو هوش مصنوعی"
       description={`پرامپت‌ساز تخصصی RTL، مرورگر ${faNum(dataset?.total ?? 40)} جفت داده آموزشی و پیکربندی QLoRA — همه از دارایی واقعی مخزن و قابل دانلود.`}
       icon={Brain}
@@ -668,7 +671,8 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
       list={list}
       stage={stage}
       settings={settings}
-    />
+      />
+    </>
   );
 };
 
