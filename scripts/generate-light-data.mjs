@@ -11,12 +11,6 @@ import fs from "node:fs";
 import path from "node:path";
 import { build } from "esbuild";
 
-const ROOT = "toolkit";
-if (!fs.existsSync(ROOT)) {
-  console.warn("[light-data] toolkit/ missing — keeping committed data.");
-  process.exit(0);
-}
-
 async function loadModule(entry) {
   const out = await build({
     entryPoints: [entry],

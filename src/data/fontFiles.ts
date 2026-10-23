@@ -291,6 +291,20 @@ export const FONT_FILE_BY_FAMILY: Record<string, FontFileInfo> = {
     "format": "woff2",
     "weight": "100 900"
   },
+  "Sahel FD": {
+    "url": "/fonts/03-modern-ui-and-variable/sahel/Sahel-FD.woff2",
+    "file": "Sahel-FD.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "Ravi": {
+    "url": "/fonts/03-modern-ui-and-variable/Ravi-VF.ttf",
+    "file": "Ravi-VF.ttf",
+    "ext": "ttf",
+    "format": "truetype",
+    "weight": "100 900"
+  },
   "Shabnam FD": {
     "url": "/fonts/03-modern-ui-and-variable/shabnam/Shabnam-FD.woff2",
     "file": "Shabnam-FD.woff2",

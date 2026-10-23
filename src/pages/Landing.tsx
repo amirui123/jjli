@@ -39,7 +39,7 @@ const STUDIO_CARDS = [
     id: "fonts",
     path: "/studio/fonts",
     title: "استودیو فونت",
-    desc: "۴۲ خانواده فارسی، نستعلیق و نمایشی — با تنظیمات کامل و دانلود فایل واقعی فونت.",
+    desc: `${TOOLKIT_STATS.fonts} خانواده فارسی، نستعلیق و نمایشی — با تنظیمات کامل و دانلود فایل واقعی فونت.`,
     count: `${faNum(TOOLKIT_STATS.fonts)} خانواده`,
     icon: Type,
     accent: "#E8B33A",
@@ -582,7 +582,7 @@ export const Landing: React.FC = () => {
         <div className="grid grid-cols-2 gap-3">
           {[
             { t: "دانلود واقعی", d: "فایل فونت، TSX، WAV و ZIP — بدون لینک الکی", i: Download },
-            { t: "۴۲ فونت بومی", d: "از ایران‌نستعلیق تا کهربای سه‌محوره", i: Type },
+            { t: `${faNum(TOOLKIT_STATS.fonts)} فونت بومی`, d: "از ایران‌نستعلیق تا کهربای سه‌محوره", i: Type },
             { t: "بدون سرور", d: "همه پردازش‌ها در مرورگر شما", i: Cpu },
             { t: "RTL-first", d: "کلاس‌های منطقی، اعداد فارسی، نیم‌فاصله", i: Sparkles },
           ].map((f) => (

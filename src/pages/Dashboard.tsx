@@ -23,7 +23,7 @@ const STUDIOS = [
     id: "fonts",
     path: "/studio/fonts",
     title: "فونت",
-    desc: "۴۲ خانواده فارسی و نستعلیق با پیش‌نمایش زنده و دانلود فایل واقعی",
+    desc: `${faNum(TOOLKIT_STATS.fonts)} خانواده فارسی و نستعلیق با پیش‌نمایش زنده و دانلود فایل واقعی`,
     icon: Type,
     accent: "#E8B33A",
     stat: `${faNum(TOOLKIT_STATS.fonts)} فونت`,

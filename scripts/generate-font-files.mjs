@@ -7,13 +7,6 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const TOOLKIT_DIR = "toolkit";
-if (!fs.existsSync(TOOLKIT_DIR) || fs.readdirSync(TOOLKIT_DIR).length < 4) {
-  console.warn("[generate] toolkit/ missing — keeping committed data.");
-  process.exit(0);
-}
-
-
 const ROOT = "/home/user/jjli";
 const CSS = fs.readFileSync(path.join(ROOT, "src/index.css"), "utf8");
 

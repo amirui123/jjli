@@ -482,6 +482,22 @@
 }
 
 @font-face {
+  font-family: "Sahel FD";
+  src: url("/fonts/03-modern-ui-and-variable/sahel/Sahel-FD.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Ravi";
+  src: url("/fonts/03-modern-ui-and-variable/Ravi-VF.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: "Shabnam FD";
   src: url("/fonts/03-modern-ui-and-variable/shabnam/Shabnam-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/shabnam/Shabnam-FD.woff2") format("woff2");
   font-weight: 400;
