@@ -231,9 +231,12 @@ GitHub Pages منتشر می‌کند؛ نتیجه برای همه باز می�
 `share/rtl-motion-lab-showcase.html` (۵۴۰ کیلوبایت) از CDN جی‌اس‌دلیور — که مستقیم از
 همین مخزن می‌خواند — در مرورگر باز می‌شود:
 
-https://cdn.jsdelivr.net/gh/amirui123/jjli@live/share/rtl-motion-lab-showcase.html
+https://cdn.jsdelivr.net/gh/amirui123/jjli@v1/share/rtl-motion-lab-showcase.html
 
 (نسخهٔ ۲۲٫۸ مگابایتی از سقف ۲۰ مگابایتی این CDN بزرگ‌تر است؛ آن یکی از Pages می‌آید.)
+
+تگ `v1` با هر انتشار جابه‌جا می‌شود، پس این لینک همیشه آخرین نسخه را می‌دهد؛ برای
+لینک تغییرناپذیر، به‌جای `v1` هش کامیت را بگذارید.
 
 ## انتشار روی Vercel
 
