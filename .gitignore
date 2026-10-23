@@ -1,0 +1,19 @@
+node_modules/
+dist/
+.DS_Store
+
+# vendored source corpus (76MB / 7035 files) — regenerate the derived vault with `npm run generate`
+toolkit/
+
+# temporary build artifacts
+dist-vercel/
+dist-single/
+
+# smoke bundle output
+.smoke/
+
+# shareable copies: only the two finished deliverables are versioned, so they get
+# a stable GitHub link; the zips are rebuilt on demand and stay local
+share/*
+!share/rtl-motion-lab-standalone.html
+!share/rtl-motion-lab-showcase.html

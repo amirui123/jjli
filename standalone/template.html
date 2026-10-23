@@ -1,0 +1,1383 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<title>آزمایشگاه موشن فارسی — نمایش تک‌فایلی</title>
+<meta name="description" content="یک فایل HTML مستقل با بخش‌های قابل انتخاب: فونت، موشن، صدا، شیدر، ممیزی RTL و هوش مصنوعی." />
+<style>
+/* ------------------------------------------------------------------ fonts */
+@font-face{font-family:"Vazirmatn";src:url(data:font/woff2;base64,__FONT_VAZIR__) format("woff2-variations");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Morabba";src:url(data:font/woff;base64,__FONT_MORABBA__) format("woff");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Hasti";src:url(data:font/woff;base64,__FONT_HASTI__) format("woff");font-weight:400;font-display:swap}
+@font-face{font-family:"Gandom FD";src:url(data:font/woff2;base64,__FONT_GANDOM__) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Amiri";src:url(data:font/woff2;base64,__FONT_AMIRI__) format("woff2");font-weight:400;font-display:swap}
+
+/* ------------------------------------------------------------------ tokens */
+:root{
+  --accent:#e8b33a;
+  --accent-glow:232,179,58;
+  --bg:#050507;
+  --panel:#0b0b0e;
+  --panel-2:#0f0f13;
+  --line:rgba(255,255,255,.08);
+  --line-soft:rgba(255,255,255,.05);
+  --text:#ececed;
+  --muted:#8b8b93;
+  --dim:#5f5f68;
+  --radius:18px;
+  --rail:248px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:
+    radial-gradient(70% 50% at 85% -5%, rgba(var(--accent-glow),.10), transparent 60%),
+    radial-gradient(60% 45% at 0% 100%, rgba(var(--accent-glow),.055), transparent 65%),
+    var(--bg);
+  color:var(--text);font-family:"Vazirmatn",system-ui,sans-serif;
+  font-size:15px;line-height:1.75;-webkit-font-smoothing:antialiased;
+  padding-bottom:max(24px,env(safe-area-inset-bottom));
+}
+body.no-scroll{overflow:hidden}
+::selection{background:rgba(var(--accent-glow),.35);color:#fff}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,textarea{font:inherit;color:inherit}
+h1,h2,h3,p{margin:0}
+:focus-visible{outline:2px solid rgba(var(--accent-glow),.8);outline-offset:2px;border-radius:10px}
+
+/* ------------------------------------------------------------------ intro */
+#intro{position:fixed;inset:0;z-index:120;display:grid;place-items:center;background:#050507;transition:opacity .55s ease,visibility .55s}
+#intro.done{opacity:0;visibility:hidden;pointer-events:none}
+.intro-inner{text-align:center;padding:24px}
+.intro-word{display:flex;gap:.35em;justify-content:center;flex-wrap:wrap;font-size:clamp(30px,6vw,62px);font-family:"Hasti","Morabba",sans-serif;line-height:1.3}
+.intro-word span{opacity:0;transform:translateY(22px);filter:blur(10px);animation:wordIn .7s cubic-bezier(.22,1,.36,1) forwards}
+.intro-word span:nth-child(2){animation-delay:.1s}
+.intro-word span:nth-child(3){animation-delay:.2s}
+.intro-word span:nth-child(4){animation-delay:.3s;color:var(--accent)}
+.intro-word span:nth-child(5){animation-delay:.4s}
+@keyframes wordIn{to{opacity:1;transform:none;filter:none}}
+.intro-sub{margin-top:14px;color:var(--dim);font-size:12.5px;letter-spacing:.02em;opacity:0;animation:wordIn .6s .55s forwards}
+.intro-bar{margin:22px auto 0;width:180px;height:2px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden}
+.intro-bar i{display:block;height:100%;width:0;background:var(--accent);animation:bar 1.5s .3s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes bar{to{width:100%}}
+.intro-skip{margin-top:24px;font-size:11.5px;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:7px 16px}
+.intro-skip:hover{color:#fff;border-color:rgba(255,255,255,.25)}
+
+/* ------------------------------------------------------------------ shell */
+.wrap{max-width:1320px;margin:0 auto;padding:20px 18px 60px;display:grid;grid-template-columns:var(--rail) minmax(0,1fr);gap:26px}
+@media (max-width:1023px){.wrap{grid-template-columns:1fr;padding:14px 14px 90px}}
+
+.rail{position:sticky;top:18px;align-self:start;display:flex;flex-direction:column;gap:10px}
+@media (max-width:1023px){.rail{position:static;top:auto}}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 2px 10px}
+.brand-mark{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--accent);font-family:"Hasti",sans-serif;box-shadow:0 0 30px -12px rgba(var(--accent-glow),.9)}
+.brand b{display:block;font-size:13px;line-height:1.3}
+.brand small{display:block;font-family:ui-monospace,monospace;font-size:9px;letter-spacing:.18em;color:var(--dim)}
+
+.nav{display:flex;flex-direction:column;gap:2px;padding:8px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.02)}
+@media (max-width:1023px){.nav{flex-direction:row;overflow:auto;gap:6px;padding:6px;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}}
+.nav button{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:11px;color:var(--muted);font-size:12.5px;text-align:start;white-space:nowrap;transition:background .2s,color .2s}
+.nav button i{font-family:ui-monospace,monospace;font-style:normal;font-size:9.5px;color:var(--dim);min-width:20px}
+.nav button[aria-current="true"]{background:rgba(var(--accent-glow),.12);color:#fff;box-shadow:inset 0 0 0 1px rgba(var(--accent-glow),.28)}
+.nav button[aria-current="true"] i{color:var(--accent)}
+.nav button:hover{color:#fff}
+
+.palette{padding:10px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.02)}
+.palette p{font-size:10.5px;color:var(--dim);margin-bottom:8px}
+.swatches{display:flex;flex-wrap:wrap;gap:6px}
+.swatch{width:26px;height:26px;border-radius:9px;border:1px solid rgba(255,255,255,.16);position:relative}
+.swatch[aria-pressed="true"]::after{content:"";position:absolute;inset:-4px;border:1.5px solid #fff;border-radius:12px}
+.custom-row{margin-top:9px;display:flex;align-items:center;gap:8px;font-size:10.5px;color:var(--muted)}
+.custom-row input[type=color]{width:26px;height:26px;border:1px solid var(--line);border-radius:8px;background:none;padding:0}
+.ghost{margin-top:9px;width:100%;border:1px solid var(--line);border-radius:10px;padding:7px;font-size:11px;color:var(--muted)}
+.ghost:hover{color:#fff;border-color:rgba(255,255,255,.22)}
+
+/* ------------------------------------------------------------------ sections */
+main{min-width:0;display:flex;flex-direction:column;gap:64px;padding-top:2px}
+.section{scroll-margin-top:90px;position:relative}
+.section.active::before{content:"";position:absolute;inset-inline:-18px;inset-block:-16px;border:1px solid rgba(var(--accent-glow),.22);border-radius:26px;pointer-events:none;transition:border-color .3s}
+.sec-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:18px}
+.sec-kicker{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.22em;color:var(--accent);margin-bottom:6px}
+.sec-head h2{font-family:"Hasti","Morabba",sans-serif;font-size:clamp(22px,3vw,30px);line-height:1.35;font-weight:400}
+.sec-head p{color:var(--muted);font-size:12.5px;margin-top:4px;max-width:56ch}
+.pill{border:1px solid var(--line);border-radius:99px;padding:5px 11px;font-size:10.5px;color:var(--muted);white-space:nowrap;font-family:ui-monospace}
+
+.card{border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012));padding:18px}
+.card + .card{margin-top:14px}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:720px){.g2,.g3,.g4{grid-template-columns:1fr}.card{padding:14px}}
+.muted{color:var(--muted)}
+.tiny{font-size:11px}
+.mono{font-family:ui-monospace,SFMono-Regular,monospace;direction:ltr;unicode-bidi:isolate}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:24px;align-items:center;padding:8px 0 4px}
+@media (max-width:900px){.hero{grid-template-columns:1fr}}
+.hero h1{font-family:"Hasti","Morabba",sans-serif;font-weight:400;font-size:clamp(34px,5.4vw,58px);line-height:1.25}
+.hero h1 b{color:var(--accent);font-weight:400}
+.hero .lead{margin-top:12px;color:var(--muted);font-size:13.5px;max-width:46ch}
+.hero-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.btn{border-radius:12px;padding:10px 16px;font-size:12.5px;border:1px solid var(--line);color:var(--muted);min-height:42px;display:inline-flex;align-items:center;gap:7px}
+.btn:hover{color:#fff;border-color:rgba(255,255,255,.24)}
+.btn.primary{background:var(--accent);color:#08080a;border-color:transparent;font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.stat{border:1px solid var(--line-soft);border-radius:14px;padding:11px 12px;background:rgba(255,255,255,.02)}
+.stat b{display:block;font-family:ui-monospace,monospace;font-size:19px;color:#fff}
+.stat span{font-size:10.5px;color:var(--dim)}
+.specimen{border:1px solid var(--line);border-radius:20px;padding:20px;background:radial-gradient(70% 90% at 80% 0%,rgba(var(--accent-glow),.14),transparent 70%),var(--panel)}
+.specimen .word{font-size:clamp(30px,4.6vw,48px);line-height:1.5;font-family:"Amiri",serif}
+.specimen .word b{font-family:"Morabba",sans-serif;font-weight:400;display:block;font-size:.62em;margin-top:4px;color:var(--accent)}
+.specimen .cap{margin-top:10px;font-size:10.5px;color:var(--dim);display:flex;justify-content:space-between;gap:8px}
+
+/* type lab */
+.type-controls{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:14px}
+label.field{display:flex;flex-direction:column;gap:6px;font-size:10.5px;color:var(--dim);min-width:140px;flex:1}
+input[type=range]{width:100%;accent-color:var(--accent);height:28px}
+input[type=text],textarea{border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,.35);padding:10px 12px;font-size:13px;width:100%}
+textarea{resize:vertical;line-height:1.9}
+.font-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:820px){.font-grid{grid-template-columns:1fr}}
+.font-card{border:1px solid var(--line-soft);border-radius:14px;padding:12px 14px;background:rgba(255,255,255,.018);transition:border-color .2s,transform .2s}
+.font-card:hover{border-color:rgba(var(--accent-glow),.35);transform:translateY(-2px)}
+.font-card .meta{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:9.5px;color:var(--dim);margin-bottom:6px}
+.font-card .sample{line-height:1.9;color:#f2f2f3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.font-card .sample.dir{overflow:auto;white-space:normal}
+
+/* motion */
+.motion-stage{position:relative;height:200px;border:1px solid var(--line-soft);border-radius:14px;background:
+  linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px) 0 0/26px 26px,
+  linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px) 0 0/26px 26px, #08080b;overflow:hidden}
+.ball{position:absolute;top:50%;right:14px;transform:translate(0,-50%);width:46px;height:46px;border-radius:14px;background:linear-gradient(160deg,var(--accent),rgba(var(--accent-glow),.45));box-shadow:0 12px 40px -12px rgba(var(--accent-glow),.9);display:grid;place-items:center;color:#08080a;font-weight:700;font-size:12px}
+.curve{width:100%;height:120px;margin-top:12px}
+.readout{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+@media (max-width:720px){.readout{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.readout div{border:1px solid var(--line-soft);border-radius:12px;padding:9px 10px;background:rgba(255,255,255,.02)}
+.readout span{display:block;font-size:9.5px;color:var(--dim)}
+.readout b{font-family:ui-monospace,monospace;font-size:15px;font-weight:400}
+
+/* sound */
+.sound-list{display:flex;flex-wrap:wrap;gap:7px}
+.sound-chip{border:1px solid var(--line);border-radius:11px;padding:8px 11px;font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:7px;min-height:40px}
+.sound-chip:hover{color:#fff;border-color:rgba(255,255,255,.22)}
+.sound-chip[aria-pressed="true"]{background:rgba(var(--accent-glow),.13);border-color:rgba(var(--accent-glow),.4);color:#fff}
+.sound-chip small{font-family:ui-monospace,monospace;font-size:9px;color:var(--dim)}
+#wave{width:100%;height:120px;display:block;margin-top:12px;border:1px solid var(--line-soft);border-radius:12px;background:#07070a}
+.wave-row{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+/* shader */
+.shader-wrap{position:relative;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#06060a}
+#shader{width:100%;height:300px;display:block}
+.shader-badge{position:absolute;top:10px;inset-inline-start:12px;font-family:ui-monospace,monospace;font-size:9.5px;color:rgba(255,255,255,.7);background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12);border-radius:99px;padding:4px 9px;backdrop-filter:blur(6px)}
+@media (max-width:720px){#shader{height:220px}}
+
+/* audit */
+.audit-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+@media (max-width:900px){.audit-grid{grid-template-columns:1fr}}
+.findings{display:flex;flex-direction:column;gap:7px;max-height:330px;overflow:auto;padding-inline-end:4px}
+.finding{border:1px solid var(--line-soft);border-radius:12px;padding:9px 11px;background:rgba(255,255,255,.02)}
+.finding b{display:block;font-size:11.5px;color:#eaeaea;font-weight:500}
+.finding span{display:block;font-size:10.5px;color:var(--dim);margin-top:3px}
+.finding code{font-family:ui-monospace,monospace;font-size:10px;color:var(--accent);direction:ltr;display:inline-block}
+.sev{display:inline-block;width:6px;height:6px;border-radius:99px;margin-inline-end:6px;vertical-align:middle}
+.sev.crit{background:#fb7185}.sev.warn{background:#f5b942}
+.score{display:flex;align-items:baseline;gap:8px;font-family:ui-monospace,monospace}
+.score b{font-size:26px;font-weight:400}
+pre.code{margin:0;padding:12px;border-radius:12px;border:1px solid var(--line-soft);background:#07070a;font-family:ui-monospace,monospace;font-size:10.5px;line-height:1.85;direction:ltr;text-align:left;overflow:auto;max-height:330px;white-space:pre-wrap}
+
+/* ai */
+.pipe{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+.pipe button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px;border-radius:14px;border:1px solid var(--line-soft);background:rgba(255,255,255,.02);font-size:10.5px;color:var(--muted)}
+.pipe button[aria-pressed="true"]{border-color:rgba(var(--accent-glow),.45);background:rgba(var(--accent-glow),.12);color:#fff}
+.pipe b{font-family:ui-monospace,monospace;font-size:12px;font-weight:400;color:var(--dim)}
+.pipe button[aria-pressed="true"] b{color:var(--accent)}
+.pipe-note{margin-top:12px;border:1px solid var(--line-soft);border-radius:12px;padding:10px 12px;font-size:11.5px;color:var(--muted);background:rgba(255,255,255,.02);min-height:52px}
+
+/* kit */
+.kit-row{display:flex;flex-wrap:wrap;gap:8px}
+.toast{position:fixed;inset-inline:0;bottom:26px;margin:auto;width:max-content;max-width:90vw;background:#101014;border:1px solid var(--line);border-radius:12px;padding:9px 16px;font-size:12px;color:#fff;opacity:0;transform:translateY(12px);pointer-events:none;transition:.25s;z-index:90}
+.toast.show{opacity:1;transform:none}
+
+/* active-section chip */
+.chip{position:fixed;bottom:18px;inset-inline-start:18px;z-index:70;display:flex;align-items:center;gap:8px;border:1px solid rgba(var(--accent-glow),.32);background:rgba(12,12,15,.85);backdrop-filter:blur(12px);border-radius:14px;padding:8px 10px;font-size:11px;box-shadow:0 18px 50px -30px rgba(0,0,0,.9)}
+.chip b{color:var(--accent);font-weight:500}
+.chip button{border:1px solid var(--line);border-radius:9px;padding:4px 8px;font-size:10px;color:var(--muted)}
+.chip button:hover{color:#fff}
+@media (max-width:600px){.chip{inset-inline:12px;bottom:12px;justify-content:space-between}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- ------------------------------------------------------------------ intro -->
+<div id="intro" aria-label="معرفی">
+  <div class="intro-inner">
+    <div class="intro-word"><span>حرکت،</span><span>زبانِ</span><span>رابطِ</span><span>فارسی</span><span>است</span></div>
+    <p class="intro-sub">۵۰ فونت · ۲۸۵ صدا · ۱۸ شیدر · ۴۱۹۹ کامپوننت</p>
+    <div class="intro-bar"><i></i></div>
+    <button class="intro-skip" id="intro-skip">ورود به نمایش</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <aside class="rail">
+    <div class="brand">
+      <div class="brand-mark">م</div>
+      <div>
+        <b>آزمایشگاه موشن فارسی</b>
+        <small>SINGLE FILE · RTL</small>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav" aria-label="انتخاب بخش">
+      <button data-target="cover" aria-current="true"><i>01</i> کاور</button>
+      <button data-target="type"><i>02</i> تایپوگرافی</button>
+      <button data-target="motion"><i>03</i> حرکت</button>
+      <button data-target="sound"><i>04</i> صدا</button>
+      <button data-target="shader"><i>05</i> شیدر</button>
+      <button data-target="audit"><i>06</i> ممیزی RTL</button>
+      <button data-target="ai"><i>07</i> هوش مصنوعی</button>
+      <button data-target="kit"><i>08</i> کیت و خروجی</button>
+    </nav>
+
+    <div class="palette">
+      <p>رنگ پلتفرم (قابل تعویض تا لحظه نهایی)</p>
+      <div class="swatches" id="swatches"></div>
+      <div class="custom-row">
+        <input type="color" id="custom-color" value="#e8b33a" aria-label="رنگ سفارشی" />
+        <span>رنگ دلخواه</span>
+      </div>
+      <button class="ghost" id="replay-intro">تماشای دوباره معرفی</button>
+    </div>
+  </aside>
+
+  <main>
+    <!-- 01 cover -->
+    <section class="section active" id="cover" data-name="کاور" data-en="cover">
+      <div class="hero">
+        <div>
+          <p class="sec-kicker">RTL MOTION LAB · SINGLE FILE</p>
+          <h1>هر چیزی که یک رابط فارسی لازم دارد، <b>در یک فایل</b>.</h1>
+          <p class="lead">این صفحه یک نسخه مستقل و تک‌فایلی است: بدون سرور، بدون وابستگی بیرونی. هر بخش را انتخاب کن و بگو کدام قسمت را تغییر بدهم.</p>
+          <div class="hero-actions">
+            <button class="btn primary" data-goto="type">شروع از تایپوگرافی</button>
+            <button class="btn" data-goto="shader">دیدن شیدر زنده</button>
+            <button class="btn" id="copy-file">کپی نام این فایل برای چت</button>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat"><b>۵۰</b><span>خانواده فونت با فایل واقعی</span></div>
+          <div class="stat"><b>۲۸۵</b><span>افکت صوتی طراحی‌شده</span></div>
+          <div class="stat"><b>۱۸</b><span>شیدر GLSL</span></div>
+          <div class="stat"><b>۴۱۹۹</b><span>کامپوننت ثبت‌شده</span></div>
+        </div>
+      </div>
+
+      <div class="grid g2" style="margin-top:18px">
+        <div class="specimen">
+          <div class="word">هر چه بسازی، از آنِ خودت است<b>فونت، حرکت، صدا، کد</b></div>
+          <div class="cap"><span>امیری / مربع</span><span>دو خانواده، یک جمله</span></div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:13px;margin-bottom:8px">چطور با من کار کن</h3>
+          <ol class="muted tiny" style="margin:0;padding-inline-start:18px;line-height:2">
+            <li>از ریل کنار، یک بخش را انتخاب کن (مثلاً ۰۴ صدا).</li>
+            <li>دکمه «کپی نام بخش» پایین صفحه را بزن.</li>
+            <li>در چت بنویس: «بخش ۰۴ — صدا: …» و تغییر را بگو.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 type -->
+    <section class="section" id="type" data-name="تایپوگرافی" data-en="typography">
+      <div class="sec-head">
+        <div>
+          <p class="sec-kicker">02 · TYPOGRAPHY</p>
+          <h2>تایپوگرافی فارسی، با فایل واقعی</h2>
+          <p>پنج خانواده درون همین فایل جاسازی شده‌اند؛ متن نمونه را عوض کن و اندازه را تغییر بده.</p>
+        </div>
+        <span class="pill">۵ خانواده جاسازی‌شده</span>
+      </div>
+
+      <div class="card">
+        <div class="type-controls">
+          <label class="field" style="flex:2">متن نمونه
+            <input type="text" id="type-text" value="حرکت، زبانِ رابطِ فارسی است" />
+          </label>
+          <label class="field">اندازه
+            <input type="range" id="type-size" min="18" max="44" value="28" />
+          </label>
+          <label class="field">ارتفاع سطر
+            <input type="range" id="type-lh" min="14" max="26" value="19" />
+          </label>
+        </div>
+        <div class="font-grid" id="font-grid"></div>
+      </div>
+    </section>
+
+    <!-- 03 motion -->
+    <section class="section" id="motion" data-name="حرکت" data-en="motion">
+      <div class="sec-head">
+        <div>
+          <p class="sec-kicker">03 · MOTION</p>
+          <h2>حرکت با فیزیک، نه با حدس</h2>
+          <p>این انیمیشن با انتگرال فنر واقعی اجرا می‌شود؛ اعداد را تغییر بده و همان لحظه نتیجه را ببین.</p>
+        </div>
+        <span class="pill">spring · 60fps</span>
+      </div>
+
+      <div class="card">
+        <div class="motion-stage">
+          <div class="ball" id="ball">فنر</div>
+        </div>
+        <div class="grid g3" style="margin-top:12px">
+          <label class="field">سختی
+            <input type="range" id="stiff" min="40" max="400" step="5" value="180" />
+          </label>
+          <label class="field">میرایی
+            <input type="range" id="damp" min="5" max="45" step="1" value="18" />
+          </label>
+          <label class="field">جرم
+            <input type="range" id="mass" min="1" max="40" step="1" value="10" />
+          </label>
+        </div>
+        <div class="readout">
+          <div><span>زمان نشست</span><b id="r-settle">—</b></div>
+          <div><span>فراجهش</span><b id="r-overshoot">—</b></div>
+          <div><span>نسبت میرایی</span><b id="r-zeta">—</b></div>
+          <div><span>سرعت اولیه</span><b id="r-speed">—</b></div>
+        </div>
+        <svg class="curve" id="curve" viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true">
+          <path id="curve-path" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" />
+          <line x1="0" y1="60" x2="400" y2="60" stroke="rgba(255,255,255,.08)" stroke-dasharray="3 4" />
+        </svg>
+        <div class="wave-row">
+          <button class="btn primary" id="play-spring">اجرای حرکت</button>
+          <button class="btn" id="copy-spring">کپی کد فنر</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 sound -->
+    <section class="section" id="sound" data-name="صدا" data-en="sound">
+      <div class="sec-head">
+        <div>
+          <p class="sec-kicker">04 · SOUND</p>
+          <h2>صدا رویه‌ای، بدون فایل صوتی</h2>
+          <p>هر افکت همان لحظه با Web Audio ساخته می‌شود؛ می‌توانی موج را ببینی و WAV بگیری.</p>
+        </div>
+        <span class="pill">۶ طراحی · WAV</span>
+      </div>
+
+      <div class="card">
+        <div class="sound-list" id="sound-list"></div>
+        <canvas id="wave" width="900" height="120"></canvas>
+        <div class="wave-row">
+          <button class="btn primary" id="play-sound" aria-pressed="false">پخش</button>
+          <button class="btn" id="stop-sound">توقف</button>
+          <button class="btn" id="dl-wav">دانلود WAV</button>
+          <span class="tiny muted" id="sound-meta">—</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 shader -->
+    <section class="section" id="shader" data-name="شیدر" data-en="shader">
+      <div class="sec-head">
+        <div>
+          <p class="sec-kicker">05 · SHADER</p>
+          <h2>شیدر زنده روی GPU</h2>
+          <p>سه صحنه GLSL؛ یونیفرم‌ها را تغییر بده و همان کد را بردار.</p>
+        </div>
+        <span class="pill">WebGL1 · GLSL ES</span>
+      </div>
+
+      <div class="shader-wrap">
+        <canvas id="shader" width="900" height="420"></canvas>
+        <span class="shader-badge" id="shader-badge">mesh-aurora</span>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="grid g3">
+          <label class="field">صحنه
+            <select id="shader-pick" style="border:1px solid var(--line);border-radius:10px;background:#0b0b0e;padding:9px;font-size:12px">
+              <option value="0">شفق مش‌گرادیان</option>
+              <option value="1">پلاسمای روان</option>
+              <option value="2">تونل بی‌پایان</option>
+            </select>
+          </label>
+          <label class="field">سرعت
+            <input type="range" id="sh-speed" min="0" max="2" step="0.05" value="0.8" />
+          </label>
+          <label class="field">چرخش رنگ
+            <input type="range" id="sh-hue" min="0" max="1" step="0.01" value="0.4" />
+          </label>
+        </div>
+        <div class="wave-row">
+          <button class="btn" id="sh-toggle">توقف</button>
+          <button class="btn" id="copy-shader">کپی سورس GLSL</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 audit -->
+    <section class="section" id="audit" data-name="ممیزی RTL" data-en="rtl-audit">
+      <div class="sec-head">
+        <div>
+          <p class="sec-kicker">06 · RTL AUDIT</p>
+          <h2>ممیزی کد فارسی، با اصلاح خودکار</h2>
+          <p>کد را بچسبان؛ قواعد منطقی، نیم‌فاصله و ارقام را بررسی می‌کند و نسخه اصلاح‌شده را می‌دهد.</p>
+        </div>
+        <div class="score"><span class="tiny muted">امتیاز</span><b id="audit-score">۱۰۰</b><span class="tiny muted">/۱۰۰</span></div>
+      </div>
+
+      <div class="audit-grid">
+        <div class="card">
+          <label class="field">کد ورودی
+            <textarea id="audit-in" rows="9" class="mono" spellcheck="false"></textarea>
+          </label>
+          <div class="wave-row">
+            <button class="btn primary" id="audit-run">بررسی</button>
+            <button class="btn" id="audit-copy">کپی نسخه اصلاح‌شده</button>
+          </div>
+        </div>
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px">
+            <b style="font-size:12.5px">یافته‌ها</b>
+            <span class="tiny muted" id="audit-count">—</span>
+          </div>
+          <div class="findings" id="findings"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px">
+          <b style="font-size:12.5px">نسخه اصلاح‌شده</b>
+          <span class="tiny muted" id="audit-fixed-score">—</span>
+        </div>
+        <pre class="code" id="audit-out"></pre>
+      </div>
+    </section>
+
+    <!-- 07 ai -->
+    <section class="section" id="ai" data-name="هوش مصنوعی" data-en="ai">
+      <div class="sec-head">
+        <div>
+          <p class="sec-kicker">07 · AI</p>
+          <h2>مسیر آموزش مدل فارسی</h2>
+          <p>چهار گره؛ روی هر گره بزن تا توضیح همان مرحله را ببینی. پرامپت هم همین‌جا ساخته می‌شود.</p>
+        </div>
+        <span class="pill">QLoRA · 4bit</span>
+      </div>
+
+      <div class="card">
+        <div class="pipe" id="pipe"></div>
+        <p class="pipe-note" id="pipe-note"></p>
+      </div>
+
+      <div class="card">
+        <div class="grid g2">
+          <label class="field">نوع کامپوننت
+            <select id="ai-kind" style="border:1px solid var(--line);border-radius:10px;background:#0b0b0e;padding:9px;font-size:12px">
+              <option>کارت فین‌تک</option>
+              <option>تیتر جنبشی</option>
+              <option>داک مغناطیسی</option>
+              <option>جدول داده</option>
+            </select>
+          </label>
+          <label class="field">سطح جزئیات
+            <input type="range" id="ai-detail" min="1" max="4" value="3" />
+          </label>
+        </div>
+        <label class="field" style="margin-top:10px">پرامپت تولیدشده
+          <textarea id="ai-prompt" rows="8" class="mono" spellcheck="false"></textarea>
+        </label>
+        <div class="wave-row">
+          <button class="btn" id="ai-copy">کپی پرامپت</button>
+          <button class="btn" id="ai-dl">دانلود .md</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 kit -->
+    <section class="section" id="kit" data-name="کیت و خروجی" data-en="kit">
+      <div class="sec-head">
+        <div>
+          <p class="sec-kicker">08 · KIT</p>
+          <h2>خروجی واقعی، همین حالا</h2>
+          <p>هر فایل از دل تنظیمات همین صفحه ساخته می‌شود؛ چیزی از سرور نمی‌آید.</p>
+        </div>
+        <span class="pill">offline · blob</span>
+      </div>
+
+      <div class="card">
+        <div class="kit-row">
+          <button class="btn primary" id="kit-readme">README.md</button>
+          <button class="btn" id="kit-theme">theme.css</button>
+          <button class="btn" id="kit-spring">spring.ts</button>
+          <button class="btn" id="kit-shader">shader.frag</button>
+          <button class="btn" id="kit-all">دانلود همه (ZIP)</button>
+        </div>
+        <p class="tiny muted" style="margin-top:12px">
+          فایل ZIP بدون کتابخانه بیرونی ساخته می‌شود (store-only). اگر مرورگرت پشتیبانی نکند، هر فایل جداگانه دانلود می‌شود.
+        </p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="chip" id="chip">
+  <span>بخش فعال: <b id="chip-name">۰۱ کاور</b></span>
+  <button id="chip-copy">کپی نام بخش</button>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(s, r){ return (r || document).querySelector(s); };
+  var $$ = function(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var fa = function(n){ return String(n).replace(/[0-9]/g, function(d){ return "۰۱۲۳۴۵۶۷۸۹"[+d]; }); };
+  var reduce = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)").matches : false;
+
+  /* ---------------------------------------------------------------- toast */
+  var toastTimer = 0;
+  function toast(msg){
+    var t = $("#toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 1800);
+  }
+  function copy(text, okMsg){
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function(){ toast(okMsg || "کپی شد"); }, function(){ fallbackCopy(text); });
+    } else fallbackCopy(text);
+  }
+  function fallbackCopy(text){
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); toast("کپی شد"); } catch(e){ toast("کپی نشد"); }
+    document.body.removeChild(ta);
+  }
+  function download(name, body, type){
+    var blob = new Blob([body], { type: type || "text/plain;charset=utf-8" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 400);
+  }
+
+  /* ---------------------------------------------------------------- intro */
+  var intro = $("#intro");
+  var introDone = false;
+  function closeIntro(){
+    if (introDone) return;
+    introDone = true;
+    intro.classList.add("done");
+    document.body.classList.remove("no-scroll");
+    try { sessionStorage.setItem("showcase-intro", "1"); } catch(e){}
+  }
+  document.body.classList.add("no-scroll");
+  var seen = false;
+  try { seen = sessionStorage.getItem("showcase-intro") === "1"; } catch(e){}
+  if (seen) { closeIntro(); } else {
+    setTimeout(closeIntro, reduce ? 400 : 2100);
+    $("#intro-skip").addEventListener("click", closeIntro);
+  }
+  $("#replay-intro").addEventListener("click", function(){
+    introDone = false;
+    intro.classList.remove("done");
+    document.body.classList.add("no-scroll");
+    try { sessionStorage.removeItem("showcase-intro"); } catch(e){}
+    setTimeout(closeIntro, reduce ? 500 : 2300);
+  });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape") closeIntro(); });
+
+  /* --------------------------------------------------------------- palette */
+  var ACCENTS = [
+    { id:"saffron", hex:"#e8b33a" },
+    { id:"turquoise", hex:"#2dd4bf" },
+    { id:"lapis", hex:"#6366f1" },
+    { id:"emerald", hex:"#34d399" },
+    { id:"rose", hex:"#fb7185" },
+    { id:"violet", hex:"#a78bfa" }
+  ];
+  function hexToRgb(hex){
+    var h = hex.replace("#","");
+    if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    var n = parseInt(h, 16);
+    return [ (n>>16)&255, (n>>8)&255, n&255 ].join(",");
+  }
+  function applyAccent(hex, id){
+    document.documentElement.style.setProperty("--accent", hex);
+    document.documentElement.style.setProperty("--accent-glow", hexToRgb(hex));
+    $("#custom-color").value = hex;
+    $$("#swatches .swatch").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.id === id)); });
+    if (window.__shaderAccent) window.__shaderAccent(hex);
+    try { localStorage.setItem("showcase-accent", hex); } catch(e){}
+  }
+  ACCENTS.forEach(function(a){
+    var b = document.createElement("button");
+    b.className = "swatch"; b.dataset.id = a.id; b.style.background = a.hex;
+    b.setAttribute("aria-label", a.id); b.setAttribute("aria-pressed", "false");
+    b.addEventListener("click", function(){ applyAccent(a.hex, a.id); });
+    $("#swatches").appendChild(b);
+  });
+  $("#custom-color").addEventListener("input", function(e){ applyAccent(e.target.value, "custom"); });
+  try {
+    var saved = localStorage.getItem("showcase-accent");
+    if (saved) applyAccent(saved, "custom");
+  } catch(e){}
+
+  /* --------------------------------------------------------------- rail nav */
+  var sections = $$(".section");
+  var navMap = {};
+  $$("#nav button").forEach(function(btn){
+    navMap[btn.dataset.target] = btn;
+    btn.addEventListener("click", function(){
+      document.getElementById(btn.dataset.target).scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+      setActive(btn.dataset.target);
+    });
+  });
+  function setActive(id){
+    sections.forEach(function(s){ s.classList.toggle("active", s.id === id); });
+    $$("#nav button").forEach(function(b){ b.setAttribute("aria-current", String(b.dataset.target === id)); });
+    var sec = document.getElementById(id);
+    if (!sec) return;
+    var idx = sections.indexOf(sec) + 1;
+    $("#chip-name").textContent = (idx < 10 ? "۰" : "") + fa(idx) + " " + sec.dataset.name;
+  }
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting && en.intersectionRatio > 0.28) setActive(en.target.id);
+      });
+    }, { rootMargin: "-15% 0px -45% 0px", threshold: [0.2, 0.5] });
+    sections.forEach(function(s){ io.observe(s); });
+  }
+  $$("[data-goto]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var t = b.dataset.goto;
+      document.getElementById(t).scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
+      setActive(t);
+    });
+  });
+  $("#chip-copy").addEventListener("click", function(){
+    var sec = sections[[].indexOf.call(sections, $(".section.active"))] || sections[0];
+    var idx = sections.indexOf(sec) + 1;
+    copy("بخش " + fa(idx) + " — " + sec.dataset.name + " (" + sec.dataset.en + ")", "نام بخش کپی شد");
+  });
+  $("#copy-file").addEventListener("click", function(){
+    copy("فایل مستقل: public/showcase.html (بخش‌های قابل انتخاب)", "کپی شد");
+  });
+
+  /* ------------------------------------------------------------ typography */
+  var FONTS = [
+    { name:"وزیرمتن (متغیر)", family:'"Vazirmatn",sans-serif', tag:"متن رابط", w:400 },
+    { name:"مربع (متغیر)", family:'"Morabba",sans-serif', tag:"تیتر هندسی", w:600 },
+    { name:"هستی", family:'"Hasti",sans-serif', tag:"نمایشی", w:400 },
+    { name:"گندم", family:'"Gandom FD",sans-serif', tag:"متن + ارقام فارسی", w:400 },
+    { name:"امیری", family:'"Amiri",serif', tag:"نسخ تحریریه", w:400 }
+  ];
+  var typeText = $("#type-text"), typeSize = $("#type-size"), typeLh = $("#type-lh");
+  function renderFonts(){
+    var text = typeText.value || "متن نمونه";
+    var grid = $("#font-grid");
+    grid.innerHTML = FONTS.map(function(f){
+      return '<div class="font-card">' +
+        '<div class="meta"><span>' + f.name + '</span><span>' + f.tag + '</span></div>' +
+        '<div class="sample" style="font-family:' + f.family + ';font-size:' + typeSize.value + 'px;line-height:' + (typeLh.value/10) + ';font-weight:' + f.w + '">' +
+        text.replace(/[<>&]/g, "") + '</div>' +
+        '</div>';
+    }).join("");
+  }
+  [typeText, typeSize, typeLh].forEach(function(el){
+    el.addEventListener("input", renderFonts);
+  });
+  renderFonts();
+
+  /* ---------------------------------------------------------------- motion */
+  var ball = $("#ball"), stiff = $("#stiff"), damp = $("#damp"), mass = $("#mass");
+  var curvePath = $("#curve-path");
+  function params(){
+    return { k: +stiff.value, c: +damp.value / 10, m: +mass.value / 10 };
+  }
+  function simulate(){
+    var p = params();
+    var x = 1, v = 0, dt = 1/120, t = 0, peak = 0, settle = 0;
+    var pts = [];
+    for (var i = 0; i < 1200; i++){
+      var a = (-p.k * x - p.c * v) / p.m;
+      v += a * dt; x += v * dt; t += dt;
+      peak = Math.max(peak, x);
+      if (Math.abs(x) < 0.005 && Math.abs(v) < 0.05) { settle = t; break; }
+      if (i % 4 === 0) pts.push([t, x]);
+    }
+    if (!settle) settle = t;
+    var zeta = p.c / (2 * Math.sqrt(p.k * p.m));
+    return { pts: pts, peak: peak, settle: settle, zeta: zeta };
+  }
+  function drawCurve(){
+    var sim = simulate(), maxT = Math.max(sim.settle, 0.4);
+    var d = sim.pts.map(function(pt, i){
+      var X = (pt[0] / maxT) * 400;
+      var Y = 60 - pt[1] * 42;
+      return (i ? "L" : "M") + X.toFixed(1) + " " + Y.toFixed(1);
+    }).join(" ");
+    curvePath.setAttribute("d", d);
+    $("#r-settle").textContent = (sim.settle * 1000).toFixed(0) + "ms";
+    $("#r-overshoot").textContent = Math.max(0, (sim.peak - 1) * 100).toFixed(1) + "%";
+    $("#r-zeta").textContent = sim.zeta.toFixed(2);
+    $("#r-speed").textContent = "1.0×";
+  }
+  function playSpring(){
+    var p = params();
+    var x = 1, v = 0, last = performance.now();
+    ball.style.transform = "translate(-" + (x * 100) + "% , -50%)";
+    function frame(now){
+      var dt = Math.min((now - last) / 1000, 0.032); last = now;
+      var a = (-p.k * x - p.c * v) / p.m;
+      v += a * dt; x += v * dt;
+      var travel = Math.max(0, Math.min(1, 1 - x));
+      ball.style.transform = "translate(-" + (travel * 100) + "%, -50%)";
+      if (Math.abs(x) > 0.002 || Math.abs(v) > 0.02) requestAnimationFrame(frame);
+      else ball.style.transform = "translate(-100%, -50%)";
+    }
+    requestAnimationFrame(frame);
+  }
+  [stiff, damp, mass].forEach(function(el){ el.addEventListener("input", drawCurve); });
+  $("#play-spring").addEventListener("click", playSpring);
+  $("#copy-spring").addEventListener("click", function(){
+    var p = params();
+    copy("// spring: stiffness=" + p.k + " damping=" + p.c.toFixed(1) + " mass=" + p.m.toFixed(1) +
+      "\nconst spring = { stiffness: " + p.k + ", damping: " + p.c.toFixed(1) + ", mass: " + p.m.toFixed(1) + " };",
+      "کد فنر کپی شد");
+  });
+  drawCurve();
+  setTimeout(playSpring, 600);
+
+  /* ----------------------------------------------------------------- sound */
+  var SOUNDS = [
+    { id:"click", fa:"کلیک", dur:0.12 },
+    { id:"pop", fa:"پاپ", dur:0.3 },
+    { id:"whoosh", fa:"سووش", dur:1.0 },
+    { id:"success", fa:"موفقیت", dur:1.2 },
+    { id:"thud", fa:"ضربه", dur:0.5 },
+    { id:"pad", fa:"پد فضایی", dur:5.0 }
+  ];
+  var current = "click";
+  var list = $("#sound-list");
+  SOUNDS.forEach(function(s){
+    var b = document.createElement("button");
+    b.className = "sound-chip";
+    b.setAttribute("aria-pressed", String(s.id === current));
+    b.innerHTML = s.fa + " <small>" + (s.dur < 1 ? Math.round(s.dur*1000) + "ms" : s.dur + "s") + "</small>";
+    b.addEventListener("click", function(){
+      current = s.id;
+      $$("#sound-list .sound-chip").forEach(function(x){ x.setAttribute("aria-pressed", "false"); });
+      b.setAttribute("aria-pressed", "true");
+      renderWave();
+      playSound(current);
+    });
+    list.appendChild(b);
+  });
+  function buildSound(ctx, id, start){
+    var t0 = start || 0;
+    var master = ctx.createGain();
+    master.gain.value = 0.9;
+    master.connect(limiterFor(ctx));
+
+    function env(node, a, d, peak){
+      var g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(peak, t0 + a);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + a + d);
+      node.connect(g); g.connect(master);
+      return g;
+    }
+    function osc(type, f0, f1, dur, peak, a){
+      var o = ctx.createOscillator();
+      o.type = type;
+      o.frequency.setValueAtTime(f0, t0);
+      if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t0 + dur);
+      env(o, a === undefined ? 0.004 : a, dur, peak);
+      o.start(t0); o.stop(t0 + dur + 0.1);
+      return o;
+    }
+    function noise(dur, peak, type, freq, q){
+      var len = Math.max(1, Math.floor(ctx.sampleRate * dur));
+      var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      var data = buf.getChannelData(0);
+      for (var i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+      var src = ctx.createBufferSource(); src.buffer = buf;
+      var f = ctx.createBiquadFilter();
+      f.type = type || "bandpass"; f.frequency.value = freq || 900; f.Q.value = q || 0.8;
+      src.connect(f);
+      env(f, 0.01, dur, peak);
+      src.start(t0);
+      return src;
+    }
+
+    if (id === "click"){ osc("square", 1200, 900, 0.09, 0.22, 0.002); }
+    if (id === "pop"){ osc("sine", 240, 720, 0.18, 0.35); osc("triangle", 720, 380, 0.22, 0.12); }
+    if (id === "whoosh"){ noise(0.9, 0.25, "bandpass", 700, 0.6); }
+    if (id === "success"){
+      var seq = [523.25, 659.25, 783.99];
+      seq.forEach(function(f, i){
+        var o = ctx.createOscillator(); o.type = "sine";
+        o.frequency.setValueAtTime(f, t0 + i * 0.09);
+        var g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t0 + i * 0.09);
+        g.gain.exponentialRampToValueAtTime(0.25, t0 + i * 0.09 + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + i * 0.09 + 0.65);
+        o.connect(g); g.connect(master);
+        o.start(t0 + i * 0.09); o.stop(t0 + i * 0.09 + 0.7);
+      });
+    }
+    if (id === "thud"){
+      osc("sine", 120, 48, 0.45, 0.5);
+      noise(0.08, 0.12, "lowpass", 400, 0.5);
+    }
+    if (id === "pad"){
+      var freqs = [110, 164.81, 220, 329.63];
+      freqs.forEach(function(f, i){
+        var o = ctx.createOscillator(); o.type = i % 2 ? "triangle" : "sine";
+        o.frequency.setValueAtTime(f, t0);
+        o.detune.value = (i - 1.5) * 6;
+        var g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.07, t0 + 1.2);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 4.9);
+        var lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 1400;
+        o.connect(lp); lp.connect(g); g.connect(master);
+        o.start(t0); o.stop(t0 + 5);
+      });
+      noise(4.5, 0.03, "lowpass", 1800, 0.4);
+    }
+    return master;
+  }
+  var audioCtx = null, limiterCache = [], voice = null;
+
+  /* One limiter per context: layered bells and sub booms must not hard-clip. */
+  function limiterFor(ctx){
+    for (var i = 0; i < limiterCache.length; i++) {
+      if (limiterCache[i].ctx === ctx) return limiterCache[i].node;
+    }
+    var node;
+    if (typeof ctx.createDynamicsCompressor === "function") {
+      node = ctx.createDynamicsCompressor();
+      node.threshold.value = -9; node.knee.value = 9; node.ratio.value = 12;
+      node.attack.value = 0.003; node.release.value = 0.25;
+    } else {
+      node = ctx.createGain();
+    }
+    node.connect(ctx.destination);
+    limiterCache.push({ ctx: ctx, node: node });
+    return node;
+  }
+
+  /* Every new click fades the previous voice instead of freezing it abruptly. */
+  function stopVoice(fade){
+    var v = voice;
+    voice = null;
+    if (!v) return;
+    var f = fade === undefined ? 0.05 : fade;
+    try {
+      var now = audioCtx.currentTime;
+      v.gain.cancelScheduledValues(now);
+      v.gain.setValueAtTime(Math.max(0.0001, v.gain.value), now);
+      v.gain.exponentialRampToValueAtTime(0.0001, now + f);
+      setTimeout(function(){ try { v.disconnect(); } catch(e){} }, Math.round(f * 1000) + 80);
+    } catch(e){
+      try { v.disconnect(); } catch(e2){}
+    }
+  }
+
+  function setSoundIdle(){
+    $("#sound-meta").textContent = "آماده پخش";
+    var b = $("#play-sound");
+    if (b) { b.textContent = "پخش"; b.setAttribute("aria-pressed", "false"); }
+  }
+
+  function playSound(id){
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      stopVoice(0.035);
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume().then(function(){
+          if (audioCtx.state !== "running") {
+            $("#sound-meta").textContent = "مرورگر صدا را قفل کرده — یک‌بار دیگر ضربه بزنید";
+          }
+        }).catch(function(){});
+      }
+      var item = SOUNDS.filter(function(s){ return s.id === id; })[0] || { dur: 0.4 };
+      voice = buildSound(audioCtx, id, audioCtx.currentTime + 0.02);
+      var b = $("#play-sound");
+      if (b) { b.textContent = "توقف"; b.setAttribute("aria-pressed", "true"); }
+      $("#sound-meta").textContent = "در حال پخش: " + id;
+      var ms = Math.round(item.dur * 1000) + 120;
+      clearTimeout(playSound._t);
+      playSound._t = setTimeout(function(){
+        if (!voice) return;
+        voice = null;
+        setSoundIdle();
+      }, ms);
+    } catch(e){ toast("مرورگر اجازه صدا نداد"); }
+  }
+  function renderWave(){
+    var cv = $("#wave");
+    var ctx = cv.getContext ? cv.getContext("2d") : null;
+    if (!ctx) return;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = cv.clientWidth, h = 120;
+    cv.width = w * dpr; cv.height = h * dpr;
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, w, h);
+    ctx.strokeStyle = "rgba(255,255,255,.08)";
+    ctx.beginPath(); ctx.moveTo(0, h/2); ctx.lineTo(w, h/2); ctx.stroke();
+    var dur = (SOUNDS.filter(function(s){ return s.id === current; })[0] || SOUNDS[0]).dur;
+    var bars = Math.floor(w / 6);
+    for (var i = 0; i < bars; i++){
+      var p = i / bars;
+      var t = p * dur;
+      var amp;
+      if (current === "pad") amp = 0.25 + 0.55 * Math.sin(Math.PI * Math.min(1, p * 1.05)) * (0.6 + 0.4 * Math.sin(i * 0.7));
+      else if (current === "whoosh" || current === "click") amp = Math.max(0.05, Math.exp(-p * 3.2)) * (0.5 + 0.5 * Math.sin(i * 2.3));
+      else amp = Math.max(0.04, Math.exp(-p * 2.2)) * (0.55 + 0.45 * Math.sin(i * 1.7 + 0.6));
+      var bh = Math.max(2, amp * (h - 18));
+      ctx.fillStyle = i % 5 === 0 ? getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() : "rgba(255,255,255,.28)";
+      ctx.fillRect(i * 6 + 1, h/2 - bh/2, 3, bh);
+    }
+  }
+  $("#play-sound").addEventListener("click", function(){
+    if (voice) { stopVoice(0.04); setSoundIdle(); return; }
+    playSound(current);
+  });
+  $("#stop-sound").addEventListener("click", function(){
+    stopVoice(0.04);
+    setSoundIdle();
+  });
+  /* Leaving the tab must not leave an oscillator ringing in the background. */
+  document.addEventListener("visibilitychange", function(){
+    if (document.hidden) { stopVoice(0.02); setSoundIdle(); }
+  });
+  $("#dl-wav").addEventListener("click", function(){
+    var item = SOUNDS.filter(function(s){ return s.id === current; })[0];
+    var rate = 44100;
+    var seconds = item.dur + 0.4;
+    var Offline = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    if (!Offline) { toast("رندر آفلاین پشتیبانی نمی‌شود"); return; }
+    var off = new Offline(2, Math.ceil(rate * seconds), rate);
+    buildSound(off, current, 0);
+    off.startRendering().then(function(buffer){
+      var data = [buffer.getChannelData(0), buffer.getChannelData(1)];
+      var len = buffer.length;
+      var peak = 0;
+      for (var c = 0; c < 2; c++) {
+        var d0 = data[c];
+        for (var i0 = 0; i0 < len; i0++) {
+          var a0 = Math.abs(d0[i0]);
+          if (!isFinite(a0)) { a0 = 0; d0[i0] = 0; }
+          else if (a0 > peak) peak = a0;
+        }
+      }
+      if (peak > 0.99) {
+        var norm = 0.99 / peak;
+        for (var c2 = 0; c2 < 2; c2++) {
+          var d2 = data[c2];
+          for (var i2 = 0; i2 < len; i2++) d2[i2] *= norm;
+        }
+      }
+      var bytes = 44 + len * 2 * 2;
+      var ab = new ArrayBuffer(bytes);
+      var view = new DataView(ab);
+      function str(o, s){ for (var i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); }
+      str(0, "RIFF"); view.setUint32(4, bytes - 8, true); str(8, "WAVE"); str(12, "fmt ");
+      view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 2, true);
+      view.setUint32(24, rate, true); view.setUint32(28, rate * 4, true); view.setUint16(32, 4, true);
+      view.setUint16(34, 16, true); str(36, "data"); view.setUint32(40, len * 4, true);
+      var o = 44;
+      for (var i = 0; i < len; i++){
+        [data[0][i], data[1][i]].forEach(function(v){
+          v = Math.max(-1, Math.min(1, v));
+          view.setInt16(o, v < 0 ? v * 0x8000 : v * 0x7fff, true); o += 2;
+        });
+      }
+      download("sound-" + current + ".wav", ab, "audio/wav");
+    });
+  });
+  renderWave();
+
+  /* ---------------------------------------------------------------- shader */
+  var VERT = "attribute vec2 a; void main(){ gl_Position = vec4(a, 0.0, 1.0); }";
+  var PRELUDE =
+    "precision highp float;\n" +
+    "uniform vec2 u_res;\nuniform float u_time;\nuniform float u_speed;\nuniform float u_hue;\nuniform vec3 u_accent;\n" +
+    "mat2 rot(float a){ float c=cos(a), s=sin(a); return mat2(c,-s,s,c); }\n" +
+    "float hash(vec2 p){ p = fract(p*vec2(123.34,456.21)); p += dot(p,p+45.32); return fract(p.x*p.y); }\n" +
+    "float noise(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);\n" +
+    "  float a=hash(i), b=hash(i+vec2(1.0,0.0)), c=hash(i+vec2(0.0,1.0)), d=hash(i+vec2(1.0,1.0));\n" +
+    "  return mix(mix(a,b,f.x), mix(c,d,f.x), f.y); }\n" +
+    "vec3 palette(float t){ return 0.5 + 0.5*cos(6.28318*(vec3(0.0,0.33,0.67) + t + u_hue)); }\n";
+  var SHADERS = [
+    "void main(){\n" +
+    "  vec2 uv = (gl_FragCoord.xy - 0.5*u_res)/min(u_res.x,u_res.y);\n" +
+    "  float t = u_time*u_speed;\n" +
+    "  float n = 0.0;\n" +
+    "  vec2 p = uv;\n" +
+    "  for(int i=0;i<4;i++){ n += noise(p*1.6 + vec2(t*0.25, -t*0.18)) / float(i+1); p = rot(0.6)*p*1.7; }\n" +
+    "  vec3 col = palette(n*0.7 + t*0.05) * 0.55;\n" +
+    "  col += u_accent * pow(max(0.0, 1.0 - length(uv*vec2(1.1,1.4))), 3.0) * 0.5;\n" +
+    "  col *= smoothstep(1.25, 0.15, length(uv));\n" +
+    "  gl_FragColor = vec4(col, 1.0);\n}",
+    "void main(){\n" +
+    "  vec2 uv = (gl_FragCoord.xy - 0.5*u_res)/min(u_res.x,u_res.y);\n" +
+    "  float t = u_time*u_speed;\n" +
+    "  vec2 p = uv*3.0;\n" +
+    "  float v = 0.0;\n" +
+    "  for(int i=0;i<3;i++){\n" +
+    "    p = rot(0.7 + float(i)*0.4) * p;\n" +
+    "    v += sin(p.x*1.7 + t) * cos(p.y*1.3 - t*0.8);\n" +
+    "  }\n" +
+    "  vec3 col = palette(0.5 + 0.25*v + t*0.03) * 0.7;\n" +
+    "  col = mix(col, u_accent, pow(max(0.0, 1.0-length(uv)), 3.0)*0.55);\n" +
+    "  gl_FragColor = vec4(col, 1.0);\n}",
+    "void main(){\n" +
+    "  vec2 uv = (gl_FragCoord.xy - 0.5*u_res)/min(u_res.x,u_res.y);\n" +
+    "  float t = u_time*u_speed;\n" +
+    "  float r = length(uv), a = atan(uv.y, uv.x);\n" +
+    "  float rings = sin(10.0/r - t*3.0 + a*3.0);\n" +
+    "  float glow = smoothstep(0.9, 0.0, r) * (0.55 + 0.45*rings);\n" +
+    "  vec3 col = palette(r*1.4 - t*0.07) * glow;\n" +
+    "  col += u_accent * pow(max(0.0, 1.0 - r*1.4), 2.0) * 0.4;\n" +
+    "  gl_FragColor = vec4(col, 1.0);\n}"
+  ];
+  var canvas = $("#shader");
+  var gl = canvas.getContext ? canvas.getContext("webgl", { antialias: true, alpha: false }) : null;
+  var prog = null, loc = {}, running = true, shaderIdx = 0, accentRgb = [0.91, 0.7, 0.23];
+  function hexToVec(hex){
+    var h = hex.replace("#", "");
+    var n = parseInt(h, 16);
+    return [((n>>16)&255)/255, ((n>>8)&255)/255, (n&255)/255];
+  }
+  window.__shaderAccent = function(hex){ accentRgb = hexToVec(hex); };
+  try { accentRgb = hexToVec($("#custom-color").value); } catch(e){}
+  function compile(type, src){
+    var s = gl.createShader(type);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { console.warn(gl.getShaderInfoLog(s)); return null; }
+    return s;
+  }
+  function buildProgram(){
+    if (!gl) return;
+    var vs = compile(gl.VERTEX_SHADER, VERT);
+    var fs = compile(gl.FRAGMENT_SHADER, PRELUDE + SHADERS[shaderIdx]);
+    if (!vs || !fs) return;
+    prog = gl.createProgram();
+    gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { console.warn(gl.getProgramInfoLog(prog)); return; }
+    gl.useProgram(prog);
+    var buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+    var a = gl.getAttribLocation(prog, "a");
+    gl.enableVertexAttribArray(a);
+    gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
+    loc.res = gl.getUniformLocation(prog, "u_res");
+    loc.time = gl.getUniformLocation(prog, "u_time");
+    loc.speed = gl.getUniformLocation(prog, "u_speed");
+    loc.hue = gl.getUniformLocation(prog, "u_hue");
+    loc.accent = gl.getUniformLocation(prog, "u_accent");
+  }
+  function sizeCanvas(){
+    var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+    var w = canvas.clientWidth, h = canvas.clientHeight;
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    if (gl) gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+  if (gl) {
+    buildProgram();
+    sizeCanvas();
+    var start = performance.now();
+    function loop(now){
+      if (running && prog && !document.hidden) {
+        gl.uniform2f(loc.res, canvas.width, canvas.height);
+        gl.uniform1f(loc.time, (now - start) / 1000);
+        gl.uniform1f(loc.speed, parseFloat($("#sh-speed").value));
+        gl.uniform1f(loc.hue, parseFloat($("#sh-hue").value));
+        gl.uniform3f(loc.accent, accentRgb[0], accentRgb[1], accentRgb[2]);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      }
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+    window.addEventListener("resize", sizeCanvas);
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function(entries){
+        entries.forEach(function(en){ if (!en.isIntersecting) { /* keep last frame, skip uniforms */ } });
+      }).observe(canvas);
+    }
+  } else {
+    canvas.style.display = "none";
+    $("#shader-badge").textContent = "WebGL در این مرورگر نیست";
+  }
+  $("#shader-pick").addEventListener("change", function(e){
+    shaderIdx = +e.target.value;
+    $("#shader-badge").textContent = ["mesh-aurora", "plasma-flow", "tunnel"][shaderIdx];
+    if (gl) buildProgram();
+  });
+  $("#sh-toggle").addEventListener("click", function(e){
+    running = !running;
+    e.target.textContent = running ? "توقف" : "ادامه";
+  });
+  $("#copy-shader").addEventListener("click", function(){
+    copy(PRELUDE + "\n" + SHADERS[shaderIdx], "سورس GLSL کپی شد");
+  });
+
+  /* ----------------------------------------------------------------- audit */
+  var SAMPLE = 'export function PriceCard({ amount }: { amount: number }) {\n' +
+    '  return (\n' +
+    '    <div dir="ltr" className="space-x-3 ml-4 border-l border-white/10 rounded-l-xl pr-2">\n' +
+    '      <ArrowLeft className="h-4 w-4" />\n' +
+    '      <div className="text-left uppercase tracking-widest">قیمت ويژه</div>\n' +
+    '      <span>{amount} تومان</span>\n' +
+    '      <div>می خواهم بخرم</div>\n' +
+    '    </div>\n' +
+    '  );\n}';
+  $("#audit-in").value = SAMPLE;
+
+  var RULES = [
+    { id:"spacing", sev:"crit", re:/\b(ml|mr|pl|pr)-\d+/g,
+      title:"کلاس فاصله‌گذاری فیزیکی (ml/mr/pl/pr)",
+      fix:"به ms-*/me-*/ps-*/pe-* تبدیل شد",
+      apply:function(c){ return c.replace(/\bml-(\d+)/g,"ms-$1").replace(/\bmr-(\d+)/g,"me-$1").replace(/\bpl-(\d+)/g,"ps-$1").replace(/\bpr-(\d+)/g,"pe-$1"); } },
+    { id:"position", sev:"crit", re:/\b(left|right)-\d+|\btext-(left|right)\b/g,
+      title:"مختصات فیزیکی چپ/راست",
+      fix:"به start/end تبدیل شد",
+      apply:function(c){ return c.replace(/\bleft-(\d+)/g,"start-$1").replace(/\bright-(\d+)/g,"end-$1").replace(/\btext-left\b/g,"text-start").replace(/\btext-right\b/g,"text-end"); } },
+    { id:"space", sev:"warn", re:/\bspace-[xy]-\d+/g,
+      title:"کلاس space-x/space-y در RTL",
+      fix:"به gap-x/گپ-y تبدیل شد",
+      apply:function(c){ return c.replace(/\bspace-x-(\d+)/g,"gap-x-$1").replace(/\bspace-y-(\d+)/g,"gap-y-$1"); } },
+    { id:"corners", sev:"crit", re:/\b(border|rounded)-[lr]\b/g,
+      title:"لبه/گوشه فیزیکی (border-l، rounded-l)",
+      fix:"به border-s/e و rounded-s/e تبدیل شد",
+      apply:function(c){
+        return c.replace(/\bborder-l(?![a-z-])/g,"border-s").replace(/\bborder-r(?![a-z-])/g,"border-e")
+                .replace(/\brounded-l(?=[-\s"'`]|$)/g,"rounded-s").replace(/\brounded-r(?=[-\s"'`]|$)/g,"rounded-e");
+      } },
+    { id:"uppercase", sev:"warn", re:/\buppercase\b/g, title:"uppercase روی متن فارسی", fix:"حذف شد",
+      apply:function(c){ return c.replace(/\s*\buppercase\b/g,""); } },
+    { id:"ltr", sev:"warn", re:/\bdir\s*=\s*["']ltr["']/g, title:"قفل جهت ltr", fix:"حذف شد",
+      apply:function(c){ return c.replace(/\s+dir\s*=\s*(["'])ltr\1/g,""); } },
+    { id:"tracking", sev:"warn", re:/\btracking-(wide|wider|widest)\b/g, title:"فاصله‌گذاری حروف (tracking)", fix:"به tracking-normal تبدیل شد",
+      apply:function(c){ return c.replace(/\btracking-(wide|wider|widest)\b/g,"tracking-normal"); } },
+    { id:"arabic", sev:"crit", re:/[\u064A\u0643]/g, title:"حروف عربی ي/ك", fix:"به ی/ک فارسی تبدیل شد",
+      apply:function(c){ return c.replace(/\u064A/g,"ی").replace(/\u0643/g,"ک"); } },
+    { id:"zwnj", sev:"crit", re:/(?:^|[\s>"'`])(?:ن?می)\s+[آ-ی]+/g, title:"نیم‌فاصله جاافتاده (می خواهم)", fix:"نیم‌فاصله درج شد",
+      apply:function(c){ return c.replace(/(^|[\s>"'`])(ن?می)\s+([آ-ی]+)/g,"$1$2\u200C$3"); } },
+    { id:"digits", sev:"warn", re:/>[^<>{}]*[0-9][^<>{}]*</g, title:"ارقام لاتین در متن فارسی", fix:"ارقام فارسی شد",
+      apply:function(c){
+        return c.replace(/>([^<>{}]*)</g, function(all, inner){
+          return /[آ-ی]/.test(inner) && /[0-9]/.test(inner) ? ">" + fa(inner) + "<" : all;
+        });
+      } },
+    { id:"split", sev:"crit", re:/\.split\(\s*["']["']\s*\)/g, title:"شکستن حروف فارسی با split('')", fix:"به split(/\\s+/) تبدیل شد",
+      apply:function(c){ return c.replace(/\.split\(\s*["']["']\s*\)/g,".split(/\\s+/)"); } },
+    { id:"layout", sev:"crit", re:/animate=\{\{\s*(width|height|top|left)\s*:/g, title:"انیمیت ویژگی‌های layout", fix:"به transform تبدیل شد",
+      apply:function(c){ return c.replace(/animate=\{\{\s*left\s*:\s*([^}]+)\}\}/g,"animate={{ x: $1 }}"); } },
+    { id:"icon", sev:"warn", re:/(Arrow(Left|Right)|Chevron(Left|Right))\b/g, skip:function(c){ return /rtl:-scale-x-100|rotate-180/.test(c); }, title:"آیکون جهت‌دار بدون آینه‌سازی", fix:"کلاس rtl:-scale-x-100 اضافه شد",
+      apply:function(c){
+        return c.replace(/<(Arrow(?:Left|Right)|Chevron(?:Left|Right))\b([^>]*?)className=(["'])([^"']*)\3/g,
+          function(m, tag, pre, q, cls){ return "<" + tag + pre + "className=" + q + "rtl:-scale-x-100 " + cls + q; });
+      } }
+  ];
+
+  function audit(code){
+    var findings = [], fixed = code;
+    RULES.forEach(function(r){
+      if (r.skip && r.skip(code)) return;
+      r.re.lastIndex = 0;
+      var m = code.match(r.re);
+      if (!m || !m.length) return;
+      findings.push({ sev:r.sev, title:r.title, sample:(m[0] || "").trim().slice(0,42), fix:r.fix });
+      fixed = r.apply(fixed);
+    });
+    var crit = findings.filter(function(f){ return f.sev === "crit"; }).length;
+    var score = Math.max(8, 100 - crit * 14 - (findings.length - crit) * 7);
+    return { findings:findings, fixed:fixed, score:score };
+  }
+  function runAudit(){
+    var code = $("#audit-in").value;
+    var out = audit(code);
+    var again = audit(out.fixed);
+    $("#audit-score").textContent = fa(out.score);
+    $("#audit-count").textContent = fa(out.findings.length) + " یافته · " + fa(out.findings.filter(function(f){ return f.sev === "crit"; }).length) + " بحرانی";
+    $("#findings").innerHTML = out.findings.length
+      ? out.findings.map(function(f){
+          return '<div class="finding"><b><span class="sev ' + (f.sev === "crit" ? "crit" : "warn") + '"></span>' + f.title + '</b>' +
+            '<span>' + f.fix + ' · <code>' + f.sample.replace(/</g, "&lt;") + '</code></span></div>';
+        }).join("")
+      : '<div class="finding"><b>هیچ یافته‌ای نیست</b><span>این کد از قواعد RTL عبور کرد.</span></div>';
+    $("#audit-out").textContent = out.fixed;
+    $("#audit-fixed-score").textContent = "بازرسی دوباره: امتیاز " + fa(again.score) + " · " + fa(again.findings.length) + " یافته";
+  }
+  $("#audit-run").addEventListener("click", runAudit);
+  $("#audit-in").addEventListener("input", runAudit);
+  $("#audit-copy").addEventListener("click", function(){ copy($("#audit-out").textContent, "نسخه اصلاح‌شده کپی شد"); });
+  runAudit();
+
+  /* -------------------------------------------------------------------- ai */
+  var PIPE = [
+    { fa:"دیتاست", v:"۴۰ جفت", note:"جفت‌های واقعی RTL از رجیستری‌های عمومی؛ هر جفت شامل ویژگی، پیام کاربر و پاسخ دستیار است." },
+    { fa:"سیستم‌پرامپت", v:"قیدها", note:"قواعد RTL، اعداد فارسی و استاندارد موشن در یک فایل؛ همان چیزی که مدل هنگام آموزش می‌بیند." },
+    { fa:"QLoRA", v:"r=16 · 4bit", note:"وزن‌های پایه فریز و فقط آداپتورها آموزش می‌بینند؛ روی کارت گرافیک معمولی هم اجرا می‌شود." },
+    { fa:"کیت آموزش", v:"فایل‌ها", note:"دیتاست، پرامپت و اسکریپت یک‌جا؛ خروجی همه در همین صفحه قابل دانلود است." }
+  ];
+  var pipeEl = $("#pipe"), activePipe = 0;
+  PIPE.forEach(function(p, i){
+    var b = document.createElement("button");
+    b.setAttribute("aria-pressed", String(i === 0));
+    b.innerHTML = "<b>" + (i+1) + "</b><span>" + p.fa + "</span><small class='mono' style='font-size:9px;color:var(--dim)'>" + p.v + "</small>";
+    b.addEventListener("click", function(){ activePipe = i; paintPipe(); });
+    pipeEl.appendChild(b);
+  });
+  function paintPipe(){
+    $$("#pipe button").forEach(function(b, i){ b.setAttribute("aria-pressed", String(i === activePipe)); });
+    $("#pipe-note").textContent = PIPE[activePipe].note;
+  }
+  paintPipe();
+  if (!reduce) {
+    setInterval(function(){ activePipe = (activePipe + 1) % PIPE.length; paintPipe(); }, 4200);
+  }
+
+  function buildPrompt(){
+    var kind = $("#ai-kind").value;
+    var detail = +$("#ai-detail").value;
+    var levels = ["حداقلی", "متوسط", "کامل", "تولیدی"];
+    return [
+      "# نقش",
+      "تو یک مهندس ارشد رابط کاربری فارسی (RTL-first) و متخصص موشن ۶۰ فریم هستی.",
+      "",
+      "# خروجی",
+      "فقط کد TypeScript + React 18 + Tailwind v4 + framer-motion. بدون توضیح اضافه.",
+      "",
+      "# درخواست",
+      "یک " + kind + " فارسی بساز. سطح جزئیات: " + levels[detail-1] + ".",
+      "",
+      "# قیدهای اجباری",
+      "1) همه کلاس‌ها منطقی باشند: ms/me/ps/pe، border-s/e، text-start/end.",
+      "2) اعداد نمایشی با ارقام فارسی و نیم‌فاصله درست.",
+      "3) انیمیشن فقط روی transform و opacity (بدون width/left).",
+      "4) حالت prefers-reduced-motion و اندازه لمسی ۴۴px.",
+      "5) رنگ اکسنت از متغیر --accent خوانده شود، نه هاردکد.",
+      "",
+      "# معیار پذیرش",
+      "کد بدون هیچ یافته در ممیزی RTL باشد و در عرض ۳۲۰px نشکند."
+    ].join("\n");
+  }
+  function paintPrompt(){ $("#ai-prompt").value = buildPrompt(); }
+  $("#ai-kind").addEventListener("change", paintPrompt);
+  $("#ai-detail").addEventListener("input", paintPrompt);
+  $("#ai-copy").addEventListener("click", function(){ copy($("#ai-prompt").value, "پرامپت کپی شد"); });
+  $("#ai-dl").addEventListener("click", function(){ download("prompt-fa.md", $("#ai-prompt").value, "text/markdown;charset=utf-8"); });
+  paintPrompt();
+
+  /* ------------------------------------------------------------------- kit */
+  function themeCss(){
+    var accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
+    var glow = getComputedStyle(document.documentElement).getPropertyValue("--accent-glow").trim();
+    return ":root{\n  --accent:" + accent + ";\n  --accent-glow:" + glow + ";\n  --bg:#050507;\n  --panel:#0b0b0e;\n}\n";
+  }
+  $("#kit-theme").addEventListener("click", function(){ download("theme.css", themeCss(), "text/css;charset=utf-8"); });
+  $("#kit-spring").addEventListener("click", function(){
+    var p = params();
+    download("spring.ts", "export const spring = { stiffness: " + p.k + ", damping: " + p.c.toFixed(1) + ", mass: " + p.m.toFixed(1) + " };\n", "text/typescript;charset=utf-8");
+  });
+  $("#kit-shader").addEventListener("click", function(){ download("shader.frag", PRELUDE + SHADERS[shaderIdx], "text/plain;charset=utf-8"); });
+  $("#kit-readme").addEventListener("click", function(){
+    download("README.md", "# نمایش تک‌فایلی آزمایشگاه موشن فارسی\n\n" +
+      "- ۵ خانواده فونت جاسازی‌شده\n- ۶ طراحی صدا با Web Audio و خروجی WAV\n- ۳ شیدر GLSL\n" +
+      "- ممیزی RTL با اصلاح خودکار\n- پرامپت آماده مدل\n\nرنگ اکسنت: " +
+      getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() + "\n", "text/markdown;charset=utf-8");
+  });
+  $("#kit-all").addEventListener("click", function(){
+    /* ZIP بدون کتابخانه: store-only */
+    var files = [
+      { name:"README.md", body: "# کیت آزمایشگاه موشن فارسی\n" },
+      { name:"theme.css", body: themeCss() },
+      { name:"prompt-fa.md", body: $("#ai-prompt").value },
+      { name:"shader.frag", body: PRELUDE + SHADERS[shaderIdx] }
+    ];
+    var enc = new TextEncoder();
+    var chunks = [], central = [], offset = 0;
+    function u16(n){ return [n & 255, (n >> 8) & 255]; }
+    function u32(n){ return [n & 255, (n >> 8) & 255, (n >> 16) & 255, (n >> 24) & 255]; }
+    files.forEach(function(f){
+      var data = enc.encode(f.body);
+      var crc = crc32(data);
+      var name = enc.encode(f.name);
+      var local = [].concat(u32(0x04034b50), u16(20), u16(0), u16(0), u16(0), u16(0), u32(crc), u32(data.length), u32(data.length), u16(name.length), u16(0));
+      chunks.push(new Uint8Array(local), name, data);
+      central.push({ name:name, crc:crc, size:data.length, offset:offset });
+      offset += local.length + name.length + data.length;
+    });
+    var cdStart = offset, cd = [];
+    central.forEach(function(c){
+      var head = [].concat(u32(0x02014b50), u16(20), u16(20), u16(0), u16(0), u16(0), u16(0), u32(c.crc), u32(c.size), u32(c.size), u16(c.name.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(c.offset));
+      cd.push(new Uint8Array(head), c.name);
+      cdStart += head.length + c.name.length;
+    });
+    var end = new Uint8Array([].concat(u32(0x06054b50), u16(0), u16(0), u16(files.length), u16(files.length), u32(cdStart - offset), u32(offset), u16(0)));
+    var all = chunks.concat(cd, [end]);
+    var blob = new Blob(all, { type:"application/zip" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "rtl-motion-kit.zip";
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    toast("ZIP ساخته شد");
+  });
+  var crcTable = (function(){
+    var t = [];
+    for (var n = 0; n < 256; n++){
+      var c = n;
+      for (var k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+      t[n] = c >>> 0;
+    }
+    return t;
+  })();
+  function crc32(bytes){
+    var c = 0xffffffff;
+    for (var i = 0; i < bytes.length; i++) c = crcTable[(c ^ bytes[i]) & 255] ^ (c >>> 8);
+    return (c ^ 0xffffffff) >>> 0;
+  }
+
+  /* -------------------------------------------------------------- keyboard */
+  document.addEventListener("keydown", function(e){
+    if (e.target && /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+    var idx = sections.indexOf($(".section.active"));
+    if (e.key === "ArrowDown" || e.key === "ArrowLeft"){ e.preventDefault(); var n = Math.min(sections.length - 1, idx + 1); setActive(sections[n].id); sections[n].scrollIntoView({ behavior:"smooth", block:"start" }); }
+    if (e.key === "ArrowUp" || e.key === "ArrowRight"){ e.preventDefault(); var p = Math.max(0, idx - 1); setActive(sections[p].id); sections[p].scrollIntoView({ behavior:"smooth", block:"start" }); }
+  });
+
+  window.addEventListener("resize", function(){ renderWave(); });
+  setActive("cover");
+})();
+</script>
+</body>
+</html>

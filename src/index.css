@@ -1,0 +1,1116 @@
+@import "tailwindcss";
+@source not "../toolkit";
+
+/* ==========================================================================
+   گنجینه کامل فونت‌های فارسی (نستعلیق، خوشنویسی، خاص/تایپوگرافی، مدرن و کد)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   ۱. نستعلیق، خوشنویسی و سنتی (01-nastaliq-and-calligraphy)
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: "IranNastaliq";
+  src: url("/fonts/01-nastaliq-and-calligraphy/IranNastaliq-Web.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/IranNastaliq-Web.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "GulzarNastaliq";
+  src: url("/fonts/01-nastaliq-and-calligraphy/GulzarNastaliq-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/GulzarNastaliq-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Darvish";
+  src: url("/fonts/01-nastaliq-and-calligraphy/Darvish-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Darvish-VF.woff") format("woff-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Hafez";
+  src: url("/fonts/01-nastaliq-and-calligraphy/Hafez-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Hafez-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Tahrir";
+  src: url("/fonts/01-nastaliq-and-calligraphy/Tahrir-Medium.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Tahrir-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Tahrir";
+  src: url("/fonts/01-nastaliq-and-calligraphy/Tahrir-Bold.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Tahrir-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Tahrir";
+  src: url("/fonts/01-nastaliq-and-calligraphy/Tahrir-Black.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Tahrir-Black.woff") format("woff");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Katibeh";
+  src: url("/fonts/01-nastaliq-and-calligraphy/Katibeh-Web.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Katibeh-Web.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Behdad";
+  src: url("/fonts/01-nastaliq-and-calligraphy/Behdad-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Behdad-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Parastoo FD";
+  src: url("/fonts/01-nastaliq-and-calligraphy/Parastoo-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Parastoo-FD.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Parastoo FD";
+  src: url("/fonts/01-nastaliq-and-calligraphy/Parastoo-Bold-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Parastoo-Bold-FD.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Tanha FD";
+  src: url("/fonts/01-nastaliq-and-calligraphy/Tanha-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Tanha-FD.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --------------------------------------------------------------------------
+   ۲. فونت‌های خاص، هنری، تیتر و پوستری (02-special-and-display)
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Hasti";
+  src: url("/fonts/02-special-and-display/Hasti-Heavy.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Hasti-Heavy.woff") format("woff");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Peyda";
+  src: url("/fonts/02-special-and-display/PeydaWeb-Regular.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/PeydaWeb-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Peyda";
+  src: url("/fonts/02-special-and-display/PeydaWeb-Medium.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/PeydaWeb-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Peyda";
+  src: url("/fonts/02-special-and-display/PeydaWeb-Bold.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/PeydaWeb-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Peyda";
+  src: url("/fonts/02-special-and-display/PeydaWeb-Black.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/PeydaWeb-Black.woff") format("woff");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Morabba";
+  src: url("/fonts/02-special-and-display/Morabba-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Morabba-VF.woff") format("woff-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Doran";
+  src: url("/fonts/02-special-and-display/Doran-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Doran-VF.woff") format("woff-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Kahroba FD";
+  src: url("/fonts/02-special-and-display/Kahroba-VF-FD.woff2") format("woff2-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Kahroba-VF-FD.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pinar FD";
+  src: url("/fonts/02-special-and-display/Pinar-FD-Medium.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Pinar-FD-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pinar FD";
+  src: url("/fonts/02-special-and-display/Pinar-FD-Bold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Pinar-FD-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pinar FD";
+  src: url("/fonts/02-special-and-display/Pinar-FD-ExtraBold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Pinar-FD-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pinar FD";
+  src: url("/fonts/02-special-and-display/Pinar-FD-Black.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Pinar-FD-Black.woff2") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Kalameh";
+  src: url("/fonts/02-special-and-display/KalamehWeb-Regular.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/KalamehWeb-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Kalameh";
+  src: url("/fonts/02-special-and-display/KalamehWeb-Medium.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/KalamehWeb-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Kalameh";
+  src: url("/fonts/02-special-and-display/KalamehWeb-Black.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/KalamehWeb-Black.woff") format("woff");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Aviny";
+  src: url("/fonts/02-special-and-display/Aviny-Web.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Aviny-Web.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Lalezar";
+  src: url("/fonts/02-special-and-display/Lalezar-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Lalezar-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Potk";
+  src: url("/fonts/02-special-and-display/Potk.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Potk.woff") format("woff");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gofteh";
+  src: url("/fonts/02-special-and-display/GoftehWeb-Heavy.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/GoftehWeb-Heavy.woff") format("woff");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Onvan";
+  src: url("/fonts/02-special-and-display/Onvan.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Onvan.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Ekraan";
+  src: url("/fonts/02-special-and-display/Ekraan-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Ekraan-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Ekraan";
+  src: url("/fonts/02-special-and-display/Ekraan-Medium.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Ekraan-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Ekraan";
+  src: url("/fonts/02-special-and-display/Ekraan-Bold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Ekraan-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Liana";
+  src: url("/fonts/02-special-and-display/Liana-VF.woff2") format("woff2-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Liana-VF.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Edameh";
+  src: url("/fonts/02-special-and-display/Edameh-ExtraBlack.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Edameh-ExtraBlack.woff") format("woff");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Shoor";
+  src: url("/fonts/02-special-and-display/Shoor-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Shoor-VF.woff") format("woff-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rokh";
+  src: url("/fonts/02-special-and-display/Rokh-VF.ttf") format("truetype-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Rokh-VF.ttf") format("truetype-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --------------------------------------------------------------------------
+   ۳. فونت‌های مدرن رابط کاربری و متغیر (03-modern-ui-and-variable)
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-Variable.woff2") format("woff2-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-Variable.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazirmatn FD";
+  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Vazirmatn FD";
+  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Medium.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Vazirmatn FD";
+  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-SemiBold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Vazirmatn FD";
+  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Bold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "YekanBakh";
+  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Light.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "YekanBakh";
+  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "YekanBakh";
+  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-SemiBold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "YekanBakh";
+  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Bold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "YekanBakh";
+  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-ExtraBold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "YekanBakh";
+  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Black.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Black.woff2") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IRANSansX";
+  src: url("/fonts/03-modern-ui-and-variable/IRANSansX-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/IRANSansX-VF.woff") format("woff-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IRANYekanX";
+  src: url("/fonts/03-modern-ui-and-variable/IRANYekanX-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/IRANYekanX-VF.woff") format("woff-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Dana";
+  src: url("/fonts/03-modern-ui-and-variable/Dana-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Dana-VF.woff") format("woff-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "AnjomanMax";
+  src: url("/fonts/03-modern-ui-and-variable/AnjomanMax-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/AnjomanMax-VF.woff") format("woff-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Abar";
+  src: url("/fonts/03-modern-ui-and-variable/Abar-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Abar-VF.woff") format("woff-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Modam";
+  src: url("/fonts/03-modern-ui-and-variable/Modam-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Modam-VF.woff") format("woff-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Farhang";
+  src: url("/fonts/03-modern-ui-and-variable/Farhang-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Farhang-VF.woff") format("woff-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Borna";
+  src: url("/fonts/03-modern-ui-and-variable/Borna-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Borna-VF.woff") format("woff-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Arad";
+  src: url("/fonts/03-modern-ui-and-variable/Arad-VF.woff2") format("woff2-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Arad-VF.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Estedad";
+  src: url("/fonts/03-modern-ui-and-variable/estedad/Estedad-Variable.woff2") format("woff2-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/estedad/Estedad-Variable.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sahel";
+  src: url("/fonts/03-modern-ui-and-variable/sahel/Sahel-Variable.woff2") format("woff2-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/sahel/Sahel-Variable.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sahel FD";
+  src: url("/fonts/03-modern-ui-and-variable/sahel/Sahel-Bold-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/sahel/Sahel-Bold-FD.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Shabnam FD";
+  src: url("/fonts/03-modern-ui-and-variable/shabnam/Shabnam-Bold-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/shabnam/Shabnam-Bold-FD.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Shabnam FD";
+  src: url("/fonts/03-modern-ui-and-variable/shabnam/Shabnam-Medium-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/shabnam/Shabnam-Medium-FD.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sahel FD";
+  src: url("/fonts/03-modern-ui-and-variable/sahel/Sahel-FD.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Ravi";
+  src: url("/fonts/03-modern-ui-and-variable/Ravi-VF.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Shabnam FD";
+  src: url("/fonts/03-modern-ui-and-variable/shabnam/Shabnam-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/shabnam/Shabnam-FD.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --------------------------------------------------------------------------
+   ۴. فونت‌های تحریریه و بین‌المللی (05-editorial-and-international)
+   نسخ، نستعلیق اردو و نمایشی — همه با لایسنس OFL و فایل واقعی در /public/fonts
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Amiri";
+  src: url("/fonts/05-editorial-and-international/Amiri-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Amiri";
+  src: url("/fonts/05-editorial-and-international/Amiri-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Scheherazade New";
+  src: url("/fonts/05-editorial-and-international/ScheherazadeNew-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Scheherazade New";
+  src: url("/fonts/05-editorial-and-international/ScheherazadeNew-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Nastaliq Urdu";
+  src: url("/fonts/05-editorial-and-international/NotoNastaliqUrdu-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Baloo Bhaijaan 2";
+  src: url("/fonts/05-editorial-and-international/BalooBhaijaan2-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Baloo Bhaijaan 2";
+  src: url("/fonts/05-editorial-and-international/BalooBhaijaan2-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gandom FD";
+  src: url("/fonts/05-editorial-and-international/Gandom-FD.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Samim FD";
+  src: url("/fonts/05-editorial-and-international/Samim-FD.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --------------------------------------------------------------------------
+   ۵. فونت‌های برنامه‌نویسی و کد (04-code-monospace)
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Vazir Code";
+  src: url("/fonts/04-code-monospace/Vazir-Code-Hack.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/04-code-monospace/Vazir-Code-Hack.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* گارد تایپوگرافی فارسی و نستعلیق */
+[dir="rtl"] {
+  letter-spacing: 0;
+  font-feature-settings: "ss01" 1, "kern" 1, "liga" 1, "calt" 1;
+}
+
+.font-nastaliq {
+  font-family: "IranNastaliq", "GulzarNastaliq", serif;
+  line-height: 2.35;
+  font-feature-settings: "liga" 1, "calt" 1, "swsh" 1;
+}
+
+
+:root {
+  --font-ui: "Vazirmatn", "YekanBakh", system-ui, -apple-system, sans-serif;
+  --font-code: "Vazir Code", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+body {
+  font-family: var(--font-ui);
+  background-color: #09090b;
+  color: #fafafa;
+  letter-spacing: 0 !important;
+  font-feature-settings: "ss01" 1;
+}
+
+.font-vazirmatn { font-family: "Vazirmatn", sans-serif; }
+.font-yekanbakh { font-family: "YekanBakh", "Vazirmatn", sans-serif; }
+.font-peyda { font-family: "Peyda", "Vazirmatn", sans-serif; }
+.font-hasti { font-family: "Hasti", "Katibeh", "Lalezar", "Vazirmatn", serif; }
+.font-nastaliq { font-family: "IranNastaliq", "GulzarNastaliq", "Gulzar", "Vazirmatn", serif; line-height: 2.3 !important; }
+.font-kahroba { font-family: "Kahroba FD", "Lalezar", "Vazirmatn", sans-serif; }
+.font-morabba { font-family: "Morabba", "Lalezar", "Vazirmatn", sans-serif; }
+.font-doran { font-family: "Doran", "Mirza", "Vazirmatn", serif; }
+.font-code { font-family: "Vazir Code", ui-monospace, SFMono-Regular, monospace; }
+
+[dir="rtl"] *:not([data-tracking]) {
+  letter-spacing: 0;
+}
+
+.bg-engineering-grid {
+  background-size: 32px 32px;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+.bg-engineering-dots {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.bg-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+}
+
+.holographic-foil {
+  background: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0) 15%,
+    rgba(6, 182, 212, 0.18) 35%,
+    rgba(99, 102, 241, 0.28) 50%,
+    rgba(245, 158, 11, 0.18) 65%,
+    rgba(255, 255, 255, 0) 85%
+  );
+  background-size: 200% 200%;
+  mix-blend-mode: screen;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #09090b;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* ==========================================================================
+   RTL MOTION LAB — DESIGN SYSTEM v2
+   ========================================================================== */
+
+:root {
+  --accent: #e8b33a;
+  --accent-glow: 232, 179, 58;
+  --bg: #08080a;
+  --panel: #0d0d10;
+  --line: rgba(255, 255, 255, 0.07);
+  --line-strong: rgba(255, 255, 255, 0.12);
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+html[data-motion="reduced"] *,
+html[data-motion="reduced"] *::before,
+html[data-motion="reduced"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+/* ---------------------------------------------------------------- surfaces */
+
+.surface {
+  background:
+    radial-gradient(120% 120% at 100% 0%, rgba(var(--accent-glow), 0.05), transparent 55%),
+    #0d0d10;
+}
+
+.hairline {
+  border-color: var(--line);
+}
+
+.glow-accent {
+  box-shadow: 0 0 0 1px rgba(var(--accent-glow), 0.22),
+    0 12px 40px -18px rgba(var(--accent-glow), 0.55);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.bg-accent {
+  background-color: var(--accent);
+}
+
+.accent-gradient {
+  background-image: linear-gradient(
+    100deg,
+    var(--accent) 0%,
+    #f6e7b8 45%,
+    var(--accent) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------------------------------------------------------------- code view */
+
+.tk-c { color: #5b6472; font-style: italic; }
+.tk-s { color: #86e0b4; }
+.tk-k { color: #c4a2ff; }
+.tk-n { color: #f3c969; }
+.tk-f { color: #7cc9f7; }
+.tk-tag { color: #f79c8a; }
+
+.code-num {
+  min-width: 2.6rem;
+  text-align: end;
+}
+
+.code-line:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.code-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* ------------------------------------------------------------------ motion */
+
+@keyframes marquee-rtl {
+  from { transform: translateX(0); }
+  to { transform: translateX(50%); }
+}
+
+.marquee-track {
+  animation: marquee-rtl var(--marquee-duration, 46s) linear infinite;
+  will-change: transform;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes aurora-drift {
+  0% { transform: translate3d(-6%, -4%, 0) rotate(0deg) scale(1.05); }
+  50% { transform: translate3d(6%, 4%, 0) rotate(8deg) scale(1.15); }
+  100% { transform: translate3d(-6%, -4%, 0) rotate(0deg) scale(1.05); }
+}
+
+.aurora-blob {
+  animation: aurora-drift 22s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes shimmer-sweep {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.shimmer-text {
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.55) 20%,
+    #fff 40%,
+    rgba(255, 255, 255, 0.55) 60%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer-sweep 6s linear infinite;
+}
+
+.paper {
+  background-color: #f5efe2;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.045) 0.6px, transparent 0.6px);
+  background-size: 4px 4px;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* focus ring */
+:where(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid rgba(var(--accent-glow), 0.65);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+::selection {
+  background: rgba(var(--accent-glow), 0.28);
+  color: #fff;
+}
+
+/* --------------------------------------------------------------------------
+   اسکلتون بارگذاری صفحه‌های تنبل
+   -------------------------------------------------------------------------- */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.035);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.055),
+    transparent
+  );
+  animation: skeleton-sweep 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-sweep {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* نوارهای افقی بی‌پایان (نمایش مهارت‌ها) */
+@keyframes marquee-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-x var(--marquee-duration, 40s) linear infinite;
+}
+.marquee-track[data-reverse="true"] {
+  animation-direction: reverse;
+}
+.marquee-mask {
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee-paused:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+.float-y {
+  animation: float-y 6s ease-in-out infinite;
+}
+
+@keyframes aurora-drift {
+  0% {
+    transform: translate3d(-4%, -2%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(4%, 3%, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-4%, -2%, 0) scale(1);
+  }
+}
+.aurora-blob {
+  animation: aurora-drift 18s ease-in-out infinite;
+  filter: blur(70px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .float-y,
+  .aurora-blob,
+  .skeleton::after {
+    animation: none !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   ریل‌های استودیو: اسکرول‌بار نازک و نامرئی تا صفحه تک‌نمایی بماند
+   -------------------------------------------------------------------------- */
+.studio-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+  overscroll-behavior: contain;
+}
+.studio-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.studio-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.studio-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+.studio-scroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* --------------------------------------------------------------------------
+   نقطه‌شکست اختصاصی «میزکار استودیو»: از ۱۲۰۰ پیکسل به بالا هر استودیو
+   سه‌ریله و تک‌صفحه می‌شود (لپ‌تاپ‌های ۱۳ اینچ هم شامل می‌شوند).
+   -------------------------------------------------------------------------- */
+@custom-variant desk (@media (width >= 1200px));
+
+/* ==========================================================================
+   لایه موبایل: لمس، امن‌ترین ناحیه صفحه و جلوگیری از پرش افقی
+   ========================================================================== */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  overscroll-behavior-x: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+[role="button"],
+a,
+label {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* ارتفاع کف صفحه در آیفون‌های با نوار خانه */
+.pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+/* کنترل‌های لمسی در موبایل حداقل ۴۰ پیکسل می‌گیرند */
+@media (max-width: 640px) {
+  .tap-target {
+    min-height: 40px;
+  }
+  .tap-icon {
+    min-width: 40px;
+    min-height: 40px;
+  }
+}
+
+/* اسکرول افقی نرم برای نوارهای افقی موبایل */
+.snap-x-soft {
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+.snap-x-soft > * {
+  scroll-snap-align: center;
+}
+
+/* روی موبایل بلورهای سنگین ارزان‌تر رندر می‌شوند تا اسکرول روان بماند */
+@media (max-width: 767px) {
+  .mobile-blur-off {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* حالت تمرکز روی صفحه‌های لمسی معنا ندارد */
+@media (hover: none) {
+  .hover-only {
+    display: none !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   موبایل: جلوگیری از زوم خودکار iOS روی فوکوس ورودی‌ها (فونت < ۱۶px زوم می‌کند)
+   -------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+  }
+
+  /* نوار بالا روی گوشی مات‌تر اما ارزان‌تر رندر می‌شود */
+  .app-topbar {
+    background-color: rgba(8, 8, 10, 0.94) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* هاله‌های نوری هنگام اسکرول روی گوشی ثابت می‌مانند تا GPU درگیر نشود */
+  .aurora-blob {
+    animation: none !important;
+  }
+}
+
+/* حلقه فوکوس واضح برای پیمایش با کیبورد */
+:where(button, a, [role="button"], input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 75%, white 10%);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* نوار پایین روی گوشی: لبه‌های محو تا معلوم شود قابل اسکرول افقی است */
+@media (max-width: 767px) {
+  .dock-mask {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 14px, #000 calc(100% - 14px), transparent);
+    mask-image: linear-gradient(to right, transparent, #000 14px, #000 calc(100% - 14px), transparent);
+  }
+}
+
+/* ------------------------------------------------------------ intro film */
+.grid-backdrop {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(75% 75% at 50% 45%, #000 30%, transparent 100%);
+}
+
+.aurora-fallback {
+  background:
+    radial-gradient(60% 50% at 20% 20%, rgba(var(--accent-glow), 0.5), transparent 60%),
+    radial-gradient(50% 60% at 80% 30%, rgba(120, 90, 255, 0.35), transparent 65%),
+    radial-gradient(70% 70% at 50% 90%, rgba(30, 200, 180, 0.28), transparent 70%),
+    #07070a;
+  filter: blur(4px) saturate(1.15);
+  animation: aurora-drift 14s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-drift {
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to { transform: scale(1.12) translate3d(-2%, 1.5%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-fallback { animation: none; }
+}

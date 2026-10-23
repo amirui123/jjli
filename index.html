@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fa" dir="rtl" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>آزمایشگاه موشن فارسی | RTL Motion Lab</title>
+    <meta
+      name="description"
+      content="آزمایشگاه موشن فارسی: استودیوهای مستقل تایپوگرافی، فیزیک حرکت، ۴٬۱۹۹ کامپوننت متن‌باز، ۲۰۰ افکت صوتی و موتورهای فین‌تک ایران. صددرصد رایگان و متن‌باز."
+    />
+    <meta name="theme-color" content="#08080A" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <meta property="og:title" content="آزمایشگاه موشن فارسی | RTL Motion Lab" />
+    <meta
+      property="og:description"
+      content="پلتفرم رایگان مهندسی رابط فارسی: ۴۴ فونت، ۴٬۱۹۹ کامپوننت، ۱۷۹ اسکیل و ۲۰۰ افکت صوتی."
+    />
+    <meta property="og:type" content="website" />
+    <!-- no third-party font CSS: every family is self-hosted under /fonts -->
+    <link
+      rel="preload"
+      href="/fonts/02-special-and-display/Hasti-Heavy.woff"
+      as="font"
+      type="font/woff"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-Variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <style>
+      html { background: #08080a; color-scheme: dark; }
+      body { margin: 0; background: #08080a; }
+      #boot {
+        position: fixed; inset: 0; display: grid; place-items: center;
+        background: #08080a; z-index: 100;
+        transition: opacity .35s ease;
+      }
+      #boot span {
+        font-family: "Vazirmatn", sans-serif; color: #5b5b63; font-size: 12px;
+        letter-spacing: 0; animation: bootpulse 1.4s ease-in-out infinite;
+      }
+      @keyframes bootpulse { 0%,100%{opacity:.35} 50%{opacity:.9} }
+    </style>
+  </head>
+  <body class="bg-[#08080A] text-[#FAFAFA] antialiased overflow-x-hidden">
+    <div id="root"></div>
+    <noscript>
+      <div style="max-width: 32rem; margin: 18vh auto; padding: 0 1.5rem; text-align: center; font-family: system-ui, sans-serif">
+        <p style="color: #FAFAFA; font-size: 16px; line-height: 1.9">
+          آزمایشگاه موشن فارسی برای اجرا به جاوااسکریپت نیاز دارد. لطفاً آن را فعال کنید و صفحه را دوباره باز کنید.
+        </p>
+      </div>
+    </noscript>
+    <div id="boot"><span>آزمایشگاه موشن فارسی</span></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
