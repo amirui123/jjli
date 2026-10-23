@@ -998,3 +998,11 @@ label {
   outline-offset: 2px;
   border-radius: 8px;
 }
+
+/* نوار پایین روی گوشی: لبه‌های محو تا معلوم شود قابل اسکرول افقی است */
+@media (max-width: 767px) {
+  .dock-mask {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 14px, #000 calc(100% - 14px), transparent);
+    mask-image: linear-gradient(to right, transparent, #000 14px, #000 calc(100% - 14px), transparent);
+  }
+}

@@ -16,7 +16,7 @@ import {
   Toggle,
   cn,
 } from "../ui/kit";
-import { StudioShell, StudioList } from "../ui/StudioShell";
+import { StudioShell, StudioList, focusStudioPreview } from "../ui/StudioShell";
 import { DownloadButton } from "../ui/DownloadButton";
 import { UniversalComponentPreview } from "../components/BentoShowcase";
 import { faCount, faNum } from "../lib/format";
@@ -68,7 +68,10 @@ export const ComponentsStudio: React.FC = () => {
   const regId = REGISTRY_FILES.some((r) => r.id === pick.regId)
     ? pick.regId
     : REGISTRY_FILES[0]?.id ?? "";
-  const setRegId = (id: string) => setPick({ regId: id });
+  const setRegId = (id: string) => {
+    setPick({ regId: id });
+    focusStudioPreview();
+  };
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Row | null>(null);
   const [code, setCode] = useState<ChunkFile | null>(null);

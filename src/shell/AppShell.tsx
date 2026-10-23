@@ -306,7 +306,7 @@ const BottomDock: React.FC = () => {
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 260, damping: 26, delay: 0.15 }}
-        className="pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto rounded-2xl border border-white/[0.09] bg-[#0B0B0E]/92 p-1.5 shadow-[0_16px_50px_-12px_rgba(0,0,0,0.9)] backdrop-blur-2xl scrollbar-none snap-x-soft"
+        className="dock-mask pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto rounded-2xl border border-white/[0.09] bg-[#0B0B0E]/92 p-1.5 shadow-[0_16px_50px_-12px_rgba(0,0,0,0.9)] backdrop-blur-2xl scrollbar-none snap-x-soft"
         aria-label="ناوبری بخش‌ها"
       >
         {ROUTES.map((r) => {

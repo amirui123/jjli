@@ -15,8 +15,17 @@ const dom = new JSDOM(
 const { window } = dom;
 
 // ---------------------------------------------------------------- jsdom gaps
+// viewport shim: enough of matchMedia for the 1200px studio breakpoint
+let VIEWPORT_WIDTH = 1440;
+const evalQuery = (query) => {
+  const min = /min-width:\s*(\d+)px/.exec(query);
+  const max = /max-width:\s*(\d+)px/.exec(query);
+  if (min && VIEWPORT_WIDTH < Number(min[1])) return false;
+  if (max && VIEWPORT_WIDTH > Number(max[1])) return false;
+  return true;
+};
 window.matchMedia = (query) => ({
-  matches: false,
+  matches: evalQuery(query),
   media: query,
   onchange: null,
   addListener() {},
@@ -269,6 +278,26 @@ else {
   buttons[0]?.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   await wait(200);
 }
+
+// mobile: choosing a list row must jump to the preview it just changed
+VIEWPORT_WIDTH = 390;
+mod.setHash("#/studio/fonts");
+await wait(700);
+const tabs = [...document.querySelectorAll('nav[aria-label="پنل‌های استودیو"] button')];
+tabs[2]?.dispatchEvent(new window.MouseEvent("click", { bubbles: true })); // list
+await wait(250);
+let listRail = document.querySelector('[data-rail="list"]');
+if (!listRail || listRail.className.split(/\s+/).includes("hidden")) {
+  errors.push("MOBILE: list tab did not reveal the list rail");
+}
+const row = document.querySelector("[data-font-id]");
+row?.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+await wait(350);
+const stageRail = document.querySelector('[data-rail="stage"]');
+if (!stageRail || stageRail.className.split(/\s+/).includes("hidden")) {
+  errors.push("MOBILE: choosing a font did not return to the preview panel");
+}
+VIEWPORT_WIDTH = 1440;
 
 // ------------------------------------------------------------ a11y sanity pass
 for (const [path] of ROUTES) {

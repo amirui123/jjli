@@ -13,7 +13,7 @@ import {
   Toggle,
   cn,
 } from "../ui/kit";
-import { StudioShell, StudioList } from "../ui/StudioShell";
+import { StudioShell, StudioList, focusStudioPreview } from "../ui/StudioShell";
 import { DownloadButton } from "../ui/DownloadButton";
 import { faNum } from "../lib/format";
 import { useToast } from "../ui/Toast";
@@ -166,7 +166,10 @@ export const SoundStudio: React.FC = () => {
   const selectedId = ALL_SOUND_RECIPES_MANIFEST.some((r) => r.id === pick.id)
     ? pick.id
     : ALL_SOUND_RECIPES_MANIFEST[0]?.id ?? "";
-  const setSelectedId = (id: string) => setPick({ id });
+  const setSelectedId = (id: string) => {
+    setPick({ id });
+    focusStudioPreview();
+  };
   const [version, setVersion] = useState(0);
   const [playing, setPlaying] = useState(false);
   const playTimer = useRef<number | null>(null);

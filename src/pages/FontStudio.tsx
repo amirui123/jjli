@@ -23,7 +23,7 @@ import {
   Toggle,
   cn,
 } from "../ui/kit";
-import { StudioShell, StudioList } from "../ui/StudioShell";
+import { StudioShell, StudioList, focusStudioPreview } from "../ui/StudioShell";
 import { DownloadButton } from "../ui/DownloadButton";
 import { faNum } from "../lib/format";
 import { soundEngine } from "../engines/soundEngine";
@@ -284,6 +284,7 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
     (id: string) => {
       soundEngine.playTick(1);
       set({ fontId: id });
+      focusStudioPreview();
     },
     [set]
   );

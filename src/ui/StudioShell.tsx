@@ -37,6 +37,19 @@ const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min)
 
 type MobileTab = "stage" | "settings" | "list";
 
+const STUDIO_PREVIEW_EVENT = "studio:preview";
+
+/**
+ * Called by a list row after it changes the selection. On phones the shell
+ * switches to the preview panel so the change is visible immediately; on
+ * desktop (three rails) it is a no-op.
+ */
+export function focusStudioPreview() {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+  if (!window.matchMedia("(max-width: 1199px)").matches) return;
+  window.dispatchEvent(new Event(STUDIO_PREVIEW_EVENT));
+}
+
 const MOBILE_TABS: { id: MobileTab; label: string; icon: React.ElementType }[] = [
   { id: "stage", label: "پیش‌نمایش", icon: Eye },
   { id: "settings", label: "تنظیمات", icon: SlidersHorizontal },
@@ -140,6 +153,13 @@ export const StudioShell: React.FC<{
     },
     [setMobile]
   );
+
+  /* Picking an item on a phone should land on the preview it changed. */
+  useEffect(() => {
+    const onPreview = () => pickTab("stage");
+    window.addEventListener(STUDIO_PREVIEW_EVENT, onPreview);
+    return () => window.removeEventListener(STUDIO_PREVIEW_EVENT, onPreview);
+  }, [pickTab]);
 
   /* ------------------------------------------------------------ focus mode */
 

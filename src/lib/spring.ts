@@ -66,17 +66,23 @@ export function simulateSpring(
 }
 
 /** Build a CSS `linear()` easing function from the simulated curve. */
+export const SPRING_SAMPLE_RATE = 60; // samples per second produced by simulateSpring()
+
 export function springToCssLinear(analysis: SpringAnalysis, points = 24): string {
   const { samples } = analysis;
-  const step = Math.max(0, (samples.length - 1) / (points - 1));
+  // The curve must be sampled over the same window as the exported
+  // `animation-duration` (the settle time) — otherwise the easing is time-warped.
+  const lastIdx = Math.max(2, Math.min(samples.length - 1, Math.round(analysis.settleTime * SPRING_SAMPLE_RATE)));
+  const step = Math.max(0, lastIdx / (points - 1));
   const values: string[] = [];
   for (let i = 0; i < points; i++) {
-    const idx = Math.min(samples.length - 1, Math.round(i * step));
+    const idx = Math.min(lastIdx, Math.round(i * step));
     values.push(samples[idx].toFixed(4));
   }
-  // clamp first/last for a valid easing
+  // a CSS easing must start at 0 and finish exactly at 1, otherwise the
+  // animation visibly stops short of its end state
   values[0] = "0";
-  if (Number(values[points - 1]) > 1.001) values[points - 1] = "1";
+  values[points - 1] = "1";
   return `linear(${values.join(", ")})`;
 }
 

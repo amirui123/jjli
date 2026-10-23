@@ -19,7 +19,7 @@ import {
   Toggle,
   cn,
 } from "../ui/kit";
-import { StudioShell, StudioList } from "../ui/StudioShell";
+import { StudioShell, StudioList, focusStudioPreview } from "../ui/StudioShell";
 import { DownloadButton } from "../ui/DownloadButton";
 import { Markdown } from "../ui/Markdown";
 import { faNum } from "../lib/format";
@@ -93,8 +93,14 @@ export const SkillsStudio: React.FC = () => {
     ALL_SKILLS_MANIFEST.find((x) => x.id === pick.skill) ?? ALL_SKILLS_MANIFEST[0] ?? null;
   const selectedBrand =
     ALL_BRAND_DESIGNS_MANIFEST.find((x) => x.id === pick.brand) ?? ALL_BRAND_DESIGNS_MANIFEST[0] ?? null;
-  const setSelectedSkill = (skill: SkillManifestItem) => setPick({ skill: skill.id });
-  const setSelectedBrand = (brand: BrandDesignManifestItem) => setPick({ brand: brand.id });
+  const setSelectedSkill = (skill: SkillManifestItem) => {
+    setPick({ skill: skill.id });
+    focusStudioPreview();
+  };
+  const setSelectedBrand = (brand: BrandDesignManifestItem) => {
+    setPick({ brand: brand.id });
+    focusStudioPreview();
+  };
   const [doc, setDoc] = useState<string>("");
   const [docLoading, setDocLoading] = useState(false);
   const [limit, setLimit] = useState(80);
