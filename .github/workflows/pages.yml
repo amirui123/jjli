@@ -10,7 +10,6 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - arena/66e11543-jjli
       - main
   workflow_dispatch:
 
