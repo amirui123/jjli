@@ -14,7 +14,8 @@
     "smoke": "npm run build && node scripts/smoke-test.mjs",
     "chunks": "node scripts/generate-component-chunks.mjs",
     "lint": "eslint src scripts",
-    "standalone": "node scripts/build-standalone.mjs"
+    "standalone": "node scripts/build-standalone.mjs",
+    "single": "node scripts/build-single-file.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",
