@@ -161,6 +161,22 @@ npm run smoke         # تست دود واقعی با jsdom روی همه مسی
 - **تک‌فایلی:** `public/showcase.html` همه فونت‌ها را base64 در خود دارد و بدون
   هیچ درخواست شبکه‌ای باز می‌شود؛ هر بخش را می‌توان در چت انتخاب و بازخورد داد.
 
+## لینک‌ها (GitHub)
+
+| چه چیزی | لینک |
+| --- | --- |
+| مخزن | https://github.com/amirui123/jjli |
+| همین شاخه | https://github.com/amirui123/jjli/tree/arena/66e11543-jjli |
+| تاریخچه کامیت‌ها | https://github.com/amirui123/jjli/commits/arena/66e11543-jjli |
+| دانلود فایل کامل تک‌فایلی (۲۲٫۸MB) | https://github.com/amirui123/jjli/raw/arena/66e11543-jjli/share/rtl-motion-lab-standalone.html |
+| نمایش همان فایل در GitHub | https://github.com/amirui123/jjli/blob/arena/66e11543-jjli/share/rtl-motion-lab-standalone.html |
+| دانلود نسخه سبک ۸ بخشی (۵۴۰KB) | https://github.com/amirui123/jjli/raw/arena/66e11543-jjli/share/rtl-motion-lab-showcase.html |
+
+لینک‌های `raw` مستقیم دانلود می‌کنند (در مرورگر باز نمی‌شوند، چون GitHub آن‌ها را با
+`text/plain` می‌فرستد): فایل را دانلود کنید و بعد باز کنید. لینک `blob` صفحهٔ GitHub
+است که دکمهٔ «Download raw file» دارد. برای فرستادن به دیگران، چه‌بهتر که همین لینک
+`raw` را بدهید؛ حجمی برای گیرنده ندارد و همیشه آخرین نسخه است.
+
 ## نسخهٔ تک‌فایلی کامل (برای فرستادن به دیگران)
 
 `npm run single` خروجی می‌سازد: `share/rtl-motion-lab-standalone.html`
