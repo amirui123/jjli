@@ -48,7 +48,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <ToastCtx.Provider value={api}>
       {children}
-      <div className="pointer-events-none fixed bottom-24 start-1/2 z-[90] flex w-[min(92vw,380px)] -translate-x-1/2 flex-col gap-2 sm:start-4 sm:translate-x-0 sm:items-start">
+      <div role="status" aria-live="polite" aria-atomic="false" className="pointer-events-none fixed bottom-24 start-1/2 z-[90] flex w-[min(92vw,380px)] -translate-x-1/2 flex-col gap-2 sm:start-4 sm:translate-x-0 sm:items-start">
         <AnimatePresence initial={false}>
           {items.map((t) => {
             const Icon = ICONS[t.tone];

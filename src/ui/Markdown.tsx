@@ -191,12 +191,28 @@ function inline(text: string): React.ReactNode {
       );
     } else {
       const label = token.slice(1, token.indexOf("]"));
-      const url = token.slice(token.indexOf("(") + 1, -1);
-      nodes.push(
-        <a key={key++} href={url} target="_blank" rel="noreferrer" className="text-[color:var(--accent)] underline underline-offset-2">
-          {label}
-        </a>
-      );
+      const url = token.slice(token.indexOf("(") + 1, -1).trim();
+      // The app routes on location.hash, so only absolute links may become
+      // anchors — a relative or "#section" link would break navigation.
+      if (/^(https?:|mailto:)/i.test(url)) {
+        nodes.push(
+          <a
+            key={key++}
+            href={url}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="text-[color:var(--accent)] underline underline-offset-2"
+          >
+            {label}
+          </a>
+        );
+      } else {
+        nodes.push(
+          <span key={key++} className="text-zinc-300">
+            {label}
+          </span>
+        );
+      }
     }
     last = m.index + token.length;
   }

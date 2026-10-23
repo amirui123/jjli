@@ -199,11 +199,13 @@ const TopBar: React.FC = () => {
 
 const CommandPalette: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
   const [q, setQ] = useState("");
+  const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) {
       setQ("");
+      setActive(0);
       window.setTimeout(() => inputRef.current?.focus(), 40);
     }
   }, [open]);
@@ -218,6 +220,15 @@ const CommandPalette: React.FC<{ open: boolean; onClose: () => void }> = ({ open
         r.descFa.includes(term)
     );
   }, [q]);
+
+  useEffect(() => setActive(0), [q]);
+
+  const go = (index: number) => {
+    const target = results[index];
+    if (!target) return;
+    navigate(target.path);
+    onClose();
+  };
 
   return (
     <AnimatePresence>
@@ -243,10 +254,20 @@ const CommandPalette: React.FC<{ open: boolean; onClose: () => void }> = ({ open
                 ref={inputRef}
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
+                role="combobox"
+                aria-expanded="true"
+                aria-controls="command-results"
+                aria-autocomplete="list"
+                aria-activedescendant={results[active] ? `cmd-${results[active].id}` : undefined}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && results[0]) {
-                    navigate(results[0].path);
-                    onClose();
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    setActive((i) => (results.length ? (i + 1) % results.length : 0));
+                  } else if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    setActive((i) => (results.length ? (i - 1 + results.length) % results.length : 0));
+                  } else if (e.key === "Enter") {
+                    go(active);
                   }
                 }}
                 placeholder="رفتن به استودیو یا بخش…"
@@ -256,15 +277,19 @@ const CommandPalette: React.FC<{ open: boolean; onClose: () => void }> = ({ open
                 <X className="h-4 w-4 text-zinc-500 hover:text-zinc-200" />
               </button>
             </div>
-            <div className="max-h-72 overflow-y-auto p-1.5">
-              {results.map((r) => (
+            <div id="command-results" role="listbox" aria-label="نتایج جستجو" className="max-h-72 overflow-y-auto p-1.5">
+              {results.map((r, i) => (
                 <button
                   key={r.id}
-                  onClick={() => {
-                    navigate(r.path);
-                    onClose();
-                  }}
-                  className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-start transition-colors hover:bg-white/[0.06]"
+                  id={`cmd-${r.id}`}
+                  role="option"
+                  aria-selected={i === active}
+                  onMouseEnter={() => setActive(i)}
+                  onClick={() => go(i)}
+                  className={cn(
+                    "flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-start transition-colors",
+                    i === active ? "bg-white/[0.07]" : "hover:bg-white/[0.05]"
+                  )}
                 >
                   <span
                     className="flex h-7 w-7 items-center justify-center rounded-lg border text-[12px]"
@@ -411,9 +436,19 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
   return (
     <div dir="rtl" className={cn("bg-[#08080A] text-zinc-100", isStudio ? "desk:h-[100dvh] desk:overflow-hidden" : "min-h-screen")}>
+      {/* never an href="#…": this app routes on the hash */}
+      <button
+        type="button"
+        onClick={() => document.getElementById("main")?.focus()}
+        className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-3 focus:z-[95] focus:rounded-lg focus:bg-[color:var(--accent)] focus:px-3 focus:py-2 focus:text-[12px] focus:font-bold focus:text-black"
+      >
+        پرش به محتوا
+      </button>
       <TopBar />
       <AnimatePresence mode="wait" initial={false}>
         <motion.main
+          id="main"
+          tabIndex={-1}
           key={route}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}

@@ -89,8 +89,9 @@ export const StudioShell: React.FC<{
     focus: false,
   });
 
-  const [mobile, setMobile] = usePersisted<{ tab: MobileTab }>("studio-tab", { tab: "stage" });
-  const tab: MobileTab = MOBILE_TABS.some((t) => t.id === mobile.tab) ? mobile.tab : "stage";
+  // Every studio opens on its live preview; the tab choice is per-visit so a
+  // phone never lands in the middle of another studio's settings.
+  const [tab, setTab] = useState<MobileTab>("stage");
 
   const gridRef = useRef<HTMLDivElement | null>(null);
   const [drag, setDrag] = useState<{ side: "list" | "settings"; startX: number; start: number } | null>(null);
@@ -144,15 +145,12 @@ export const StudioShell: React.FC<{
   }, [setLayout]);
 
   /* ------------------------------------------------ mobile tab → top of page */
-  const pickTab = useCallback(
-    (next: MobileTab) => {
-      setMobile({ tab: next });
-      if (typeof window !== "undefined" && window.scrollY > 80) {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-    },
-    [setMobile]
-  );
+  const pickTab = useCallback((next: MobileTab) => {
+    setTab(next);
+    if (typeof window !== "undefined" && window.scrollY > 80) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, []);
 
   /* Picking an item on a phone should land on the preview it changed. */
   useEffect(() => {
