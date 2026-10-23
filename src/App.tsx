@@ -16,6 +16,7 @@ const SkillsStudio = lazy(() => import("./pages/SkillsStudio"));
 const EnginesStudio = lazy(() => import("./pages/EnginesStudio"));
 const AiStudio = lazy(() => import("./pages/AiStudio"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const IntroHost = lazy(() => import("./components/IntroFilm"));
 
 const PAGES: Record<string, React.LazyExoticComponent<React.FC>> = {
   home: Landing,
@@ -80,6 +81,9 @@ export const App: React.FC = () => (
     <AppSettingsProvider>
       <ToastProvider>
         <Router />
+        <Suspense fallback={null}>
+          <IntroHost />
+        </Suspense>
       </ToastProvider>
     </AppSettingsProvider>
   </MotionConfig>

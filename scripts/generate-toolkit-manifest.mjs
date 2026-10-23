@@ -263,6 +263,13 @@ export const ALL_REGISTRIES_MANIFEST: RegistryManifestItem[] = ${JSON.stringify(
 fs.writeFileSync(path.join(DATA_DIR, "registriesManifest.ts"), registriesTs, "utf8");
 
 /* --------------------------------------------------------------- sounds */
+/* The designed library (src/data/soundLibrary.ts, `s(` factories) sits on top
+   of the 200 vendored recipes, so every public counter adds both. */
+const SOUND_LIBRARY_FILE = "/home/user/jjli/src/data/soundLibrary.ts";
+const designedSoundCount = fs.existsSync(SOUND_LIBRARY_FILE)
+  ? (fs.readFileSync(SOUND_LIBRARY_FILE, "utf8").match(/^ {2}s\(/gm) || []).length
+  : 0;
+const totalSounds = soundRecipes.length + designedSoundCount;
 const soundsTs =
   header(`${soundRecipes.length} procedural sound recipes`)
   + `export interface SoundRecipeItem {
@@ -299,7 +306,7 @@ const statsTs =
     {
       skills: skills.length,
       brands: brandDesigns.length,
-      sounds: soundRecipes.length,
+      sounds: totalSounds,
       components: totalComponents,
       registries: registriesManifest.map((r) => ({ id: r.id, total: r.totalFiles })),
       engineFolders: engineFolders.length,

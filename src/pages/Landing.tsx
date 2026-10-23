@@ -21,6 +21,9 @@ import { useAppSettings, writePersisted } from "../lib/store";
 import { soundEngine } from "../engines/soundEngine";
 import { faCount, faNum } from "../lib/format";
 import { cn } from "../ui/kit";
+import { Reveal } from "../ui/MotionSections";
+import { ShaderSurface } from "../components/ShaderSurface";
+import { SHADERS } from "../engines/shaderLab";
 
 const HEADLINE = ["حرکت،", "زبانِ", "رابطِ", "فارسی", "است"];
 
@@ -443,6 +446,7 @@ export const Landing: React.FC = () => {
       </section>
 
       {/* ---------------------------------------------------------- marquee */}
+      <Reveal variant="rail-stagger">
       <section className="space-y-2">
         <div className="flex items-end justify-between">
           <h2 className="text-[12px] text-zinc-500">
@@ -458,8 +462,10 @@ export const Landing: React.FC = () => {
         <Marquee items={firstRow} duration={58} />
         <Marquee items={secondRow} reverse duration={70} />
       </section>
+      </Reveal>
 
       {/* ----------------------------------------------------------- studios */}
+      <Reveal variant="mask-up">
       <section>
         <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
           <div>
@@ -514,10 +520,14 @@ export const Landing: React.FC = () => {
           ))}
         </div>
       </section>
+      </Reveal>
 
-      <MotionTeaser />
+      <Reveal variant="tilt-in">
+        <MotionTeaser />
+      </Reveal>
 
       {/* ------------------------------------------------------------- fonts */}
+      <Reveal variant="blur-in">
       <section>
         <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
           <div>
@@ -556,8 +566,48 @@ export const Landing: React.FC = () => {
           ))}
         </div>
       </section>
+      </Reveal>
+
+      {/* ------------------------------------------------------------ shader */}
+      <Reveal variant="drop-in">
+      <section className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-[#08080B]">
+        <div className="absolute inset-0 opacity-80">
+          <ShaderSurface
+            def={SHADERS[0]}
+            speed={0.4}
+            scale={1.15}
+            hue={0.4}
+            warp={1.1}
+            grain={0.3}
+            interactive
+            className="h-full w-full"
+          />
+        </div>
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-[#08080B] via-[#08080B]/80 to-transparent" />
+        <div className="relative max-w-md p-5 sm:p-8">
+          <span className="font-mono text-[9.5px] tracking-[0.2em] text-[color:var(--accent)]">
+            LIVE · GLSL ES 1.0
+          </span>
+          <h2 className="mt-2 font-hasti text-[24px] leading-tight text-white sm:text-[30px]">
+            {faNum(SHADERS.length)} شیدر واقعی، روی GPU خودت
+          </h2>
+          <p className="mt-2 text-[12px] leading-relaxed text-zinc-400">
+            یونیفرم‌ها را زنده تغییر بده، سورس GLSL را بردار و همان کد را در پروژه‌ات بگذار.
+            هیچ تصویری دانلود نمی‌شود؛ همه‌چیز همان لحظه ساخته می‌شود.
+          </p>
+          <button
+            onClick={() => navigate("/studio/engines")}
+            className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-[color:var(--accent)]/40 bg-[color:var(--accent)]/10 px-3 py-2 text-[11.5px] text-[color:var(--accent)]"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            باز کردن آزمایشگاه شیدر
+          </button>
+        </div>
+      </section>
+      </Reveal>
 
       {/* ------------------------------------------------------------ motion */}
+      <Reveal variant="clip-wipe">
       <section className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="rounded-3xl border border-white/[0.07] bg-gradient-to-br from-[#0E0E12] to-[#08080A] p-5 sm:p-6">
           <span className="font-mono text-[9.5px] tracking-[0.2em] text-[color:var(--accent)]">REAL PHYSICS</span>
@@ -604,8 +654,10 @@ export const Landing: React.FC = () => {
           ))}
         </div>
       </section>
+      </Reveal>
 
       {/* --------------------------------------------------------------- cta */}
+      <Reveal variant="spring-pop">
       <section className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-[#0B0B0E] px-5 py-10 text-center sm:px-6 sm:py-12">
         <div className="pointer-events-none absolute inset-0 -z-0 opacity-70">
           <div className="absolute start-1/4 top-0 h-56 w-56 rounded-full bg-[color:var(--accent)]/12 aurora-blob" />
@@ -637,6 +689,7 @@ export const Landing: React.FC = () => {
           </div>
         </div>
       </section>
+      </Reveal>
     </div>
   );
 };

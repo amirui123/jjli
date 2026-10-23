@@ -1010,3 +1010,31 @@ label {
     mask-image: linear-gradient(to right, transparent, #000 14px, #000 calc(100% - 14px), transparent);
   }
 }
+
+/* ------------------------------------------------------------ intro film */
+.grid-backdrop {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(75% 75% at 50% 45%, #000 30%, transparent 100%);
+}
+
+.aurora-fallback {
+  background:
+    radial-gradient(60% 50% at 20% 20%, rgba(var(--accent-glow), 0.5), transparent 60%),
+    radial-gradient(50% 60% at 80% 30%, rgba(120, 90, 255, 0.35), transparent 65%),
+    radial-gradient(70% 70% at 50% 90%, rgba(30, 200, 180, 0.28), transparent 70%),
+    #07070a;
+  filter: blur(4px) saturate(1.15);
+  animation: aurora-drift 14s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-drift {
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to { transform: scale(1.12) translate3d(-2%, 1.5%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-fallback { animation: none; }
+}

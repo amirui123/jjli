@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  Clapperboard,
   Command,
   Github,
   Palette,
@@ -92,6 +93,17 @@ const TopBar: React.FC = () => {
               <kbd className="hidden rounded border border-white/10 bg-black/40 px-1 font-mono text-[9px] text-zinc-500 sm:inline">
                 ⌘K
               </kbd>
+            </button>
+
+            <button
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent("rtmlab:open-intro"));
+              }}
+              aria-label="تماشای معرفی سایت"
+              title="تماشای معرفی سایت"
+              className="tap-icon flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-zinc-400 transition-colors hover:border-white/20 hover:text-zinc-100"
+            >
+              <Clapperboard className="h-3.5 w-3.5" />
             </button>
 
             {/* accent picker */}
