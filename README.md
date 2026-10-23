@@ -206,6 +206,35 @@ Firefox 113+، Safari 16.4+؛ دلیلش `DecompressionStream` است). روی �
 - ایمیل معمولی برای ۲۳ مگابایت مناسب نیست (پس از کدگذاری از سقف ۲۵ مگابایت می‌گذرد)؛
   از Google Drive یا لینک مستقیم استفاده کنید
 
+## انتشار روی GitHub Pages (سرورهای خود گیت‌هاب)
+
+ورک‌فلوی `.github/workflows/pages.yml` اپ را با `VITE_BASE=/<repo>/` می‌سازد و روی
+GitHub Pages منتشر می‌کند؛ نتیجه برای همه باز می‌شود و به محافظت Vercel کاری ندارد.
+
+- آدرس سایت: **https://amirui123.github.io/jjli/**
+- نسخهٔ تک‌فایلی همان‌جا: **https://amirui123.github.io/jjli/standalone.html**
+
+فقط یک تنظیم یک‌باره لازم است (توکن ربات اجازهٔ آن را ندارد):
+**Settings → Pages → Build and deployment → Source: GitHub Actions**
+بعد از آن، هر push خودکار منتشر می‌شود.
+
+برای اینکه اپ از زیرمسیر `/jjli/` هم کار کند:
+
+- `vite.config.ts` مقدار `VITE_BASE` را می‌خواند (پیش‌فرض `/`، پس Vercel دست‌نخورده است).
+- `src/lib/base.ts` تابع `publicUrl()` را می‌دهد و همهٔ درخواست‌های زمان‌اجرا
+  (`loadAsset`، `saveUrl`، `fetchAsBlob`) از آن رد می‌شوند. تست:
+  `.smoke/base-path.mjs` — بیلد را روی `/jjli/` سرو می‌کند و مطمئن می‌شود هیچ
+  درخواستی بدون پیشوند نرود.
+
+### لینک CDN گیت‌هاب (برای نمایش سریع)
+
+`share/rtl-motion-lab-showcase.html` (۵۴۰ کیلوبایت) از CDN جی‌اس‌دلیور — که مستقیم از
+همین مخزن می‌خواند — در مرورگر باز می‌شود:
+
+https://cdn.jsdelivr.net/gh/amirui123/jjli@live/share/rtl-motion-lab-showcase.html
+
+(نسخهٔ ۲۲٫۸ مگابایتی از سقف ۲۰ مگابایتی این CDN بزرگ‌تر است؛ آن یکی از Pages می‌آید.)
+
 ## انتشار روی Vercel
 
 نسخهٔ زنده: **https://rtl-motion-lab-farbootaleb-4429.vercel.app** (پروژهٔ `rtl-motion-lab`،

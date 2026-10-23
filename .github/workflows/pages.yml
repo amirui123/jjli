@@ -49,9 +49,21 @@ jobs:
           cp dist/index.html dist/404.html # hash routing: any unknown path boots the app
           ls -lh dist | head -12
 
-      - uses: actions/configure-pages@v5
+      # The workflow token can read Pages but not enable it (that needs repo admin),
+      # so this step also checks whether the site exists and explains the one switch
+      # a human has to flip. Once it is on, every push deploys by itself.
+      - id: pages
+        uses: actions/configure-pages@v5
+        continue-on-error: true
         with:
           enablement: true
+
+      - name: GitHub Pages is not enabled yet
+        if: steps.pages.outcome != 'success'
+        run: |
+          echo "::error title=فعال‌سازی GitHub Pages::یک‌بار این تنظیم را روشن کنید — Settings → Pages → Build and deployment → Source: GitHub Actions — سپس این ورک‌فلوی را دوباره اجرا کنید."
+          echo "Then re-run this workflow; the site will publish at https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/"
+          exit 1
 
       - uses: actions/upload-pages-artifact@v3
         with:
