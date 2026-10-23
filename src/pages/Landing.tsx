@@ -18,6 +18,7 @@ import { TOOLKIT_SKILL_SLUGS, TOOLKIT_STATS } from "../data/toolkitStats";
 import { FEATURED_SOUNDS } from "../data/featuredSounds";
 import { navigate } from "../lib/router";
 import { useAppSettings, writePersisted } from "../lib/store";
+import { publicUrl } from "../lib/base";
 import { soundEngine } from "../engines/soundEngine";
 import { faCount, faNum } from "../lib/format";
 import { cn } from "../ui/kit";
@@ -687,7 +688,7 @@ export const Landing: React.FC = () => {
               مرور کامپوننت‌ها
             </button>
             <a
-              href="/showcase.html"
+              href={publicUrl("/showcase.html")}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1.5 rounded-xl border border-white/12 px-4 py-2.5 text-[12px] text-zinc-300 hover:border-white/25"
