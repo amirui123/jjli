@@ -402,7 +402,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const isStudio = STUDIO_ROUTES.has(route);
 
   return (
-    <div dir="rtl" className={cn("bg-[#08080A] text-zinc-100", isStudio ? "xl:h-[100dvh] xl:overflow-hidden" : "min-h-screen")}>
+    <div dir="rtl" className={cn("bg-[#08080A] text-zinc-100", isStudio ? "desk:h-[100dvh] desk:overflow-hidden" : "min-h-screen")}>
       <TopBar />
       <AnimatePresence mode="wait" initial={false}>
         <motion.main
@@ -415,7 +415,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
             "mx-auto max-w-[1440px] px-4 sm:px-6",
             isStudio
               ? // full-height studio: no page scroll on desktop, the rails scroll instead
-                "min-h-[calc(100dvh-3.5rem)] pb-24 pt-3 xl:h-[calc(100dvh-3.5rem)] xl:min-h-0 xl:overflow-hidden xl:pb-[68px] xl:pt-3"
+                "min-h-[calc(100dvh-3.5rem)] pb-24 pt-3 desk:h-[calc(100dvh-3.5rem)] desk:min-h-0 desk:overflow-hidden desk:pb-[68px] desk:pt-3"
               : "min-h-[calc(100vh-3.5rem)] pb-24 pt-6"
           )}
         >

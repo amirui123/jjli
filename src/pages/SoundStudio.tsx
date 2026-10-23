@@ -140,7 +140,13 @@ export const SoundStudio: React.FC = () => {
   const [s, set, reset] = usePersisted<SoundSettings>("studio-sounds", DEFAULT);
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<SoundCategory>("all");
-  const [selectedId, setSelectedId] = useState(ALL_SOUND_RECIPES_MANIFEST[0]?.id ?? "");
+  const [pick, setPick] = usePersisted<{ id: string }>("studio-sounds-pick", {
+    id: ALL_SOUND_RECIPES_MANIFEST[0]?.id ?? "",
+  });
+  const selectedId = ALL_SOUND_RECIPES_MANIFEST.some((r) => r.id === pick.id)
+    ? pick.id
+    : ALL_SOUND_RECIPES_MANIFEST[0]?.id ?? "";
+  const setSelectedId = (id: string) => setPick({ id });
   const [version, setVersion] = useState(0);
   const [playing, setPlaying] = useState(false);
   const playTimer = useRef<number | null>(null);
@@ -285,7 +291,7 @@ soundEngine.playRecipe(
 
   const stage = (
     <div className="space-y-4">
-      <Panel padded={false} className="xl:sticky xl:top-0 xl:z-20">
+      <Panel padded={false} className="desk:sticky desk:top-0 desk:z-20">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] px-3 py-2">
           <div className="flex min-w-0 items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full" style={{ background: playing ? "#34d399" : "#52525b" }} />
@@ -411,7 +417,7 @@ soundEngine.playRecipe(
     <StudioList
       title="همه صداها"
       subtitle={`${faNum(filtered.length)} از ${faNum(ALL_SOUND_RECIPES_MANIFEST.length)}`}
-      className="min-h-[360px] xl:min-h-0"
+      className="min-h-[360px] desk:min-h-0"
       footer="برای شنیدن، روی هر ردیف کلیک کنید"
       toolbar={<Badge tone="accent">{faNum(ALL_SOUND_RECIPES_MANIFEST.length)}</Badge>}
     >
@@ -461,7 +467,7 @@ soundEngine.playRecipe(
             </span>
             <button
               onClick={() => play(r)}
-              className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-white/10 text-zinc-400 opacity-0 transition-opacity hover:text-white group-hover:opacity-100"
+              className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-white/10 text-zinc-400 opacity-100 transition-opacity hover:text-white focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
               aria-label={`پخش ${r.id}`}
             >
               <Play className="h-2.5 w-2.5" />

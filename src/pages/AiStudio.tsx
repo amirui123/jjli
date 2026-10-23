@@ -213,7 +213,7 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
           ? `${faNum(PROMPT_KINDS.length)} قالب`
           : `${faNum(MODELS.length)} مدل`
       }
-      className="min-h-[360px] xl:min-h-0"
+      className="min-h-[360px] desk:min-h-0"
       footer={tab === "dataset" ? "داده واقعی از دیتاست مخزن" : undefined}
     >
       <div className="sticky top-0 z-10 -m-1.5 mb-1.5 bg-[#0D0D10]/95 p-1.5 backdrop-blur">

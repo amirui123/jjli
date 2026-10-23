@@ -176,9 +176,8 @@ for (const studio of ["fonts", "motion", "components", "sounds", "skills", "engi
   mod.setHash(`#/studio/${studio}`);
   await wait(450);
   const main = document.querySelector("main");
-  const shell = main?.firstElementChild;
-  const rails = shell?.lastElementChild?.children?.length ?? 0;
-  if (rails !== 3) errors.push(`RAILS ${studio}: expected 3 columns, found ${rails}`);
+  const rails = main?.querySelectorAll("[data-rail]").length ?? 0;
+  if (rails !== 3) errors.push(`RAILS ${studio}: expected 3 rails, found ${rails}`);
   if (main && main.textContent.trim().length < 200) errors.push(`RAILS ${studio}: stage content is empty`);
 }
 

@@ -10,6 +10,7 @@ import { twMerge } from "tailwind-merge";
 import { Check, ChevronDown, Copy, Loader2, Search, X } from "lucide-react";
 import { copyText } from "../lib/store";
 import { soundEngine } from "../engines/soundEngine";
+import { faNum } from "../lib/format";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -88,19 +89,19 @@ export const Slider: React.FC<{
       <div className="mb-1.5 flex items-baseline justify-between gap-2">
         <span className="text-[11.5px] font-medium text-zinc-300">{label}</span>
         <span className="font-mono text-[11px] tabular-nums text-[color:var(--accent)]">
-          {format ? format(safe) : safe}
-          {unit ? <span className="text-zinc-500"> {unit}</span> : null}
+          {faNum(format ? format(safe) : safe)}
+          {unit ? <span className="text-zinc-500"> {faNum(unit)}</span> : null}
         </span>
       </div>
 
-      <div className="relative h-4 rounded-md focus-within:ring-2 focus-within:ring-[color:var(--accent)]/40" dir="ltr">
+      <div className="group/range relative h-4 rounded-md focus-within:ring-2 focus-within:ring-[color:var(--accent)]/40" dir="ltr">
         <div className="pointer-events-none absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-white/10" />
         <div
           className="pointer-events-none absolute top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-[color:var(--accent)]"
           style={{ left: "6px", width: travel }}
         />
         <div
-          className="pointer-events-none absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full border-2 border-[color:var(--accent)] bg-white shadow-[0_0_0_3px_rgba(var(--accent-glow),0.14)] transition-transform duration-100 peer-hover:scale-110"
+          className="pointer-events-none absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full border-2 border-[color:var(--accent)] bg-white shadow-[0_0_0_3px_rgba(var(--accent-glow),0.14)] transition-transform duration-100 group-hover/range:scale-110"
           style={{ left: travel }}
         />
         <input

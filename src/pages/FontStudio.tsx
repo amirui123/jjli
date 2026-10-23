@@ -338,7 +338,7 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
               </span>
               {f.isVariable && <Badge tone="accent">VF</Badge>}
             </button>
-            <div className="absolute end-1 top-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+            <div className="absolute end-1 top-1 opacity-100 transition-opacity focus-within:opacity-100 sm:pointer-events-none sm:opacity-0 sm:group-hover:pointer-events-auto sm:group-hover:opacity-100 sm:group-focus-within:pointer-events-auto sm:group-focus-within:opacity-100">
               <DownloadButton
                 compact
                 label="دانلود فونت"
@@ -409,7 +409,7 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
 
   const stage = (
     <div className="space-y-4">
-      <Panel padded={false} className="overflow-hidden xl:sticky xl:top-0 xl:z-20">
+      <Panel padded={false} className="overflow-hidden desk:sticky desk:top-0 desk:z-20">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] px-3 py-2">
           <div className="flex min-w-0 items-center gap-2">
             <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />
@@ -782,7 +782,7 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
           title="همه فونت‌ها"
           subtitle={`${faNum(filtered.length)} از ${faNum(PERSIAN_FONT_CATALOG.length)}`}
           toolbar={<Badge tone="accent">{faNum(PERSIAN_FONT_CATALOG.length)}</Badge>}
-          className="min-h-[360px] xl:min-h-0"
+          className="min-h-[360px] desk:min-h-0"
           footer="روی هر فونت دانلود فایل اصلی فعال است"
         >
           <div className="sticky top-0 z-10 -m-1.5 mb-1.5 space-y-2 bg-[#0D0D10]/95 p-1.5 backdrop-blur">

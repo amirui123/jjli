@@ -270,7 +270,7 @@ ${preset?.hintFa ?? ""}
 
   const stage = (
     <div className="space-y-4">
-      <Panel padded={false} className="overflow-hidden xl:sticky xl:top-0 xl:z-20">
+      <Panel padded={false} className="overflow-hidden desk:sticky desk:top-0 desk:z-20">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] px-3 py-2">
           <div className="flex flex-wrap items-center gap-1.5">
             <Segmented
@@ -588,7 +588,7 @@ ${preset?.hintFa ?? ""}
         <StudioList
           title="حرکت‌های آماده"
           subtitle={`${faNum(MOTION_PRESETS.length)} رسیپی · قابل ویرایش`}
-          className="min-h-[360px] xl:min-h-0"
+          className="min-h-[360px] desk:min-h-0"
           footer="با انتخاب هر مورد، پیش‌نمایش و اعداد به‌روز می‌شوند"
         >
           {rows}

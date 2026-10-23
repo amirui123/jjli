@@ -209,7 +209,7 @@ Luhn: ${luhnOk ? "معتبر" : "نامعتبر"}
         className="mb-1.5 w-full rounded-lg border border-white/[0.07] bg-black/40 px-2 py-1 text-[10px] text-zinc-300 outline-none placeholder:text-zinc-600 focus:border-[color:var(--accent)]/40"
       />
 
-      <div className="grid grid-cols-1 gap-1 sm:grid-cols-2 xl:grid-cols-1">
+      <div className="grid grid-cols-1 gap-1 sm:grid-cols-2 desk:grid-cols-1">
         {banks.map((b) => (
           <button
             key={b.id}

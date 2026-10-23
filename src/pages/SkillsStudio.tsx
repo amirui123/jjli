@@ -85,8 +85,16 @@ export const SkillsStudio: React.FC = () => {
   const [tab, setTab] = useState<Tab>("skills");
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string>("all");
-  const [selectedSkill, setSelectedSkill] = useState<SkillManifestItem | null>(ALL_SKILLS_MANIFEST[0] ?? null);
-  const [selectedBrand, setSelectedBrand] = useState<BrandDesignManifestItem | null>(ALL_BRAND_DESIGNS_MANIFEST[0] ?? null);
+  const [pick, setPick] = usePersisted<{ skill: string; brand: string }>("studio-skills-pick", {
+    skill: ALL_SKILLS_MANIFEST[0]?.id ?? "",
+    brand: ALL_BRAND_DESIGNS_MANIFEST[0]?.id ?? "",
+  });
+  const selectedSkill =
+    ALL_SKILLS_MANIFEST.find((x) => x.id === pick.skill) ?? ALL_SKILLS_MANIFEST[0] ?? null;
+  const selectedBrand =
+    ALL_BRAND_DESIGNS_MANIFEST.find((x) => x.id === pick.brand) ?? ALL_BRAND_DESIGNS_MANIFEST[0] ?? null;
+  const setSelectedSkill = (skill: SkillManifestItem) => setPick({ skill: skill.id });
+  const setSelectedBrand = (brand: BrandDesignManifestItem) => setPick({ brand: brand.id });
   const [doc, setDoc] = useState<string>("");
   const [docLoading, setDocLoading] = useState(false);
   const [limit, setLimit] = useState(80);
@@ -254,7 +262,7 @@ ${ok.length} سند \`SKILL.md\` کامل، مستقیماً از مخزن.
     <StudioList
       title={tab === "skills" ? "مهارت‌ها" : "برندها"}
       subtitle={`${faNum(tab === "skills" ? skills.length : brands.length)} نتیجه`}
-      className="min-h-[360px] xl:min-h-0"
+      className="min-h-[360px] desk:min-h-0"
       footer="هر سند با متن کامل و قابل دانلود"
       toolbar={<Badge tone="accent">{faNum(tab === "skills" ? ALL_SKILLS_MANIFEST.length : ALL_BRAND_DESIGNS_MANIFEST.length)}</Badge>}
     >
@@ -445,7 +453,7 @@ ${ok.length} سند \`SKILL.md\` کامل، مستقیماً از مخزن.
         )}
 
         <div
-          className={cn("studio-scroll max-h-[52vh] min-h-[280px] overflow-y-auto p-4 xl:max-h-[46vh]", read.theme === "paper" && "paper rounded-b-2xl")}
+          className={cn("studio-scroll max-h-[52vh] min-h-[280px] overflow-y-auto p-4 desk:max-h-[46vh]", read.theme === "paper" && "paper rounded-b-2xl")}
         >
           {docLoading ? (
             <Spinner className="py-16" />

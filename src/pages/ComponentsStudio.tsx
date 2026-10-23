@@ -62,7 +62,13 @@ const TOTAL_SOURCE = REGISTRY_FILES.reduce((a, r) => a + r.sourceFiles, 0);
 
 export const ComponentsStudio: React.FC = () => {
   const [s, set, reset] = usePersisted<CodeSettings>("studio-components", DEFAULT_CODE);
-  const [regId, setRegId] = useState(REGISTRY_FILES[0]?.id ?? "");
+  const [pick, setPick] = usePersisted<{ regId: string }>("studio-components-pick", {
+    regId: REGISTRY_FILES[0]?.id ?? "",
+  });
+  const regId = REGISTRY_FILES.some((r) => r.id === pick.regId)
+    ? pick.regId
+    : REGISTRY_FILES[0]?.id ?? "";
+  const setRegId = (id: string) => setPick({ regId: id });
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Row | null>(null);
   const [code, setCode] = useState<ChunkFile | null>(null);
@@ -268,7 +274,7 @@ import Component from "./${base}";
     <StudioList
       title="فایل‌های واقعی"
       subtitle={`${faNum(filtered.length)} فایل · ${(filtered.reduce((a, r) => a + r.bytes, 0) / 1048576).toFixed(1)}MB`}
-      className="min-h-[420px] xl:min-h-0"
+      className="min-h-[420px] desk:min-h-0"
       listClassName="flex min-h-0 flex-col overflow-hidden p-1.5"
       footer={`${faNum(TOTAL_FILES)} فایل کل · ${faNum(TOTAL_SOURCE)} سورس`}
       toolbar={<Badge tone="accent">{faCount(filtered.length)}</Badge>}
@@ -342,7 +348,7 @@ import Component from "./${base}";
                       saveText(file.c, name, "text/typescript");
                       toast.push(`${name} دانلود شد`, { tone: "download" });
                     }}
-                    className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-white/10 text-zinc-500 opacity-0 transition-opacity hover:text-[color:var(--accent)] group-hover:opacity-100"
+                    className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-white/10 text-zinc-500 opacity-100 transition-opacity hover:text-[color:var(--accent)] focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                     aria-label={`دانلود ${name}`}
                   >
                     <Download className="h-2.5 w-2.5" />
