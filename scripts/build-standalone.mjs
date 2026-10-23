@@ -8,8 +8,9 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = "/home/user/jjli";
+const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const FONTS = {
   __FONT_VAZIR__: "public/fonts/Vazirmatn-Variable.woff2",
   __FONT_MORABBA__: "public/fonts/Morabba-VF.woff",

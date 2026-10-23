@@ -6,8 +6,9 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = "/home/user/jjli";
+const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const CSS = fs.readFileSync(path.join(ROOT, "src/index.css"), "utf8");
 
 const blocks = CSS.split("@font-face").slice(1);

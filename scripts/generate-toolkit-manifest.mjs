@@ -1,17 +1,19 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = "/home/user/jjli/toolkit";
+const REPO = fileURLToPath(new URL("..", import.meta.url));
+const ROOT = path.join(REPO, "toolkit");
 /* Safety guard: if the vendored toolkit is absent (e.g. shallow CI checkout),
    keep the committed generated data instead of overwriting it with empties. */
-const TOOLKIT_DIR = "/home/user/jjli/toolkit";
+const TOOLKIT_DIR = ROOT;
 if (!fs.existsSync(TOOLKIT_DIR) || fs.readdirSync(TOOLKIT_DIR).length < 4) {
   console.warn("[generate] toolkit/ not found — skipping generation, using committed data.");
   process.exit(0);
 }
 
-const OUT_FILE = "/home/user/jjli/src/data/toolkitManifest.ts";
+const OUT_FILE = path.join(REPO, "src/data/toolkitManifest.ts");
 
 function walk(dir, filterFn, list = []) {
   if (!fs.existsSync(dir)) return list;
@@ -207,7 +209,7 @@ const aiFiles = walk(
   () => true
 ).map((f) => path.relative(path.join(ROOT, "06-ai-model-training"), f));
 
-const DATA_DIR = "/home/user/jjli/src/data";
+const DATA_DIR = path.join(REPO, "src/data");
 const totalComponents = registriesManifest.reduce((a, b) => a + b.totalFiles, 0);
 
 const header = (title) => `/**
@@ -265,7 +267,7 @@ fs.writeFileSync(path.join(DATA_DIR, "registriesManifest.ts"), registriesTs, "ut
 /* --------------------------------------------------------------- sounds */
 /* The designed library (src/data/soundLibrary.ts, `s(` factories) sits on top
    of the 200 vendored recipes, so every public counter adds both. */
-const SOUND_LIBRARY_FILE = "/home/user/jjli/src/data/soundLibrary.ts";
+const SOUND_LIBRARY_FILE = path.join(REPO, "src/data/soundLibrary.ts");
 const designedSoundCount = fs.existsSync(SOUND_LIBRARY_FILE)
   ? (fs.readFileSync(SOUND_LIBRARY_FILE, "utf8").match(/^ {2}s\(/gm) || []).length
   : 0;
