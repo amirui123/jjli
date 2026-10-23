@@ -292,7 +292,7 @@ export const StudioShell: React.FC<{
               className={cn(
                 "tap-target flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-medium transition-colors",
                 active
-                  ? "bg-white/[0.08] text-white"
+                  ? "bg-[color:var(--accent)]/12 text-white ring-1 ring-inset ring-[color:var(--accent)]/25"
                   : "text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-300"
               )}
             >

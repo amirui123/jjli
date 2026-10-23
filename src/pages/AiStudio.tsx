@@ -78,6 +78,8 @@ export const AiStudio: React.FC = () => {
   const [tab, setTab] = useState<Tab>("prompt");
   const [dataset, setDataset] = useState<DatasetFile | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [retry, setRetry] = useState(0);
   const [pairIdx, setPairIdx] = useState(0);
   const [systemPrompt, setSystemPrompt] = useState("");
   const [tuning, setTuning] = usePersisted<TuningSettings>("studio-ai", DEFAULT_TUNING);
@@ -87,18 +89,24 @@ export const AiStudio: React.FC = () => {
 
   useEffect(() => {
     if (dataset) return;
+    let alive = true;
     setLoading(true);
+    setLoadError(false);
     Promise.all([
       loadAsset<DatasetFile>("/ai/dataset.json"),
       loadAsset<string>("/ai/system-prompt.md").catch(() => ""),
     ])
       .then(([d, sp]) => {
+        if (!alive) return;
         setDataset(d);
         setSystemPrompt(sp);
       })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [dataset]);
+      .catch(() => alive && setLoadError(true))
+      .finally(() => alive && setLoading(false));
+    return () => {
+      alive = false;
+    };
+  }, [dataset, retry]);
 
   const font = PERSIAN_FONT_CATALOG.find((f) => f.id === promptFont) ?? PERSIAN_FONT_CATALOG[0];
   const kind = PROMPT_KINDS.find((k) => k.id === promptKind) ?? PROMPT_KINDS[0];
@@ -342,7 +350,22 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
 
           <Panel title="پرامپت سیستمی مدل" subtitle="همان فایلی که هنگام آموزش استفاده می‌شود" padded={false}>
             <div className="max-h-[280px] overflow-y-auto p-3">
-              {systemPrompt ? <Markdown source={systemPrompt} /> : <Spinner className="py-8" />}
+              {systemPrompt ? (
+                <Markdown source={systemPrompt} />
+              ) : loadError ? (
+                <div className="py-6 text-center">
+                  <p className="text-[11px] text-zinc-500">متن پرامپت سیستمی بارگذاری نشد.</p>
+                  <button
+                    type="button"
+                    onClick={() => setRetry((r) => r + 1)}
+                    className="mt-2 rounded-lg border border-white/12 px-3 py-1.5 text-[11px] text-zinc-300"
+                  >
+                    تلاش دوباره
+                  </button>
+                </div>
+              ) : (
+                <Spinner className="py-8" />
+              )}
             </div>
           </Panel>
         </>
