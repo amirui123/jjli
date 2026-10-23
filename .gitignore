@@ -12,5 +12,8 @@ dist-single/
 # smoke bundle output
 .smoke/
 
-# shareable copies of the single-file showcase (generated, do not commit)
-share/
+# shareable copies: only the two finished deliverables are versioned, so they get
+# a stable GitHub link; the zips are rebuilt on demand and stay local
+share/*
+!share/rtl-motion-lab-standalone.html
+!share/rtl-motion-lab-showcase.html
