@@ -10,3 +10,6 @@ dist-vercel/
 
 # smoke bundle output
 .smoke/
+
+# shareable copies of the single-file showcase (generated, do not commit)
+share/
