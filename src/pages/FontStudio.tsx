@@ -409,7 +409,7 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
 
   const stage = (
     <div className="space-y-4">
-      <Panel padded={false} className="overflow-hidden">
+      <Panel padded={false} className="overflow-hidden xl:sticky xl:top-0 xl:z-20">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] px-3 py-2">
           <div className="flex min-w-0 items-center gap-2">
             <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />

@@ -42,6 +42,8 @@ interface MotionSettings extends SpringParams {
   loop: boolean;
   bezier: [number, number, number, number];
   exportTab: "motion" | "css" | "variants";
+  /** the visitor's own content, used by every preview and by the code output */
+  content: string;
 }
 
 const DEFAULT: MotionSettings = {
@@ -62,6 +64,7 @@ const DEFAULT: MotionSettings = {
   loop: false,
   bezier: [0.22, 1, 0.36, 1],
   exportTab: "motion",
+  content: "حرکت، زبانِ رابط است",
 };
 
 const Graph: React.FC<{ samples: number[]; accent: string }> = ({ samples, accent }) => {
@@ -87,7 +90,8 @@ const Graph: React.FC<{ samples: number[]; accent: string }> = ({ samples, accen
 };
 
 export const MotionStudio: React.FC = () => {
-  const [s, set, reset] = usePersisted<MotionSettings>("studio-motion", DEFAULT);
+  const [raw, set, reset] = usePersisted<MotionSettings>("studio-motion", DEFAULT);
+  const s = { ...DEFAULT, ...raw };
   const { motionScale } = useAppSettings();
   const [replay, setReplay] = useState(0);
 
@@ -220,7 +224,7 @@ export const item: Variants = {
 
   const downloadConfig = () =>
     saveKit(`rtl-motion-${s.presetId}`, [
-      { name: "MotionCard.tsx", content: motionSnippet.replace("<motion.div", "<motion.div").concat("\n") },
+      { name: "MotionCard.tsx", content: `${motionSnippet}\n\n// متن نمونه: ${s.content}\n` },
       {
         name: "motion.css",
         content: `${cssSnippet}\n\n/* easing تولیدشده از شبیه‌سازی فنر */\n.enter { --easing: ${cssEasing}; }\n`,
@@ -266,7 +270,7 @@ ${preset?.hintFa ?? ""}
 
   const stage = (
     <div className="space-y-4">
-      <Panel padded={false} className="overflow-hidden">
+      <Panel padded={false} className="overflow-hidden xl:sticky xl:top-0 xl:z-20">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] px-3 py-2">
           <div className="flex flex-wrap items-center gap-1.5">
             <Segmented
@@ -289,7 +293,15 @@ ${preset?.hintFa ?? ""}
               ]}
             />
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <input
+              value={s.content}
+              onChange={(e) => set({ content: e.target.value })}
+              dir="rtl"
+              aria-label="متن پیش‌نمایش"
+              placeholder="متن خودت را بنویس…"
+              className="w-[150px] rounded-lg border border-white/[0.08] bg-black/40 px-2 py-1 text-[10.5px] text-zinc-200 outline-none focus:border-[color:var(--accent)]/50 sm:w-[190px]"
+            />
             <Badge tone={quality.tone}>{quality.label}</Badge>
             <Badge>{analysis.settleTime.toFixed(2)}s</Badge>
             <button
@@ -308,7 +320,7 @@ ${preset?.hintFa ?? ""}
           </div>
         </div>
 
-        <div className="relative flex min-h-[300px] items-center justify-center overflow-hidden bg-[#0A0A0C] bg-engineering-dots p-8">
+        <div className="relative flex min-h-[220px] items-center justify-center overflow-hidden bg-[#0A0A0C] bg-engineering-dots p-6 sm:min-h-[260px]">
           <div
             className="pointer-events-none absolute inset-0"
             style={{
@@ -335,7 +347,7 @@ ${preset?.hintFa ?? ""}
                     <span className="h-6 w-8 rounded bg-gradient-to-br from-[color:var(--accent)]/70 to-transparent" />
                   </div>
                   <div>
-                    <p className="font-hasti text-[22px] leading-tight text-white">حرکت، زبانِ رابط است</p>
+                    <p className="font-hasti text-[22px] leading-tight text-white">{s.content || DEFAULT.content}</p>
                     <p className="mt-1 font-mono text-[10px] text-zinc-500" dir="ltr">
                       {s.stiffness}/{s.damping}/{s.mass}
                     </p>
@@ -346,7 +358,7 @@ ${preset?.hintFa ?? ""}
 
             {s.target === "type" && (
               <div className="text-center">
-                <p className="font-nastaliq text-[40px] leading-[1.9] text-white">جهان بی‌حرکت، ساکن است</p>
+                <p className="font-nastaliq text-[38px] leading-[1.9] text-white">{s.content || DEFAULT.content}</p>
                 <p className="mt-2 font-mono text-[10px] text-zinc-500" dir="ltr">
                   {analysis.settleTime.toFixed(2)}s · ζ {analysis.dampingRatio.toFixed(2)}
                 </p>
