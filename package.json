@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "generate": "node scripts/generate-toolkit-manifest.mjs && node scripts/generate-public-vault.mjs && node scripts/generate-font-files.mjs && node scripts/generate-component-chunks.mjs && node scripts/generate-light-data.mjs",
+    "postinstall": "node scripts/ensure-esbuild.mjs",
     "dev": "npm run generate && node scripts/build-standalone.mjs && vite --host 0.0.0.0 --port 5173",
     "build": "npm run generate && node scripts/build-standalone.mjs && vite build",
     "preview": "vite preview --host 0.0.0.0 --port 5173",
@@ -37,5 +38,8 @@
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.72.0",
     "vite": "^6.1.0"
+  },
+  "engines": {
+    "node": "22.x"
   }
 }
