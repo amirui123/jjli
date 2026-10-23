@@ -444,4 +444,67 @@ export const PERSIAN_FONT_CATALOG: PersianFontItem[] = [
     recommendedLineHeight: 1.6,
     descriptionFa: "فونت برنامه‌نویسی هم‌عرض (Monospace) با پشتیبانی هم‌زمان از کد انگلیسی و کامنت/متن فارسی",
   },
+  // ۵. فونت‌های تحریریه و بین‌المللی (لایسنس OFL، فایل واقعی در /public/fonts)
+  {
+    id: "amiri",
+    nameFa: "امیری (نسخ کلاسیک)",
+    nameEn: "Amiri",
+    family: '"Amiri", serif',
+    category: "nastaliq-calligraphy",
+    recommendedLineHeight: 2,
+    descriptionFa:
+      "نسخِ تحریریِ کلاسیک با کشیده‌های اصیل؛ برای نقل‌قول، شعر و سرصفحه‌های تحریریه",
+  },
+  {
+    id: "scheherazade-new",
+    nameFa: "شهرزاد نو",
+    nameEn: "Scheherazade New",
+    family: '"Scheherazade New", serif',
+    category: "nastaliq-calligraphy",
+    recommendedLineHeight: 2.1,
+    descriptionFa:
+      "نسخِ خوانا با پوشش گستردهٔ گلیف‌های فارسی و عربی؛ مناسب متن‌های بلند و دوزبانه",
+  },
+  {
+    id: "noto-nastaliq-urdu",
+    nameFa: "نستعلیق نوشته",
+    nameEn: "Noto Nastaliq Urdu",
+    family: '"Noto Nastaliq Urdu", serif',
+    category: "nastaliq-calligraphy",
+    recommendedLineHeight: 2.4,
+    descriptionFa:
+      "نستعلیقِ استاندارد گوگل با سطرآرایی درست در وب؛ جایگزین مطمئن وقتی فونت نستعلیق ایرانی در دسترس نیست",
+  },
+  {
+    id: "baloo-bhaijaan-2",
+    nameFa: "بالو بهیجان ۲",
+    nameEn: "Baloo Bhaijaan 2",
+    family: '"Baloo Bhaijaan 2", sans-serif',
+    category: "special-display",
+    recommendedLineHeight: 1.5,
+    descriptionFa:
+      "نمایشیِ گرد و صمیمی با وزن‌های ۴۰۰ و ۷۰۰؛ برای تیترهای اپلیکیشن و محتوای کودک و آموزش",
+  },
+  {
+    id: "gandom",
+    nameFa: "گندم (ارقام فارسی)",
+    nameEn: "Gandom FD",
+    family: '"Gandom FD", sans-serif',
+    category: "modern-ui",
+    hasFarsiDigits: true,
+    recommendedLineHeight: 1.7,
+    descriptionFa:
+      "فونت رابطِ آرام با ارقام فارسی؛ انتخاب امن برای فرم‌ها، جدول‌ها و متن‌های طولانی",
+  },
+  {
+    id: "samim",
+    nameFa: "صمیم (ارقام فارسی)",
+    nameEn: "Samim FD",
+    family: '"Samim FD", sans-serif',
+    category: "modern-ui",
+    hasFarsiDigits: true,
+    recommendedLineHeight: 1.75,
+    descriptionFa:
+      "خواهرِ متنیِ وزیر با ارتفاع x بلندتر؛ خوانایی بالا در اندازه‌های کوچک رابط",
+  },
 ];

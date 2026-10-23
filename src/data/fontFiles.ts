@@ -312,6 +312,48 @@ export const FONT_FILE_BY_FAMILY: Record<string, FontFileInfo> = {
     "format": "truetype",
     "weight": "100 900"
   },
+  "Amiri": {
+    "url": "/fonts/05-editorial-and-international/Amiri-Regular.woff2",
+    "file": "Amiri-Regular.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "Scheherazade New": {
+    "url": "/fonts/05-editorial-and-international/ScheherazadeNew-Regular.woff2",
+    "file": "ScheherazadeNew-Regular.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "Noto Nastaliq Urdu": {
+    "url": "/fonts/05-editorial-and-international/NotoNastaliqUrdu-Regular.woff2",
+    "file": "NotoNastaliqUrdu-Regular.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "Baloo Bhaijaan 2": {
+    "url": "/fonts/05-editorial-and-international/BalooBhaijaan2-Regular.woff2",
+    "file": "BalooBhaijaan2-Regular.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "Gandom FD": {
+    "url": "/fonts/05-editorial-and-international/Gandom-FD.woff2",
+    "file": "Gandom-FD.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "Samim FD": {
+    "url": "/fonts/05-editorial-and-international/Samim-FD.woff2",
+    "file": "Samim-FD.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
   "Vazir Code": {
     "url": "/fonts/04-code-monospace/Vazir-Code-Hack.woff2",
     "file": "Vazir-Code-Hack.woff2",

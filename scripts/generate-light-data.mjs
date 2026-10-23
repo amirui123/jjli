@@ -28,6 +28,12 @@ const { ALL_SOUND_RECIPES_MANIFEST } = await loadModule("src/data/soundsManifest
 const { PERSIAN_FONT_CATALOG } = await loadModule("src/data/persianFontsCatalog.ts");
 const { REGISTRY_FILES } = await loadModule("src/data/registryFiles.ts");
 
+/* کتابخانه طراحی‌شده روی ۲۰۰ رسیپی قدیمی سوار می‌شود؛ شمارنده باید جمعشان باشد */
+const DESIGNED_SOUND_COUNT = (
+  fs.readFileSync("src/data/soundLibrary.ts", "utf8").match(/^ {2}s\(/gm) || []
+).length;
+const TOTAL_SOUNDS = ALL_SOUND_RECIPES_MANIFEST.length + DESIGNED_SOUND_COUNT;
+
 const sourceTotal = REGISTRY_FILES.reduce((a, r) => a + r.sourceFiles, 0);
 const fileTotal = REGISTRY_FILES.reduce((a, r) => a + r.totalFiles, 0);
 const tsxTotal = REGISTRY_FILES.reduce(
@@ -42,7 +48,7 @@ const stats = `/**
 export const TOOLKIT_STATS = {
   skills: ${ALL_SKILLS_MANIFEST.length},
   brands: ${ALL_BRAND_DESIGNS_MANIFEST.length},
-  sounds: ${ALL_SOUND_RECIPES_MANIFEST.length},
+  sounds: ${TOTAL_SOUNDS},
   fonts: ${PERSIAN_FONT_CATALOG.length},
   banks: 18,
   components: ${sourceTotal},

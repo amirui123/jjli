@@ -20,6 +20,7 @@ import { saveKit, saveText } from "../lib/download";
 import { Markdown } from "../ui/Markdown";
 import { faNum } from "../lib/format";
 import { soundEngine } from "../engines/soundEngine";
+import { AiPipeline } from "../components/AiPipeline";
 
 interface Pair {
   registry: string;
@@ -313,6 +314,13 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
 
   const stage = (
     <div className="space-y-4">
+      <AiPipeline
+        pairs={dataset?.total ?? null}
+        files={ALL_AI_TRAINING_FILES.length}
+        rank={tuning.rank}
+        systemPromptKb={systemPrompt.length / 1024}
+      />
+
       {tab === "prompt" && (
         <>
           <Panel

@@ -530,7 +530,83 @@
 }
 
 /* --------------------------------------------------------------------------
-   ۴. فونت‌های برنامه‌نویسی و کد (04-code-monospace)
+   ۴. فونت‌های تحریریه و بین‌المللی (05-editorial-and-international)
+   نسخ، نستعلیق اردو و نمایشی — همه با لایسنس OFL و فایل واقعی در /public/fonts
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Amiri";
+  src: url("/fonts/05-editorial-and-international/Amiri-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Amiri";
+  src: url("/fonts/05-editorial-and-international/Amiri-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Scheherazade New";
+  src: url("/fonts/05-editorial-and-international/ScheherazadeNew-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Scheherazade New";
+  src: url("/fonts/05-editorial-and-international/ScheherazadeNew-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Noto Nastaliq Urdu";
+  src: url("/fonts/05-editorial-and-international/NotoNastaliqUrdu-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Baloo Bhaijaan 2";
+  src: url("/fonts/05-editorial-and-international/BalooBhaijaan2-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Baloo Bhaijaan 2";
+  src: url("/fonts/05-editorial-and-international/BalooBhaijaan2-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Gandom FD";
+  src: url("/fonts/05-editorial-and-international/Gandom-FD.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Samim FD";
+  src: url("/fonts/05-editorial-and-international/Samim-FD.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --------------------------------------------------------------------------
+   ۵. فونت‌های برنامه‌نویسی و کد (04-code-monospace)
    -------------------------------------------------------------------------- */
 @font-face {
   font-family: "Vazir Code";
