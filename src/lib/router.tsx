@@ -103,12 +103,12 @@ export const ROUTES: RouteMeta[] = [
   {
     id: "engines",
     path: "/studio/engines",
-    labelFa: "استودیو موتور",
-    labelEn: "Engines",
-    shortFa: "موتور",
-    descFa: "فین‌تک، RTL و شیدر",
-    accent: "#34D399",
-    glyph: "⚙",
+    labelFa: "آزمایشگاه شیدر",
+    labelEn: "Shader Lab",
+    shortFa: "شیدر",
+    descFa: "شیدرهای GLSL و ممیزی RTL",
+    accent: "#22D3EE",
+    glyph: "◈",
   },
   {
     id: "ai",

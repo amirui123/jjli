@@ -16,7 +16,6 @@ import {
 import { PERSIAN_FONT_CATALOG } from "../data/persianFontsCatalog";
 import { TOOLKIT_SKILL_SLUGS, TOOLKIT_STATS } from "../data/toolkitStats";
 import { FEATURED_SOUNDS } from "../data/featuredSounds";
-import { IRANIAN_BANKS } from "../engines/persianEngines";
 import { navigate } from "../lib/router";
 import { useAppSettings, writePersisted } from "../lib/store";
 import { soundEngine } from "../engines/soundEngine";
@@ -86,11 +85,11 @@ const STUDIO_CARDS = [
   {
     id: "engines",
     path: "/studio/engines",
-    title: "استودیو موتور",
-    desc: "فین‌تک ایران، ممیزی RTL و شیدر — همه در مرزگر و بدون سرور.",
-    count: `${faNum(IRANIAN_BANKS.length)} بانک`,
-    icon: Cpu,
-    accent: "#34D399",
+    title: "آزمایشگاه شیدر",
+    desc: "۱۸ شیدر GLSL زنده با سورس و ممیزی RTL خودکار.",
+    count: "۱۸ شیدر",
+    icon: Sparkles,
+    accent: "#22D3EE",
   },
   {
     id: "ai",

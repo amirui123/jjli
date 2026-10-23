@@ -510,8 +510,231 @@ export function auditRtlMotionCode(code: string): {
     );
   }
 
-  const score = Math.max(100 - issues.length * 22, 12);
+  /* ---------------------------------------------------------------- bauteil 2
+     قواعد تکمیلی دوجهته: هرکدام یک باگ واقعی در رابط فارسی است. */
+
+  if (/\bspace-[xy]-\d+/.test(code)) {
+    issues.push({
+      id: "space-utilities",
+      severity: "warning",
+      titleFa: "کلاس‌های space-x/space-y در RTL ترتیب فرزندان را برعکس می‌کنند",
+      rule: "Flex Gap Over Space Utilities",
+      match: (code.match(/\bspace-[xy]-\d+/) || [""])[0],
+      fixFa: "جایگزینی با gap-* که در هر دو جهت درست کار می‌کند",
+    });
+    fixedCode = fixedCode.replace(/\bspace-x-(\d+)/g, "gap-x-$1").replace(/\bspace-y-(\d+)/g, "gap-y-$1");
+  }
+
+  if (/\b(border|rounded)-[lr](-|\b)/.test(code)) {
+    issues.push({
+      id: "logical-corners",
+      severity: "critical",
+      titleFa: "لبه و گوشه فیزیکی (border-l/r، rounded-l/r) در RTL آینه نمی‌شود",
+      rule: "Logical Border & Radius",
+      match: (code.match(/\b(border|rounded)-[lr](-[a-z0-9]+)?/) || [""])[0],
+      fixFa: "تبدیل به border-s/e و rounded-s/e",
+    });
+    fixedCode = fixedCode
+      .replace(/\bborder-l(?![a-z-])/g, "border-s")
+      .replace(/\bborder-r(?![a-z-])/g, "border-e")
+      .replace(/\brounded-l(?=[-\s"'`]|$)/g, "rounded-s")
+      .replace(/\brounded-r(?=[-\s"'`]|$)/g, "rounded-e");
+  }
+
+  if (/text-transform\s*:\s*uppercase|\buppercase\b/.test(code)) {
+    issues.push({
+      id: "persian-uppercase",
+      severity: "warning",
+      titleFa: "uppercase روی متن فارسی هیچ اثری ندارد جز شکستن تأکید طراحی",
+      rule: "Persian Case Rules",
+      match: "uppercase",
+      fixFa: "حذف uppercase و استفاده از وزن/اندازه برای تأکید",
+    });
+    fixedCode = fixedCode
+      .replace(/\s*\buppercase\b/g, "")
+      .replace(/text-transform\s*:\s*uppercase;?/g, "text-transform: none;");
+  }
+
+  if (/\b(dir|direction)\s*[:=]\s*["']?ltr/.test(code)) {
+    issues.push({
+      id: "hardcoded-ltr",
+      severity: "warning",
+      titleFa: "قفل‌کردن جهت ltr روی بلوک متنی؛ در حالت راست‌به‌چپ می‌شکند",
+      rule: "Direction Inheritance",
+      match: (code.match(/\b(dir|direction)\s*[:=]\s*["']?ltr/) || [""])[0],
+      fixFa: "جهت را به ریشه بسپارید و فقط برای اعداد/کد از dir=\"ltr\" استفاده کنید",
+    });
+    fixedCode = fixedCode
+      .replace(/\s+dir\s*=\s*(["'])ltr\1/g, "")
+      .replace(/\s+style\{\{\s*\{\s*direction\s*:\s*(["'])ltr\1\s*\}\s*\}\}/g, "")
+      .replace(/direction\s*:\s*ltr;?/g, "direction: rtl;");
+  }
+
+  if (/>[^<>{}]*\d[^<>{}]*</.test(code) && !/faNum|toLocaleString\(["']fa/.test(code)) {
+    issues.push({
+      id: "latin-digits",
+      severity: "warning",
+      titleFa: "ارقام لاتین داخل متن فارسی بدون تبدیل به عدد فارسی",
+      rule: "Persian Numerals",
+      match: (code.match(/>[^<>{}]*\d[^<>{}]*</) || [""])[0].slice(0, 40),
+      fixFa: "عبور اعداد از faNum() یا Intl.NumberFormat('fa-IR')",
+    });
+    const toFa = (d: string) => d.replace(/[0-9]/g, (c) => "۰۱۲۳۴۵۶۷۸۹"[Number(c)]);
+    fixedCode = fixedCode.replace(/>([^<>{}]*)</g, (whole, inner: string) =>
+      /[آ-ی]/.test(inner) && /[0-9]/.test(inner) ? `>${toFa(inner)}<` : whole
+    );
+  }
+
+  if (/(?:^|[\s>"'`])(می|نمی)\s+[آ-ی]/.test(code)) {
+    issues.push({
+      id: "missing-zwnj",
+      severity: "critical",
+      titleFa: "نیم‌فاصله جا افتاده: «می خواهم» به‌جای «می‌خواهم»",
+      rule: "Persian Half-Space (ZWNJ)",
+      match: (code.match(/(?:^|[\s>"'`])(می|نمی)\s+[آ-ی]+/) || [""])[0].trim(),
+      fixFa: "درج نیم‌فاصله \u200C بین پیشوند و فعل",
+    });
+    fixedCode = fixedCode.replace(/(^|[\s>"'`])(ن?می)\s+([آ-ی]+)/g, "$1$2\u200C$3");
+  }
+
+  if (/[يك]/.test(code)) {
+    issues.push({
+      id: "arabic-characters",
+      severity: "critical",
+      titleFa: "حروف عربی (ي/ك) به‌جای ی/ک فارسی؛ فونت فارسی این گلیف‌ها را ندارد",
+      rule: "Persian Character Set",
+      match: (code.match(/[يك]/) || [""])[0],
+      fixFa: "جایگزینی با ی و ک فارسی",
+    });
+    fixedCode = fixedCode.replace(/ي/g, "ی").replace(/ك/g, "ک");
+  }
+
+  if (/letter-spacing\s*:\s*[0-9.]+(px|em|rem)/.test(code) && !/letter-spacing\s*:\s*0/.test(code)) {
+    issues.push({
+      id: "letter-spacing",
+      severity: "warning",
+      titleFa: "letter-spacing مثبت اتصال حروف فارسی را می‌شکند",
+      rule: "Persian Letter Spacing",
+      match: (code.match(/letter-spacing\s*:\s*[0-9.]+(px|em|rem)/) || [""])[0],
+      fixFa: "letter-spacing: 0 برای فارسی",
+    });
+    fixedCode = fixedCode.replace(
+      /letter-spacing\s*:\s*[0-9.]+(px|em|rem)/g,
+      "letter-spacing: 0"
+    );
+  }
+
+  if (/(Arrow(Left|Right)|Chevron(Left|Right)|MoveRight|MoveLeft)/.test(code) && !/rtl:|rotate-180|scale-x-\[-1/.test(code)) {
+    issues.push({
+      id: "icon-mirror",
+      severity: "warning",
+      titleFa: "آیکون جهت‌دار بدون آینه‌سازی در RTL",
+      rule: "Directional Icon Mirroring",
+      match: (code.match(/(Arrow(Left|Right)|Chevron(Left|Right)|MoveRight|MoveLeft)/) || [""])[0],
+      fixFa: "افزودن rtl:-scale-x-100 یا rtl:rotate-180 به آیکون",
+    });
+    fixedCode = fixedCode.replace(
+      /<(Arrow(?:Left|Right|UpRight)|Chevron(?:Left|Right)|Move(?:Right|Left))\b([^>]*?)className=(["'])([^"']*)\3/g,
+      (_m, tag: string, pre: string, q: string, cls: string) =>
+        `<${tag}${pre}className=${q}rtl:-scale-x-100 ${cls}${q}`
+    );
+  }
+
+  if (/animate=\{\{\s*(margin|padding|fontSize)/.test(code)) {
+    issues.push({
+      id: "layout-animation-2",
+      severity: "critical",
+      titleFa: "انیمیت‌کردن margin/padding با فریم‌ریت ۶۰ جور درنمی‌آید",
+      rule: "60fps GPU Compositor Rule",
+      match: (code.match(/animate=\{\{\s*(margin|padding|fontSize)/) || [""])[0],
+      fixFa: "استفاده از scale/translate/opacity روی لایه GPU",
+    });
+  }
+
+  if (/grid-cols-\d/.test(code) && !/dir=|start|end/.test(code) && /text-(left|right)/.test(code)) {
+    issues.push({
+      id: "grid-direction",
+      severity: "warning",
+      titleFa: "گرید با جهت متن فیزیکی ترکیب شده است",
+      rule: "Grid & Writing Mode",
+      match: (code.match(/grid-cols-\d+/) || [""])[0],
+      fixFa: "برای گرید از کلاس‌های منطقی و text-start/end استفاده کنید",
+    });
+  }
+
+  const critical = issues.filter((i) => i.severity === "critical").length;
+  const score = Math.max(100 - critical * 14 - (issues.length - critical) * 7, 8);
   return { issues, fixedCode, score };
+}
+
+/**
+ * ممیزی متن فارسی (نه کد): نیم‌فاصله، حروف عربی، فاصله‌گذاری علائم و ارقام.
+ * برای پرامپت‌ها، توضیحات محصول و محتوای استودیوها استفاده می‌شود.
+ */
+export function auditPersianCopy(input: string): {
+  issues: { id: string; titleFa: string; sample: string; fixFa: string }[];
+  cleaned: string;
+  score: number;
+} {
+  const issues: { id: string; titleFa: string; sample: string; fixFa: string }[] = [];
+  let text = input;
+
+  const arabic = text.match(/[يك]/g);
+  if (arabic) {
+    issues.push({
+      id: "copy-arabic",
+      titleFa: `${arabic.length} حرف عربی (ي/ك)`,
+      sample: "يك",
+      fixFa: "تبدیل به ی/ک فارسی",
+    });
+    text = text.replace(/ي/g, "ی").replace(/ك/g, "ک");
+  }
+
+  const looseMi = text.match(/(^|\s)(ن?می)\s+[آ-ی]/g);
+  if (looseMi) {
+    issues.push({
+      id: "copy-zwnj",
+      titleFa: `${looseMi.length} نیم‌فاصله جاافتاده (می خواهم)`,
+      sample: looseMi[0].trim(),
+      fixFa: "می‌خواهم، نمی‌شود، …",
+    });
+    text = text.replace(/(^|\s)(ن?می)\s+([آ-ی]+)/g, "$1$2\u200C$3");
+  }
+
+  if (/\s+[،؛.!؟:]/g.test(text)) {
+    issues.push({
+      id: "copy-punct",
+      titleFa: "فاصله قبل از علامت نگارشی",
+      sample: "… ،",
+      fixFa: "علامت به کلمه قبلی می‌چسبد",
+    });
+    text = text.replace(/\s+([،؛.!؟:])/g, "$1");
+  }
+
+  if (/[a-z]/i.test(text) && /[آ-ی]/.test(text)) {
+    const latinRun = text.match(/[A-Za-z]{3,}/);
+    if (latinRun) {
+      issues.push({
+        id: "copy-bidi",
+        titleFa: "متن لاتین داخل جمله فارسی بدون ایزوله‌سازی",
+        sample: latinRun[0],
+        fixFa: 'دور واژه لاتین از <bdi dir="ltr"> یا dir="ltr" استفاده کنید',
+      });
+    }
+  }
+
+  const latinDigits = text.match(/\d/g);
+  if (latinDigits) {
+    issues.push({
+      id: "copy-digits",
+      titleFa: `${latinDigits.length} رقم لاتین`,
+      sample: "1234",
+      fixFa: "اعداد فارسی برای متن نمایشی",
+    });
+  }
+
+  const score = Math.max(0, 100 - issues.length * 16);
+  return { issues, cleaned: text, score };
 }
 
 export interface StudioPhysicsConfig {

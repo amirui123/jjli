@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import {
   ArrowLeft,
   BookOpen,
-  Cpu,
   Gauge,
   Layers,
   Sparkles,
@@ -115,11 +114,11 @@ const STUDIOS = [
   {
     id: "engines",
     path: "/studio/engines",
-    title: "موتور",
-    desc: "فین‌تک ایران، ممیزی RTL و شیدر زنده — همه بدون سرور",
-    icon: Cpu,
-    accent: "#34D399",
-    stat: `${faNum(TOOLKIT_STATS.banks)} بانک`,
+    title: "شیدر",
+    desc: "کتابخانه GLSL زنده با یونیفرم کامل، به‌همراه ممیزی خودکار RTL",
+    icon: Sparkles,
+    accent: "#22D3EE",
+    stat: "۱۸ شیدر",
     preview: (
       <div className="flex h-full items-center justify-center">
         <div className="relative h-12 w-20 rounded-md border border-emerald-300/30 bg-emerald-300/[0.06]">

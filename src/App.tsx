@@ -37,7 +37,7 @@ const TITLES: Record<string, string> = {
   components: "استودیو کامپوننت",
   sounds: "استودیو صدا",
   skills: "استودیو مهارت",
-  engines: "استودیو موتور",
+  engines: "آزمایشگاه شیدر",
   ai: "استودیو هوش مصنوعی",
 };
 
