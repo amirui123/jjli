@@ -508,7 +508,7 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
             if (info.offset.x < -60) go(step + 1);
             else if (info.offset.x > 60) go(step - 1, -1);
           }}
-          className="relative mx-4 mt-3 min-h-[230px] flex-1 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0A0A0D]"
+          className="relative mx-4 mt-3 min-h-[160px] flex-1 basis-0 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0A0A0D]"
         >
           <AnimatePresence mode="wait">
             <motion.div
@@ -524,7 +524,10 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
           </AnimatePresence>
         </motion.div>
 
-        <div className="space-y-3 px-4 pb-4 pt-3">
+        <div
+          className="space-y-3 px-4 pb-4 pt-3"
+          style={{ paddingBottom: "max(16px, env(safe-area-inset-bottom))" }}
+        >
           <div className="flex items-center gap-2 text-[10px] text-[color:var(--accent)]">
             <Sparkles className="h-3 w-3" />
             {active.tagFa}
@@ -541,7 +544,7 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
               transition={{ duration: 0.22 }}
             >
               <h2 className="text-[19px] font-bold leading-snug text-white">{active.titleFa}</h2>
-              <p className="mt-1 text-[12px] leading-relaxed text-zinc-400">{active.bodyFa}</p>
+              <p className="mt-1 line-clamp-3 text-[12px] leading-relaxed text-zinc-400">{active.bodyFa}</p>
             </motion.div>
           </AnimatePresence>
 

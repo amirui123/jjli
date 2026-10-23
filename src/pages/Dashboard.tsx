@@ -11,6 +11,7 @@ import {
   Zap,
 } from "lucide-react";
 import { TOOLKIT_STATS } from "../data/toolkitStats";
+import { SHADERS } from "../engines/shaderLab";
 import { navigate } from "../lib/router";
 import { useAppSettings } from "../lib/store";
 import { faCount, faNum } from "../lib/format";
@@ -118,7 +119,7 @@ const STUDIOS = [
     desc: "کتابخانه GLSL زنده با یونیفرم کامل، به‌همراه ممیزی خودکار RTL",
     icon: Sparkles,
     accent: "#22D3EE",
-    stat: "۱۸ شیدر",
+    stat: `${faNum(SHADERS.length)} شیدر`,
     preview: (
       <div className="flex h-full items-center justify-center">
         <div className="relative h-12 w-20 rounded-md border border-emerald-300/30 bg-emerald-300/[0.06]">
