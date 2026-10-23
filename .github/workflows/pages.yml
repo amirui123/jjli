@@ -1,0 +1,68 @@
+name: Deploy to GitHub Pages
+
+# Builds the real app and publishes it from GitHub's own servers, so the link
+# works for anyone without Vercel's deployment protection in the way.
+#
+# The site is served from https://<owner>.github.io/<repo>/ — hence VITE_BASE.
+# The 22.8 MB single-file deliverable is copied in as /standalone.html too.
+
+on:
+  push:
+    branches:
+      - arena/66e11543-jjli
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build (served from /<repo>/)
+        env:
+          VITE_BASE: /${{ github.event.repository.name }}/
+        run: npm run build
+
+      - name: Add the single-file build next to the app
+        run: |
+          if [ -f share/rtl-motion-lab-standalone.html ]; then
+            cp share/rtl-motion-lab-standalone.html dist/standalone.html
+          fi
+          cp dist/index.html dist/404.html # hash routing: any unknown path boots the app
+          ls -lh dist | head -12
+
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

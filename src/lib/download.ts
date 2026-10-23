@@ -1,4 +1,5 @@
 import { createZip, type ZipEntry } from "./zip";
+import { publicUrl } from "./base";
 
 export function saveBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
@@ -21,7 +22,8 @@ export function saveText(text: string, filename: string, mime = "text/plain;char
 }
 
 /** Fetches a same-origin asset and saves it with the given filename. */
-export async function saveUrl(url: string, filename: string): Promise<boolean> {
+export async function saveUrl(input: string, filename: string): Promise<boolean> {
+  const url = publicUrl(input);
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(String(res.status));
@@ -57,7 +59,8 @@ export async function saveKit(kitName: string, files: KitFile[]): Promise<boolea
   return true;
 }
 
-export async function fetchAsBlob(url: string): Promise<Blob | null> {
+export async function fetchAsBlob(input: string): Promise<Blob | null> {
+  const url = publicUrl(input);
   try {
     const res = await fetch(url);
     if (!res.ok) return null;

@@ -1,4 +1,5 @@
 import { soundEngine } from "../engines/soundEngine";
+import { publicUrl } from "./base";
 import {
   createContext,
   useCallback,
@@ -218,7 +219,9 @@ export function useDebounced<T>(value: T, delay = 180): T {
 /** Lazy JSON/markdown loader with in-memory + session cache. */
 const fetchCache = new Map<string, Promise<unknown>>();
 
-export function loadAsset<T>(url: string): Promise<T> {
+export function loadAsset<T>(input: string): Promise<T> {
+  /* honour the deployment base (GitHub Pages serves the app from /<repo>/) */
+  const url = publicUrl(input);
   const hit = fetchCache.get(url);
   if (hit) return hit as Promise<T>;
   const p = fetch(url)

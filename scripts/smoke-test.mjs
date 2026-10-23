@@ -130,7 +130,7 @@ const out = await build({
   write: false,
   jsx: "automatic",
   target: "es2022",
-  define: { "process.env.NODE_ENV": '"development"' },
+  define: { "process.env.NODE_ENV": '"development"', "import.meta.env.BASE_URL": '"/"' },
   loader: { ".tsx": "tsx", ".ts": "ts", ".css": "css" },
   logLevel: "error",
 });
