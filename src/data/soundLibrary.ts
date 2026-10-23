@@ -90,10 +90,10 @@ const UI: SoundItem[] = [
     ], { filter: { type: "lowpass", f: 4200 } }),
   ]),
   s("ui-page", "ورق‌زدن", "ui", "صدای کاغذ و ورق‌خوردن سند", ["paper"], 0.5, [
-    noise(0.42, { color: "pink", gain: 0.11, attack: 0.02, filter: { type: "bandpass", f: 1800, to: 3200, q: 0.7 }, lfo: { rate: 9, depth: 0.4, target: "gain" } }),
+    noise(0.42, { color: "pink", gain: 0.26, attack: 0.02, filter: { type: "bandpass", f: 1800, to: 3200, q: 0.7 }, lfo: { rate: 9, depth: 0.4, target: "gain" } }),
   ]),
   s("ui-swipe", "سوایپ", "ui", "سوایپ کارت و اسلایدر", ["swipe", "gesture"], 0.34, [
-    noise(0.28, { color: "pink", gain: 0.1, attack: 0.01, filter: { type: "highpass", f: 600, to: 3600 } }),
+    noise(0.28, { color: "pink", gain: 0.24, attack: 0.01, filter: { type: "highpass", f: 600, to: 3600 } }),
   ]),
   s("ui-open-panel", "بازشدن پنل", "ui", "کشیده‌شدن پنل کناری", ["panel"], 0.6, [
     noise(0.5, { color: "brown", gain: 0.08, attack: 0.06, filter: { type: "lowpass", f: 500, to: 1600 } }),
@@ -108,7 +108,7 @@ const UI: SoundItem[] = [
     tone(210, 0.06, { type: "triangle", gain: 0.07, to: 140 }),
   ]),
   s("ui-drag", "کشیدن", "ui", "هنگام درگ‌کردن یک آیتم", ["drag"], 0.2, [
-    noise(0.16, { color: "pink", gain: 0.06, filter: { type: "bandpass", f: 1200, q: 1.4 } }),
+    noise(0.16, { color: "pink", gain: 0.26, filter: { type: "bandpass", f: 1200, q: 1.4 } }),
   ]),
   s("ui-drop", "رهاکردن", "ui", "رهاکردن آیتم در مقصد", ["drop"], 0.3, [
     tone(240, 0.24, { to: 130, type: "triangle", gain: 0.18 }),
@@ -116,8 +116,8 @@ const UI: SoundItem[] = [
   ]),
   s("ui-copy", "کپی", "ui", "کپی‌شدن متن در کلیپ‌بورد", ["copy"], 0.26, [
     seq([
-      { f: 1046, at: 0, dur: 0.08, gain: 0.14 },
-      { f: 1568, at: 0.06, dur: 0.12, gain: 0.1 },
+      { f: 1046, at: 0, dur: 0.08, gain: 0.24 },
+      { f: 1568, at: 0.06, dur: 0.12, gain: 0.18 },
     ]),
   ]),
   s("ui-success", "موفقیت", "ui", "سه‌نُت صعودی برای انجام‌شدن کار", ["success"], 0.7, [
@@ -183,9 +183,9 @@ const IMPACT: SoundItem[] = [
     noise(0.32, { color: "white", gain: 0.18, filter: { type: "bandpass", f: 1800, q: 0.7 } }),
   ]),
   s("hit-clap", "کلپ", "impact", "سه برخورد پشت‌سرهم دست", ["clap", "drum"], 0.6, [
-    noise(0.05, { gain: 0.18, filter: { type: "bandpass", f: 1400, q: 1.2 } }),
-    noise(0.05, { gain: 0.15, at: 0.024, filter: { type: "bandpass", f: 1600, q: 1.2 } }),
-    noise(0.3, { gain: 0.12, at: 0.05, filter: { type: "bandpass", f: 1800, q: 0.9 } }),
+    noise(0.05, { gain: 0.3, filter: { type: "bandpass", f: 1400, q: 1.2 } }),
+    noise(0.05, { gain: 0.24, at: 0.024, filter: { type: "bandpass", f: 1600, q: 1.2 } }),
+    noise(0.3, { gain: 0.2, at: 0.05, filter: { type: "bandpass", f: 1800, q: 0.9 } }),
   ], { reverb: { decay: 0.5, mix: 0.2 } }),
   s("hit-stone", "سنگ", "impact", "برخورد سنگین معدنی", ["stone"], 0.8, [
     tone(90, 0.6, { to: 44, type: "triangle", gain: 0.3 }),
@@ -206,8 +206,8 @@ const IMPACT: SoundItem[] = [
 
 const SWEEP: SoundItem[] = [
   s("sweep-riser-short", "رایزر کوتاه", "sweep", "یک‌ونیم ثانیه اوج‌گیری تمیز", ["riser"], 1.6, [
-    noise(1.45, { color: "pink", gain: 0.13, attack: 1.3, filter: { type: "bandpass", f: 300, to: 6200, q: 1.4 } }),
-    tone(180, 1.4, { to: 900, gain: 0.06, attack: 1.2, type: "triangle" }),
+    noise(1.45, { color: "pink", gain: 0.26, attack: 1.3, filter: { type: "bandpass", f: 300, to: 6200, q: 1.4 } }),
+    tone(180, 1.4, { to: 900, gain: 0.11, attack: 1.2, type: "triangle" }),
   ]),
   s("sweep-riser-long", "رایزر بلند", "sweep", "شش ثانیه تنش برای ویدیو و ترنزیشن", ["riser", "long"], 6.0, [
     noise(5.7, { color: "pink", gain: 0.14, attack: 5.2, filter: { type: "bandpass", f: 220, to: 7400, q: 1.8 } }),
@@ -218,11 +218,11 @@ const SWEEP: SoundItem[] = [
     tone(900, 2.6, { to: 80, gain: 0.06, release: 2.2 }),
   ], { reverb: { decay: 1.8, mix: 0.26 } }),
   s("sweep-whoosh", "ووش", "sweep", "عبور سریع هوا از کنار گوش", ["whoosh"], 1.0, [
-    noise(0.9, { color: "white", gain: 0.15, attack: 0.35, filter: { type: "bandpass", f: 400, to: 4200, q: 0.8 } }),
+    noise(0.9, { color: "white", gain: 0.3, attack: 0.35, filter: { type: "bandpass", f: 400, to: 4200, q: 0.8 } }),
   ]),
   s("sweep-stereo", "سووش استریو", "sweep", "حرکت صدا از چپ به راست", ["pan", "whoosh"], 1.4, [
-    noise(1.2, { color: "pink", gain: 0.11, attack: 0.4, pan: -0.8, filter: { type: "bandpass", f: 800, to: 2600, q: 0.9 } }),
-    noise(1.2, { color: "pink", gain: 0.11, attack: 0.15, at: 0.2, pan: 0.8, filter: { type: "bandpass", f: 1200, to: 3200, q: 0.9 } }),
+    noise(1.2, { color: "pink", gain: 0.3, attack: 0.4, pan: -0.8, filter: { type: "bandpass", f: 800, to: 2600, q: 0.9 } }),
+    noise(1.2, { color: "pink", gain: 0.28, attack: 0.15, at: 0.2, pan: 0.8, filter: { type: "bandpass", f: 1200, to: 3200, q: 0.9 } }),
   ]),
   s("sweep-whip", "شلاق", "sweep", "ضربه هوایی تیز", ["whip"], 0.5, [
     noise(0.4, { color: "white", gain: 0.18, filter: { type: "highpass", f: 1200, to: 8000 } }),
@@ -270,7 +270,7 @@ const AIR: SoundItem[] = [
     noise(13.5, { color: "white", gain: 0.045, attack: 1.4, release: 3, filter: { type: "highpass", f: 3000 }, lfo: { rate: 0.6, depth: 0.03, target: "gain" } }),
   ], { reverb: { decay: 2.2, mix: 0.25 } }),
   s("air-wind", "باد", "air", "۱۸ ثانیه باد با تلاطم آرام", ["wind", "nature", "long"], 18, [
-    noise(17, { color: "brown", gain: 0.16, attack: 4, release: 5, filter: { type: "bandpass", f: 320, q: 0.6 }, lfo: { rate: 0.09, depth: 220, target: "filter" } }),
+    noise(17, { color: "brown", gain: 0.2, attack: 4, release: 5, filter: { type: "bandpass", f: 320, q: 0.6 }, lfo: { rate: 0.09, depth: 220, target: "filter" } }),
     noise(16, { color: "pink", gain: 0.05, attack: 6, release: 4, filter: { type: "bandpass", f: 1400, to: 900, q: 0.8 } }),
   ]),
   s("air-ocean", "موج دریا", "air", "۱۶ ثانیه دو موج پشت‌سرهم", ["ocean", "nature"], 16, [
@@ -305,7 +305,7 @@ const AIR: SoundItem[] = [
   ], { reverb: { decay: 4.5, mix: 0.45 } }),
   s("air-chimes", "باد‌زنگ", "air", "۱۵ ثانیه زنگ‌های پراکنده باغ", ["chimes"], 15, [
     ...Array.from({ length: 12 }, (_, i) =>
-      bell([1046, 1318, 1568, 2093][i % 4], 1.6, { gain: 0.05, at: i * 1.2, pan: -0.8 + (i % 5) * 0.4 })
+      bell([1046, 1318, 1568, 2093][i % 4], 1.6, { gain: 0.09, at: i * 1.2, pan: -0.8 + (i % 5) * 0.4 })
     ),
   ], { reverb: { decay: 3, mix: 0.42 } }),
   s("air-crickets", "جیرجیرک", "air", "۱۴ ثانیه شب تابستانی", ["nature"], 14, [
@@ -434,12 +434,12 @@ const NOTIFY: SoundItem[] = [
   ], { reverb: { decay: 1.8, mix: 0.32 } }),
   s("ntf-message", "پیام", "notify", "دو نُت دلنشین پیام‌رسان", ["message"], 0.9, [
     seq([
-      { f: 880, at: 0, dur: 0.16, gain: 0.14 },
-      { f: 1174, at: 0.12, dur: 0.3, gain: 0.12 },
+      { f: 880, at: 0, dur: 0.16, gain: 0.22 },
+      { f: 1174, at: 0.12, dur: 0.3, gain: 0.2 },
     ]),
   ], { reverb: { decay: 0.9, mix: 0.24 } }),
   s("ntf-ringtone", "زنگ تماس", "notify", "چهار ثانیه رینگ‌تون ملودیک", ["ring"], 4.0, [
-    seq(Array.from({ length: 8 }, (_, i) => ({ f: i % 2 ? 880 : 660, at: i * 0.45, dur: 0.32, gain: 0.1 }))),
+    seq(Array.from({ length: 8 }, (_, i) => ({ f: i % 2 ? 880 : 660, at: i * 0.45, dur: 0.32, gain: 0.17 }))),
   ], { reverb: { decay: 1.2, mix: 0.26 } }),
   s("ntf-power-down", "خاموش‌شدن", "notify", "افت نزولی سیستم", ["power"], 1.2, [
     tone(880, 1.0, { to: 110, gain: 0.14, type: "triangle", filter: { type: "lowpass", f: 3200, to: 400 } }),

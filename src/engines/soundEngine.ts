@@ -115,12 +115,53 @@ export interface PlayOptions {
   stretch?: number;
   /** force the procedural noise burst on/off */
   noise?: boolean;
+  /** playback the user explicitly asked for, even when global UI sound is muted */
+  force?: boolean;
+  /** layer this voice on top of whatever is already playing (UI ticks) */
+  overlap?: boolean;
 }
 
 /* ---------------------------------------------------------------- helpers */
 
 function clamp(v: number, min: number, max: number) {
   return Math.min(Math.max(Number.isFinite(v) ? v : min, min), max);
+}
+
+/** Largest absolute sample in a rendered buffer (0 when empty). */
+function peakOf(buffer: AudioBuffer) {
+  let peak = 0;
+  for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+    const data = buffer.getChannelData(channel);
+    for (let i = 0; i < data.length; i++) {
+      const v = Math.abs(data[i]);
+      if (!Number.isFinite(v)) return Number.POSITIVE_INFINITY;
+      if (v > peak) peak = v;
+    }
+  }
+  return peak;
+}
+
+/**
+ * طول واقعی شنیدنی یک طراحی — با احتساب استرچ نویز، انتهای آخرین لایه و دنباله ریورب.
+ * UI باید همین را برای نوار پیشرفت و تایمر توقف استفاده کند، نه عدد دستی.
+ */
+export function audibleDuration(design: SoundDesign, options: PlayOptions = {}): number {
+  const stretch = clamp(options.stretch ?? 1, 0.25, 4);
+  let end = 0;
+  for (const layer of design.layers) {
+    if (options.noise === false && layer.k === "noise") continue;
+    if (layer.k === "seq") {
+      const lastStep = layer.steps.reduce((m, step) => Math.max(m, step.at + step.dur), 0);
+      end = Math.max(end, lastStep * stretch);
+      continue;
+    }
+    end = Math.max(end, ((layer.at ?? 0) + layer.dur) * stretch);
+  }
+  end = Math.max(end, design.duration * Math.min(1, stretch));
+  if (design.reverb && design.reverb.mix > 0) {
+    end += Math.min(2.5, design.reverb.decay * 0.6 * design.reverb.mix);
+  }
+  return Math.max(0.05, end);
 }
 
 function encodeWav(buffer: AudioBuffer): Blob {
@@ -200,13 +241,23 @@ function impulse(ctx: BaseAudioContext, decay: number) {
 
 /* ------------------------------------------------------------------ engine */
 
+interface ActiveVoice {
+  master: GainNode;
+  limiter: AudioNode | null;
+  /** wall-clock time (ms) after which the voice is considered finished */
+  endsAt: number;
+}
+
 class ProceduralSoundEngine {
   private ctx: AudioContext | null = null;
   private noiseCache = new Map<string, AudioBuffer>();
+  private impulseCache = new Map<string, AudioBuffer>();
+  private active = new Set<ActiveVoice>();
   public enabled = true;
 
   private getContext(): AudioContext | null {
-    if (!this.enabled || typeof window === "undefined") return null;
+    if (typeof window === "undefined") return null;
+    if (this.ctx && this.ctx.state === "closed") this.ctx = null;
     if (!this.ctx) {
       const AudioCtx =
         window.AudioContext ||
@@ -222,12 +273,74 @@ class ProceduralSoundEngine {
     return this.ctx;
   }
 
+  /** Ramp every live voice to silence and release its nodes. */
+  stopAll(fade = 0.035) {
+    const ctx = this.ctx;
+    if (this.active.size === 0) return;
+    if (!ctx) {
+      this.active.clear();
+      return;
+    }
+    const now = ctx.currentTime;
+    const wait = Math.ceil((fade + 0.12) * 1000);
+    for (const voice of this.active) {
+      const gain = voice.master.gain;
+      try {
+        const current = Math.max(gain.value, 0.0002);
+        gain.cancelScheduledValues(now);
+        gain.setValueAtTime(current, now);
+        gain.exponentialRampToValueAtTime(0.0001, now + fade);
+      } catch {
+        /* param already torn down */
+      }
+      if (typeof window === "undefined") continue;
+      window.setTimeout(() => {
+        try {
+          voice.master.disconnect();
+          voice.limiter?.disconnect();
+        } catch {
+          /* already disconnected */
+        }
+      }, wait);
+    }
+    this.active.clear();
+  }
+
+  /** "none" until the first user gesture creates the audio context. */
+  get contextState(): AudioContextState | "none" {
+    return this.ctx ? this.ctx.state : "none";
+  }
+
+  /** True while any voice is still audible (used by the studio play/stop button). */
+  get playing() {
+    const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+    for (const voice of this.active) if (voice.endsAt > now) return true;
+    return false;
+  }
+
+  private prune() {
+    const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+    for (const voice of this.active) {
+      if (voice.endsAt + 500 < now) this.active.delete(voice);
+    }
+  }
+
   private noise(ctx: BaseAudioContext, color: "white" | "pink" | "brown") {
     const key = `${color}`;
     let buffer = this.noiseCache.get(key);
     if (!buffer || buffer.sampleRate !== ctx.sampleRate) {
       buffer = noiseBuffer(ctx, color, 2.5);
       this.noiseCache.set(key, buffer);
+    }
+    return buffer;
+  }
+
+  private impulseFor(ctx: BaseAudioContext, decay: number) {
+    const key = `${ctx.sampleRate}:${clamp(decay, 0.05, 6).toFixed(2)}`;
+    let buffer = this.impulseCache.get(key);
+    if (!buffer) {
+      buffer = impulse(ctx, decay);
+      this.impulseCache.set(key, buffer);
     }
     return buffer;
   }
@@ -254,7 +367,9 @@ class ProceduralSoundEngine {
     const amp = ctx.createGain();
     osc.type = "sine";
     osc.frequency.setValueAtTime(clamp(spec.rate, 0.02, 30), at);
-    amp.gain.setValueAtTime(Math.abs(spec.depth) * scale, at);
+    /* Depth is bounded: an unbounded filter LFO used to push the biquad into
+       numerical blow-up (NaN → 1e38 samples) on long wind/pad textures. */
+    amp.gain.setValueAtTime(clamp(Math.abs(spec.depth) * scale, 0, 6000), at);
     osc.connect(amp);
     amp.connect(param);
     osc.start(at);
@@ -286,21 +401,66 @@ class ProceduralSoundEngine {
     destination: AudioNode,
     design: SoundDesign,
     options: PlayOptions,
-    startAt: number
+    startAt: number,
+    register = false
   ) {
     const pitch = clamp(options.pitch ?? 1, 0.25, 4);
     const gainScale = clamp(options.gain ?? 1, 0, 2.5);
     const cutoffScale = clamp(options.cutoff ?? 1, 0.15, 4);
     const stretch = clamp(options.stretch ?? 1, 0.25, 4);
 
+    /* `options.noise` is a real switch, not decoration:
+       false → drop noise layers, true → add one when the design has none. */
+    let layers: SoundLayer[] = design.layers;
+    if (options.noise === false) {
+      layers = layers.filter((layer) => layer.k !== "noise");
+    } else if (options.noise === true && !layers.some((layer) => layer.k === "noise")) {
+      layers = [
+        ...layers,
+        {
+          k: "noise",
+          color: "white",
+          dur: Math.max(0.05, Math.min(0.4, design.duration * 0.5)),
+          gain: 0.05,
+          attack: 0.004,
+          release: 0.12,
+          filter: { type: "highpass", f: 1400 },
+        } satisfies NoiseLayer,
+      ];
+    }
+
     const master = ctx.createGain();
     master.gain.setValueAtTime(clamp((design.gain ?? 0.9) * gainScale, 0, 2.4), startAt);
-    master.connect(destination);
+
+    /* A gentle limiter keeps layered stacks from clipping on phone speakers. */
+    let limiter: AudioNode | null = null;
+    if (typeof ctx.createDynamicsCompressor === "function") {
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.setValueAtTime(-9, startAt);
+      comp.knee.setValueAtTime(9, startAt);
+      comp.ratio.setValueAtTime(12, startAt);
+      comp.attack.setValueAtTime(0.003, startAt);
+      comp.release.setValueAtTime(0.25, startAt);
+      master.connect(comp);
+      comp.connect(destination);
+      limiter = comp;
+    } else {
+      master.connect(destination);
+    }
+
+    if (register) {
+      const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+      this.active.add({
+        master,
+        limiter,
+        endsAt: now + audibleDuration(design, options) * 1000 + 1000,
+      });
+    }
 
     let bus: AudioNode = master;
     if (design.reverb && design.reverb.mix > 0) {
       const convolver = ctx.createConvolver();
-      convolver.buffer = impulse(ctx, design.reverb.decay);
+      convolver.buffer = this.impulseFor(ctx, design.reverb.decay);
       const wet = ctx.createGain();
       wet.gain.setValueAtTime(clamp(design.reverb.mix, 0, 1), startAt);
       const dry = ctx.createGain();
@@ -325,9 +485,10 @@ class ProceduralSoundEngine {
       panner.connect(bus);
     };
 
-    for (const layer of design.layers) {
-      const at = startAt + (layer.k === "seq" ? 0 : layer.at ?? 0);
-      const dur = Math.max(0.02, (layer.k === "seq" ? design.duration : layer.dur) * (layer.k === "noise" ? stretch : 1));
+    for (const layer of layers) {
+      /* stretch is a real time-scale: offsets, lengths and step spacing all follow it */
+      const at = startAt + (layer.k === "seq" ? 0 : (layer.at ?? 0) * stretch);
+      const dur = Math.max(0.02, (layer.k === "seq" ? design.duration : layer.dur) * stretch);
 
       if (layer.k === "tone") {
         const freqs = Array.isArray(layer.f) ? layer.f : [layer.f];
@@ -376,6 +537,11 @@ class ProceduralSoundEngine {
         });
 
         if (layer.lfo?.target === "gain") this.lfo(ctx, layer.lfo, voiceGain.gain, at, dur, peak * 0.6);
+        if (layer.lfo?.target === "filter" && layer.filter && tail !== out) {
+          const base = clamp(layer.filter.f * cutoffScale, 30, 19000);
+          const depth = Math.min(Math.abs(layer.lfo.depth), base * 0.85);
+          this.lfo(ctx, { ...layer.lfo, depth }, (tail as BiquadFilterNode).frequency, at, dur, 1);
+        }
       }
 
       if (layer.k === "noise") {
@@ -394,8 +560,9 @@ class ProceduralSoundEngine {
         place(tail, layer.pan);
         if (layer.lfo?.target === "gain") this.lfo(ctx, layer.lfo, env.gain, at, dur, peak * 0.5);
         if (layer.lfo?.target === "filter" && layer.filter) {
-          const f = (tail as BiquadFilterNode).frequency;
-          if (f) this.lfo(ctx, layer.lfo, f, at, dur, 900);
+          const base = clamp(layer.filter.f * cutoffScale, 30, 19000);
+          const depth = Math.min(Math.abs(layer.lfo.depth), base * 0.85);
+          this.lfo(ctx, { ...layer.lfo, depth }, (tail as BiquadFilterNode).frequency, at, dur, 1);
         }
         src.connect(env);
         src.start(at);
@@ -442,8 +609,8 @@ class ProceduralSoundEngine {
         for (const step of layer.steps) {
           const osc = ctx.createOscillator();
           const g = ctx.createGain();
-          const sAt = at + step.at;
-          const sDur = Math.max(0.03, step.dur);
+          const sAt = at + step.at * stretch;
+          const sDur = Math.max(0.03, step.dur * stretch);
           osc.type = step.type ?? "triangle";
           osc.frequency.setValueAtTime(clamp(step.f * pitch, 20, 16000), sAt);
           g.gain.setValueAtTime(0.0001, sAt);
@@ -461,11 +628,17 @@ class ProceduralSoundEngine {
   /* ------------------------------------------------------------- playback */
 
   playDesign(design: SoundDesign, options: PlayOptions = {}) {
+    if (!this.enabled && !options.force) return false;
     const ctx = this.getContext();
     if (!ctx) return false;
-    if (ctx.state === "suspended") void ctx.resume().catch(() => {});
+    /* A single click replaces the previous voice instead of stacking on it. */
+    this.prune();
+    if (!options.overlap && this.active.size) this.stopAll(0.03);
+    if (ctx.state === "suspended") {
+      void ctx.resume().catch(() => {});
+    }
     try {
-      this.render(ctx, ctx.destination, design, options, ctx.currentTime + 0.01);
+      this.render(ctx, ctx.destination, design, options, ctx.currentTime + 0.02, true);
       return true;
     } catch {
       return false;
@@ -480,11 +653,23 @@ class ProceduralSoundEngine {
         : undefined;
     if (!OfflineCtor) return null;
     const stretch = clamp(options.stretch ?? 1, 0.25, 4);
-    const seconds = clamp(design.duration * stretch + 0.25, 0.2, 30);
+    const seconds = clamp(audibleDuration(design, { ...options, stretch }) + 0.15, 0.2, 40);
     const sampleRate = 44100;
     const offline = new OfflineCtor(1, Math.ceil(sampleRate * seconds), sampleRate);
-    this.render(offline, offline.destination, design, { ...options, stretch }, 0);
-    return offline.startRendering();
+    this.render(offline, offline.destination, design, { ...options, stretch }, 0, false);
+    const buffer = await offline.startRendering();
+    /* Exported WAVs must never clip, whatever gain/pitch combination the user
+       throws at them — live playback is protected by the compressor, the
+       offline path gets an explicit peak guard as a second line of defence. */
+    const peak = peakOf(buffer);
+    if (!Number.isFinite(peak) || peak > 0.99) {
+      const scale = Number.isFinite(peak) && peak > 0 ? 0.99 / peak : 0;
+      for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+        const data = buffer.getChannelData(channel);
+        for (let i = 0; i < data.length; i++) data[i] *= scale;
+      }
+    }
+    return buffer;
   }
 
   async renderDesignWav(design: SoundDesign, options: PlayOptions = {}): Promise<Blob> {
@@ -507,15 +692,25 @@ class ProceduralSoundEngine {
   /** Convenience wrappers used across the app (kept intentionally cheap). */
   private quick(design: SoundDesign) {
     if (!this.enabled) return;
-    this.playDesign(design, { gain: 0.7 });
+    /* UI ticks must never cut a sound the user is auditioning in the studio */
+    this.playDesign(design, { gain: 0.7, overlap: true });
   }
 
   playTick(pitch = 1) {
+    const p = clamp(pitch, 0.5, 2);
     this.quick({
       duration: 0.09,
-      layers: [{ k: "tone", f: 1250, to: 980, dur: 0.07, gain: 0.16, filter: { type: "highpass", f: 700 } }],
+      layers: [
+        {
+          k: "tone",
+          f: 1250 * p,
+          to: 980 * p,
+          dur: 0.07,
+          gain: 0.16,
+          filter: { type: "highpass", f: 700 * p },
+        },
+      ],
     });
-    void pitch;
   }
 
   playSnap() {

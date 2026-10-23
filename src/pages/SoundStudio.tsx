@@ -2,7 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Pause, Play, Volume2, Waves, Sparkles, Timer } from "lucide-react";
 import { ALL_SOUND_RECIPES_MANIFEST } from "../data/soundsManifest";
 import { DESIGNED_SOUNDS, SOUND_CATEGORY_LABEL } from "../data/soundLibrary";
-import { designFromLegacy, soundEngine, type PlayOptions, type SoundItem } from "../engines/soundEngine";
+import {
+  audibleDuration,
+  designFromLegacy,
+  soundEngine,
+  type PlayOptions,
+  type SoundItem,
+} from "../engines/soundEngine";
 import { usePersisted } from "../lib/store";
 import { saveBlob, saveKit } from "../lib/download";
 import { Badge, CodeBlock, Panel, SearchField, Slider, Toggle, cn } from "../ui/kit";
@@ -216,15 +222,36 @@ export const SoundStudio: React.FC = () => {
     progressTimer.current = null;
   };
 
+  const stop = () => {
+    soundEngine.stopAll();
+    stopTimers();
+    setPlaying(false);
+    setElapsed(0);
+  };
+
   const play = (item: SoundItem = selected) => {
     interacted.current = true;
-    const ok = soundEngine.playDesign(item.design, options);
+    stopTimers();
+    const ok = soundEngine.playDesign({ ...item.design }, { ...options, force: true });
     if (!ok) {
-      toast.push("پخش ممکن نشد", { desc: "مرورگر اجازه صدا نداد", tone: "error" });
+      toast.push("پخش ممکن نشد", {
+        desc: "مرورگر اجازه صدا نداد — یک‌بار روی صفحه کلیک کن",
+        tone: "error",
+      });
       return;
     }
-    stopTimers();
-    const total = Math.max(0.12, Math.min(item.duration, 30) * s.stretch);
+    /* برخی مرورگرها فقط پس از یک لمس واقعی صدا را آزاد می‌کنند */
+    window.setTimeout(() => {
+      if (soundEngine.contextState === "suspended") {
+        toast.push("مرورگر هنوز صدا را آزاد نکرده", {
+          desc: "یک‌بار روی صفحه ضربه بزن و دوباره پخش را بزن",
+          tone: "error",
+        });
+      }
+    }, 450);
+
+    /* طول واقعی صدا (با استرچ و دنباله ریورب) — نه عدد دستی */
+    const total = Math.max(0.12, audibleDuration(item.design, options));
     setPlaying(true);
     setElapsed(0);
     const started = performance.now();
@@ -236,13 +263,22 @@ export const SoundStudio: React.FC = () => {
       setPlaying(false);
       setElapsed(0);
       stopTimers();
-    }, total * 1000 + 120);
+    }, total * 1000 + 140);
   };
 
-  useEffect(() => () => stopTimers(), []);
+  useEffect(
+    () => () => {
+      stopTimers();
+      soundEngine.stopAll();
+    },
+    []
+  );
 
+  /* تغییر اسلایدرها با تأخیر کوتاه پخش می‌شود تا هنگام کشیدن، صداها روی هم نیفتند */
   useEffect(() => {
-    if (s.autoPreview && interacted.current) play(selected);
+    if (!s.autoPreview || !interacted.current) return;
+    const id = window.setTimeout(() => play(selected), 180);
+    return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, s.pitch, s.gain, s.cutoff, s.stretch, s.noise]);
 
@@ -360,14 +396,15 @@ soundEngine.playDesign(item.design, ${JSON.stringify(options)});`,
           </div>
           <div className="flex items-center gap-1.5">
             <button
-              onClick={() => play()}
+              onClick={() => (playing ? stop() : play())}
+              aria-pressed={playing}
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11.5px] font-bold transition-colors",
-                playing ? "bg-white/10 text-white" : "bg-[color:var(--accent)] text-black"
+                playing ? "bg-white/10 text-white ring-1 ring-inset ring-white/20" : "bg-[color:var(--accent)] text-black"
               )}
             >
               {playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-              {playing ? "در حال پخش" : "پخش"}
+              {playing ? "توقف" : "پخش"}
             </button>
             <DownloadButton label="WAV" filename={`${selected.id}.wav`} onDownload={downloadWav} variant="outline" />
             <DownloadButton label="کیت" filename={`rtl-sound-${selected.id}.zip`} onDownload={downloadKit} variant="solid" />
@@ -383,7 +420,7 @@ soundEngine.playDesign(item.design, ${JSON.stringify(options)});`,
             <Waveform item={selected} options={options} version={version} progress={elapsed} />
             <div className="mt-1 flex items-center justify-between font-mono text-[9.5px] text-zinc-600" dir="ltr">
               <span>0s</span>
-              <span>{(selected.duration * s.stretch).toFixed(2)}s</span>
+              <span>{audibleDuration(selected.design, options).toFixed(2)}s</span>
               <span>{faNum(selected.design.layers.length)} layers</span>
             </div>
           </div>

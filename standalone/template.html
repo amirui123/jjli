@@ -384,7 +384,8 @@ pre.code{margin:0;padding:12px;border-radius:12px;border:1px solid var(--line-so
         <div class="sound-list" id="sound-list"></div>
         <canvas id="wave" width="900" height="120"></canvas>
         <div class="wave-row">
-          <button class="btn primary" id="play-sound">پخش</button>
+          <button class="btn primary" id="play-sound" aria-pressed="false">پخش</button>
+          <button class="btn" id="stop-sound">توقف</button>
           <button class="btn" id="dl-wav">دانلود WAV</button>
           <span class="tiny muted" id="sound-meta">—</span>
         </div>
@@ -798,7 +799,7 @@ pre.code{margin:0;padding:12px;border-radius:12px;border:1px solid var(--line-so
     var t0 = start || 0;
     var master = ctx.createGain();
     master.gain.value = 0.9;
-    master.connect(ctx.destination);
+    master.connect(limiterFor(ctx));
 
     function env(node, a, d, peak){
       var g = ctx.createGain();
@@ -869,13 +870,72 @@ pre.code{margin:0;padding:12px;border-radius:12px;border:1px solid var(--line-so
     }
     return master;
   }
-  var audioCtx = null;
+  var audioCtx = null, limiterCache = [], voice = null;
+
+  /* One limiter per context: layered bells and sub booms must not hard-clip. */
+  function limiterFor(ctx){
+    for (var i = 0; i < limiterCache.length; i++) {
+      if (limiterCache[i].ctx === ctx) return limiterCache[i].node;
+    }
+    var node;
+    if (typeof ctx.createDynamicsCompressor === "function") {
+      node = ctx.createDynamicsCompressor();
+      node.threshold.value = -9; node.knee.value = 9; node.ratio.value = 12;
+      node.attack.value = 0.003; node.release.value = 0.25;
+    } else {
+      node = ctx.createGain();
+    }
+    node.connect(ctx.destination);
+    limiterCache.push({ ctx: ctx, node: node });
+    return node;
+  }
+
+  /* Every new click fades the previous voice instead of freezing it abruptly. */
+  function stopVoice(fade){
+    var v = voice;
+    voice = null;
+    if (!v) return;
+    var f = fade === undefined ? 0.05 : fade;
+    try {
+      var now = audioCtx.currentTime;
+      v.gain.cancelScheduledValues(now);
+      v.gain.setValueAtTime(Math.max(0.0001, v.gain.value), now);
+      v.gain.exponentialRampToValueAtTime(0.0001, now + f);
+      setTimeout(function(){ try { v.disconnect(); } catch(e){} }, Math.round(f * 1000) + 80);
+    } catch(e){
+      try { v.disconnect(); } catch(e2){}
+    }
+  }
+
+  function setSoundIdle(){
+    $("#sound-meta").textContent = "آماده پخش";
+    var b = $("#play-sound");
+    if (b) { b.textContent = "پخش"; b.setAttribute("aria-pressed", "false"); }
+  }
+
   function playSound(id){
     try {
       audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === "suspended") audioCtx.resume();
-      buildSound(audioCtx, id, audioCtx.currentTime + 0.02);
+      stopVoice(0.035);
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume().then(function(){
+          if (audioCtx.state !== "running") {
+            $("#sound-meta").textContent = "مرورگر صدا را قفل کرده — یک‌بار دیگر ضربه بزنید";
+          }
+        }).catch(function(){});
+      }
+      var item = SOUNDS.filter(function(s){ return s.id === id; })[0] || { dur: 0.4 };
+      voice = buildSound(audioCtx, id, audioCtx.currentTime + 0.02);
+      var b = $("#play-sound");
+      if (b) { b.textContent = "توقف"; b.setAttribute("aria-pressed", "true"); }
       $("#sound-meta").textContent = "در حال پخش: " + id;
+      var ms = Math.round(item.dur * 1000) + 120;
+      clearTimeout(playSound._t);
+      playSound._t = setTimeout(function(){
+        if (!voice) return;
+        voice = null;
+        setSoundIdle();
+      }, ms);
     } catch(e){ toast("مرورگر اجازه صدا نداد"); }
   }
   function renderWave(){
@@ -903,7 +963,18 @@ pre.code{margin:0;padding:12px;border-radius:12px;border:1px solid var(--line-so
       ctx.fillRect(i * 6 + 1, h/2 - bh/2, 3, bh);
     }
   }
-  $("#play-sound").addEventListener("click", function(){ playSound(current); });
+  $("#play-sound").addEventListener("click", function(){
+    if (voice) { stopVoice(0.04); setSoundIdle(); return; }
+    playSound(current);
+  });
+  $("#stop-sound").addEventListener("click", function(){
+    stopVoice(0.04);
+    setSoundIdle();
+  });
+  /* Leaving the tab must not leave an oscillator ringing in the background. */
+  document.addEventListener("visibilitychange", function(){
+    if (document.hidden) { stopVoice(0.02); setSoundIdle(); }
+  });
   $("#dl-wav").addEventListener("click", function(){
     var item = SOUNDS.filter(function(s){ return s.id === current; })[0];
     var rate = 44100;
@@ -915,6 +986,22 @@ pre.code{margin:0;padding:12px;border-radius:12px;border:1px solid var(--line-so
     off.startRendering().then(function(buffer){
       var data = [buffer.getChannelData(0), buffer.getChannelData(1)];
       var len = buffer.length;
+      var peak = 0;
+      for (var c = 0; c < 2; c++) {
+        var d0 = data[c];
+        for (var i0 = 0; i0 < len; i0++) {
+          var a0 = Math.abs(d0[i0]);
+          if (!isFinite(a0)) { a0 = 0; d0[i0] = 0; }
+          else if (a0 > peak) peak = a0;
+        }
+      }
+      if (peak > 0.99) {
+        var norm = 0.99 / peak;
+        for (var c2 = 0; c2 < 2; c2++) {
+          var d2 = data[c2];
+          for (var i2 = 0; i2 < len; i2++) d2[i2] *= norm;
+        }
+      }
       var bytes = 44 + len * 2 * 2;
       var ab = new ArrayBuffer(bytes);
       var view = new DataView(ab);
