@@ -206,6 +206,22 @@ Firefox 113+، Safari 16.4+؛ دلیلش `DecompressionStream` است). روی �
 - ایمیل معمولی برای ۲۳ مگابایت مناسب نیست (پس از کدگذاری از سقف ۲۵ مگابایت می‌گذرد)؛
   از Google Drive یا لینک مستقیم استفاده کنید
 
+## سایت زنده (GitHub Pages) ✅
+
+| چه چیزی | لینک |
+| --- | --- |
+| اپ کامل | **https://amirui123.github.io/jjli/** |
+| نسخه تک‌صفحه‌ای (۸ بخش) | https://amirui123.github.io/jjli/showcase.html |
+| نسخهٔ کامل تک‌فایلی (۲۲٫۸MB) | https://amirui123.github.io/jjli/standalone.html |
+
+هر سه روی سرورهای GitHub سرو می‌شوند: بدون محافظت، بدون لاگین، قابل فرستادن به هر کسی.
+
+**جریان انتشار:** ورک‌فلوی `.github/workflows/pages.yml` روی هر push به `main` اجرا می‌شود
+(`npm ci` → `npm run build` با `VITE_BASE=/jjli/` → آپلود آرتیفکت → deploy). محیط
+`github-pages` تنها شاخهٔ `main` را می‌پذیرد، پس تغییرات با PR از شاخهٔ کاری به `main`
+می‌رسند و بعد خودکار منتشر می‌شوند. (توکن ربات اجازهٔ تغییر همین تنظیم را ندارد؛ در
+Settings → Environments → github-pages می‌توانید شاخهٔ دیگری را هم مجاز کنید.)
+
 ## انتشار روی GitHub Pages (سرورهای خود گیت‌هاب)
 
 ورک‌فلوی `.github/workflows/pages.yml` اپ را با `VITE_BASE=/<repo>/` می‌سازد و روی
@@ -213,6 +229,7 @@ GitHub Pages منتشر می‌کند؛ نتیجه برای همه باز می�
 
 - آدرس سایت: **https://amirui123.github.io/jjli/**
 - نسخهٔ تک‌فایلی همان‌جا: **https://amirui123.github.io/jjli/standalone.html**
+- نسخهٔ ۸ بخشی: **https://amirui123.github.io/jjli/showcase.html**
 
 فقط یک تنظیم یک‌باره لازم است (توکن ربات اجازهٔ آن را ندارد):
 **Settings → Pages → Build and deployment → Source: GitHub Actions**
