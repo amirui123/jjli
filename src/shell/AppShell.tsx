@@ -462,6 +462,22 @@ const Footer: React.FC = () => {
 
 /* ------------------------------------------------------------------- shell */
 
+/**
+ * هر مسیر با زبان حرکت خودش وارد می‌شود؛ همه روی transform/opacity/filter
+ * تا کامپوزیتور GPU کار را ببرد. کلیدها با id مسیرها در router یکی‌اند.
+ */
+const PAGE_ENTER: Record<string, { from: Record<string, string | number>; duration: number }> = {
+  home: { from: { opacity: 0, filter: "blur(10px)", y: 10 }, duration: 0.45 },
+  dashboard: { from: { opacity: 0, y: 22, scale: 0.995 }, duration: 0.4 },
+  fonts: { from: { opacity: 0, clipPath: "inset(0 0 0 8%)" }, duration: 0.5 },
+  motion: { from: { opacity: 0, scale: 0.97, y: 18 }, duration: 0.5 },
+  components: { from: { opacity: 0, x: 26 }, duration: 0.4 },
+  sounds: { from: { opacity: 0, scale: 1.015, filter: "blur(6px)" }, duration: 0.45 },
+  skills: { from: { opacity: 0, y: -16 }, duration: 0.45 },
+  engines: { from: { opacity: 0, clipPath: "inset(0 0 100% 0)" }, duration: 0.55 },
+  ai: { from: { opacity: 0, filter: "blur(12px)", scale: 0.995 }, duration: 0.5 },
+};
+
 const STUDIO_ROUTES = new Set(["fonts", "motion", "components", "sounds", "skills", "engines", "ai"]);
 
 export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -484,10 +500,13 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
           id="main"
           tabIndex={-1}
           key={route}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={(PAGE_ENTER[route] ?? { from: { opacity: 0, y: 8 }, duration: 0.22 }).from}
+          animate={{ opacity: 1, y: 0, x: 0, scale: 1, filter: "blur(0px)", clipPath: "inset(0 0 0% 0)" }}
           exit={{ opacity: 0, y: -4 }}
-          transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+          transition={{
+            duration: (PAGE_ENTER[route] ?? { duration: 0.22 }).duration,
+            ease: [0.22, 1, 0.36, 1],
+          }}
           className={cn(
             "mx-auto max-w-[1440px] px-4 sm:px-6",
             isStudio
