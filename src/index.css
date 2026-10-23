@@ -937,9 +937,13 @@ label {
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
-/* کنترل‌های لمسی در موبایل حداقل ۴۰ پیکسل ارتفاع می‌گیرند */
+/* کنترل‌های لمسی در موبایل حداقل ۴۰ پیکسل می‌گیرند */
 @media (max-width: 640px) {
   .tap-target {
+    min-height: 40px;
+  }
+  .tap-icon {
+    min-width: 40px;
     min-height: 40px;
   }
 }

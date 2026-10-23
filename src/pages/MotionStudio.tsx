@@ -300,7 +300,7 @@ ${preset?.hintFa ?? ""}
               dir="rtl"
               aria-label="متن پیش‌نمایش"
               placeholder="متن خودت را بنویس…"
-              className="w-[150px] rounded-lg border border-white/[0.08] bg-black/40 px-2 py-1 text-[10.5px] text-zinc-200 outline-none focus:border-[color:var(--accent)]/50 sm:w-[190px]"
+              className="w-[150px] max-w-full rounded-lg border border-white/[0.08] bg-black/40 px-2 py-1 text-[12px] text-zinc-200 outline-none focus:border-[color:var(--accent)]/50 sm:w-[190px] sm:text-[10.5px]"
             />
             <Badge tone={quality.tone}>{quality.label}</Badge>
             <Badge>{analysis.settleTime.toFixed(2)}s</Badge>
@@ -336,7 +336,7 @@ ${preset?.hintFa ?? ""}
             className="relative"
           >
             {s.target === "card" && (
-              <div className="relative h-44 w-72 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#17171C] to-[#0B0B0E] p-4 shadow-2xl">
+              <div className="relative h-44 w-72 max-w-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#17171C] to-[#0B0B0E] p-4 shadow-2xl">
                 <div
                   className="absolute inset-0 opacity-40"
                   style={{ background: "radial-gradient(120% 120% at 100% 0%, rgba(var(--accent-glow),0.28), transparent 60%)" }}

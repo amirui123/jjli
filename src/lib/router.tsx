@@ -140,12 +140,21 @@ function emit() {
   for (const l of listeners) l();
 }
 
+let hashBound = false;
+
+/** One shared hashchange listener, no matter how many components subscribe. */
 function subscribe(cb: () => void) {
   listeners.add(cb);
-  window.addEventListener("hashchange", emit);
+  if (!hashBound) {
+    window.addEventListener("hashchange", emit);
+    hashBound = true;
+  }
   return () => {
     listeners.delete(cb);
-    window.removeEventListener("hashchange", emit);
+    if (listeners.size === 0 && hashBound) {
+      window.removeEventListener("hashchange", emit);
+      hashBound = false;
+    }
   };
 }
 

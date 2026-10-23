@@ -247,7 +247,12 @@ export const SearchField: React.FC<{
       className="w-full bg-transparent text-[12px] text-zinc-200 outline-none placeholder:text-zinc-600"
     />
     {value && (
-      <button onClick={() => onChange("")} aria-label="پاک کردن">
+      <button
+        type="button"
+        onClick={() => onChange("")}
+        aria-label="پاک کردن جستجو"
+        className="-m-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md hover:bg-white/5"
+      >
         <X className="h-3.5 w-3.5 text-zinc-500 hover:text-zinc-200" />
       </button>
     )}

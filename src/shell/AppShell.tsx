@@ -85,7 +85,7 @@ const TopBar: React.FC = () => {
             <button
               onClick={() => setCmdOpen(true)}
               aria-label="جستجوی سریع"
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-zinc-400 transition-colors hover:border-white/20 hover:text-zinc-100 sm:h-auto sm:w-auto sm:gap-2 sm:px-2.5 sm:py-1.5 sm:text-[11px]"
+              className="tap-icon flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-zinc-400 transition-colors hover:border-white/20 hover:text-zinc-100 sm:h-auto sm:w-auto sm:min-h-0 sm:min-w-0 sm:gap-2 sm:px-2.5 sm:py-1.5 sm:text-[11px]"
             >
               <Command className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">جستجوی سریع</span>
@@ -98,7 +98,7 @@ const TopBar: React.FC = () => {
             <div className="relative">
               <button
                 onClick={() => setPaletteOpen((v) => !v)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] transition-colors hover:border-white/20"
+                className="tap-icon flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] transition-colors hover:border-white/20"
                 aria-label="رنگ پلتفرم"
               >
                 <span
@@ -166,7 +166,7 @@ const TopBar: React.FC = () => {
                 if (next) soundEngine.playSuccess();
               }}
               className={cn(
-                "flex h-8 w-8 items-center justify-center rounded-lg border transition-colors",
+                "tap-icon flex h-8 w-8 items-center justify-center rounded-lg border transition-colors",
                 settings.sound
                   ? "border-[color:var(--accent)]/30 bg-[color:var(--accent)]/10 text-[color:var(--accent)]"
                   : "border-white/[0.08] bg-white/[0.03] text-zinc-500"
@@ -181,7 +181,7 @@ const TopBar: React.FC = () => {
               href="https://github.com/amirui123/jjli"
               target="_blank"
               rel="noreferrer"
-              className="hidden h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-zinc-500 transition-colors hover:border-white/20 hover:text-zinc-200 sm:flex"
+              className="tap-icon hidden h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-zinc-500 transition-colors hover:border-white/20 hover:text-zinc-200 sm:flex"
               aria-label="مخزن گیت‌هاب"
             >
               <Github className="h-3.5 w-3.5" />
