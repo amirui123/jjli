@@ -19,6 +19,12 @@ import { FEATURED_SOUNDS } from "../data/featuredSounds";
 import { navigate } from "../lib/router";
 import { useAppSettings, writePersisted } from "../lib/store";
 import { publicUrl } from "../lib/base";
+
+/* The single-file build bootstraps `window.__RTML_SINGLE_FILE__` before the app
+   starts; inside that file the "single-file version" link points at nothing. */
+const isSingleFile =
+  typeof window !== "undefined" &&
+  Boolean((window as unknown as { __RTML_SINGLE_FILE__?: unknown }).__RTML_SINGLE_FILE__);
 import { soundEngine } from "../engines/soundEngine";
 import { faCount, faNum } from "../lib/format";
 import { cn } from "../ui/kit";
@@ -687,14 +693,16 @@ export const Landing: React.FC = () => {
             >
               مرور کامپوننت‌ها
             </button>
-            <a
-              href={publicUrl("/showcase.html")}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-white/12 px-4 py-2.5 text-[12px] text-zinc-300 hover:border-white/25"
-            >
-              نسخه تک‌فایلی (برای چت)
-            </a>
+            {!isSingleFile && (
+              <a
+                href={publicUrl("/showcase.html")}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-white/12 px-4 py-2.5 text-[12px] text-zinc-300 hover:border-white/25"
+              >
+                نسخه تک‌فایلی (برای چت)
+              </a>
+            )}
           </div>
         </div>
       </section>
