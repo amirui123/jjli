@@ -59,7 +59,7 @@ const jsFile = distIndex.match(/<script[^>]*src="([^"]+\.js)"[^>]*>/)?.[1];
 const cssFile = distIndex.match(/<link[^>]*href="([^"]+\.css)"[^>]*>/)?.[1];
 if (!jsFile || !cssFile) throw new Error("could not find the built js/css in dist-single/index.html");
 
-let js = fs.readFileSync(path.join(DIST, jsFile.replace(/^\//, "")), "utf8");
+const js = fs.readFileSync(path.join(DIST, jsFile.replace(/^\//, "")), "utf8");
 let css = fs.readFileSync(path.join(DIST, cssFile.replace(/^\//, "")), "utf8");
 step(`bundle: js ${mb(Buffer.byteLength(js))} · css ${mb(Buffer.byteLength(css))}`);
 
