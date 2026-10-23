@@ -483,6 +483,30 @@
 
 @font-face {
   font-family: "Sahel FD";
+  src: url("/fonts/03-modern-ui-and-variable/sahel/Sahel-Bold-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/sahel/Sahel-Bold-FD.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Shabnam FD";
+  src: url("/fonts/03-modern-ui-and-variable/shabnam/Shabnam-Bold-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/shabnam/Shabnam-Bold-FD.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Shabnam FD";
+  src: url("/fonts/03-modern-ui-and-variable/shabnam/Shabnam-Medium-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/shabnam/Shabnam-Medium-FD.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sahel FD";
   src: url("/fonts/03-modern-ui-and-variable/sahel/Sahel-FD.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;

@@ -292,11 +292,18 @@ export const FONT_FILE_BY_FAMILY: Record<string, FontFileInfo> = {
     "weight": "100 900"
   },
   "Sahel FD": {
-    "url": "/fonts/03-modern-ui-and-variable/sahel/Sahel-FD.woff2",
-    "file": "Sahel-FD.woff2",
+    "url": "/fonts/03-modern-ui-and-variable/sahel/Sahel-Bold-FD.woff2",
+    "file": "Sahel-Bold-FD.woff2",
     "ext": "woff2",
     "format": "woff2",
-    "weight": "400"
+    "weight": "700"
+  },
+  "Shabnam FD": {
+    "url": "/fonts/03-modern-ui-and-variable/shabnam/Shabnam-Bold-FD.woff2",
+    "file": "Shabnam-Bold-FD.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "700"
   },
   "Ravi": {
     "url": "/fonts/03-modern-ui-and-variable/Ravi-VF.ttf",
@@ -304,13 +311,6 @@ export const FONT_FILE_BY_FAMILY: Record<string, FontFileInfo> = {
     "ext": "ttf",
     "format": "truetype",
     "weight": "100 900"
-  },
-  "Shabnam FD": {
-    "url": "/fonts/03-modern-ui-and-variable/shabnam/Shabnam-FD.woff2",
-    "file": "Shabnam-FD.woff2",
-    "ext": "woff2",
-    "format": "woff2",
-    "weight": "400"
   },
   "Vazir Code": {
     "url": "/fonts/04-code-monospace/Vazir-Code-Hack.woff2",
