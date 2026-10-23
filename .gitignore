@@ -12,8 +12,7 @@ dist-single/
 # smoke bundle output
 .smoke/
 
-# shareable copies: only the two finished deliverables are versioned, so they get
-# a stable GitHub link; the zips are rebuilt on demand and stay local
+# shareable copy: only the finished single-file deliverable is versioned (it is
+# built on demand); zips and other exports stay local
 share/*
 !share/rtl-motion-lab-standalone.html
-!share/rtl-motion-lab-showcase.html

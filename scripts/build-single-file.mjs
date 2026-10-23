@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * ساخت نسخهٔ «تک‌فایلی» از خودِ اپلیکیشن (نه نسخهٔ دموی showcase).
+ * ساخت نسخهٔ «تک‌فایلی» از خودِ اپلیکیشن، برای فرستادن به دیگران یا باز کردن روی file://.
  *
  * خروجی: share/rtl-motion-lab-standalone.html
  *   - همهٔ JS و CSS داخل فایل (بدون هیچ chunk جدا)
@@ -114,7 +114,6 @@ function walk(dir) {
 for (const file of walk(path.join(ROOT, "public"))) {
   const rel = "/" + path.relative(path.join(ROOT, "public"), file).split(path.sep).join("/");
   /* the demo page is a separate deliverable; embedding it would double the file */
-  if (rel === "/showcase.html") continue;
   const ext = path.extname(file).toLowerCase();
   const raw = fs.readFileSync(file);
   const isFont = ext === ".woff" || ext === ".woff2" || ext === ".ttf" || ext === ".otf";
