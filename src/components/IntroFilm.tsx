@@ -16,7 +16,7 @@ import { cn } from "../ui/kit";
  * - [0.31 .. 0.39]: Act 3A (Fracture)     — 6 vertical laser cuts slice the bar into 7 pieces in place with visible recoil
  * - [0.39 .. 0.46]: Act 3B (Flight)       — All 7 pieces fly along curved arcs to their exact DOM-measured word coordinates
  * - [0.46 .. 0.80]: Act 4  (Words)        — Word-by-word (Right-to-Left) transformation into IranNastaliq: «در امتدادِ نور، هر خط جان می‌گیرد»
- * - [0.80 .. 1.00]: Act 5  (Prism Finale) — After the words appear, a Cosmic Prism Shockwave + 16 Volumetric God-Rays + Twin Orbiting Light Ribbons sweep across the calligraphy before the Curved Horizon Portal splits open!
+ * - [0.80 .. 1.00]: Act 5  (Prism Finale) — After the words appear, a Cosmic Prism Shockwave + Twin Orbiting Light Ribbons sweep across the calligraphy before the Curved Horizon Portal splits open!
  */
 const TOTAL_MS = 8900;
 const PORTAL_EXIT_MS = 1550;
@@ -32,6 +32,8 @@ interface WordSpec {
   recoilY: number;
   recoilAngle: number;
   fallbackX: number;
+  fallbackYMobile: number;
+  fallbackXMobile: number;
   fallbackW: number;
 }
 
@@ -44,6 +46,8 @@ const WORDS: WordSpec[] = [
     recoilY: -18,
     recoilAngle: -11,
     fallbackX: 855,
+    fallbackXMobile: 730,
+    fallbackYMobile: 145,
     fallbackW: 68,
   },
   {
@@ -54,6 +58,8 @@ const WORDS: WordSpec[] = [
     recoilY: 16,
     recoilAngle: 9,
     fallbackX: 735,
+    fallbackXMobile: 515,
+    fallbackYMobile: 145,
     fallbackW: 118,
   },
   {
@@ -64,6 +70,8 @@ const WORDS: WordSpec[] = [
     recoilY: -20,
     recoilAngle: -13,
     fallbackX: 595,
+    fallbackXMobile: 295,
+    fallbackYMobile: 145,
     fallbackW: 92,
   },
   {
@@ -74,6 +82,8 @@ const WORDS: WordSpec[] = [
     recoilY: 18,
     recoilAngle: 12,
     fallbackX: 490,
+    fallbackXMobile: 790,
+    fallbackYMobile: 278,
     fallbackW: 66,
   },
   {
@@ -84,6 +94,8 @@ const WORDS: WordSpec[] = [
     recoilY: -16,
     recoilAngle: -10,
     fallbackX: 390,
+    fallbackXMobile: 625,
+    fallbackYMobile: 278,
     fallbackW: 86,
   },
   {
@@ -94,6 +106,8 @@ const WORDS: WordSpec[] = [
     recoilY: 20,
     recoilAngle: 11,
     fallbackX: 275,
+    fallbackXMobile: 445,
+    fallbackYMobile: 278,
     fallbackW: 92,
   },
   {
@@ -104,9 +118,31 @@ const WORDS: WordSpec[] = [
     recoilY: -17,
     recoilAngle: -9,
     fallbackX: 130,
+    fallbackXMobile: 225,
+    fallbackYMobile: 278,
     fallbackW: 138,
   },
 ];
+
+/* ------------ Responsive Mobile Portrait Detection Hook ------------ */
+
+function useIsMobilePortrait(): boolean {
+  const [isMobile, setIsMobile] = useState<boolean>(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
+    return window.matchMedia("(max-width: 639px)").matches;
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia("(max-width: 639px)");
+    const onChange = () => setIsMobile(mq.matches);
+    onChange();
+    mq.addEventListener?.("change", onChange);
+    return () => mq.removeEventListener?.("change", onChange);
+  }, []);
+
+  return isMobile;
+}
 
 /* ------------ Acts 1A, 1B & 2 Trajectory: R->L Sweep -> L->R Rebound -> 360° Astrolabe Loop -> Center Bar */
 
@@ -115,15 +151,17 @@ interface TrajectorySample {
   y: number;
 }
 
-function buildMultiActTrajectorySamples(): TrajectorySample[] {
+function buildMultiActTrajectorySamples(isMobile: boolean): TrajectorySample[] {
   const pts: TrajectorySample[] = [];
+  // Boost vertical wave amplitude on portrait mobile screens so the sweep fills the vertical space
+  const ampScale = isMobile ? 1.65 : 1.0;
 
   // Part 0 (25 pts): Ignited center point (500, 210) launches to Right edge (950, 210)
   for (let i = 0; i <= 25; i++) {
     const u = i / 25;
     pts.push({
       x: 500 + 450 * (u * u),
-      y: 210 - Math.sin(u * Math.PI) * 14,
+      y: 210 - Math.sin(u * Math.PI) * 16 * ampScale,
     });
   }
 
@@ -133,7 +171,7 @@ function buildMultiActTrajectorySamples(): TrajectorySample[] {
     const eased = 1 - Math.pow(1 - u, 2.0);
     pts.push({
       x: 950 - 900 * eased,
-      y: 210 - Math.sin(u * Math.PI * 2) * 28,
+      y: 210 - Math.sin(u * Math.PI * 2) * 30 * ampScale,
     });
   }
 
@@ -143,7 +181,7 @@ function buildMultiActTrajectorySamples(): TrajectorySample[] {
     const eased = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
     pts.push({
       x: 50 + 870 * eased,
-      y: 210 + Math.sin(u * Math.PI * 2) * 34,
+      y: 210 + Math.sin(u * Math.PI * 2) * 36 * ampScale,
     });
   }
 
@@ -152,7 +190,7 @@ function buildMultiActTrajectorySamples(): TrajectorySample[] {
     const v = i / 115;
     const theta = v * Math.PI * 3; // 1.5 revolutions ending at cos(3*PI) = -1 (left side x=220)
     const rx = 420 - 140 * v;
-    const ry = 152 * Math.sin(v * Math.PI * 0.9 + 0.12);
+    const ry = (isMobile ? 195 : 152) * Math.sin(v * Math.PI * 0.9 + 0.12);
     pts.push({
       x: 500 + Math.cos(theta) * rx,
       y: 210 - Math.sin(theta) * ry,
@@ -207,8 +245,10 @@ interface IgnitionPointGateProps {
 
 const IgnitionPointGate: React.FC<IgnitionPointGateProps> = ({ onIgnite }) => {
   const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [pressed, setPressed] = useState(false);
 
   const handlePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "touch") return;
     const rect = e.currentTarget.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
@@ -217,60 +257,75 @@ const IgnitionPointGate: React.FC<IgnitionPointGateProps> = ({ onIgnite }) => {
     setOffset({ x: dx, y: dy });
   }, []);
 
+  const triggerIgnite = useCallback(() => {
+    try {
+      if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+        navigator.vibrate(16);
+      }
+    } catch {
+      // ignore on unsupported browsers
+    }
+    onIgnite();
+  }, [onIgnite]);
+
   return (
     <div
       onPointerMove={handlePointerMove}
-      onClick={onIgnite}
+      onPointerDown={() => setPressed(true)}
+      onPointerUp={() => setPressed(false)}
+      onPointerCancel={() => setPressed(false)}
+      onClick={triggerIgnite}
       role="button"
       tabIndex={0}
       aria-label="شروع انیمیشن ورود با صدا"
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          onIgnite();
+          triggerIgnite();
         }
       }}
-      className="group relative flex h-full w-full cursor-pointer flex-col items-center justify-center select-none"
+      className="group relative flex h-full w-full cursor-pointer touch-manipulation flex-col items-center justify-center select-none"
     >
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(32% 32% at 50% 50%, rgba(245, 184, 65, 0.14), rgba(29, 78, 216, 0.06) 52%, transparent 82%)",
+            "radial-gradient(42% 38% at 50% 50%, rgba(245, 184, 65, 0.16), rgba(29, 78, 216, 0.07) 54%, transparent 84%)",
         }}
       />
 
+      {/* Ergonomic 96x96px touch target around the living center point */}
       <div
-        className="relative flex items-center justify-center transition-transform duration-150 ease-out"
+        className="relative flex h-24 w-24 items-center justify-center transition-transform duration-150 ease-out"
         style={{
-          transform: `translate3d(${offset.x.toFixed(1)}px, ${offset.y.toFixed(1)}px, 0)`,
+          transform: `translate3d(${offset.x.toFixed(1)}px, ${offset.y.toFixed(1)}px, 0) scale(${pressed ? 0.92 : 1})`,
         }}
       >
         <motion.span
           aria-hidden
-          animate={{ scale: [1, 2.45, 1], opacity: [0.42, 0, 0.42] }}
-          transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-          className="pointer-events-none absolute h-16 w-16 rounded-full border border-[#F5B841]/45"
+          animate={{ scale: [1, 2.55, 1], opacity: [0.48, 0, 0.48] }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+          className="pointer-events-none absolute h-16 w-16 rounded-full border border-[#F5B841]/50 sm:h-16 sm:w-16"
         />
 
         <motion.span
           aria-hidden
-          animate={{ scale: [1, 1.7, 1], opacity: [0.58, 0.12, 0.58] }}
-          transition={{ duration: 2.6, delay: 0.45, repeat: Infinity, ease: "easeInOut" }}
-          className="pointer-events-none absolute h-11 w-11 rounded-full border border-[#38BDF8]/55"
+          animate={{ scale: [1, 1.8, 1], opacity: [0.64, 0.14, 0.64] }}
+          transition={{ duration: 2.4, delay: 0.42, repeat: Infinity, ease: "easeInOut" }}
+          className="pointer-events-none absolute h-11 w-11 rounded-full border border-[#38BDF8]/60"
         />
 
         <span
           aria-hidden
-          className="pointer-events-none absolute h-24 w-24 rounded-full bg-[#F5B841]/15 blur-xl transition-transform duration-300 group-hover:scale-150 group-hover:bg-[#F5B841]/30"
+          className="pointer-events-none absolute h-24 w-24 rounded-full bg-[#F5B841]/18 blur-xl transition-transform duration-300 group-hover:scale-150 group-hover:bg-[#F5B841]/30"
         />
 
         <span
-          className="relative z-10 flex h-5 w-5 items-center justify-center rounded-full bg-[#FFFBEB] transition-transform duration-300 group-hover:scale-125 group-active:scale-90"
+          className="relative z-10 flex h-6 w-6 items-center justify-center rounded-full bg-[#FFFBEB] transition-transform duration-300 group-hover:scale-125 group-active:scale-90 sm:h-5 sm:w-5"
           style={{
             boxShadow:
-              "0 0 18px 4px rgba(245, 184, 65, 0.95), 0 0 44px 14px rgba(56, 189, 248, 0.42)",
+              "0 0 20px 5px rgba(245, 184, 65, 0.95), 0 0 46px 15px rgba(56, 189, 248, 0.45)",
           }}
         />
       </div>
@@ -289,10 +344,11 @@ interface MeasuredSlot {
 interface LineToWordsStageProps {
   progress: number; // 0..1
   exitProgress: number; // 0..1
+  isMobile: boolean;
 }
 
-const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgress }) => {
-  const samples = useMemo(() => buildMultiActTrajectorySamples(), []);
+const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgress, isMobile }) => {
+  const samples = useMemo(() => buildMultiActTrajectorySamples(isMobile), [isMobile]);
   const totalPts = samples.length - 1; // 410; indices 310..410 are the horizontal bar (x=220..780, y=210)!
   const girihOuterPath = useMemo(() => buildGirihStarPath(0, 0, 128, 92, 12), []);
   const girihInnerPath = useMemo(() => buildGirihStarPath(0, 0, 76, 52, 12), []);
@@ -301,45 +357,70 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
   const wordRefs = useRef<Array<HTMLSpanElement | null>>([]);
   const [measuredSlots, setMeasuredSlots] = useState<MeasuredSlot[] | null>(null);
 
+  /**
+   * Exact `xMidYMid meet` coordinate projection from DOM viewport pixels into
+   * the SVG `viewBox="0 0 1000 420"` space on both mobile portrait (2 rows) and desktop (1 row).
+   */
   const measureWordSlots = useCallback(() => {
     const svgEl = svgRef.current;
     if (!svgEl) return;
     const svgRect = svgEl.getBoundingClientRect();
     if (svgRect.width < 10 || svgRect.height < 10) return;
 
-    const scaleX = 1000 / svgRect.width;
-    const scaleY = 420 / svgRect.height;
+    // With preserveAspectRatio="xMidYMid meet", SVG scales uniformly by the larger ratio around (500, 210)
+    const uniformScale = Math.max(1000 / svgRect.width, 420 / svgRect.height);
+    const svgCenterX = svgRect.left + svgRect.width * 0.5;
+    const svgCenterY = svgRect.top + svgRect.height * 0.5;
 
     const nextSlots: MeasuredSlot[] = WORDS.map((w, idx) => {
       const el = wordRefs.current[idx];
       if (!el) {
-        return { cx: w.fallbackX, cy: 210, width: w.fallbackW };
+        return {
+          cx: isMobile ? w.fallbackXMobile : w.fallbackX,
+          cy: isMobile ? w.fallbackYMobile : 210,
+          width: w.fallbackW,
+        };
       }
       const r = el.getBoundingClientRect();
-      const cx = (r.left + r.width * 0.5 - svgRect.left) * scaleX;
-      const cy = (r.top + r.height * 0.52 - svgRect.top) * scaleY;
-      const width = Math.max(48, Math.min(165, r.width * scaleX * 0.88));
+      if (r.width < 2) {
+        return {
+          cx: isMobile ? w.fallbackXMobile : w.fallbackX,
+          cy: isMobile ? w.fallbackYMobile : 210,
+          width: w.fallbackW,
+        };
+      }
+      const cx = 500 + (r.left + r.width * 0.5 - svgCenterX) * uniformScale;
+      const cy = 210 + (r.top + r.height * 0.52 - svgCenterY) * uniformScale;
+      const width = Math.max(48, Math.min(185, r.width * uniformScale * 0.86));
       return { cx, cy, width };
     });
 
     setMeasuredSlots(nextSlots);
-  }, []);
+  }, [isMobile]);
 
   useLayoutEffect(() => {
     measureWordSlots();
-    const timer = window.setTimeout(measureWordSlots, 120);
+    const t1 = window.setTimeout(measureWordSlots, 90);
+    const t2 = window.setTimeout(measureWordSlots, 280);
+    if (typeof document !== "undefined" && "fonts" in document) {
+      void document.fonts.ready.then(() => measureWordSlots());
+    }
     window.addEventListener("resize", measureWordSlots);
+    window.addEventListener("orientationchange", measureWordSlots);
     return () => {
-      window.clearTimeout(timer);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
       window.removeEventListener("resize", measureWordSlots);
+      window.removeEventListener("orientationchange", measureWordSlots);
     };
   }, [measureWordSlots]);
 
+  // Scale stroke widths up on mobile so lines stay bold & luminous even when the 1000-unit viewBox scales down
+  const strokeBoost = isMobile ? 1.45 : 1.0;
+  const svgFilter = isMobile ? undefined : "url(#beam-glow)";
+
   /**
    * ACTS 1A, 1B & 2 (progress 0.00 -> 0.31):
-   * - 0.00..0.10: Sweep Right -> Left
-   * - 0.10..0.19: Rebound Left -> Right
-   * - 0.19..0.31: Astrolabe Loop -> Center Horizontal Bar (indices 310..410, x=220..780, y=210)
    */
   const linePhase = Math.min(1, Math.max(0, progress / 0.31));
   const headIdx = Math.round(Math.min(1, linePhase * 1.03) * totalPts);
@@ -350,7 +431,6 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
     return samplesToSvgPath(samples, tailIdx, headIdx);
   }, [headIdx, progress, samples, tailIdx]);
 
-  // Secondary harmonic echo wave during the L->R Rebound & Astrolabe phase (0.09 -> 0.29)
   const echoPath = useMemo(() => {
     if (progress < 0.08 || progress >= 0.29) return "";
     const echoStart = Math.max(0, tailIdx - 28);
@@ -362,14 +442,14 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
 
   /**
    * ACT 2: SACRED PERSIAN ASTROLABE / GIRIH MANDALA RING (progress 0.17 -> 0.34)
-   * Blooms at the center (500, 210), rotates with golden-ratio harmonics, and condenses into the Center Bar!
    */
   const astrolabeRaw = Math.min(1, Math.max(0, (progress - 0.17) / 0.16));
   const astrolabeOpacity =
     astrolabeRaw <= 0 || astrolabeRaw >= 1
       ? 0
       : Math.sin(astrolabeRaw * Math.PI);
-  const astrolabeScale = 0.38 + Math.sin(astrolabeRaw * Math.PI * 0.85) * 0.88;
+  const astrolabeScale =
+    (0.38 + Math.sin(astrolabeRaw * Math.PI * 0.85) * 0.88) * (isMobile ? 1.38 : 1.0);
   const astrolabeRot = astrolabeRaw * 120;
 
   /**
@@ -391,26 +471,24 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
 
   /**
    * ACT 5 (progress 0.80 -> 1.00): POST-WORD COSMIC PRISM WAVE & CALLIGRAPHIC CROWN!
-   * Right after all 7 Nastaliq words have materialized, an aurora prism shockwave + volumetric rays
-   * + twin orbiting silk ribbons sweep across the calligraphy before the portal opens!
    */
   const prismRaw = Math.min(1, Math.max(0, (progress - 0.80) / 0.19));
   const prismBell = prismRaw <= 0 ? 0 : Math.sin(prismRaw * Math.PI);
-  const crownSweepX = 880 - prismRaw * 760; // Sweeps R->L across the finished Nastaliq sentence!
+  const crownSweepX = 880 - prismRaw * 760;
 
-  // Portal Exit split ease
   const splitEase =
     exitProgress <= 0.14
       ? 0
       : Math.pow(Math.min(1, (exitProgress - 0.14) / 0.72), 2.1);
 
   return (
-    <div className="pointer-events-none relative flex h-full w-full flex-col items-center justify-center px-4 select-none">
+    <div className="pointer-events-none relative flex h-full w-full flex-col items-center justify-center px-2.5 sm:px-4 select-none">
       {/* UNIFIED STAGE CONTAINER */}
-      <div className="relative flex h-[320px] w-full max-w-[1080px] items-center justify-center sm:h-[380px]">
+      <div className="relative flex h-[300px] w-full max-w-[1080px] items-center justify-center sm:h-[380px]">
         <svg
           ref={svgRef}
           viewBox="0 0 1000 420"
+          preserveAspectRatio="xMidYMid meet"
           className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
           aria-hidden
         >
@@ -428,18 +506,20 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
             </linearGradient>
 
             <radialGradient id="prism-halo" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="rgba(245, 184, 65, 0.45)" />
-              <stop offset="45%" stopColor="rgba(56, 189, 248, 0.22)" />
+              <stop offset="0%" stopColor="rgba(245, 184, 65, 0.48)" />
+              <stop offset="45%" stopColor="rgba(56, 189, 248, 0.24)" />
               <stop offset="100%" stopColor="rgba(5, 6, 10, 0)" />
             </radialGradient>
 
-            <filter id="beam-glow" x="-30%" y="-30%" width="160%" height="160%">
-              <feGaussianBlur stdDeviation="4.5" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
+            {!isMobile && (
+              <filter id="beam-glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="4.5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            )}
           </defs>
 
           {/* ACT 2: Sacred 12-Fold Persian Girih / Astrolabe Supernova Ring in the Center */}
@@ -447,14 +527,14 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
             <g
               transform={`translate(500, 210) scale(${astrolabeScale.toFixed(3)})`}
               style={{ opacity: astrolabeOpacity }}
-              filter="url(#beam-glow)"
+              filter={svgFilter}
             >
               <g transform={`rotate(${astrolabeRot.toFixed(1)})`}>
                 <path
                   d={girihOuterPath}
                   fill="none"
                   stroke="url(#beam-turquoise)"
-                  strokeWidth="1.8"
+                  strokeWidth={(1.9 * strokeBoost).toFixed(2)}
                   strokeDasharray="8 4"
                 />
                 <circle
@@ -462,8 +542,8 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
                   cy="0"
                   r="108"
                   fill="none"
-                  stroke="rgba(245, 184, 65, 0.55)"
-                  strokeWidth="1.4"
+                  stroke="rgba(245, 184, 65, 0.6)"
+                  strokeWidth={(1.5 * strokeBoost).toFixed(2)}
                 />
               </g>
               <g transform={`rotate(${(-astrolabeRot * 1.35).toFixed(1)})`}>
@@ -471,7 +551,7 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
                   d={girihInnerPath}
                   fill="none"
                   stroke="#F5B841"
-                  strokeWidth="2.1"
+                  strokeWidth={(2.2 * strokeBoost).toFixed(2)}
                 />
                 <circle
                   cx="0"
@@ -479,7 +559,7 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
                   r="38"
                   fill="none"
                   stroke="#38BDF8"
-                  strokeWidth="1.5"
+                  strokeWidth={(1.6 * strokeBoost).toFixed(2)}
                   strokeDasharray="4 6"
                 />
               </g>
@@ -492,20 +572,20 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
               d={echoPath}
               fill="none"
               stroke="url(#beam-turquoise)"
-              strokeWidth="2.4"
+              strokeWidth={(2.6 * strokeBoost).toFixed(2)}
               strokeLinecap="round"
               strokeLinejoin="round"
-              style={{ opacity: 0.65 }}
+              style={{ opacity: 0.7 }}
             />
           )}
 
           {ribbonPath && (
-            <g filter="url(#beam-glow)">
+            <g filter={svgFilter}>
               <path
                 d={ribbonPath}
                 fill="none"
-                stroke="rgba(245, 184, 65, 0.38)"
-                strokeWidth="9"
+                stroke="rgba(245, 184, 65, 0.36)"
+                strokeWidth={(10 * strokeBoost).toFixed(1)}
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
@@ -513,19 +593,19 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
                 d={ribbonPath}
                 fill="none"
                 stroke={progress >= 0.10 && progress < 0.20 ? "url(#beam-turquoise)" : "url(#beam-gold)"}
-                strokeWidth="3.8"
+                strokeWidth={(4.0 * strokeBoost).toFixed(2)}
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
-              <circle cx={headPoint.x} cy={headPoint.y} r="6.5" fill="#FFFBEB" />
+              <circle cx={headPoint.x} cy={headPoint.y} r={6.8 * strokeBoost} fill="#FFFBEB" />
               <circle
                 cx={headPoint.x}
                 cy={headPoint.y}
-                r="16"
+                r={17 * strokeBoost}
                 fill={
                   progress >= 0.10 && progress < 0.20
-                    ? "rgba(56, 189, 248, 0.42)"
-                    : "rgba(245, 184, 65, 0.38)"
+                    ? "rgba(56, 189, 248, 0.45)"
+                    : "rgba(245, 184, 65, 0.42)"
                 }
               />
             </g>
@@ -533,11 +613,11 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
 
           {/* ACT 3A: The 6 Laser Cut Sparks that visibly slice the bar into 7 pieces at progress = 0.31 */}
           {progress >= 0.31 && progress <= 0.39 && (
-            <g filter="url(#beam-glow)">
+            <g filter={svgFilter}>
               {CUT_POINTS_X.map((cutX, cIdx) => {
                 const sparkP = Math.min(1, Math.max(0, (progress - 0.31) / 0.075));
                 const sparkOpacity = Math.sin(sparkP * Math.PI);
-                const halfSlash = 12 + sparkP * 32;
+                const halfSlash = (14 + sparkP * 34) * strokeBoost;
                 return (
                   <g
                     key={cIdx}
@@ -550,10 +630,10 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
                       x2="0"
                       y2={halfSlash}
                       stroke="#FFFBEB"
-                      strokeWidth={2.8 * (1 - sparkP * 0.6)}
+                      strokeWidth={3.0 * strokeBoost * (1 - sparkP * 0.55)}
                       strokeLinecap="round"
                     />
-                    <circle cx="0" cy="0" r={6 * (1 - sparkP * 0.5)} fill="#38BDF8" />
+                    <circle cx="0" cy="0" r={6.5 * strokeBoost * (1 - sparkP * 0.45)} fill="#38BDF8" />
                   </g>
                 );
               })}
@@ -567,8 +647,8 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
           {progress >= 0.31 &&
             WORDS.map((w, idx) => {
               const slot = measuredSlots?.[idx] ?? {
-                cx: w.fallbackX,
-                cy: 210,
+                cx: isMobile ? w.fallbackXMobile : w.fallbackX,
+                cy: isMobile ? w.fallbackYMobile : 210,
                 width: w.fallbackW,
               };
 
@@ -588,13 +668,13 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
               const spreadFromCenter = (w.barCenterX - 500) * 1.18 + 500;
               const fracturedX =
                 w.barCenterX + (spreadFromCenter - w.barCenterX) * fractureEased;
-              const fracturedY = 210 + w.recoilY * fractureEased;
+              const fracturedY = 210 + w.recoilY * strokeBoost * fractureEased;
               const fracturedAngle = w.recoilAngle * fractureEased;
               const fracturedWidth = 80 - 26 * fractureEased;
 
               const currX = fracturedX + (slot.cx - fracturedX) * travelEased;
               const flightArcY =
-                Math.sin(travelEased * Math.PI) * (idx % 2 === 0 ? -30 : 30);
+                Math.sin(travelEased * Math.PI) * (idx % 2 === 0 ? -32 : 32) * strokeBoost;
               const currY =
                 fracturedY + (slot.cy - fracturedY) * travelEased + flightArcY;
               const currAngle = fracturedAngle * (1 - travelEased);
@@ -602,22 +682,22 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
                 (fracturedWidth + (slot.width - fracturedWidth) * travelEased) *
                 (1 - solidifyP * 0.65);
               const halfLen = currWidth * 0.5;
-              const strokeW = 3.6 + solidifyP * 3.5;
+              const strokeW = (3.8 + solidifyP * 3.5) * strokeBoost;
 
               return (
                 <g
                   key={w.id}
                   transform={`translate(${currX.toFixed(1)}, ${currY.toFixed(1)}) rotate(${currAngle.toFixed(1)})`}
                   style={{ opacity: shardOpacity }}
-                  filter="url(#beam-glow)"
+                  filter={svgFilter}
                 >
                   <line
                     x1={(-halfLen).toFixed(1)}
                     y1="0"
                     x2={halfLen.toFixed(1)}
                     y2="0"
-                    stroke="rgba(245, 184, 65, 0.4)"
-                    strokeWidth={strokeW + 5}
+                    stroke="rgba(245, 184, 65, 0.42)"
+                    strokeWidth={strokeW + 5.5 * strokeBoost}
                     strokeLinecap="round"
                   />
                   <line
@@ -637,45 +717,54 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
           {prismBell > 0.01 && (
             <g
               style={{ opacity: prismBell * (1 - splitEase) }}
-              filter="url(#beam-glow)"
+              filter={svgFilter}
             >
-              {/* Expanding elliptical aurora shockwave behind the finished Nastaliq sentence */}
               <ellipse
                 cx="500"
                 cy="210"
                 rx={(180 + prismRaw * 340).toFixed(1)}
-                ry={(42 + prismRaw * 95).toFixed(1)}
+                ry={((isMobile ? 75 : 42) + prismRaw * (isMobile ? 140 : 95)).toFixed(1)}
                 fill="url(#prism-halo)"
               />
               <ellipse
                 cx="500"
                 cy="210"
                 rx={(160 + prismRaw * 360).toFixed(1)}
-                ry={(36 + prismRaw * 82).toFixed(1)}
+                ry={((isMobile ? 64 : 36) + prismRaw * (isMobile ? 120 : 82)).toFixed(1)}
                 fill="none"
                 stroke="url(#beam-turquoise)"
-                strokeWidth={(2.4 * (1 - prismRaw * 0.5)).toFixed(2)}
+                strokeWidth={(2.5 * strokeBoost * (1 - prismRaw * 0.5)).toFixed(2)}
                 strokeDasharray="18 10"
               />
 
               {/* Golden-Turquoise Calligraphic Crown Comet sweeping across the completed words */}
               <path
-                d={`M 880,262 Q 500,${(292 - Math.sin(prismRaw * Math.PI) * 34).toFixed(1)} 120,262`}
+                d={`M 880,${isMobile ? 338 : 262} Q 500,${(
+                  (isMobile ? 372 : 292) -
+                  Math.sin(prismRaw * Math.PI) * 34
+                ).toFixed(1)} 120,${isMobile ? 338 : 262}`}
                 fill="none"
                 stroke="url(#beam-gold)"
-                strokeWidth="2.8"
+                strokeWidth={(3.0 * strokeBoost).toFixed(2)}
                 strokeLinecap="round"
               />
-              <circle cx={crownSweepX} cy="272" r="5.5" fill="#FFFBEB" />
-              <circle cx={crownSweepX} cy="272" r="15" fill="rgba(245, 184, 65, 0.42)" />
+              <circle cx={crownSweepX} cy={isMobile ? 348 : 272} r={6.0 * strokeBoost} fill="#FFFBEB" />
+              <circle
+                cx={crownSweepX}
+                cy={isMobile ? 348 : 272}
+                r={16 * strokeBoost}
+                fill="rgba(245, 184, 65, 0.45)"
+              />
             </g>
           )}
         </svg>
 
-        {/* ACT 4 & 5: The Actual IranNastaliq Words */}
+        {/* ACT 4 & 5: The Actual IranNastaliq Words
+            On Mobile (<640px): Balanced 2-Hemistich Poetic Couplet («در امتدادِ نور،» / «هر خط جان می‌گیرد»)
+            On Desktop (>=640px): Single Cinema-Scope Line */}
         <div
           dir="rtl"
-          className="relative z-10 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 px-4 text-center sm:gap-x-5"
+          className="relative z-10 flex w-full flex-wrap items-center justify-center gap-x-2.5 gap-y-0 px-2 text-center sm:gap-x-5 sm:gap-y-2 sm:px-4"
         >
           {WORDS.map((w, idx) => {
             const wordStart = 0.46 + idx * 0.046;
@@ -690,69 +779,72 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
                 ? 1
                 : 1 - Math.pow(1 - solidifyP, 3) + Math.sin(solidifyP * Math.PI) * 0.07;
 
-            // Act 5 Prism Wave lift: each word ripples gently as the golden prism wave passes over it!
             const wordWavePhase = Math.max(0, Math.min(1, (prismRaw - idx * 0.08) / 0.45));
-            const prismLiftY = Math.sin(wordWavePhase * Math.PI) * -10;
+            const prismLiftY = Math.sin(wordWavePhase * Math.PI) * (isMobile ? -7 : -10);
             const prismScaleBoost = 1 + Math.sin(wordWavePhase * Math.PI) * 0.06;
 
-            const dirY = idx % 2 === 0 ? -1 : 1;
-            const splitOffsetY = dirY * splitEase * 95;
-            const splitOffsetX = (3 - idx) * splitEase * 28;
-            const splitScale = (1 + splitEase * 0.35) * prismScaleBoost;
+            const dirY = isMobile ? (idx <= 2 ? -1 : 1) : idx % 2 === 0 ? -1 : 1;
+            const splitOffsetY = dirY * splitEase * (isMobile ? 68 : 95);
+            const splitOffsetX = (3 - idx) * splitEase * (isMobile ? 16 : 28);
+            const splitScale = (1 + splitEase * 0.32) * prismScaleBoost;
             const splitOpacity = Math.max(0, 1 - splitEase * 1.35);
 
-            return (
-              <span
-                key={w.id}
-                ref={(el) => {
-                  wordRefs.current[idx] = el;
-                }}
-                className="relative inline-flex items-center justify-center px-1.5 py-4 text-[44px] leading-[2.05] sm:text-[70px] md:text-[80px]"
-                style={{
-                  fontFamily: "'IranNastaliq', 'GulzarNastaliq', serif",
-                  opacity: Math.min(1, solidifyP * 1.6) * splitOpacity,
-                  transform: `translate3d(${splitOffsetX.toFixed(1)}px, ${(
-                    (1 - Math.min(1, eased)) * 16 +
-                    prismLiftY +
-                    splitOffsetY
-                  ).toFixed(1)}px, 0) scale(${((0.55 + 0.45 * eased) * splitScale).toFixed(3)})`,
-                  filter: `blur(${(
-                    (1 - Math.min(1, solidifyP * 1.5)) * 8 +
-                    splitEase * 12
-                  ).toFixed(1)}px)`,
-                }}
-              >
-                {solidifyP > 0.01 && solidifyP < 0.9 && (
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 rounded-full blur-xl"
-                    style={{
-                      background:
-                        "radial-gradient(circle, rgba(245,184,65,0.55), transparent 72%)",
-                      opacity: Math.sin(solidifyP * Math.PI),
-                    }}
-                  />
-                )}
+            const blurPx =
+              (1 - Math.min(1, solidifyP * 1.6)) * (isMobile ? 4 : 8) +
+              splitEase * (isMobile ? 6 : 12);
 
+            return (
+              <React.Fragment key={w.id}>
                 <span
-                  className={cn(
-                    "relative z-10 block transition-colors duration-300",
-                    w.gold || prismBell > 0.25 || exitProgress > 0.04
-                      ? "text-[#F5B841]"
-                      : "text-[#F5F2EB]"
-                  )}
+                  ref={(el) => {
+                    wordRefs.current[idx] = el;
+                  }}
+                  className="relative inline-flex items-center justify-center px-1 py-1 text-[clamp(36px,10.4vw,52px)] leading-[1.68] will-change-[transform,opacity] sm:px-1.5 sm:py-4 sm:text-[70px] sm:leading-[2.05] md:text-[80px]"
                   style={{
-                    textShadow:
-                      prismBell > 0.2
-                        ? "0 0 42px rgba(245, 184, 65, 0.72), 0 0 80px rgba(56, 189, 248, 0.38)"
-                        : w.gold || exitProgress > 0.04
-                        ? "0 0 36px rgba(245, 184, 65, 0.52)"
-                        : "0 12px 36px rgba(0, 0, 0, 0.85)",
+                    fontFamily: "'IranNastaliq', 'GulzarNastaliq', serif",
+                    opacity: Math.min(1, solidifyP * 1.6) * splitOpacity,
+                    transform: `translate3d(${splitOffsetX.toFixed(1)}px, ${(
+                      (1 - Math.min(1, eased)) * (isMobile ? 12 : 16) +
+                      prismLiftY +
+                      splitOffsetY
+                    ).toFixed(1)}px, 0) scale(${((0.55 + 0.45 * eased) * splitScale).toFixed(3)})`,
+                    filter: blurPx > 0.25 ? `blur(${blurPx.toFixed(1)}px)` : undefined,
                   }}
                 >
-                  {w.text}
+                  {solidifyP > 0.01 && solidifyP < 0.9 && (
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute inset-0 rounded-full blur-lg sm:blur-xl"
+                      style={{
+                        background:
+                          "radial-gradient(circle, rgba(245,184,65,0.55), transparent 72%)",
+                        opacity: Math.sin(solidifyP * Math.PI),
+                      }}
+                    />
+                  )}
+
+                  <span
+                    className={cn(
+                      "relative z-10 block transition-colors duration-300",
+                      w.gold || prismBell > 0.25 || exitProgress > 0.04
+                        ? "text-[#F5B841]"
+                        : "text-[#F5F2EB]"
+                    )}
+                    style={{
+                      textShadow:
+                        prismBell > 0.2
+                          ? "0 0 36px rgba(245, 184, 65, 0.72), 0 0 68px rgba(56, 189, 248, 0.38)"
+                          : w.gold || exitProgress > 0.04
+                          ? "0 0 32px rgba(245, 184, 65, 0.52)"
+                          : "0 10px 28px rgba(0, 0, 0, 0.85)",
+                    }}
+                  >
+                    {w.text}
+                  </span>
                 </span>
-              </span>
+                {/* Balanced Poetic Couplet Break on Mobile Portrait right after «نور،» (idx === 2) */}
+                {idx === 2 && <span aria-hidden className="h-0 basis-full sm:hidden" />}
+              </React.Fragment>
             );
           })}
         </div>
@@ -770,6 +862,7 @@ interface IntroFilmProps {
 const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
   const reduced = useReducedMotion();
   const { update } = useAppSettings();
+  const isMobile = useIsMobilePortrait();
 
   const [ignited, setIgnited] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -948,6 +1041,7 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
 
   const seamHalfSpan = 500 * (1 - Math.pow(1 - seamIgnite, 3));
   const bgUrl = publicUrl("/backgrounds/nebula-lapis-gold.jpg");
+  const portalFilter = isMobile ? undefined : "url(#portal-lip-glow)";
 
   return (
     <div
@@ -955,7 +1049,7 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
       aria-modal="true"
       aria-label="تیتراژ ورود به آزمایشگاه موشن فارسی"
       className={cn(
-        "fixed inset-0 z-[120] overflow-hidden text-[#F5F2EB]",
+        "fixed inset-0 z-[120] h-[100dvh] w-screen overflow-hidden overscroll-none touch-none text-[#F5F2EB]",
         exiting ? "pointer-events-none" : ""
       )}
     >
@@ -993,13 +1087,15 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
             <stop offset="100%" stopColor="rgba(56, 189, 248, 0.1)" />
           </linearGradient>
 
-          <filter id="portal-lip-glow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="8" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
+          {!isMobile && (
+            <filter id="portal-lip-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="8" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          )}
         </defs>
 
         <path d={upperWingPath} fill="url(#intro-nebula-pattern)" />
@@ -1012,26 +1108,26 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
             x2={(500 + seamHalfSpan).toFixed(1)}
             y2="500"
             stroke="url(#portal-lip-gold)"
-            strokeWidth={(2.5 + Math.sin(seamIgnite * Math.PI) * 5).toFixed(1)}
+            strokeWidth={(2.8 + Math.sin(seamIgnite * Math.PI) * 5.5).toFixed(1)}
             strokeLinecap="round"
-            filter="url(#portal-lip-glow)"
+            filter={portalFilter}
             style={{ opacity: Math.max(0, 1 - splitRaw * 2.2) }}
           />
         )}
 
         {lipGlowOpacity > 0.01 && (
-          <g style={{ opacity: lipGlowOpacity }} filter="url(#portal-lip-glow)">
+          <g style={{ opacity: lipGlowOpacity }} filter={portalFilter}>
             <path
               d={upperLipCurve}
               fill="none"
               stroke="url(#portal-lip-gold)"
-              strokeWidth="4.5"
+              strokeWidth={isMobile ? "6" : "4.5"}
             />
             <path
               d={lowerLipCurve}
               fill="none"
               stroke="url(#portal-lip-gold)"
-              strokeWidth="4.5"
+              strokeWidth={isMobile ? "6" : "4.5"}
             />
           </g>
         )}
@@ -1042,7 +1138,7 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
         {!ignited ? (
           <IgnitionPointGate onIgnite={() => void handleIgnite()} />
         ) : (
-          <LineToWordsStage progress={progress} exitProgress={exitProgress} />
+          <LineToWordsStage progress={progress} exitProgress={exitProgress} isMobile={isMobile} />
         )}
       </div>
     </div>
@@ -1089,9 +1185,9 @@ export const IntroHost: React.FC = () => {
         {open && <IntroFilm key="intro-point-ignition" onClose={close} />}
       </AnimatePresence>
 
-      {/* Floating Replay Trigger inside the site */}
+      {/* Floating Replay Trigger inside the site (compact & non-intrusive above the mobile dock) */}
       {!open && !isAutomatedSmoke && (
-        <div className="fixed start-4 bottom-20 z-[70] sm:bottom-5">
+        <div className="fixed start-3 bottom-[74px] z-[70] sm:start-4 sm:bottom-5">
           <button
             type="button"
             onClick={async () => {
@@ -1099,9 +1195,9 @@ export const IntroHost: React.FC = () => {
               await soundEngine.unlock();
               setOpen(true);
             }}
-            className="group inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-[#0A0C12]/90 px-3.5 py-2 text-[11.5px] font-medium text-[#F5F2EB] shadow-[0_12px_32px_-8px_rgba(0,0,0,0.85)] backdrop-blur-xl transition-all hover:border-[#F5B841]/50 hover:text-white active:scale-[0.97]"
+            className="group inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-[#0A0C12]/90 px-2.5 py-1.5 text-[10.5px] font-medium text-[#F5F2EB] shadow-[0_12px_32px_-8px_rgba(0,0,0,0.85)] backdrop-blur-xl transition-all hover:border-[#F5B841]/50 hover:text-white active:scale-[0.97] sm:gap-2 sm:px-3.5 sm:py-2 sm:text-[11.5px]"
           >
-            <Volume2 className="h-3.5 w-3.5 text-[#F5B841]" />
+            <Volume2 className="h-3 w-3 text-[#F5B841] sm:h-3.5 sm:w-3.5" />
             <span>پخش مجدد موشن ورود</span>
           </button>
         </div>

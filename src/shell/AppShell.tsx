@@ -980,15 +980,15 @@ const Footer: React.FC = () => {
 /* ------------------------------------------------------------------- shell */
 
 const PAGE_ENTER: Record<string, { from: Record<string, string | number>; duration: number }> = {
-  home: { from: { opacity: 0, filter: "blur(10px)", y: 10 }, duration: 0.45 },
-  dashboard: { from: { opacity: 0, y: 22, scale: 0.995 }, duration: 0.4 },
-  fonts: { from: { opacity: 0, clipPath: "inset(0 0 0 8%)" }, duration: 0.5 },
-  motion: { from: { opacity: 0, scale: 0.97, y: 18 }, duration: 0.5 },
-  components: { from: { opacity: 0, x: 26 }, duration: 0.4 },
-  sounds: { from: { opacity: 0, scale: 1.015, filter: "blur(6px)" }, duration: 0.45 },
-  skills: { from: { opacity: 0, y: -16 }, duration: 0.45 },
-  engines: { from: { opacity: 0, clipPath: "inset(0 0 100% 0)" }, duration: 0.55 },
-  ai: { from: { opacity: 0, filter: "blur(12px)", scale: 0.995 }, duration: 0.5 },
+  home: { from: { opacity: 0, y: 10 }, duration: 0.36 },
+  dashboard: { from: { opacity: 0, y: 16, scale: 0.995 }, duration: 0.34 },
+  fonts: { from: { opacity: 0, y: 12 }, duration: 0.36 },
+  motion: { from: { opacity: 0, scale: 0.985, y: 14 }, duration: 0.36 },
+  components: { from: { opacity: 0, x: 18 }, duration: 0.34 },
+  sounds: { from: { opacity: 0, scale: 0.99, y: 12 }, duration: 0.35 },
+  skills: { from: { opacity: 0, y: -12 }, duration: 0.35 },
+  engines: { from: { opacity: 0, y: 14 }, duration: 0.38 },
+  ai: { from: { opacity: 0, scale: 0.992, y: 12 }, duration: 0.36 },
 };
 
 const STUDIO_ROUTES = new Set([
@@ -1062,8 +1062,6 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
             y: 0,
             x: 0,
             scale: 1,
-            filter: "blur(0px)",
-            clipPath: "inset(0 0 0% 0)",
           }}
           exit={{ opacity: 0, y: -4 }}
           transition={{

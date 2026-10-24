@@ -135,10 +135,28 @@ const QUICK_STUDIOS = [
 export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntro }) => {
   const [heroFontId, setHeroFontId] = useState<string>("iran-nastaliq");
   const [heroMotionKey, setHeroMotionKey] = useState<number>(0);
+  const [isMobile, setIsMobile] = useState<boolean>(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
+    return window.matchMedia("(max-width: 639px)").matches;
+  });
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia("(max-width: 639px)");
+    const onChange = () => setIsMobile(mq.matches);
+    onChange();
+    mq.addEventListener?.("change", onChange);
+    return () => mq.removeEventListener?.("change", onChange);
+  }, []);
+
+  const heroSlideX = isMobile ? 58 : 180;
+  const chapterSlideX = isMobile ? 48 : 150;
+  const dropY = isMobile ? -32 : -70;
 
   const activeHeroFont =
     PERSIAN_FONT_CATALOG.find((f) => f.id === heroFontId) ?? PERSIAN_FONT_CATALOG[0];
+  const heroShader = SHADERS.find((s) => s.id === "mesh-aurora") ?? SHADERS[0];
 
   // Scroll-driven progress & opposite horizontal kinetic ribbons
   const { scrollYProgress } = useScroll();
@@ -198,11 +216,11 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
          - Line 1 slides from RIGHT (x: 170 -> 0)
          - Line 2 slides from LEFT (x: -170 -> 0)
          ===================================================================== */}
-      <section className="relative flex min-h-[84vh] flex-col items-center justify-center overflow-hidden px-4 py-16 sm:px-10">
+      <section className="relative flex min-h-[80dvh] flex-col items-center justify-center overflow-hidden px-3.5 py-12 sm:min-h-[84vh] sm:px-10 sm:py-16">
         {/* Soft Ambient Living Shader Aura */}
         <div className="pointer-events-none absolute inset-0 opacity-25">
           <ShaderSurface
-            def={SHADERS[0]}
+            def={heroShader}
             speed={0.2}
             scale={1.35}
             hue={0.12}
@@ -227,13 +245,13 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
         >
           {/* 1. TOP-DROP INTRO PILL (معرفی از بالا می‌آید پایین) */}
           <motion.div
-            initial={{ opacity: 0, y: -72, filter: "blur(10px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            initial={{ opacity: 0, y: dropY }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ ...SPRING_SILK, delay: 0.05 }}
-            className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.03] px-4 py-1.5 text-[11.5px] text-zinc-300 backdrop-blur-md"
+            className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[10.5px] text-zinc-300 backdrop-blur-md sm:gap-2.5 sm:px-4 sm:text-[11.5px]"
           >
-            <span className="h-2 w-2 rounded-full bg-[color:var(--accent)] shadow-[0_0_12px_var(--accent)]" />
-            <span>آتلیهٔ مهندسی تایپوگرافی، فیزیک حرکت و طراحی راست‌به‌چپ</span>
+            <span className="h-2 w-2 shrink-0 rounded-full bg-[color:var(--accent)] shadow-[0_0_12px_var(--accent)]" />
+            <span className="truncate">آتلیهٔ مهندسی تایپوگرافی، فیزیک حرکت و طراحی راست‌به‌چپ</span>
             <button
               type="button"
               onClick={() => {
@@ -242,7 +260,7 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
               }}
               aria-label="پخش دوباره انیمیشن ورود"
               title="پخش دوباره انیمیشن ورود نوشته‌ها"
-              className="ms-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-zinc-300 transition-transform hover:rotate-180 hover:text-white"
+              className="ms-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/10 text-zinc-300 transition-transform hover:rotate-180 hover:text-white"
             >
               <RotateCcw className="h-3 w-3" />
             </button>
@@ -251,24 +269,24 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
           {/* 2. SIDE-SLIDING MONUMENTAL HEADLINE (نوشته از کنار می‌آید سر جاش) */}
           <h1
             style={{ fontFamily: activeHeroFont.family }}
-            className="mt-10 flex w-full flex-col items-center justify-center gap-2 text-[42px] leading-[1.7] text-white sm:text-[68px] lg:text-[80px]"
+            className="mt-8 flex w-full flex-col items-center justify-center gap-1.5 text-[clamp(36px,10.5vw,52px)] leading-[1.68] text-white sm:mt-10 sm:gap-2 sm:text-[68px] sm:leading-[1.7] lg:text-[80px]"
           >
             {/* Right-to-Center Glide */}
             <motion.span
-              initial={{ opacity: 0, x: 180, filter: "blur(14px)" }}
-              animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-              transition={{ ...SPRING_SILK, delay: 0.18 }}
-              className="block text-zinc-100"
+              initial={{ opacity: 0, x: heroSlideX }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ ...SPRING_SILK, delay: 0.16 }}
+              className="block text-zinc-100 will-change-transform"
             >
               در امتدادِ نور،
             </motion.span>
 
             {/* Left-to-Center Glide */}
             <motion.span
-              initial={{ opacity: 0, x: -180, filter: "blur(14px)" }}
-              animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-              transition={{ ...SPRING_SILK, delay: 0.34 }}
-              className="block bg-gradient-to-l from-amber-200 via-[color:var(--accent)] to-amber-100 bg-clip-text text-transparent"
+              initial={{ opacity: 0, x: -heroSlideX }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ ...SPRING_SILK, delay: 0.3 }}
+              className="block bg-gradient-to-l from-amber-200 via-[color:var(--accent)] to-amber-100 bg-clip-text text-transparent will-change-transform"
             >
               هر خط جان می‌گیرد
             </motion.span>
@@ -276,10 +294,10 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
 
           {/* 3. TOP-DROP SUBTITLE (معرفی کوتاه از بالا فرود می‌آید) */}
           <motion.p
-            initial={{ opacity: 0, y: -40, filter: "blur(8px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ ...SPRING_SILK, delay: 0.5 }}
-            className="mt-6 max-w-xl text-[14px] leading-relaxed text-zinc-400 sm:text-[16px]"
+            initial={{ opacity: 0, y: isMobile ? -20 : -40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...SPRING_SILK, delay: 0.44 }}
+            className="mt-5 max-w-xl px-2 text-[13.5px] leading-relaxed text-zinc-400 sm:mt-6 sm:text-[16px]"
           >
             هفت استودیوی تخصصی، {faNum(DESIGN_LAB_TOTAL_FILES)} اسکیل مهندسی،{" "}
             {faNum(TOOLKIT_STATS.fonts)} فونت اصیل و ۴٬۱۹۹ کامپوننت تعاملی — با اسکرول به پایین، هر
@@ -287,17 +305,17 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
           </motion.p>
 
           {/* 4. SIDE-CONVERGING ACTION BUTTONS (دکمه‌ها از دو طرف به مرکز می‌آیند) */}
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-3.5">
+          <div className="mt-8 flex w-full flex-col items-center justify-center gap-2.5 px-2 sm:mt-10 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-3.5">
             <motion.button
               type="button"
-              initial={{ opacity: 0, x: 90 }}
+              initial={{ opacity: 0, x: isMobile ? 36 : 90 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ ...SPRING_SNAPPY, delay: 0.62 }}
+              transition={{ ...SPRING_SNAPPY, delay: 0.56 }}
               onClick={() => {
                 soundEngine.playTick(1.1);
                 navigate("/studio/skills");
               }}
-              className="inline-flex items-center gap-2.5 rounded-2xl bg-[color:var(--accent)] px-7 py-3.5 text-[13px] font-bold text-[#06070B] shadow-[0_14px_38px_-10px_rgba(232,179,58,0.65)] transition-transform hover:scale-[1.03]"
+              className="inline-flex w-full items-center justify-center gap-2.5 rounded-2xl bg-[color:var(--accent)] px-6 py-3.5 text-[13px] font-bold text-[#06070B] shadow-[0_14px_38px_-10px_rgba(232,179,58,0.65)] transition-transform hover:scale-[1.03] active:scale-[0.98] sm:w-auto sm:px-7"
             >
               <span>ورود به مخزن {faNum(DESIGN_LAB_TOTAL_FILES)} اسکیل</span>
               <ArrowLeft className="h-4 w-4" />
@@ -305,11 +323,11 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
 
             <motion.button
               type="button"
-              initial={{ opacity: 0, x: -90 }}
+              initial={{ opacity: 0, x: isMobile ? -36 : -90 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ ...SPRING_SNAPPY, delay: 0.68 }}
+              transition={{ ...SPRING_SNAPPY, delay: 0.62 }}
               onClick={replayIntroFilm}
-              className="inline-flex items-center gap-2 rounded-2xl border border-white/12 bg-white/[0.03] px-5 py-3.5 text-[12.5px] text-zinc-200 backdrop-blur-md transition-colors hover:border-white/25 hover:bg-white/[0.08]"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/12 bg-white/[0.03] px-5 py-3.5 text-[12.5px] text-zinc-200 backdrop-blur-md transition-colors hover:border-white/25 hover:bg-white/[0.08] active:scale-[0.98] sm:w-auto"
             >
               <Clapperboard className="h-4 w-4 text-[color:var(--accent)]" />
               <span>تماشای فیلم ورودی</span>
@@ -384,9 +402,9 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
         {/* Center Manifesto Card Dropping from Top on Scroll */}
         <div className="mx-auto mt-10 max-w-2xl px-4 text-center">
           <motion.div
-            initial={{ opacity: 0, y: -65, filter: "blur(8px)" }}
-            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            viewport={{ once: false, amount: 0.4 }}
+            initial={{ opacity: 0, y: dropY }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: isMobile, amount: 0.3 }}
             transition={SPRING_SILK}
             className="rounded-3xl border border-white/[0.08] bg-[#0B0D15]/90 px-6 py-7 backdrop-blur-xl sm:px-10"
           >
@@ -408,7 +426,7 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
            2) Headline & Story glide in from RIGHT (x: 150 -> 0)
            3) Interactive Stage glides in from LEFT (x: -150 -> 0)
          ===================================================================== */}
-      <div className="mx-auto max-w-6xl space-y-28 px-4 py-24 sm:px-8 sm:py-32">
+      <div className="mx-auto max-w-6xl space-y-20 px-4 py-16 sm:space-y-28 sm:px-8 sm:py-32">
         {CHAPTERS.map((ch, idx) => {
           const Icon = ch.icon;
           const isEven = idx % 2 === 0;
@@ -416,15 +434,15 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
           return (
             <section
               key={ch.num}
-              className="relative flex min-h-[68vh] flex-col justify-center"
+              className="relative flex min-h-[56vh] flex-col justify-center sm:min-h-[68vh]"
             >
               {/* PIECE 1: TOP-DROP INTRODUCTION HEADER (معرفی از بالا می‌آید) */}
               <motion.div
-                initial={{ opacity: 0, y: -70, filter: "blur(8px)" }}
-                whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                viewport={{ once: false, amount: 0.3 }}
+                initial={{ opacity: 0, y: dropY }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: isMobile, amount: 0.2 }}
                 transition={SPRING_SILK}
-                className="mb-8 flex items-center gap-3"
+                className="mb-6 flex items-center gap-3 sm:mb-8"
               >
                 <span
                   className="flex h-11 w-11 items-center justify-center rounded-2xl border font-mono text-[14px] font-bold"
@@ -443,27 +461,25 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
               </motion.div>
 
               {/* PIECE 2 & 3: SIDE-SLIDING TEXT + SIDE-SLIDING VISUAL STAGE */}
-              <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-14">
+              <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12 lg:gap-14">
                 {/* Text Column: Glides in from the Side into its slot */}
                 <motion.div
                   initial={{
                     opacity: 0,
-                    x: isEven ? 150 : -150,
-                    filter: "blur(12px)",
+                    x: isEven ? chapterSlideX : -chapterSlideX,
                   }}
                   whileInView={{
                     opacity: 1,
                     x: 0,
-                    filter: "blur(0px)",
                   }}
-                  viewport={{ once: false, amount: 0.25 }}
-                  transition={{ ...SPRING_SILK, delay: 0.08 }}
+                  viewport={{ once: isMobile, amount: 0.2 }}
+                  transition={{ ...SPRING_SILK, delay: 0.06 }}
                   className={cn(
                     "space-y-5 lg:col-span-6",
                     !isEven && "lg:order-2"
                   )}
                 >
-                  <h2 className="font-hasti text-[30px] leading-[1.45] text-white sm:text-[40px]">
+                  <h2 className="font-hasti text-[28px] leading-[1.45] text-white sm:text-[40px]">
                     <span className="block">{ch.titleLine1}</span>
                     <span className="mt-1 block" style={{ color: ch.accent }}>
                       {ch.titleLine2}
@@ -509,18 +525,16 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
                 <motion.div
                   initial={{
                     opacity: 0,
-                    x: isEven ? -150 : 150,
-                    scale: 0.92,
-                    filter: "blur(12px)",
+                    x: isEven ? -chapterSlideX : chapterSlideX,
+                    scale: 0.94,
                   }}
                   whileInView={{
                     opacity: 1,
                     x: 0,
                     scale: 1,
-                    filter: "blur(0px)",
                   }}
-                  viewport={{ once: false, amount: 0.25 }}
-                  transition={{ ...SPRING_SILK, delay: 0.18 }}
+                  viewport={{ once: isMobile, amount: 0.2 }}
+                  transition={{ ...SPRING_SILK, delay: 0.14 }}
                   className={cn(
                     "lg:col-span-6",
                     !isEven && "lg:order-1"

@@ -268,17 +268,22 @@ export const ShaderSurface: React.FC<Props> = ({
 
     const onMove = (event: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
+      if (rect.width < 1 || rect.height < 1) return;
       mouseRef.current = [
         ((event.clientX - rect.left) / rect.width - 0.5) * 2,
         ((event.clientY - rect.top) / rect.height - 0.5) * -2,
       ];
     };
-    if (interactive) canvas.addEventListener("pointermove", onMove);
+    if (interactive) {
+      canvas.addEventListener("pointerdown", onMove, { passive: true });
+      canvas.addEventListener("pointermove", onMove, { passive: true });
+    }
 
     return () => {
       cancelAnimationFrame(raf);
       ro?.disconnect();
       io?.disconnect();
+      canvas.removeEventListener("pointerdown", onMove);
       canvas.removeEventListener("pointermove", onMove);
       gl.bindTexture(gl.TEXTURE_2D, null);
       if (glyphTexture) gl.deleteTexture(glyphTexture);
