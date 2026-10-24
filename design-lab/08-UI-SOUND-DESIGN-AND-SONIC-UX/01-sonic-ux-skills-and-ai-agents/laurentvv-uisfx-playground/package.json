@@ -1,0 +1,28 @@
+{
+  "name": "uisfx-playground",
+  "version": "1.0.0",
+  "description": "Interactive studio & playground for uisfx with 12 sound packs, 78 UI cues, component simulations, and an AI Agent skill",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "sound-effects",
+    "uisfx",
+    "web-audio",
+    "sound-design",
+    "audio-ux",
+    "ui-sfx",
+    "agent-skill"
+  ],
+  "author": "laurentvv",
+  "license": "MIT",
+  "dependencies": {
+    "uisfx": "^0.4.0"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}

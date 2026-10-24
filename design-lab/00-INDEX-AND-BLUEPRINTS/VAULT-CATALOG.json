@@ -1,0 +1,453 @@
+{
+  "vault": "RTL Motion Lab — 11-Pillar Master Design, Motion, Copywriting, Color, Sonic UX, Next-Gen Stack, Math/Physics/Chemistry/Geometry & 50 Hidden Disciplines Vault",
+  "updated": "2026-10-24",
+  "total_files": 4020,
+  "total_bytes": 31203712,
+  "pillars": {
+    "00-INDEX-AND-BLUEPRINTS": {
+      "files": 7,
+      "size_mb": 0.08,
+      "structure": {
+        "_files": [
+          "05-COPYWRITING-TRUST-AND-ANTI-CLICHE-DOCTRINE.md",
+          "06-CINEMATIC-COLOR-60-30-10-AND-HUMAN-PSYCHOLOGY.md",
+          "07-SONIC-UX-AND-WEB-AUDIO-MICRO-INTERACTIONS.md",
+          "08-ULTRA-LOW-SIZE-HIGH-PERFORMANCE-WEB-STACK-ARCHITECTURE.md",
+          "09-MATH-PHYSICS-CHEMISTRY-GEOMETRY-DOCTRINE.md",
+          "10-THE-36-HIDDEN-1-PERCENT-DISCIPLINES-OF-WEB-MASTERY.md",
+          "VAULT-CATALOG.json"
+        ]
+      }
+    },
+    "01-WEB-DESIGN-AND-UI-SKILLS": {
+      "files": 416,
+      "size_mb": 3.29,
+      "structure": {
+        "addyosmani-ui-engineering": [
+          "api-and-interface-design",
+          "browser-testing-with-devtools",
+          "ci-cd-and-automation",
+          "code-review-and-quality",
+          "code-simplification",
+          "constraint-driven-development",
+          "context-engineering",
+          "debugging-and-error-recovery",
+          "deprecation-and-migration",
+          "documentation-and-adrs",
+          "doubt-driven-development",
+          "frontend-ui-engineering",
+          "git-workflow-and-versioning",
+          "idea-refine",
+          "incremental-implementation",
+          "interview-me",
+          "observability-and-instrumentation",
+          "performance-optimization",
+          "planning-and-task-breakdown",
+          "security-and-hardening",
+          "shipping-and-launch",
+          "source-driven-development",
+          "spec-driven-development",
+          "test-driven-development",
+          "using-agent-skills"
+        ],
+        "anthropics-design-skills": [
+          "(direct files)"
+        ],
+        "emilkowalski-skills": [
+          "skills"
+        ],
+        "mengto-web-and-swiftui-skills": [
+          "3d",
+          "codex",
+          "game-combat"
+        ],
+        "minimax-frontend-and-shader": [
+          "reference",
+          "techniques"
+        ],
+        "modern-frontend-css-2026": [
+          "docs",
+          "examples",
+          "skills"
+        ],
+        "perfect-design-anti-slop": [
+          "(direct files)"
+        ],
+        "rauno-devouring-details": [
+          "references",
+          "runs",
+          "skills"
+        ],
+        "ui-ux-pro-max-system": [
+          "skills"
+        ],
+        "vercel-agent-skills": [
+          "composition-patterns",
+          "deploy-to-vercel",
+          "react-best-practices"
+        ],
+        "vercel-design-guidelines": [
+          "(direct files)"
+        ]
+      }
+    },
+    "02-WEB-MOTION-GRAPHICS-SKILLS": {
+      "files": 375,
+      "size_mb": 2.58,
+      "structure": {
+        "heygen-hyperframes-gsap": [
+          "figma",
+          "hyperframes",
+          "hyperframes-cli",
+          "hyperframes-registry",
+          "media-use"
+        ],
+        "howseen-code-motion-pipeline": [
+          "skill"
+        ],
+        "iart-motion-design-fundamentals": [
+          "after-effects",
+          "animation-principles",
+          "beat-sync-editing",
+          "color-motion",
+          "logo-animation",
+          "motion-art-direction",
+          "motion-background",
+          "remotion-video",
+          "shot-composition"
+        ],
+        "kylezantos-motion-principles": [
+          "skills"
+        ],
+        "lottie-svg-animator": [
+          "skills"
+        ],
+        "lottiefiles-motion-director": [
+          "skills"
+        ],
+        "motion-atlases-2026": [
+          "animate-anything-map",
+          "awesome-motion-agent-skills",
+          "youssefvdel-agent-atlas"
+        ],
+        "remotion-gsap-skill": [
+          "scripts",
+          "src"
+        ],
+        "remotion-motion-graphics-pro": [
+          "article-highlights",
+          "cinematic-camera",
+          "motion-graphics",
+          "terminal-inserts"
+        ],
+        "remotion-official-skills": [
+          "remotion-best-practices"
+        ]
+      }
+    },
+    "03-AFTER-EFFECTS-LAB": {
+      "files": 325,
+      "size_mb": 3.21,
+      "structure": {
+        "00-masterpiece-showreel": [
+          "(direct files)"
+        ],
+        "01-ae-skills-and-sdk-kb": [
+          "ae-mcp-vision-recipes",
+          "after-effects-motion-dna",
+          "after-effects-sdk-kb",
+          "mfrostbutter-ae-extendscript-skill"
+        ],
+        "02-ae-expression-engines": [
+          "creative-expression-library",
+          "ignatzzz-ae-expressions",
+          "motiondeveloper-aefunctions",
+          "motiondeveloper-ebox",
+          "motiondeveloper-ekeys"
+        ],
+        "03-ae-automation-jsx-scripts": [
+          "ae-ad-astra-jsx-lib",
+          "chvndler-aeft-jsx",
+          "ivg-design-38-ae-scripts",
+          "kyletmartinez-ae-scripts",
+          "zlovatt-ae-scriptlets"
+        ]
+      }
+    },
+    "04-UI-COMPONENT-REGISTRIES": {
+      "files": 363,
+      "size_mb": 1.98,
+      "structure": {
+        "01-workbench-and-primitives": [
+          "cmdk-command-menu",
+          "kibo-ui",
+          "number-flow",
+          "origin-ui-coss",
+          "sonner-toast",
+          "vaul-mobile-drawer"
+        ],
+        "02-micro-interaction-and-springs": [
+          "animate-ui",
+          "cult-ui",
+          "fancy-components",
+          "kokonutui",
+          "lucide-animated-icons",
+          "motion-primitives",
+          "smoothui"
+        ],
+        "03-hero-bento-and-showcase": [
+          "animata",
+          "badtz-ui",
+          "cuicui",
+          "eldora-ui",
+          "luxe-ui",
+          "magicui",
+          "react-bits",
+          "spectrum-ui",
+          "tailark-blocks"
+        ]
+      }
+    },
+    "05-SHADERS-WEBGL-AND-ENGINES": {
+      "files": 582,
+      "size_mb": 3.04,
+      "structure": {
+        "01-webgl-and-glsl-shaders": [
+          "apple-liquid-glass-js",
+          "cobe-webgl-globe",
+          "paper-design-shaders",
+          "pmndrs-drei-shaders",
+          "pmndrs-postprocessing-glsl",
+          "uvcanvas-shaders"
+        ],
+        "02-scroll-and-timeline-engines": [
+          "animejs",
+          "basement-scrollytelling",
+          "darkroom-hamo",
+          "darkroom-lenis",
+          "darkroom-tempus",
+          "dotlottie-web",
+          "motionity-web-ae"
+        ]
+      }
+    },
+    "06-COPYWRITING-TRUST-AND-ANTI-CLICHE": {
+      "files": 164,
+      "size_mb": 2.26,
+      "structure": {
+        "01-copywriting-and-cro-frameworks": [
+          "borghei-marketing-and-copy",
+          "brand-builder-24-books",
+          "coreyhaines-marketingskills",
+          "founder-playbook-storybrand-cialdini"
+        ],
+        "02-anti-cliche-and-humanizer": [
+          "aboudjem-55-ai-tells-humanizer",
+          "avoid-ai-writing",
+          "blader-humanizer-v3",
+          "kjmagnan-anti-slop-floor",
+          "miqdad-anti-slop-suite"
+        ],
+        "03-ux-writing-and-microcopy": [
+          "humbleteam-ux-microcopy",
+          "ill-communication-ux-writing",
+          "markj81-ux-microcopy-audit"
+        ]
+      }
+    },
+    "07-COLOR-AND-HUMAN-VISUAL-PSYCHOLOGY": {
+      "files": 228,
+      "size_mb": 2.33,
+      "structure": {
+        "01-color-science-60-30-10-and-cinematic": [
+          "epistex-34-skills-synthesis",
+          "h3nry-elite-design-taste",
+          "jakubkrehel-better-colors-and-ui",
+          "madebymustafa-taste-color-60-30-10",
+          "meodai-color-expert",
+          "pbakaus-impeccable-design-suite"
+        ],
+        "02-laws-of-ux-and-gestalt-perception": [
+          "burgisimon-uxl-30-laws",
+          "emiranda-ux-law-redesign",
+          "harshil-30-laws-of-ux",
+          "johnsina-20-ux-laws",
+          "keysjoao-laws-of-ux",
+          "nexu-open-design-gestalt-and-laws",
+          "papsimax-ux-laws-and-34-ux-myths",
+          "sumi-cognitive-psychology-ux",
+          "szilu-ux-designer-2026"
+        ],
+        "03-behavioral-psychology-and-persuasion": [
+          "kushag4a-ux-psychology",
+          "nuclear-65-ux-psychology-principles",
+          "wondelai-cialdini-hooked-fogg-krug"
+        ]
+      }
+    },
+    "08-UI-SOUND-DESIGN-AND-SONIC-UX": {
+      "files": 807,
+      "size_mb": 4.86,
+      "structure": {
+        "01-sonic-ux-skills-and-ai-agents": [
+          "awesome-genmedia-sound-skills",
+          "dannyjpwilliams-ui-sound-design-skill",
+          "elevenlabs-official-skills",
+          "hudsonkit-sfx-ai-engine",
+          "kanaworks-sonicproof-qa-skill",
+          "laurentvv-uisfx-playground",
+          "lochie-web-haptics-and-skill",
+          "plyght-tonejs-skill",
+          "soniccraft-procedural-skill",
+          "sonicfieldlabs-skills",
+          "tm59-web-audio-skill"
+        ],
+        "02-procedural-web-audio-ui-synths": [
+          "artzdesignmo-sfx-mo",
+          "bloxwap-sfx",
+          "chr15m-jsfxr",
+          "danielwh2-cuelume",
+          "eakbulut-foley-28-cues",
+          "killedbyapixel-zzfx",
+          "kittykatattack-sound-js",
+          "lwn2210-micro-sfx",
+          "m1ckc3s-procedural-sounds",
+          "ndoherty-plinq",
+          "peetzweg-sonics",
+          "pinkneyjiang-synth-sound",
+          "plausibleventures-foley-foundry",
+          "productdevbook-seslen",
+          "remarkablemark-websfx",
+          "rexa-tiks",
+          "romainsimon-uisfx"
+        ],
+        "03-react-sound-systems-and-packs": [
+          "alvarovillalbaa-sonant",
+          "cabralorenzo-bencho-shadcn",
+          "dentsu-snd-lib",
+          "e3ntity-react-sounds",
+          "hironow-earcon-sonification",
+          "joshwcomeau-use-sound",
+          "kapishdima-soundcn-registry",
+          "kenney-cc0-interface-sounds-pack",
+          "kenney-cc0-ui-audio-pack",
+          "ljungmark-audings",
+          "plebsnet-sounded-shadcn",
+          "raphaelsalaja-audio",
+          "satyamvyas-sensory-ui",
+          "wle8300-uifx"
+        ],
+        "04-tactile-switches-and-haptic-audio": [
+          "0xsharon-click-clack",
+          "anonimbro-clackify",
+          "audiojs-filter-resonators",
+          "bloxwap-haptic",
+          "craigdanj-guitar-pluck-js",
+          "danigb-synthlet-worklets",
+          "doublej-web-haptics-polyfill",
+          "francescoslongo-minnaert-modal-asmr",
+          "gaurav-web-haptics-toast",
+          "gomezsj12-dalin-tactile",
+          "mohayonao-pink-noise-node",
+          "positivelofi-strong-plus-eks",
+          "present-day-buzz",
+          "rishabjs03-keyboard-graph",
+          "zacharydenton-noise-js"
+        ]
+      }
+    },
+    "09-NEXT-GEN-WEB-LANGUAGES-AND-WASM-STACK": {
+      "files": 100,
+      "size_mb": 0.38,
+      "structure": {
+        "01-rust-wasm-and-min-size-skills": [
+          "min-sized-rust",
+          "sledgehammer_bindgen"
+        ],
+        "03-zero-vdom-signals-and-compilers": [
+          "alien-signals",
+          "svelte-5-skills",
+          "svelte-skills-kit",
+          "vanjs-1kb-core"
+        ],
+        "04-webgpu-wgsl-and-hybrid-engines": [
+          "cazala-webgpu-skill"
+        ]
+      }
+    },
+    "10-MATH-PHYSICS-CHEMISTRY-AND-COMPUTATIONAL-GEOMETRY": {
+      "files": 653,
+      "size_mb": 5.76,
+      "structure": {
+        "01-applied-math-splines-and-noise-skills": [
+          "adithya-manim-math-animation-skill",
+          "camilleroux-genart-skill",
+          "gokayfem-shader-skills-186-glsl",
+          "skinnye-generative-art-pack"
+        ],
+        "02-physics-fluids-optics-and-softbody": [
+          "airsuphq-physics-machine-skill",
+          "buildrlabs-liquid-glass-skill",
+          "feitangyuan-physics-motion-web-skill",
+          "gabros20-fluid-design-skill",
+          "m2-snell-cauchy-liquid-glass-shader",
+          "nff747-wgsl-cloth-physics",
+          "paveldogreat-navier-stokes-fluid",
+          "wheresryan22-isometric-anatomy-skill",
+          "ybouane-liquidglass"
+        ],
+        "03-chemistry-reaction-diffusion-and-emergence": [
+          "amandaghassaei-reaction-diffusion",
+          "aw-pr-emergence-lab-19-solvers",
+          "evoluteur-gray-scott-webgl2",
+          "injaytseng-ca-interactive-lenia",
+          "jasonwebb-morphogenesis-encyclopedia",
+          "ronancamus-physarum-262k-webgl2",
+          "skulitom-primordia-rust-wgpu-alife"
+        ],
+        "04-discrete-math-tilings-graphs-and-wfc": [
+          "aatishb-debruijn-quasicrystal",
+          "abhinavbwj-computational-design-skills",
+          "christianp-hat-spectre-monotile",
+          "d3-force-verlet-barnes-hut",
+          "evoluteur-hilbert-morton-curves",
+          "frankslav15-einstein-hat-webgl2",
+          "kchapelier-bridson-poisson-disk",
+          "mapbox-delaunator",
+          "mohammadhossinzehi-wfc-ac4",
+          "moseph-aperiodics-cut-and-project",
+          "mourner-kdbush-kdtree",
+          "mourner-rbush-rtree",
+          "oddurs-einstein-monotile-engine"
+        ],
+        "05-computational-geometry-sdf-and-persian-girih": [
+          "bhubbard-iquilez-sdf-math-rs",
+          "d3-contour-marching-squares",
+          "evoluteur-persian-girih-hankin-svg",
+          "jasonwebb-superformula-svg",
+          "miracle2k-islamic-star-patterns",
+          "mohammadhossinzehi-marching-squares",
+          "mshomper-gyroid-tpms-raymarcher",
+          "weieach-gielis-superformula-3d",
+          "williamngan-pts-geometry"
+        ],
+        "06-hidden-1-percent-disciplines-filters-and-horology": [
+          "aref-vc-tufte-claude-skill",
+          "casiez-one-euro-filter",
+          "caylent-tufte-data-viz-skill",
+          "codingquests-trauma-shake-game-feel",
+          "coroboros-zero-dep-svg-sparkline",
+          "grkmyldz-helmlab-helmholtz-kohlrausch",
+          "marcaparisi-safe-triangle-menu-aim",
+          "mkontogiannis-bjorklund-euclidean",
+          "pacocoursey-cmdk-command-palette",
+          "prabinpebam-guilloche-svg",
+          "quigles1337-euclidean-rhythm-necklace",
+          "stabla-guilloche-spirograph-js",
+          "transpara-tufte-codex-skill",
+          "wilsonpage-fastdom-raf-batcher"
+        ]
+      }
+    }
+  }
+}

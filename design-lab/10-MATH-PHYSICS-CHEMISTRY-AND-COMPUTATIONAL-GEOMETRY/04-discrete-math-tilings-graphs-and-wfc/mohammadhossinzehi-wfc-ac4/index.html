@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wave Function Collapse</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { color-scheme: dark; font-family: system-ui, sans-serif; }
+  body { margin: 0; background: #14161a; color: #d8dde6; display: flex; flex-direction: column; align-items: center; }
+  header { padding: 18px 0 6px; text-align: center; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p.sub { margin: 0; color: #8a93a3; font-size: 13px; }
+  form { display: flex; flex-wrap: wrap; gap: 10px 16px; justify-content: center; padding: 14px; max-width: 900px; }
+  label { font-size: 13px; display: flex; gap: 6px; align-items: center; }
+  input[type=number] { width: 64px; }
+  button { background: #3a6df0; color: white; border: 0; border-radius: 6px; padding: 6px 14px; cursor: pointer; }
+  button.secondary { background: #2b2f38; }
+  canvas { image-rendering: pixelated; background: #000; border-radius: 6px; box-shadow: 0 6px 30px #0008; }
+  #status { font: 13px ui-monospace, monospace; color: #9fb0c8; margin: 12px; min-height: 18px; }
+  .row { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; justify-content: center; }
+  .panel { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 12px; color: #8a93a3; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Wave Function Collapse</h1>
+  <p class="sub">Each pixel shows the weighted average of the patterns it could still become. Watch the superposition collapse.</p>
+</header>
+<form id="controls">
+  <label>Source
+    <select id="source">
+      <option value="overlapping:samples/maze.txt">maze (overlapping)</option>
+      <option value="overlapping:samples/islands.txt">islands (overlapping)</option>
+      <option value="overlapping:samples/bricks.txt|1">bricks (overlapping, no rotation)</option>
+      <option value="tiled:tilesets/pipes.json">pipes (tiled)</option>
+      <option value="tiled:tilesets/coast.json">coast (tiled)</option>
+    </select>
+  </label>
+  <label>N <input id="N" type="number" min="2" max="5" value="3"></label>
+  <label>Width <input id="width" type="number" min="4" max="160" value="64"></label>
+  <label>Height <input id="height" type="number" min="4" max="160" value="48"></label>
+  <label>Seed <input id="seed" type="number" value="1"></label>
+  <label><input id="periodic" type="checkbox"> periodic</label>
+  <label>Speed <input id="speed" type="range" min="1" max="60" value="8"></label>
+  <button type="submit">Generate</button>
+  <button type="button" class="secondary" id="reseed">New seed</button>
+</form>
+<div class="row">
+  <div class="panel"><canvas id="sample"></canvas><span>input</span></div>
+  <div class="panel"><canvas id="out"></canvas><span>output</span></div>
+</div>
+<div id="status"></div>
+
+<script type="module">
+import { Solver, OverlappingModel, TiledModel, parseSample } from './src/index.js';
+
+const COLORS = {
+  '#': [58, 64, 78], '.': [226, 214, 178], '~': [52, 118, 196], 'o': [230, 120, 60],
+  '=': [180, 90, 70], ' ': [20, 20, 24],
+};
+const colorOf = (ch) => {
+  if (COLORS[ch]) return COLORS[ch];
+  let h = 0;
+  for (const c of ch) h = (h * 31 + c.codePointAt(0)) >>> 0;
+  return [60 + (h % 180), 60 + ((h >> 8) % 180), 60 + ((h >> 16) % 180)];
+};
+
+const $ = (id) => document.getElementById(id);
+let raf = 0;
+
+function paint(canvas, width, height, fill, scale) {
+  canvas.width = width;
+  canvas.height = height;
+  canvas.style.width = `${width * scale}px`;
+  canvas.style.height = `${height * scale}px`;
+  const ctx = canvas.getContext('2d');
+  const img = ctx.createImageData(width, height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const [r, g, b] = fill(x, y);
+      const k = (x + y * width) * 4;
+      img.data[k] = r; img.data[k + 1] = g; img.data[k + 2] = b; img.data[k + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+// Weighted average colour of everything a pixel could still be.
+function superposedPixel(model, solver, x, y) {
+  const { T, wave, weights } = solver;
+  let node, pick;
+  if (model instanceof OverlappingModel) {
+    const src = model.pixelSource(x, y, solver.width, solver.height, solver.periodic);
+    node = src.node;
+    pick = (t) => model.palette[model.patterns[t][src.offset]];
+  } else {
+    const k = model.tileSize;
+    node = ((x / k) | 0) + ((y / k) | 0) * solver.width;
+    pick = (t) => model.variants[t].pixels[y % k][x % k];
+  }
+  let r = 0, g = 0, b = 0, sum = 0;
+  const base = node * T;
+  for (let t = 0; t < T; t++) {
+    if (!wave[base + t]) continue;
+    const c = colorOf(pick(t));
+    const w = weights[t];
+    r += c[0] * w; g += c[1] * w; b += c[2] * w; sum += w;
+  }
+  return sum === 0 ? [255, 0, 255] : [r / sum, g / sum, b / sum];
+}
+
+async function start(e) {
+  e?.preventDefault();
+  cancelAnimationFrame(raf);
+  const [kind, rest] = $('source').value.split(':');
+  const [path, sym] = rest.split('|');
+  const text = await (await fetch(path)).text();
+  const W = +$('width').value, H = +$('height').value, periodic = $('periodic').checked;
+  let model, mx, my, outW, outH;
+
+  if (kind === 'overlapping') {
+    const sample = parseSample(text);
+    model = new OverlappingModel(sample, { N: +$('N').value, symmetry: sym ? +sym : 8 });
+    [mx, my] = model.waveSize(W, H, periodic);
+    outW = W; outH = H;
+    paint($('sample'), sample.width, sample.height, (x, y) => colorOf(sample.palette[sample.data[x + y * sample.width]]), 12);
+  } else {
+    model = new TiledModel(JSON.parse(text));
+    const k = model.tileSize;
+    mx = Math.max(2, Math.round(W / k)); my = Math.max(2, Math.round(H / k));
+    outW = mx * k; outH = my * k;
+    // show every tile variant in a strip
+    const n = model.variants.length;
+    paint($('sample'), n * (k + 1) - 1, k, (x, y) => {
+      const t = (x / (k + 1)) | 0, px = x % (k + 1);
+      return px === k ? [20, 22, 26] : colorOf(model.variants[t].pixels[y][px]);
+    }, 8);
+  }
+
+  const solver = new Solver(model, { width: mx, height: my, periodic, seed: +$('seed').value });
+  const scale = Math.max(2, Math.floor(640 / Math.max(outW, outH)));
+  const t0 = performance.now();
+
+  const frame = () => {
+    const speed = +$('speed').value;
+    for (let i = 0; i < speed && solver.status === 'running'; i++) solver.step();
+    paint($('out'), outW, outH, (x, y) => superposedPixel(model, solver, x, y), scale);
+    const s = solver.stats;
+    $('status').textContent =
+      `${solver.status}  |  patterns ${model.weights.length}  observations ${s.observations}  ` +
+      `backtracks ${s.backtracks}  ${(performance.now() - t0).toFixed(0)} ms`;
+    if (solver.status === 'running') raf = requestAnimationFrame(frame);
+  };
+  frame();
+}
+
+$('controls').addEventListener('submit', start);
+$('reseed').addEventListener('click', () => { $('seed').value = (Math.random() * 1e6) | 0; start(); });
+$('source').addEventListener('change', start);
+start();
+</script>
+</body>
+</html>

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ein Stein, One Stone – Hat tiling probe explorer</title>
+<meta name="description" content="Pan, zoom and reshape the Hat tiling, the first aperiodic monotile, found in 2023. Slide from chevron to comet and watch every tile change shape.">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../../favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://frankslav15.github.io/einstein-hat-explorer/tiles/hat/">
+<meta property="og:title" content="Hat tiling – a family of aperiodic monotiles">
+<meta property="og:description" content="Pan, zoom and reshape the Hat tiling, from chevron to comet.">
+<meta property="og:image" content="https://drbuild.uk/social/hat.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Hat tiles in pastel colours, in a pattern that never repeats">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image:alt" content="Hat tiles in pastel colours, in a pattern that never repeats">
+<meta name="twitter:creator" content="@davidryan59">
+<script src="../../assets/theme.js"></script>
+<script>Theme.initTheme();</script>
+<link rel="stylesheet" href="../engine/map.css">
+<link rel="stylesheet" href="../../essay/essay.css">
+</head>
+<body>
+
+<canvas id="map" tabindex="0" aria-label="Hat tiling map. Drag to move, scroll or pinch to zoom, arrow keys to move, plus and minus to zoom, shift and the arrow keys to turn."></canvas>
+
+<div class="top">
+<div class="card title">
+  <a class="back" href="https://drbuild.uk/" target="_blank" rel="noopener">← David Ryan's builder page</a>
+  <button type="button" class="about-open" id="about-open">About</button>
+  <h1>Hat tiling</h1>
+  <p class="hint">The original aperiodic tile, which uses its mirror image</p>
+  <p class="credit">Explorer by <a href="https://drbuild.uk/tiles" target="_blank" rel="noopener">David Ryan</a> (MIT) · probe maps &amp; essay after <a href="https://x.com/SlavisTon" target="_blank" rel="noopener">@SlavisTon</a></p>
+  <div class="row">
+    <nav class="switch" aria-label="Tiling">
+      <a href="../hat/index.html" aria-current="page">Hat</a><a href="../spectre/index.html">Spectre</a><a href="../hat-extended/index.html">Hat (extended)</a><a href="../krinkle/index.html">Krinkle</a>
+    </nav>
+    <button type="button" class="mode-toggle" id="mode-toggle" aria-pressed="false" title="Read the article alongside the map">Essay</button>
+    <!-- Hidden with the Tiling Puzzle until David finishes more work on it. <a class="puzzle-link" href="../../tiling-puzzle/#p=hat">Build it yourself</a> -->
+  </div>
+</div>
+
+<div class="card options">
+  <div class="head">
+    <button type="button" class="fold" id="options-fold" aria-expanded="false">Options</button>
+  </div>
+  <div class="body">
+    <div class="section">
+      <div class="slider">
+        <span>Tile shape</span><output id="shape-out"></output>
+        <input type="range" id="shape" min="0" max="90" step="0.25" aria-label="Tile shape, from chevron to comet">
+        <div class="ticks placed" id="ticks">
+          <button type="button" data-deg="0" style="left: 0">Chevron</button>
+          <button type="button" data-deg="30" style="left: 33.333%">Hat</button>
+          <button type="button" data-deg="45" style="left: 50%">Spectre</button>
+          <button type="button" data-deg="60" style="left: 66.667%">Turtle</button>
+          <button type="button" data-deg="90" style="left: 100%">Comet</button>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <label><input type="checkbox" id="outlines"> Supertiles</label>
+      <label><input type="checkbox" id="grid"> Grid</label>
+      <div class="sub" id="grid-sub" hidden>
+        <div class="inline">
+          <label><input type="checkbox" id="grid0"> 0° grid</label>
+          <label><input type="checkbox" id="grid30"> 30° grid</label>
+        </div>
+        <p class="hint" id="grid-hint"></p>
+        <div><button type="button" class="linkish" id="grid-clear">Start again</button></div>
+      </div>
+    </div>
+    <div class="section probe-section">
+      <span class="section-title">Probe tools</span>
+      <div class="slider" id="anc-row" hidden>
+        <span>Supertile level k</span><output id="anc-out">2</output>
+        <input type="range" id="anc" min="1" max="5" step="1" value="2" aria-label="Supertile level for the ancestry colouring">
+      </div>
+      <div class="slider" id="grain-row" hidden>
+        <span>Grain period</span><output id="grain-out">1</output>
+        <input type="range" id="grain" min="0" max="10" step="1" value="4" aria-label="Grain phase period, article units">
+      </div>
+      <label><input type="checkbox" id="stats-on"> Live stats</label>
+      <label><input type="checkbox" id="diff-on"> Diffraction</label>
+      <div><button type="button" class="linkish" id="copy-scene" title="Copy the current view as an essay scene (essay/scenes.js)">Copy scene</button> <span class="hint" id="copy-note"></span></div>
+    </div>
+    <div class="section">
+      <div><button type="button" class="linkish" id="reset-options" title="Shape, supertiles and grid back to how the page opens">Reset options</button></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="card zoom" role="group" aria-label="Zoom and turn">
+  <button type="button" id="compass" class="compass" title="Turn back to north" aria-label="Turn back to north" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 3 8.5 12h7z" fill="#d11a35"/><path d="M12 21 8.5 12h7z" fill="currentColor" opacity="0.55"/>
+    </svg>
+  </button>
+  <button type="button" id="zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
+  <button type="button" id="zoom-out" title="Zoom out" aria-label="Zoom out">−</button>
+  <button type="button" id="turn-left" title="Turn left 5°" aria-label="Turn left 5 degrees">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M5.5 12a6.5 6.5 0 1 0 2-4.7"/><path d="M7.5 3.5v4h4"/>
+    </svg>
+  </button>
+  <button type="button" id="turn-right" title="Turn right 5°" aria-label="Turn right 5 degrees">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M18.5 12a6.5 6.5 0 1 1-2-4.7"/><path d="M16.5 3.5v4h-4"/>
+    </svg>
+  </button>
+  <button type="button" id="home" title="Back to the start" aria-label="Back to the start">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/>
+      <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/>
+    </svg>
+  </button>
+</div>
+
+<div class="card legend has-pal" id="legend">
+  <div class="legend-head">
+    <span class="pane-label" id="by-label">Colour by</span>
+    <select id="scheme" aria-label="Colour by"></select>
+    <button type="button" class="dice" id="random-colours" title="Random colours" aria-label="Random colours">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/>
+        <g fill="currentColor" stroke="none"><circle cx="8.2" cy="8.2" r="1.35"/><circle cx="15.8" cy="8.2" r="1.35"/><circle cx="12" cy="12" r="1.35"/><circle cx="8.2" cy="15.8" r="1.35"/><circle cx="15.8" cy="15.8" r="1.35"/></g>
+      </svg>
+    </button>
+    <button class="theme-toggle" type="button" hidden>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.1"/>
+        <path d="M12 2.7v2.1M12 19.2v2.1M21.3 12h-2.1M4.8 12H2.7M18.6 5.4 17.1 6.9M6.9 17.1l-1.5 1.5M18.6 18.6l-1.5-1.5M6.9 6.9 5.4 5.4"/>
+      </svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20.4 14.5A8.6 8.6 0 0 1 9.5 3.6a8.6 8.6 0 1 0 10.9 10.9z"/>
+      </svg>
+    </button>
+    <button type="button" class="linkish" id="legend-toggle" aria-expanded="true">Hide</button>
+  </div>
+  <div class="pal-row">
+    <span class="pane-label" id="pal-label">Palette</span>
+    <button type="button" class="pal-btn" id="pal-btn" aria-expanded="false" aria-controls="pal-list" aria-labelledby="pal-label pal-btn"></button>
+  </div>
+  <div class="pal-list" id="pal-list" aria-label="Palettes"></div>
+  <span class="pane-label key-label">Key</span>
+  <div id="legend-body" aria-live="polite"></div>
+  <div class="custom-panel" id="custom-panel" hidden>
+    <div class="cp-row">
+      <span class="cp-label">Outline</span>
+      <input type="color" id="ink-colour" aria-label="Outline colour">
+      <button type="button" class="cp-chip" id="ink-auto" title="Each tile picks the ink that contrasts with it">Auto</button>
+      <input type="range" id="ink-width" min="0" max="4" step="0.25" value="1" aria-label="Outline width">
+      <output id="ink-width-out">1 px</output>
+    </div>
+    <div class="cp-row">
+      <span class="cp-label" title="The canvas, and the field tiles of a probe map (off-river, unstacked, everything else)">Background</span>
+      <span class="cp-chips">
+        <input type="color" id="bg-colour" aria-label="Background and field colour">
+        <button type="button" class="cp-chip" data-bg="auto">Auto</button>
+        <button type="button" class="cp-chip cp-sw" data-bg="#f6f3ec" title="Paper" aria-label="Paper"><i style="background:#f6f3ec"></i></button>
+        <button type="button" class="cp-chip cp-sw" data-bg="#ffffff" title="White" aria-label="White"><i style="background:#ffffff"></i></button>
+        <button type="button" class="cp-chip cp-sw" data-bg="#8a8a8a" title="Grey" aria-label="Grey"><i style="background:#8a8a8a"></i></button>
+        <button type="button" class="cp-chip cp-sw" data-bg="#23232a" title="Charcoal" aria-label="Charcoal"><i style="background:#23232a"></i></button>
+        <button type="button" class="cp-chip cp-sw" data-bg="#000000" title="Black" aria-label="Black"><i style="background:#000000"></i></button>
+      </span>
+    </div>
+    <div class="cp-row cp-actions">
+      <button type="button" class="cp-chip" id="custom-random" title="Random colours for this key">Randomise</button>
+      <button type="button" class="cp-chip" id="custom-reset" title="Drop swatch edits for this colour-by and palette">Reset to palette</button>
+      <button type="button" class="cp-chip" id="custom-reset-all" title="Original palette, no edits, automatic outline and background">Reset all</button>
+    </div>
+    <div class="cp-row">
+      <input type="text" id="pal-name" maxlength="40" placeholder="Name" aria-label="Name for the saved palette" autocomplete="off">
+      <button type="button" class="cp-chip" id="pal-save" title="Save these colours as a palette you can use on any colour-by">Save palette</button>
+      <button type="button" class="cp-chip" id="pal-delete" hidden>Delete</button>
+    </div>
+    <div class="cp-row">
+      <button type="button" class="cp-chip" id="pal-export" title="Copy a short code for this palette">Export code</button>
+      <button type="button" class="cp-chip" id="pal-import" title="Read a code, JSON or hex list pasted below">Import</button>
+    </div>
+    <textarea id="pal-code" rows="2" spellcheck="false" aria-label="Palette code" placeholder="Paste a palette code (HP1;…), JSON or hex colours, then Import"></textarea>
+    <p class="cp-note" id="pal-note" aria-live="polite"></p>
+  </div>
+</div>
+
+<div class="card status" id="status" hidden>Building tiles…</div>
+
+<div class="card stats" id="stats" hidden aria-live="polite">
+  <div class="stats-head"><strong>Live stats</strong> <button type="button" class="linkish" id="stats-close">Close</button></div>
+  <div id="stats-body">…</div>
+</div>
+
+<div class="card diff" id="diff" hidden>
+  <div class="stats-head"><strong>Diffraction of tile centres</strong> <button type="button" class="linkish" id="diff-close">Close</button></div>
+  <canvas id="diff-canvas" width="240" height="240"></canvas>
+  <div class="diff-row">
+    <label><input type="radio" name="diff-set" value="all" checked> all hats</label>
+    <label><input type="radio" name="diff-set" value="flips"> flips only</label>
+    <button type="button" class="linkish" id="diff-run">Recompute here</button>
+  </div>
+  <p class="hint" id="diff-note"></p>
+</div>
+
+<aside class="essay" id="essay" hidden aria-label="Essay: Ein Stein, One Stone">
+  <div class="essay-head">
+    <button type="button" class="essay-fold" id="essay-fold" aria-expanded="true" title="Collapse the essay">▾</button>
+    <span class="essay-kicker">Essay mode</span>
+    <nav class="essay-dots" id="essay-dots" aria-label="Sections"></nav>
+  </div>
+  <div class="essay-scroll" id="essay-scroll"></div>
+</aside>
+
+<div class="card about" id="about" role="dialog" aria-modal="false" aria-labelledby="about-title" hidden>
+  <button type="button" class="close" id="about-close" aria-label="Close">×</button>
+  <h2 id="about-title">The Hat</h2>
+  <p>
+    The Hat was the first "einstein": a single tile that covers the plane
+    only in patterns that never repeat. David Smith, Joseph Samuel Myers,
+    Craig S. Kaplan and Chaim Goodman-Strauss announced it in March 2023. The
+    Hat needs its mirror image: about one tile in eight is flipped. The
+    Spectre, found a few months later, needs no mirror images at all.
+  </p>
+  <p>
+    The Hat belongs to a family, Tile(a, b), with edges of two lengths a and
+    b. The slider moves through the family, from the chevron, Tile(0, 1), to
+    the comet, Tile(1, 0). The hat is Tile(1, √3) and the turtle is
+    Tile(√3, 1). Every member with a ≠ b makes the same pattern, only
+    reshaped, so the slider reshapes all the tiles at once. The chevron and
+    the comet also tile in repeating patterns, and so does Tile(1, 1) once
+    mirror images are allowed. Here they all show the same non-repeating
+    pattern.
+  </p>
+  <p>
+    At the Spectre mark the tile is Tile(1, 1), the straight-edged Spectre
+    from the Spectre page, but laid out in the hat pattern, with mirror
+    images. The two pages show two different tilings made from one tile.
+  </p>
+  <p>
+    Hats turn in 60° steps and come in two hands, so the colours give each
+    turn and hand its own colour, or split the hats by hand alone. In the
+    key, an m marks a mirrored hat, so 0° m is a mirrored hat at 0°. Click a
+    group in the key to give it your own colour, or roll the dice for random
+    colours. <em>Colour by</em> picks what the colours show (orientation, the
+    article's probe maps, the explorations) and <em>Palette</em> picks the
+    scheme, from the original colours to Viridis, Okabe–Ito or Mondrian.
+    <em>Customise</em> sets the outline and background, saves your own
+    palettes, and exports them as a short code. <em>Supertiles</em> show the hierarchy that forces the pattern:
+    hats group into the metatiles H, T, P and F, which group into larger
+    ones, level after level. <em>Grid</em> lays a triangular grid
+    through a corner. At the hat's own shape the 0° grid passes through every
+    corner, since the hat is built from the kites of a regular grid. Move the
+    slider and the fit breaks.
+  </p>
+  <p>
+    Drag to move. Scroll, pinch or double-click to zoom. Turn with the turn
+    buttons, a two-finger twist, a right-drag, Ctrl and drag, or Shift and
+    the arrow keys. A trackpad twist works in Safari. The address bar keeps
+    your place, colours and shape, so you can share a view.
+  </p>
+  <ul>
+    <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2303.10798">An aperiodic monotile</a> – the paper, on arXiv</li>
+    <li><a target="_blank" rel="noopener" href="https://cs.uwaterloo.ca/~csk/hat/">Craig Kaplan's Hat page</a> – the metatile construction here follows his hatviz code</li>
+    <li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Einstein_problem">Einstein problem</a> – on Wikipedia</li>
+    <li><a target="_blank" rel="noopener" href="https://github.com/davidryan59/davidryan59.github.io/tree/main/app/tiles">Code on GitHub</a> – WebGL, no libraries</li>
+  </ul>
+</div>
+
+<div class="card fail" id="fail" hidden>
+  <p>This page needs WebGL 2, which this browser does not offer.</p>
+</div>
+
+<script src="../engine/tiling-core.js"></script>
+<script src="tiling.js"></script>
+<script src="probes.js"></script>
+<script src="../engine/palettes.js"></script>
+<script src="../engine/map.js"></script>
+<script src="../../essay/scenes.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var TM = TilingMap, oklch = TM.oklch, hex = TM.hex;
+  var H3 = Math.sqrt(3) / 2;
+  var NAMED = [[0, 'Chevron', 'Tile(0, 1)'], [30, 'Hat', 'Tile(1, √3)'], [45, 'Spectre', 'Tile(1, 1)'],
+               [60, 'Turtle', 'Tile(√3, 1)'], [90, 'Comet', 'Tile(1, 0)']];
+
+  /* ------------------------------------------------------------- shape */
+
+  // Corners of the hat outline as two-part points, from the worker once it
+  // is ready. Until then the shape is empty.
+  var outlineTP = null;
+  var deg = 30;
+  try { var sd = parseFloat(localStorage.getItem('hat-shape')); if (sd >= 0 && sd <= 90) deg = sd; } catch (e) {}
+
+  function cornersAt(a, b) {
+    return outlineTP.map(function (v) {
+      return [a * v.P[0] + b * (H3 * v.R[0] - 0.5 * v.R[1]), a * v.P[1] + b * (0.5 * v.R[0] + H3 * v.R[1])];
+    });
+  }
+  function areaAt(a, b) { return TM.area(cornersAt(a, b)); }
+  // Edge lengths for the slider angle, scaled so every tile keeps the hat's
+  // area and the tiling neither grows nor shrinks as the slider moves.
+  function abAt(d) {
+    var t = d * Math.PI / 180, a = Math.sin(t), b = Math.cos(t);
+    var k = Math.sqrt(areaAt(1, Math.sqrt(3)) / areaAt(a, b));
+    return [a * k, b * k];
+  }
+  var corners = null;
+  var shape = {
+    signature: function () { return 'hat' + deg; },
+    lodKey: function () { return 'hat'; },
+    lod: function () { return 0; },
+    corners: function () { return corners; },
+    outline: function () { return corners; },
+    profile: function () { return null; }
+  };
+
+  /* ----------------------------------------------------------- colours */
+
+  // Twelve classes: six turns in 60-degree steps, then the same six turns
+  // mirrored. The worker reports turns in 30-degree steps, always even here.
+  var classes = [];
+  for (var c = 0; c < 12; c++) {
+    classes.push({ turn: 2 * (c % 6), flip: c >= 6 ? 1 : 0, caption: (c % 6) * 60 + '°' + (c >= 6 ? ' m' : '') });
+  }
+  var groupings = [
+    { id: 'turnhand', name: '12 colours, turn and hand', n: 12, of: function (k) { return k; }, cols: 6,
+      families: [0, 1, 2, 3, 4, 5].map(function (t) { return [t + 6, t]; }) },
+    // No grouping by turn alone: it would pair each hat with a mirrored hat,
+    // and which one depends on an arbitrary choice of mirror line.
+    { id: 'hand', name: '2 colours, hand', n: 2, of: function (k) { return k >= 6 ? 1 : 0; }, cols: 1, field: [0] },
+    { id: 'one', name: '1 colour', n: 1, of: function () { return 0; }, cols: 1 }
+  ];
+
+  /* ---------------------------------------------- probe-map colourings */
+  // Added for SlavisTon's article "Ein Stein, One Stone" and new
+  // explorations. Each grouping reads its class from the probe words that
+  // hat/probes.js computes in the worker (see classOf in map.js, modes 30+).
+  // Colours follow the article's legend images (notes/images).
+  function cls(caption, turn, flip) { return { caption: caption, turn: turn || 0, flip: flip || 0 }; }
+  var SHELLS = [1.561, 1.732, 2.291, 2.598, 2.634, 2.704, 3.031];
+  var DIR = ['0°', '60°', '120°', '180°', '240°', '300°'];
+  var CHAIN_COLS = [['#a8420f', '#e85d0c', '#ee874c'], ['#b58a12', '#f7b90f', '#f5cb4a'], ['#568a30', '#76be3a', '#98ca6a'],
+                    ['#15756a', '#1a9e8c', '#57b5a6'], ['#22529a', '#2b6dca', '#6690d2'], ['#552c86', '#7838b5', '#976dc0']];
+  function lerpHex(stops, t) {
+    for (var i = 1; i < stops.length; i++) if (t <= stops[i][0] || i === stops.length - 1) {
+      var a = stops[i - 1], b = stops[i], u = Math.max(0, Math.min(1, (t - a[0]) / (b[0] - a[0] || 1)));
+      var ca = hex(a[1]), cb = hex(b[1]);
+      return [0, 1, 2].map(function (k) { return ca[k] + (cb[k] - ca[k]) * u; });
+    }
+  }
+  var DIST_STOPS = [[0, '#4a1a7a'], [0.3, '#8c1f62'], [0.55, '#d4562b'], [0.78, '#eeae30'], [1, '#efdfbf']];
+  var GRAIN_STOPS = [[0, '#2e2a6c'], [0.32, '#27909a'], [0.66, '#e9a12b'], [1, '#2e2a6c']];
+  var censusInfo = null;
+  var probeGroupings = {
+    axes: { id: 'axes', name: 'Article map 4: three axes', n: 4, mode: 30, cols: 4, classes: [
+      cls('0°/180°', 0), cls('60°/240°', 2), cls('120°/300°', 4), cls('flipped', 0, 1)] },
+    roles: { id: 'roles', name: 'Article map 5: substitution roles', n: 5, mode: 31, cols: 5, classes: [
+      cls('H'), cls('T (rare)'), cls('P'), cls('F'), cls('H1 = flipped', 0, 1)] },
+    stack: { id: 'stack', name: 'Article map 2: position on the stack', n: 4, mode: 32, cols: 4, classes: [
+      cls('unstacked'), cls('end'), cls('middle'), cls('flipped', 0, 1)] },
+    chain: { id: 'chain', name: 'Article map 1: chains by direction', n: 19, mode: 33, cols: 6,
+      classes: [cls('off river')].concat([].concat.apply([], DIR.map(function (d, h) {
+        return [cls(d + ' flip', 2 * h, 1), cls(d + ' triple', 2 * h), cls(d + ' pair', 2 * h)];
+      }))) },
+    shells: { id: 'shells', name: 'Article map 3: distance to nearest flip', n: 8, mode: 39, cols: 4,
+      classes: [cls('flip · 0', 0, 1)].concat(SHELLS.map(function (d) { return cls(d.toFixed(3)); })) },
+    mol: { id: 'mol', name: 'Article map 6: flip + three-shell', n: 3, mode: 35, cols: 3, classes: [
+      cls('everything else'), cls('flipped tile', 0, 1), cls('3-shell')] },
+    grain: { id: 'grain', name: 'Article map 7: grain phase', n: 64, mode: 36, cols: 1,
+      classes: Array.from({ length: 64 }, function (x, i) { return cls(i === 0 ? 'phase 0' : i === 63 ? 'phase 1 (wraps)' : (i / 64).toFixed(2)); }) },
+    census: { id: 'census', name: 'Exploration: neighbourhood types', n: 17, mode: 37, cols: 6,
+      classes: Array.from({ length: 17 }, function (x, i) { return cls(i < 16 ? '#' + (i + 1) : 'rarer'); }) },
+    anc: { id: 'anc', name: 'Exploration: supertile ancestry', n: 16, mode: 38, cols: 4,
+      classes: Array.from({ length: 16 }, function (x, i) { return cls('HTPF'[i >> 2] + (i & 3 ? '′'.repeat(i & 3) : '')); }) }
+  };
+  // The class order of the chain map is 1 + 3*heading + kind, so the key is
+  // laid out with the off-river field first and one row per direction.
+  probeGroupings.chain.order = [1, 4, 7, 10, 13, 16, 2, 5, 8, 11, 14, 17, 3, 6, 9, 12, 15, 18, 0];
+  // How palettes read each mode (engine/palettes.js): field classes take the
+  // palette's quiet colour, families share a hue in lightness steps (darkest
+  // first), ordered modes run along the palette's ramp.
+  probeGroupings.chain.field = [0];
+  probeGroupings.chain.families = [0, 1, 2, 3, 4, 5].map(function (h) { return [1 + 3 * h, 2 + 3 * h, 3 + 3 * h]; });
+  probeGroupings.stack.field = [0];
+  probeGroupings.mol.field = [0];
+  probeGroupings.shells.kind = 'seq';
+  // Flip at 0, then the seven shells spread over the rest of the ramp by
+  // distance, so neighbouring shells stay apart in any palette.
+  probeGroupings.shells.t = function (k) { return k === 0 ? 0 : 0.22 + 0.78 * (SHELLS[k - 1] - SHELLS[0]) / (SHELLS[SHELLS.length - 1] - SHELLS[0]); };
+  probeGroupings.grain.kind = 'cyc';
+  probeGroupings.census.rest = 16;
+  probeGroupings.anc.families = [0, 1, 2, 3].map(function (t) { return [4 * t, 4 * t + 1, 4 * t + 2, 4 * t + 3]; });
+  Object.keys(probeGroupings).forEach(function (id) {
+    var g = probeGroupings[id];
+    g.of = function (k) { return k; };
+    groupings.push(g);
+  });
+  function censusCaption(i) {
+    if (!censusInfo) return i < 16 ? '#' + (i + 1) : 'rarer';
+    var c = censusInfo.counts, tot = censusInfo.total;
+    if (i < 16) return c[i] ? '#' + (i + 1) + ' · ' + (100 * c[i] / tot).toFixed(1) + '%' : '#' + (i + 1) + ' · none';
+    var rest = 0; for (var q = 16; q < c.length; q++) rest += c[q];
+    return 'rarer · ' + (100 * rest / tot).toFixed(1) + '%';
+  }
+  // Pastel and Rainbow look the same in light and dark mode. The tiles fill
+  // the screen, and a darker Pastel turned murky. Each tile takes whichever
+  // ink contrasts with it, so dark mode changes only the panels. Mirrored
+  // hats and Plain keep a dark version, since one of their colours stands
+  // in for the background.
+  var presets = [
+    { id: 'pastel', byName: 'Turn and hand (12)', name: 'Pastel', grouping: 'turnhand', colours: function () {
+      return classes.map(function (cl, k) {
+        var m = k >= 6, hue = (k % 6) * 60 + 25;
+        return oklch(m ? 0.60 : 0.88, m ? 0.15 : 0.075, hue);
+      });
+    } },
+    { id: 'rainbow', name: 'Rainbow', alias: { colourBy: 'pastel', palette: 'rainbow' }, grouping: 'turnhand', colours: function () {
+      return classes.map(function (cl, k) {
+        return oklch(0.8, 0.12, 25 + (k % 6) * 60 + (k >= 6 ? 30 : 0));
+      });
+    } },
+    // Black to white in twelve even steps of lightness, unmirrored hats
+    // first: unmirrored 0° is black and mirrored 300° is white.
+    { id: 'grey', name: 'Greyscale', alias: { colourBy: 'pastel', palette: 'grey' }, grouping: 'turnhand', colours: function () {
+      return classes.map(function (cl, k) { return oklch(k / 11, 0, 0); });
+    } },
+    { id: 'hands', byName: 'Mirrored hats (hand)', name: 'Mirrored hats', grouping: 'hand', colours: function (dark) {
+      return dark ? [hex('#3a3935'), hex('#6fa0e8')] : [hex('#eee7d6'), hex('#2d5fa8')];
+    } },
+    { id: 'plain', byName: 'One colour', name: 'Plain', grouping: 'one', colours: function (dark) { return [dark ? hex('#2a2a30') : hex('#fdfcf8')]; } },
+    // Probe maps after the article (legend colours from its images).
+    { id: 'flipped', byName: 'Flipped hats', name: 'Flipped hats (article)', grouping: 'hand', colours: function () { return [hex('#e6d5ab'), hex('#5b2d8e')]; } },
+    { id: 'chains', byName: 'Chains by direction', name: 'Chains by direction', grouping: 'chain', colours: function () {
+      return [hex('#e6d5ab')].concat([].concat.apply([], CHAIN_COLS.map(function (r) { return r.map(hex); })));
+    } },
+    { id: 'stacks', byName: 'Position on the stack', name: 'Position on the stack', grouping: 'stack', colours: function () {
+      return ['#e6d5ab', '#9b1d2e', '#f2c42f', '#5b2d8e'].map(hex);
+    } },
+    { id: 'shells', byName: 'Distance to nearest flip', name: 'Distance to nearest flip', grouping: 'shells', colours: function () {
+      return [0].concat(SHELLS).map(function (d) { return lerpHex(DIST_STOPS, Math.min(1, d / 3)); });
+    } },
+    { id: 'axes', byName: 'Three axes', name: 'Three axes', grouping: 'axes', colours: function () {
+      return ['#e85d0c', '#1f8d9e', '#7b3bb8', '#1f1a24'].map(hex);
+    } },
+    { id: 'roles', byName: 'Substitution roles H T P F', name: 'Substitution roles', grouping: 'roles', colours: function () {
+      return ['#e07b3c', '#f2c14e', '#2a9d8f', '#4a6b2f', '#4b1d6b'].map(hex);
+    } },
+    { id: 'molecule', byName: 'Flip + three-shell', name: 'Flip + three-shell', grouping: 'mol', colours: function () {
+      return ['#e6d5ab', '#4b1d6b', '#c45a22'].map(hex);
+    } },
+    { id: 'grain', byName: 'Grain phase (54°)', name: 'Grain phase (54°)', grouping: 'grain', colours: function () {
+      return Array.from({ length: 64 }, function (x, i) { return lerpHex(GRAIN_STOPS, (i + 0.5) / 64); });
+    } },
+    // New explorations.
+    { id: 'census', byName: 'Neighbourhood census', name: 'Neighbourhood types', grouping: 'census', colours: function () {
+      var q = ['#e15759', '#4e79a7', '#f28e2b', '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7',
+               '#9c755f', '#bab0ac', '#2f4b7c', '#d45087', '#665191', '#a05195', '#003f5c', '#ffa600'];
+      return q.map(hex).concat([hex('#555555')]);
+    } },
+    { id: 'ancestry', byName: 'Supertile ancestry (k)', name: 'Supertile ancestry (level k)', grouping: 'anc', colours: function () {
+      var base = [45, 95, 185, 130];      // H orange, T yellow, P teal, F olive
+      var out = [];
+      for (var t = 0; t < 4; t++) for (var v = 0; v < 4; v++) out.push(oklch(0.58 + 0.1 * v, 0.13 - 0.015 * v, base[t] + 8 * v));
+      return out;
+    } }
+  ];
+
+  /* ------------------------------------------------------------ engine */
+
+  var map = TM.start({
+    name: 'hat',
+    worker: 'tiling.js?probes=1',
+    build: HatTiling.build,
+    ab: [1, Math.sqrt(3)],
+    refB: Math.sqrt(3),
+    classMode: 1,
+    classes: function (g) {
+      if (!g || !probeGroupings[g.id]) return classes;
+      if (g.id === 'census') return g.classes.map(function (c, i) { return cls(censusCaption(i)); });
+      return g.classes;
+    },
+    extraWords: 3,
+    options: { probes: true },
+    onViewChange: function () { if (window.probeUI) window.probeUI.viewChanged(); },
+    groupings: groupings,
+    presets: presets,
+    // Explore mode's colour system: what to colour by, and the palettes.
+    palettes: window.TilePalettes,
+    colourBy: [
+      { label: 'Orientation (David Ryan)', ids: ['pastel', 'hands', 'plain'] },
+      { label: 'Article probe maps', ids: ['flipped', 'chains', 'stacks', 'shells', 'axes', 'roles', 'molecule', 'grain'] },
+      { label: 'Explorations', ids: ['ancestry', 'census'] }
+    ],
+    shape: shape,
+    gridSpacing: function (ab) { return [ab[0], ab[1]]; },
+    tileRadius: function () {
+      var r = 0;
+      (corners || []).forEach(function (p) { r = Math.max(r, Math.hypot(p[0], p[1])); });
+      return r + 0.5;
+    },
+    onReset: function () {
+      deg = 30;
+      try { localStorage.removeItem('hat-shape'); } catch (e) {}
+      applyShape();
+    },
+    hashGet: function () {
+      var o = { t: String(+deg.toFixed(2)) };
+      if (window.probeUI) { var x = window.probeUI.hashExtra(); for (var k in x) o[k] = x[k]; }
+      return o;
+    },
+    hashSet: function (q) {
+      if (q.t !== undefined && !isNaN(parseFloat(q.t))) deg = Math.max(0, Math.min(90, parseFloat(q.t)));
+      if (outlineTP) applyShape();
+      if (window.probeUI) window.probeUI.hashRead(q); else window.__probeHash = q;
+    },
+    onReady: function (info) {
+      outlineTP = info.outline;
+      censusInfo = info.census || null;
+      applyShape();
+    }
+  });
+  if (!map) return;
+
+  /* ---------------------------------------------------------- controls */
+
+  var shapeEl = document.getElementById('shape');
+  var outEl = document.getElementById('shape-out'), ticks = document.querySelectorAll('#ticks button');
+
+  function applyShape() {
+    if (!outlineTP) return;
+    var ab = abAt(deg);
+    corners = cornersAt(ab[0], ab[1]);
+    shapeEl.value = String(deg);
+    // A named shape shows as its lit tick, with its formula alongside.
+    var named = NAMED.filter(function (n) { return Math.abs(n[0] - deg) < 1e-9; })[0];
+    var t = deg * Math.PI / 180;
+    outEl.textContent = named ? named[2]
+      : deg <= 45 ? 'a : b = ' + Math.tan(t).toFixed(2) + ' : 1' : 'a : b = 1 : ' + (1 / Math.tan(t)).toFixed(2);
+    Array.prototype.forEach.call(ticks, function (b) { b.classList.toggle('on', +b.dataset.deg === deg); });
+    map.setAB(ab[0], ab[1]);
+  }
+
+  shapeEl.addEventListener('input', function () {
+    var v = parseFloat(shapeEl.value);
+    // Sticky stops at the named shapes, wider at the three in the middle.
+    NAMED.forEach(function (n) { if (Math.abs(v - n[0]) < (n[0] % 90 ? 3 : 1.25)) v = n[0]; });
+    deg = v;
+    applyShape();
+  });
+  shapeEl.addEventListener('change', function () {
+    try { localStorage.setItem('hat-shape', String(deg)); } catch (e) {}
+    map.changed();
+  });
+  // For essay scenes: move the shape slider, animated over ms.
+  var shapeAnim = 0;
+  window.hatPage = {
+    map: map,
+    deg: function () { return deg; },
+    setShape: function (d, ms) {
+      cancelAnimationFrame(shapeAnim);
+      var from = deg, t0 = 0;
+      if (!ms || Math.abs(d - from) < 1e-9) { deg = d; applyShape(); return; }
+      (function step(now) {
+        if (!t0) t0 = now;
+        var u = Math.min(1, (now - t0) / ms), e = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
+        deg = u >= 1 ? d : from + (d - from) * e;
+        applyShape();
+        if (u < 1) shapeAnim = requestAnimationFrame(step);
+      })(performance.now());
+    }
+  };
+  Array.prototype.forEach.call(ticks, function (b) {
+    b.addEventListener('click', function () {
+      deg = +b.dataset.deg;
+      applyShape();
+      try { localStorage.setItem('hat-shape', String(deg)); } catch (e) {}
+      map.changed();
+    });
+  });
+})();
+</script>
+<script src="../../essay/probe-ui.js"></script>
+<script src="../../essay/essay.js"></script>
+<script src="../engine/phone.js"></script>
+</body>
+</html>

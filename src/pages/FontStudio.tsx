@@ -49,6 +49,12 @@ interface FontSettings {
   ss01: boolean;
   tabular: boolean;
   compare: boolean;
+  gradAxis: number;
+  glowRadius: number;
+  strokeOutline: boolean;
+  goldFoil: boolean;
+  sizeAdjust: number;
+  ascentOverride: number;
   exportTab: "css" | "tailwind" | "react" | "next";
 }
 
@@ -71,6 +77,12 @@ const DEFAULT: FontSettings = {
   ss01: true,
   tabular: false,
   compare: false,
+  gradAxis: 0,
+  glowRadius: 0,
+  strokeOutline: false,
+  goldFoil: false,
+  sizeAdjust: 98,
+  ascentOverride: 90,
   exportTab: "css",
 };
 
@@ -79,15 +91,17 @@ const CATEGORIES: { id: Category; label: string }[] = [
   { id: "nastaliq-calligraphy", label: "نستعلیق" },
   { id: "special-display", label: "هنری" },
   { id: "modern-ui", label: "مدرن" },
-  { id: "code", label: "کد" },
+  { id: "code", label: "کد و هکری" },
+  { id: "english-display", label: "لاتین" },
 ];
 
 const SAMPLES = [
   { label: "شعر", text: "دوش دیدم که ملائک در میخانه زدند" },
-  { label: "برند", text: "آزمایشگاه موشن فارسی" },
+  { label: "برند", text: "آزمایشگاه موشن فارسی — RTL Motion Lab" },
+  { label: "کد هکری", text: "const cipher = (x: u32) => x !== 0x9E3779B9 ? x >>= 4 : 0;" },
   { label: "عدد", text: "۱٬۲۵۰٬۰۰۰ تومان — ۱۲۳۴۵۶۷۸۹۰" },
   { label: "تمام‌نویسی", text: "ابجد هوز حطی کلمن سعفص قرشت ثخذ ضظغ" },
-  { label: "ترکیبی", text: "طراحی RTL با Tailwind v4 و Motion" },
+  { label: "انگلیسی", text: "QUANTUM KINETIC TYPOGRAPHY — 60FPS WEBGL SHADERS" },
 ];
 
 const pad = (n: number) => n.toFixed(2).replace(/\.00$/, "");
@@ -133,8 +147,19 @@ export const FontStudio: React.FC = () => {
     letterSpacing: `${s.tracking}px`,
     wordSpacing: `${s.wordSpacing}px`,
     textAlign: s.align,
+    fontVariationSettings: `"wght" ${s.weight}, "GRAD" ${s.gradAxis ?? 0}`,
     fontFeatureSettings: `"liga" ${s.ligatures ? 1 : 0}, "calt" ${s.ligatures ? 1 : 0}, "ss01" ${s.ss01 ? 1 : 0}, "kern" 1`,
     fontVariantNumeric: s.tabular ? "tabular-nums" : "normal",
+    textShadow:
+      (s.glowRadius ?? 0) > 0
+        ? `0 0 ${s.glowRadius}px rgba(245, 197, 66, 0.55)`
+        : undefined,
+    WebkitTextStroke: s.strokeOutline ? "1.3px #F5C542" : undefined,
+    backgroundImage: s.goldFoil
+      ? "linear-gradient(135deg, #FEF3C7 0%, #F59E0B 50%, #D97706 100%)"
+      : undefined,
+    WebkitBackgroundClip: s.goldFoil ? "text" : undefined,
+    WebkitTextFillColor: s.goldFoil || s.strokeOutline ? "transparent" : undefined,
   };
 
   const colorClass =
@@ -157,12 +182,15 @@ export const FontStudio: React.FC = () => {
 
   /* ------------------------------------------------------------- snippets */
 
-  const cssSnippet = `/* ${font.nameFa} — ${font.nameEn} */
+  const cssSnippet = `/* ${font.nameFa} — ${font.nameEn} (Zero-CLS Optical Calibration) */
 @font-face {
   font-family: "${font.nameEn}";
   src: url("./${file?.file ?? `${font.nameEn}.woff2`}") format("${file?.format ?? "woff2"}");
   font-weight: ${font.isVariable ? "100 900" : s.weight};
   font-display: swap;
+  size-adjust: ${s.sizeAdjust ?? 98}%;
+  ascent-override: ${s.ascentOverride ?? 90}%;
+  descent-override: 25%;
 }
 
 .type-${font.id} {
@@ -172,7 +200,10 @@ export const FontStudio: React.FC = () => {
   line-height: ${s.lineHeight};
   letter-spacing: ${s.tracking}px;
   word-spacing: ${s.wordSpacing}px;
-  font-feature-settings: "ss01" ${s.ss01 ? 1 : 0}, "liga" ${s.ligatures ? 1 : 0}, "calt" ${s.ligatures ? 1 : 0};
+  font-variation-settings: "wght" ${s.weight}, "GRAD" ${s.gradAxis ?? 0};
+  font-feature-settings: "ss01" ${s.ss01 ? 1 : 0}, "liga" ${s.ligatures ? 1 : 0}, "calt" ${s.ligatures ? 1 : 0};${
+    (s.glowRadius ?? 0) > 0 ? `\n  text-shadow: 0 0 ${s.glowRadius}px rgba(245, 197, 66, 0.55);` : ""
+  }${s.strokeOutline ? `\n  -webkit-text-stroke: 1.3px #F5C542;\n  color: transparent;` : ""}
 }`;
 
   const tailwindSnippet = `<h1
@@ -527,22 +558,48 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
         </div>
       </Panel>
 
-      <Panel title="نمونه کامل حروف" subtitle={`ابجد، ارقام فارسی و لاتین در ${font.nameFa}`}>
+      <Panel title="نمونه کامل حروف (فارسی، انگلیسی و لیگچرهای هکری)" subtitle={`ابجد، الفبای لاتین، ارقام و لیگچرهای کد در ${font.nameFa} (${font.nameEn})`}>
         <div className="space-y-3">
-          <div style={{ fontFamily: font.family, fontWeight: s.weight }} className="text-[clamp(18px,3vw,30px)] leading-[2] text-zinc-200">
+          <div style={{ fontFamily: font.family, fontWeight: s.weight }} className="text-[clamp(18px,3vw,28px)] leading-[2] text-zinc-200">
             ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی
           </div>
-          <div style={{ fontFamily: font.family }} className="text-[17px] leading-[2] text-zinc-400">
-            ۰۱۲۳۴۵۶۷۸۹ — 0123456789 — «گفتا که…» (۱۲٪)
+          <div
+            dir="ltr"
+            style={{
+              fontFamily: font.family,
+              fontWeight: s.weight,
+              fontFeatureSettings: `"liga" ${s.ligatures ? 1 : 0}, "calt" ${s.ligatures ? 1 : 0}`,
+            }}
+            className="text-[clamp(15px,2.2vw,22px)] leading-[1.65] text-emerald-300/90"
+          >
+            ABCDEFGHIJKLMNOPQRSTUVWXYZ · abcdefghijklmnopqrstuvwxyz
+          </div>
+          <div style={{ fontFamily: font.family }} className="text-[16px] leading-[2] text-zinc-400">
+            ۰۱۲۳۴۵۶۷۸۹ — 0123456789 — «گفتا که…» (۱۲٪) · 0x9E3779B9
           </div>
           <div className="grid grid-cols-5 gap-2 sm:grid-cols-9">
             {["۱۲۳", "۴۵۶", "۷۸۹", "۰", "٬", "٫", "،", "؛", "؟"].map((g) => (
               <div
                 key={g}
-                className="flex h-11 items-center justify-center rounded-lg border border-white/[0.06] bg-white/[0.02] text-[17px] text-zinc-300"
+                className="flex h-10 items-center justify-center rounded-lg border border-white/[0.06] bg-white/[0.02] text-[16px] text-zinc-300"
                 style={{ fontFamily: font.family }}
               >
                 {g}
+              </div>
+            ))}
+          </div>
+          <div dir="ltr" className="grid grid-cols-3 gap-2 pt-1 sm:grid-cols-9">
+            {["=>", "!==", "===", "<=", ">=", "|>", "::", ">>=", "/**/"].map((lig) => (
+              <div
+                key={lig}
+                className="flex h-10 items-center justify-center rounded-lg border border-emerald-500/20 bg-emerald-500/[0.04] font-mono text-[14px] text-emerald-300"
+                style={{
+                  fontFamily: font.family,
+                  fontFeatureSettings: `"liga" ${s.ligatures ? 1 : 0}, "calt" ${s.ligatures ? 1 : 0}`,
+                }}
+                title="تست لیگچر کدنویسی (Coding Ligature)"
+              >
+                {lig}
               </div>
             ))}
           </div>
@@ -680,6 +737,57 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
               { value: "ink", label: "مرکب" },
               { value: "grid", label: "شبکه" },
             ]}
+          />
+        </div>
+      </Panel>
+
+      <Panel title="کالیبراسیون نوری و بدون پرش (Zero-CLS)">
+        <div className="space-y-3">
+          <Slider
+            label="محور نوری GRAD (بدون تغییر عرض)"
+            value={s.gradAxis ?? 0}
+            min={-50}
+            max={150}
+            step={5}
+            onChange={(v) => set({ gradAxis: v })}
+            hint="تغییر ضخامت نوری بدون جابجایی چیدمان"
+          />
+          <Slider
+            label="هالهٔ نوری حروف (Optical Bloom)"
+            value={s.glowRadius ?? 0}
+            min={0}
+            max={36}
+            step={2}
+            unit="px"
+            onChange={(v) => set({ glowRadius: v })}
+          />
+          <Slider
+            label="تطبیق ابعاد Zero-CLS (size-adjust)"
+            value={s.sizeAdjust ?? 98}
+            min={85}
+            max={115}
+            step={1}
+            unit="%"
+            onChange={(v) => set({ sizeAdjust: v })}
+          />
+          <Slider
+            label="تطبیق کرسی خط (ascent-override)"
+            value={s.ascentOverride ?? 90}
+            min={75}
+            max={110}
+            step={1}
+            unit="%"
+            onChange={(v) => set({ ascentOverride: v })}
+          />
+          <Toggle
+            label="طلاکوبی سلطنتی (Gold Foil Ink)"
+            checked={Boolean(s.goldFoil)}
+            onChange={(v) => set({ goldFoil: v })}
+          />
+          <Toggle
+            label="حاشیهٔ توخالی پوستر (Text Stroke)"
+            checked={Boolean(s.strokeOutline)}
+            onChange={(v) => set({ strokeOutline: v })}
           />
         </div>
       </Panel>

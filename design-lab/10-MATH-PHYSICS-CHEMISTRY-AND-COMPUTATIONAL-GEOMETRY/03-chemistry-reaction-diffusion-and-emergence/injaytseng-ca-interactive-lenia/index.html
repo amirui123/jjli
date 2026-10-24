@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Living Backgrounds — 會動的背景標本室</title>
+<meta name="description" content="Six families of cellular automata as living web background animations — Rule 110, Life, Cyclic CA, Boids, Lenia, and a self-healing Neural CA — each with the idea behind it. 中英雙語。">
+<meta name="theme-color" content="#070b10" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#eef4f2" media="(prefers-color-scheme: light)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Crect width='8' height='8' fill='%23070b10'/%3E%3Cg fill='%2335e0a0'%3E%3Crect x='3' y='1' width='2' height='2'/%3E%3Crect x='5' y='3' width='2' height='2'/%3E%3Crect x='1' y='5' width='2' height='2'/%3E%3Crect x='3' y='5' width='2' height='2'/%3E%3Crect x='5' y='5' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ca.davidyc.com/">
+<meta property="og:title" content="Living Backgrounds — a specimen room of cellular automata">
+<meta property="og:description" content="Six families of cellular automata as full-page web backgrounds: Rule 110, Life, Cyclic CA, Boids, Lenia, and a self-healing Neural CA. Each with the idea behind it.">
+<meta property="og:image" content="https://ca.davidyc.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- The stored theme is applied before the first paint so a light-theme visitor does
+     not see a dark flash; styles.css carries both palettes for exactly this moment. -->
+<script>try { if (localStorage.getItem('ca.theme') === 'light') document.documentElement.dataset.theme = 'light'; } catch (e) {}</script>
+<!-- Fonts are self-hosted (fonts/): no third-party CSS on the critical path, nothing
+     for a visitor's browser to tell Google. The two roman faces are what first paint needs. -->
+<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/fraunces-roman.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/plex-mono-400.woff2">
+<link rel="stylesheet" href="styles.css">
+<!-- main.js's imports are three levels deep; without these the browser discovers them one round trip at a time -->
+<link rel="modulepreload" href="src/theme.js">
+<link rel="modulepreload" href="src/runtime.js">
+<link rel="modulepreload" href="src/i18n.js">
+<link rel="modulepreload" href="src/gl.js">
+<link rel="modulepreload" href="src/canvas.js">
+<link rel="modulepreload" href="src/sims/rule1d.js">
+<link rel="modulepreload" href="src/sims/life.js">
+<link rel="modulepreload" href="src/sims/cyclic.js">
+<link rel="modulepreload" href="src/sims/boids.js">
+<link rel="modulepreload" href="src/sims/lenia.js">
+<link rel="modulepreload" href="src/sims/nca.js">
+<link rel="modulepreload" href="src/sims/orbium.js">
+<link rel="modulepreload" href="src/core/rule1d.js">
+<link rel="modulepreload" href="src/core/life.js">
+<link rel="modulepreload" href="src/core/cyclic.js">
+<link rel="modulepreload" href="src/core/boids.js">
+</head>
+<body>
+  <div id="stage" aria-hidden="true"></div>
+
+  <header class="ui brand">
+    <div class="mark">CA<span>/</span>BG</div>
+    <div class="brand-text">
+      <div class="t1">A specimen room of living backgrounds</div>
+      <div class="t2">Six families of cellular automata as living web backgrounds — each with the idea behind it</div>
+      <a class="repo" href="https://github.com/InjayTseng/ca-interactive" rel="noopener">source on GitHub ↗</a>
+    </div>
+  </header>
+
+  <nav id="tabs" class="ui tabs" role="tablist" aria-label="specimens"></nav>
+
+  <aside class="ui card-wrap">
+    <button id="card-toggle" class="card-toggle" aria-expanded="true">Concept ▾</button>
+    <div id="card-brief" class="card-brief"></div>
+    <section id="card" class="card" role="tabpanel"></section>
+  </aside>
+
+  <footer class="ui toolbar">
+    <label class="speed"><span id="speed-label">speed</span>
+      <input id="speed" type="range" min="-2" max="2" step="0.25" value="0">
+      <output id="speedv" for="speed">1.00×</output>
+    </label>
+    <button id="pause" title="Space" aria-label="pause" aria-pressed="false">❚❚</button>
+    <button id="reseed" title="R">reseed</button>
+    <button id="theme" title="T">☾ dark</button>
+    <button id="lang" title="L" lang="zh-Hant" aria-label="切換為中文">中</button>
+    <button id="motion" hidden aria-pressed="false" title="Your system prefers reduced motion; press to animate anyway">motion</button>
+    <button id="hide" title="H">hide UI</button>
+    <span class="keys">1–6 switch · H hide UI · R reseed · Space pause · T theme · L language</span>
+  </footer>
+  <button class="ui-hint" type="button">show UI · H</button>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

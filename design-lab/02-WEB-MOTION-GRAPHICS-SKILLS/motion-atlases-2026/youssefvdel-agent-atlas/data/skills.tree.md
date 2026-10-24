@@ -1,0 +1,133 @@
+# Skill hierarchy
+
+_110 skills · 7 domains · 1028 code blocks · 313 linked files · 1,057,060 body chars_
+
+- **agents**
+  - **delegation-and-orchestration**
+    - **claude-code** → `claude-code` — Delegate coding to Claude Code CLI (features, PRs)
+    - **codex** → `codex` — Delegate coding to OpenAI Codex CLI (features, PRs)
+    - **computer-use** → `computer-use` — Drive the desktop background-first; escalate on signal
+    - **hermes-agent** → `hermes-agent` — Use, configure, theme, extend, and orchestrate Hermes Agent
+    - **opencode** → `opencode` — Delegate coding to OpenCode CLI (features, PR review)
+    - **provider-adapters** → `protocol-translation` — Use when translating between LLM API dialects
+    - **provider-adapters** → `provider-recon` — Use when mapping a provider surface for a new adapter
+    - **reader-preferences** → `i-have-adhd` — Shape output for a reader with ADHD and dyslexia: lead with the next action, number multi-ste...
+- **comms**
+  - **email-and-messaging**
+    - **custom-domain-email** → `custom-domain-email` — Use when setting up or fixing custom domain email routing
+    - **email-inbox-triage** → `email-inbox-triage` — Triage an inbox: prioritize threads, draft replies safely
+    - **himalaya** → `himalaya` — Himalaya CLI: IMAP/SMTP email from terminal
+    - **mail-infrastructure** → `mail-server-ops` — Set up TLS, webmail, and outbound relays on mail VPS
+    - **self-hosted-mail-server** → `self-hosted-mail-server` — Use when setting up self-hosted mail servers on cloud VPS
+    - **xurl** → `xurl` — X/Twitter via xurl CLI: raw post search, posting, DM, media
+- **creative**
+  - **design-and-media**
+    - **architecture-diagram** → `architecture-diagram` — Dark-themed SVG architecture/cloud/infra diagrams as HTML
+    - **ascii-video** → `ascii-video` — ASCII video: convert video/audio to colored ASCII MP4/GIF
+    - **baoyu-infographic** → `baoyu-infographic` — Infographics: 21 layouts x 21 styles (信息图, 可视化)
+    - **claude-design** → `claude-design` — Design one-off HTML artifacts (landing, deck, prototype)
+    - **design-md** → `design-md` — Author/validate/export Google's DESIGN
+    - **design-systems** → `apple-design` — 苹果设计原则与流体交互动效知识库，源自 WWDC 设计演讲，为 Web 平台翻译的 17 条交互设计原则
+    - **design-systems** → `brand-guidelines` — Applies Anthropic's official brand colors and typography to any sort of artifact that may ben...
+    - **generative-art** → `algorithmic-art` — Creating algorithmic art using p5
+    - **generative-art** → `canvas-design` — Create beautiful visual art in 
+    - **humanizer** → `humanizer` — Humanize text: strip AI-isms and add real voice
+    - **impeccable** → `impeccable` — Use when the user wants to design, redesign, shape, critique, audit, polish, clarify, distill...
+    - **interface-design** → `design-taste-frontend` — tasteskill v2, the anti-slop frontend skill
+    - **interface-design** → `frontend-design` — Guidance for distinctive, intentional visual design when building new UI or reshaping an exis...
+    - **interface-design** → `ui-ux-craft-kit` — UI/UX design intelligence for web and mobile
+    - **interface-design** → `ui-ux-dev-paid` — |- 功能涵盖:。Use when 需要代码生成、编程辅助、调试测试、开发部署时使用。不适用于无明确技术栈的模糊需求。适用于独立开发者、企业团队和自动化工作流场景。支持中文交互，无需复杂...
+    - **interface-design** → `ui-ux-pro-max` — Professional UI/UX design resource library with searchable design patterns, color palettes, f...
+    - **interface-design** → `ux-design-pro-max` — UI/UX design intelligence for web, mobile, and desktop
+    - **interface-design** → `web-design-guidelines` — Review UI code for Web Interface Guidelines compliance
+    - **manim-video** → `manim-video` — Manim CE animations: 3Blue1Brown math/algo videos
+    - **p5js** → `p5js` — p5
+    - **popular-web-designs** → `popular-web-designs` — 54 real design systems (Stripe, Linear, Vercel) as HTML/CSS
+    - **reference-atlas** → `agent-atlas` — Use when choosing an animation library, CSS technique, video-generation tool, or agent skill ...
+    - **songwriting-and-ai-music** → `songwriting-and-ai-music` — Songwriting craft and Suno AI music prompts
+  - **motion**
+    - **animation-philosophy** → `animate` — Build an animation from scratch, making the decisions in the order that determines whether it...
+    - **animation-philosophy** → `animation-vocabulary` — Reverse-lookup glossary that turns a vague description of a web animation or motion effect in...
+    - **animation-philosophy** → `emil-design-eng` — This skill encodes Emil Kowalski's philosophy on UI polish, component design, animation decis...
+    - **animation-philosophy** → `improve-animations` — Survey a codebase's animation and motion code as a senior motion advisor, then produce a prio...
+- **engineering**
+  - **desktop-and-mobile**
+    - **tauri** → `tauri-live-debug` — Use when driving a running Tauri desktop app
+    - **tauri** → `tauri-v2` — Use when writing Tauri v2 commands, IPC, or capabilities
+    - **windows-bridge** → `windows-interop` — Drive Windows from WSL: shell, screenshots, MCP bridges
+    - **windows-bridge** → `windows-workstation-setup` — Use when setting up Windows 11 dev machines
+  - **platform-and-ops**
+    - **sdlc-review** → `sdlc-review` — Review Kanban handoffs and route verified outcomes
+  - **software-development**
+    - **architecture** → `system-architect` — Acts as a Senior System Architect to design robust, scalable, and maintainable software archi...
+    - **cli-tooling** → `go-cli` — Build cross-platform Go CLI tools
+    - **cli-tooling** → `rust-cli` — Build Rust CLI tools: spec-first, clippy-clean, tested
+    - **code-style** → `ponytail` — Use when coding for smallest complete change
+    - **codebase-inspection** → `codebase-inspection` — Inspect codebases w/ pygount: LOC, languages, ratios
+    - **dogfood** → `dogfood` — Exploratory QA of web apps: find bugs, evidence, reports
+    - **frontend-frameworks** → `react-best-practices` — Use when writing or reviewing React components
+    - **github** → `github` — GitHub via gh CLI: PRs, issues, reviews, repos, auth
+    - **hermes-agent-skill-authoring** → `hermes-agent-skill-authoring` — Author in-repo SKILL
+    - **inspecting-hermes-desktop-dom** → `inspecting-hermes-desktop-dom` — Read the live Hermes desktop DOM/CSS over CDP
+    - **linux-system-administration** → `linux-system-administration` — Manage Linux and WSL packages, sudo, and host networking
+    - **node-inspect-debugger** → `node-inspect-debugger` — Debug Node
+    - **python-debugpy** → `python-debugpy` — Debug Python: pdb REPL + debugpy remote (DAP)
+    - **requesting-code-review** → `requesting-code-review` — Pre-commit review: security scan, quality gates, auto-fix
+    - **rust-fuse-filesystem** → `rust-fuse-filesystem` — Build FUSE filesystems in Rust over network backends
+    - **simplify-code** → `simplify-code` — Parallel 4-agent cleanup of recent code changes
+    - **spike** → `spike` — Throwaway experiments to validate an idea before build
+    - **static-site-ci-deploy** → `static-site-ci-deploy` — Use when shipping a static site: CI, prerender, deploy
+    - **systematic-debugging** → `systematic-debugging` — 4-phase root cause debugging: understand bugs before fixing
+    - **test-driven-development** → `test-driven-development` — TDD: enforce RED-GREEN-REFACTOR, tests before code
+    - **twin-drives-windows** → `twin-drives-windows` — Provision native remote drives on Windows peers (twin)
+    - **twin-link** → `twin-link` — Loopback SSH port-forward links between peers (twin fwd)
+    - **usb-hid-recovery** → `usb-hid-recovery` — Use when touching USB HID hardware
+    - **webview-desktop-shipping** → `webview-desktop-shipping` — Ship Windows desktop webview apps, runtimes and releases
+  - **web-and-network**
+    - **api-clients** → `riot-client-api` — Use when reading Riot Client loopback or shard APIs
+    - **api-clients** → `riot-client-local-api` — Use when reading Riot Client loopback endpoints
+    - **blocked-page-recovery** → `blocked-page-recovery` — Use when a fetch fails: 403/429, paywall, WAF, bot wall
+    - **browser-automation** → `browser-automation` — Use when driving a real browser via chrome-devtools MCP
+    - **browser-automation** → `browser-file-harvest` — Use when downloading many files via an attached browser
+    - **browser-automation** → `stealth-browser` — Use when driving stealth Chromium from Bun via WebView
+    - **extensions** → `chromium-extension` — Build MV3 extensions for Brave/Helium/Chrome
+    - **headed-browser-on-xvfb** → `headed-browser-on-xvfb` — Run a real non-headless browser on the Z440 via Xvfb
+    - **networking** → `recon-pure-vpn` — Use when working on Recon voice VPN code or UI
+    - **performance** → `live-view-flicker` — Use when a live view flickers or re-renders too much
+- **media**
+  - **audio-and-social**
+    - **gif-search** → `gif-search` — Search/download GIFs from Tenor via curl + jq
+    - **songsee** → `songsee` — Audio spectrograms/features (mel, chroma, MFCC) via CLI
+    - **youtube-content** → `youtube-content` — YouTube transcripts to summaries, threads, blogs
+- **productivity**
+  - **apple-ecosystem**
+    - **apple-notes** → `apple-notes` — Manage Apple Notes via memo CLI: create, search, edit
+    - **apple-reminders** → `apple-reminders` — Apple Reminders via remindctl: add, list, complete
+    - **findmy** → `findmy` — Track Apple devices/AirTags via FindMy
+    - **imessage** → `imessage` — Send and receive iMessages/SMS via the imsg CLI on macOS
+  - **office-and-docs**
+    - **academic-project-delivery** → `academic-project-delivery` — Manage and deliver university coursework projects
+    - **airtable** → `airtable` — Airtable REST API via curl
+    - **box** → `box` — Box manages cloud files, sharing, search, and metadata
+    - **document-to-action-items** → `document-to-action-items` — Extract cited obligations, deadlines, tasks from documents
+    - **docx** → `docx` — Create, read, edit, template, and review Word 
+    - **google-workspace** → `google-workspace` — Gmail, Calendar, Drive, Docs, Sheets via gws CLI or Python
+    - **maps** → `maps` — Geocode, POIs, routes, timezones via OpenStreetMap/OSRM
+    - **meeting-action-items** → `meeting-action-items` — Turn meeting notes into cited decisions, owners, tickets
+    - **naming** → `name-availability` — Use when naming a project, product, CLI, or package
+    - **notion** → `notion` — Notion API + ntn CLI: pages, databases, markdown, Workers
+    - **obsidian** → `obsidian` — Read, search, create, and edit notes in the Obsidian vault
+    - **pdf** → `pdf` — PDF files: create, read, merge, fill, OCR, edit text
+    - **powerpoint** → `powerpoint` — Create, read, edit 
+    - **product-price-monitor** → `product-price-monitor` — Watch product, flight, or listing prices; alert on target
+    - **teams-meeting-pipeline** → `teams-meeting-pipeline` — Teams meeting summaries, job replay, Graph subscriptions
+    - **weekly-review-planning** → `weekly-review-planning` — Weekly reset: commitments, stalled work, next-week plan
+    - **word-online-editing** → `word-online-editing` — Use when editing live Word-for-web docs via DevTools
+    - **xlsx** → `xlsx` — Create, read, edit Excel 
+- **research**
+  - **discovery-and-citation**
+    - **arxiv** → `arxiv` — Search arXiv papers by keyword, author, category, or ID
+    - **competitor-news-monitor** → `competitor-news-monitor` — Watch named companies for material news; cited digests
+    - **grounded-citations** → `grounded-citations` — Ground answers and documents in cited, verifiable sources
+    - **llm-wiki** → `llm-wiki` — Karpathy's LLM Wiki: build/query interlinked markdown KB
+    - **web-platform-support-verification** → `web-platform-support-verification` — Use when verifying browser support or Baseline status

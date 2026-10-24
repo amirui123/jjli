@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Triángulo seguro</title>
+<style>
+  :root {
+    --bg: #0F141C; --card: #161C26; --border: #333D4D; --well: #121821;
+    --text: #E6EAF0; --muted: #8B95A5; --blue: #4C8DF6; --green: #3CCB7F; --red: #F0565A; --yellow: #F2C14E;
+    --hueco: 40px; /* hueco a propósito entre la opción y su panel, para que el triángulo se vea */
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); font: 18px/1.4 ui-sans-serif, system-ui, sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 20px 28px; align-items: center; padding: 20px 32px; border-bottom: 1px solid var(--border); }
+  header label { display: flex; gap: 10px; align-items: center; cursor: pointer; color: var(--muted); white-space: nowrap; }
+  header input { width: 20px; height: 20px; accent-color: var(--blue); margin: 0; }
+  header label:has(input:checked) { color: var(--text); }
+  .grupo { display: flex; gap: 14px; align-items: center; padding-right: 28px; border-right: 1px solid var(--border); }
+  #estado { margin-left: auto; font: 15px ui-monospace, Menlo, monospace; color: var(--muted); }
+  #estado b { color: var(--text); font-weight: 600; }
+  #estado.cerrado b { color: var(--red); }
+  #estado.abierto b { color: var(--green); }
+  main { position: relative; padding: 48px 32px; min-height: 70vh; }
+  .menu { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 8px; }
+  .menu.vertical { width: 260px; }
+  .menu.horizontal { display: flex; gap: 4px; width: max-content; }
+  .item { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 14px 16px; border-radius: 10px; cursor: default; }
+  .item .chev { color: var(--muted); display: inline-block; }
+  .horizontal .item .chev { transform: rotate(90deg); }
+  .item.activo { background: var(--well); outline: 1px solid var(--border); }
+  .item.activo .chev { color: var(--blue); }
+  .sub { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 8px; width: 260px; position: absolute; display: none; }
+  .sub.abierto { display: block; }
+  .sub div { padding: 14px 16px; border-radius: 10px; color: var(--muted); }
+  .sub div:hover { background: var(--well); color: var(--text); }
+  svg#capa { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; }
+  svg#capa polygon { fill: rgba(76, 141, 246, .22); stroke: var(--blue); stroke-width: 2; stroke-dasharray: 8 6; }
+  svg#capa polygon.fuera { fill: rgba(240, 86, 90, .18); stroke: var(--red); }
+</style>
+</head>
+<body>
+<header>
+  <div class="grupo">
+    <label><input type="radio" name="modo" value="vertical" checked> Menú vertical</label>
+    <label><input type="radio" name="modo" value="horizontal"> Menú horizontal</label>
+  </div>
+  <label><input type="checkbox" id="seguro"> Triángulo seguro</label>
+  <label><input type="checkbox" id="ver" checked> Mostrar el triángulo</label>
+  <label><input type="checkbox" id="espera"> Espera de 300 ms (en vez del triángulo)</label>
+  <div id="estado" class="cerrado">submenú: <b>cerrado</b></div>
+</header>
+<main id="main">
+  <nav class="menu vertical" id="menu"></nav>
+  <div class="sub" id="sub"></div>
+</main>
+<svg id="capa"><polygon id="poli" points="" style="display:none"></polygon></svg>
+<script>
+  const ITEMS = [
+    ['Productos', ['Camisetas', 'Sudaderas', 'Gorras', 'Calcetines']],
+    ['Precios', ['Mensual', 'Anual', 'Equipos']],
+    ['Recursos', ['Blog', 'Guías', 'Plantillas', 'Vídeos']],
+    ['Ayuda', ['Centro de ayuda', 'Contacto', 'Estado']],
+    ['Cuenta', ['Perfil', 'Pedidos', 'Salir']],
+  ];
+  const HUECO = 40;
+  const main = document.getElementById('main');
+  const menu = document.getElementById('menu');
+  const sub = document.getElementById('sub');
+  const poli = document.getElementById('poli');
+  const estado = document.getElementById('estado');
+  const seguro = document.getElementById('seguro');
+  const ver = document.getElementById('ver');
+  const espera = document.getElementById('espera');
+  const horizontal = () => document.querySelector('input[name=modo]:checked').value === 'horizontal';
+
+  ITEMS.forEach(([nombre], i) => {
+    const el = document.createElement('div');
+    el.className = 'item'; el.dataset.i = i;
+    el.innerHTML = `<span>${nombre}</span><span class="chev">›</span>`;
+    menu.appendChild(el);
+  });
+
+  let abierto = -1;          // índice del submenú abierto
+  let zona = null;           // polígono guardado al salir de la opción (como Radix)
+  let zonaTimer = 0, esperaTimer = 0, rojoTimer = 0;
+  let ultimoItem = -1;
+  let ultimaX = 0, ultimaY = 0, haciaElPanel = true; // como Radix: solo cuenta como «ir hacia el panel» si el ratón no retrocede
+
+  function abrir(i) {
+    if (abierto === i) return;
+    abierto = i;
+    [...menu.children].forEach((el, j) => el.classList.toggle('activo', j === i));
+    sub.innerHTML = ITEMS[i][1].map((t) => `<div>${t}</div>`).join('');
+    const a = menu.children[i].getBoundingClientRect(), m = main.getBoundingClientRect(), b = menu.getBoundingClientRect();
+    if (horizontal()) { sub.style.left = `${a.left - m.left}px`; sub.style.top = `${b.bottom - m.top + HUECO}px`; }
+    else { sub.style.left = `${b.right - m.left + HUECO}px`; sub.style.top = `${a.top - m.top}px`; }
+    sub.classList.add('abierto');
+    estado.className = 'abierto'; estado.innerHTML = `submenú: <b>${ITEMS[i][0]}</b>`;
+  }
+  function cerrar() {
+    if (abierto === -1) return;
+    abierto = -1;
+    [...menu.children].forEach((el) => el.classList.remove('activo'));
+    sub.classList.remove('abierto');
+    estado.className = 'cerrado'; estado.innerHTML = 'submenú: <b>cerrado</b>';
+    if (zona) { pintar(true); clearTimeout(rojoTimer); rojoTimer = setTimeout(borrarZona, 500); zona = null; } // el rojo se ve medio segundo
+  }
+
+  // Polígono como el de Radix: el puntero (con 5 px de margen hacia atrás) más las cuatro esquinas del panel.
+  // Radix lo olvida a los 300 ms; aquí dura mientras el ratón se mueva dentro (y 1 s parado) para que se vea en pantalla.
+  function guardarZona(x, y) {
+    const r = sub.getBoundingClientRect();
+    // El orden de las esquinas evita que el polígono se cruce: en vertical el puntero está a la izquierda, en horizontal encima.
+    zona = horizontal()
+      ? [[x, y - 5], [r.right, r.top], [r.right, r.bottom], [r.left, r.bottom], [r.left, r.top]]
+      : [[x - 5, y], [r.left, r.top], [r.right, r.top], [r.right, r.bottom], [r.left, r.bottom]];
+    renovarZona();
+    pintar(false);
+  }
+  function renovarZona() {
+    clearTimeout(zonaTimer);
+    zonaTimer = setTimeout(borrarZona, 1000); // parado 1 s: se olvida la intención y el siguiente movimiento decide
+  }
+  function borrarZona() { zona = null; poli.style.display = 'none'; }
+  // Puente: el hueco entre la opción abierta y su panel. Ir y volver por ahí no cierra nada (como el «rect» de Floating UI).
+  function enPuente(x, y) {
+    if (abierto === -1) return false;
+    const a = menu.children[abierto].getBoundingClientRect(), s = sub.getBoundingClientRect();
+    if (horizontal()) return y >= a.bottom && y <= s.top && x >= Math.min(a.left, s.left) && x <= Math.max(a.right, s.right);
+    return x >= a.right && x <= s.left && y >= Math.min(a.top, s.top) && y <= Math.max(a.bottom, s.bottom);
+  }
+  function dentro(x, y, pts) { // ray casting
+    let ok = false;
+    for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+      const [xi, yi] = pts[i], [xj, yj] = pts[j];
+      if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) ok = !ok;
+    }
+    return ok;
+  }
+  function pintar(fuera) {
+    if (!zona || !ver.checked) { poli.style.display = 'none'; return; }
+    poli.setAttribute('points', zona.map((p) => p.join(',')).join(' '));
+    poli.classList.toggle('fuera', fuera);
+    poli.style.display = '';
+  }
+
+  document.addEventListener('pointermove', (e) => {
+    const x = e.clientX, y = e.clientY;
+    if (horizontal()) { if (y !== ultimaY) haciaElPanel = y > ultimaY; }
+    else if (x !== ultimaX) haciaElPanel = x > ultimaX;
+    ultimaX = x; ultimaY = y;
+    const sobre = document.elementFromPoint(x, y);
+    const item = sobre?.closest('.item');
+    const enSub = !!sobre?.closest('#sub');
+    const i = item ? Number(item.dataset.i) : -1;
+
+    if (enSub) { clearTimeout(esperaTimer); borrarZona(); ultimoItem = -1; return; } // ya ha llegado
+
+    if (abierto !== -1 && seguro.checked) {
+      if (ultimoItem === abierto && i !== abierto) guardarZona(x, y);   // acaba de salir de la opción: triángulo hacia el panel
+      if (zona && haciaElPanel && dentro(x, y, zona)) { renovarZona(); pintar(false); ultimoItem = i; return; } // va hacia el panel
+      if (enPuente(x, y)) { ultimoItem = i; return; }                   // en el hueco entre opción y panel: tampoco se toca nada
+    }
+
+    if (i !== -1) {
+      clearTimeout(esperaTimer);
+      if (espera.checked && abierto !== -1 && i !== abierto) esperaTimer = setTimeout(() => abrir(i), 300);
+      else abrir(i);
+    } else if (abierto !== -1) {
+      if (espera.checked) { clearTimeout(esperaTimer); esperaTimer = setTimeout(cerrar, 300); }
+      else cerrar();
+    }
+    ultimoItem = i;
+  });
+  const reiniciar = () => { cerrar(); borrarZona(); };
+  seguro.addEventListener('change', () => { if (seguro.checked) espera.checked = false; reiniciar(); });
+  espera.addEventListener('change', () => { if (espera.checked) seguro.checked = false; reiniciar(); });
+  document.querySelectorAll('input[name=modo]').forEach((r) => r.addEventListener('change', () => {
+    menu.className = `menu ${horizontal() ? 'horizontal' : 'vertical'}`;
+    reiniciar();
+  }));
+</script>
+</body>
+</html>

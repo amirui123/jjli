@@ -2,22 +2,92 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Eye, List, Maximize2, Minimize2, RotateCcw, SlidersHorizontal } from "lucide-react";
 import { cn } from "./kit";
 import { usePersisted } from "../lib/store";
+import { soundEngine } from "../engines/soundEngine";
 
-/**
- * The shared studio frame used by every section.
- *
- * Desktop (>=1200px) is a single, non-scrolling viewport split into three
- * resizable rails — exactly the mental model of a desktop editor:
- *
- *   [ settings ] | [ live preview ] | [ item list ]
- *        left           centre             right
- *
- * Each rail scrolls on its own, so the page itself never scrolls. The two
- * dividers are draggable (and double-clickable to reset), widths are persisted,
- * and `F` toggles a distraction-free focus mode that hides both rails.
- * Below 1200px the three rails turn into three tabs (preview / settings / list)
- * so a phone never has to scroll past one panel to reach another.
- */
+export type StudioVariant =
+  | "atelier"
+  | "oscilloscope"
+  | "blueprint"
+  | "daw"
+  | "codex"
+  | "shader-deck"
+  | "neural-forge";
+
+const VARIANT_META: Record<
+  StudioVariant,
+  {
+    badge: string;
+    accentHex: string;
+    headerBg: string;
+    step1: string;
+    step2: string;
+    step3: string;
+  }
+> = {
+  atelier: {
+    badge: "ATELIER · خوشنویسی و تایپوگرافی",
+    accentHex: "#E8B33A",
+    headerBg:
+      "radial-gradient(90% 140% at 100% 0%, rgba(232,179,58,0.16), rgba(11,13,20,0.95) 65%)",
+    step1: "۱. انتخاب فونت یا الگوی آماده",
+    step2: "۲. تنظیم سادهٔ اندازه و بوم",
+    step3: "۳. دانلود مستقیم فونت و کد",
+  },
+  oscilloscope: {
+    badge: "OSCILLOSCOPE · آزمایشگاه فیزیک ۱۲۰Hz",
+    accentHex: "#22D3EE",
+    headerBg:
+      "radial-gradient(90% 140% at 100% 0%, rgba(34,211,238,0.16), rgba(9,13,22,0.95) 65%)",
+    step1: "۱. انتخاب الگوریتم حرکت",
+    step2: "۲. تنظیم چابکی و نرمی فنر",
+    step3: "۳. کپی یا دانلود کد حرکت",
+  },
+  blueprint: {
+    badge: "BLUEPRINT · مونتاژ کامپوننت و سورس",
+    accentHex: "#34D399",
+    headerBg:
+      "radial-gradient(90% 140% at 100% 0%, rgba(52,211,153,0.15), rgba(9,14,20,0.95) 65%)",
+    step1: "۱. انتخاب ویجت یا رجیستری",
+    step2: "۲. تست زنده در صحنه",
+    step3: "۳. دانلود فایل TSX یا کیت",
+  },
+  daw: {
+    badge: "ACOUSTIC DAW · کنسول سنتز صدا و ریتم",
+    accentHex: "#FB7185",
+    headerBg:
+      "radial-gradient(90% 140% at 100% 0%, rgba(251,113,133,0.16), rgba(16,10,18,0.95) 65%)",
+    step1: "۱. انتخاب پد یا افکت صوتی",
+    step2: "۲. تنظیم زیر و بمی و کاراکتر",
+    step3: "۳. دانلود مستقیم فایل WAV",
+  },
+  codex: {
+    badge: "CODEX · ۱۱ ستون دانش و سیستم برند",
+    accentHex: "#A78BFA",
+    headerBg:
+      "radial-gradient(90% 140% at 100% 0%, rgba(167,139,250,0.16), rgba(13,11,22,0.95) 65%)",
+    step1: "۱. انتخاب ستون دانش یا برند",
+    step2: "۲. مطالعه و تنظیم پرامپت",
+    step3: "۳. دانلود سند کامل Markdown",
+  },
+  "shader-deck": {
+    badge: "GPU & PERSIAN ENGINES · شیدر و موتور بومی",
+    accentHex: "#38BDF8",
+    headerBg:
+      "radial-gradient(90% 140% at 100% 0%, rgba(56,189,248,0.16), rgba(8,13,24,0.95) 65%)",
+    step1: "۱. انتخاب شیدر یا موتور بومی",
+    step2: "۲. انتخاب مود نوری یا ورودی",
+    step3: "۳. دانلود کد GLSL / موتور",
+  },
+  "neural-forge": {
+    badge: "NEURAL FORGE · پرامپت‌ساز و آموزش مدل",
+    accentHex: "#F472B6",
+    headerBg:
+      "radial-gradient(90% 140% at 100% 0%, rgba(244,114,182,0.16), rgba(16,10,20,0.95) 65%)",
+    step1: "۱. انتخاب هدف ساخت با AI",
+    step2: "۲. تعیین فونت و مدل هدف",
+    step3: "۳. دانلود پرامپت و دیتاست",
+  },
+};
 
 interface Layout {
   list: number;
@@ -39,11 +109,6 @@ type MobileTab = "stage" | "settings" | "list";
 
 const STUDIO_PREVIEW_EVENT = "studio:preview";
 
-/**
- * Called by a list row after it changes the selection. On phones the shell
- * switches to the preview panel so the change is visible immediately; on
- * desktop (three rails) it is a no-op.
- */
 export function focusStudioPreview() {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
   if (!window.matchMedia("(max-width: 1199px)").matches) return;
@@ -61,6 +126,8 @@ export const StudioShell: React.FC<{
   title: string;
   description: string;
   icon: React.ElementType;
+  variant?: StudioVariant;
+  topDeck?: React.ReactNode;
   stats?: React.ReactNode;
   actions?: React.ReactNode;
   onReset?: () => void;
@@ -74,32 +141,35 @@ export const StudioShell: React.FC<{
   title,
   description,
   icon: Icon,
+  variant = "atelier",
+  topDeck,
   stats,
   actions,
   onReset,
   list,
-  listWidth = "248px",
+  listWidth = "252px",
   stage,
   settings,
-  settingsWidth = "306px",
+  settingsWidth = "312px",
 }) => {
+  const meta = VARIANT_META[variant];
   const [layout, setLayout] = usePersisted<Layout>("studio-layout", {
-    list: parseInt(listWidth, 10) || 248,
-    settings: parseInt(settingsWidth, 10) || 306,
+    list: parseInt(listWidth, 10) || 252,
+    settings: parseInt(settingsWidth, 10) || 312,
     focus: false,
   });
 
-  // Every studio opens on its live preview; the tab choice is per-visit so a
-  // phone never lands in the middle of another studio's settings.
   const [tab, setTab] = useState<MobileTab>("stage");
 
   const gridRef = useRef<HTMLDivElement | null>(null);
-  const [drag, setDrag] = useState<{ side: "list" | "settings"; startX: number; start: number } | null>(null);
+  const [drag, setDrag] = useState<{
+    side: "list" | "settings";
+    startX: number;
+    start: number;
+  } | null>(null);
 
   const listW = clamp(layout.list, MIN_LIST, MAX_LIST);
   const settingsW = clamp(layout.settings, MIN_SETTINGS, MAX_SETTINGS);
-
-  /* -------------------------------------------------------------- dragging */
 
   const bounds = useCallback(
     (side: "list" | "settings") => {
@@ -107,8 +177,15 @@ export const StudioShell: React.FC<{
       const usable = width - HANDLE_W * 2 - GAP * 4;
       const other = side === "list" ? settingsW : listW;
       const absoluteMax = width - other - STAGE_MIN - HANDLE_W * 2 - GAP * 4;
-      const max = Math.min(side === "list" ? MAX_LIST : MAX_SETTINGS, Math.max(absoluteMax, side === "list" ? MIN_LIST : MIN_SETTINGS));
-      return { min: side === "list" ? MIN_LIST : MIN_SETTINGS, max: Math.max(max, side === "list" ? MIN_LIST : MIN_SETTINGS), usable };
+      const max = Math.min(
+        side === "list" ? MAX_LIST : MAX_SETTINGS,
+        Math.max(absoluteMax, side === "list" ? MIN_LIST : MIN_SETTINGS)
+      );
+      return {
+        min: side === "list" ? MIN_LIST : MIN_SETTINGS,
+        max: Math.max(max, side === "list" ? MIN_LIST : MIN_SETTINGS),
+        usable,
+      };
     },
     [listW, settingsW]
   );
@@ -118,7 +195,6 @@ export const StudioShell: React.FC<{
     const side = drag.side;
     const onMove = (e: PointerEvent) => {
       const dx = e.clientX - drag.startX;
-      // RTL: both rail boundaries grow when the pointer moves to the left.
       const next = drag.start - dx;
       const { min, max } = bounds(side);
       setLayout({ [side]: clamp(Math.round(next), min, max) } as Partial<Layout>);
@@ -141,31 +217,32 @@ export const StudioShell: React.FC<{
   }, [drag, bounds, setLayout]);
 
   const resetWidths = useCallback(() => {
-    setLayout({ list: 248, settings: 306 });
+    setLayout({ list: 252, settings: 312 });
   }, [setLayout]);
 
-  /* ------------------------------------------------ mobile tab → top of page */
   const pickTab = useCallback((next: MobileTab) => {
+    soundEngine.playTick(0.8);
     setTab(next);
     if (typeof window !== "undefined" && window.scrollY > 80) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, []);
 
-  /* Picking an item on a phone should land on the preview it changed. */
   useEffect(() => {
     const onPreview = () => pickTab("stage");
     window.addEventListener(STUDIO_PREVIEW_EVENT, onPreview);
     return () => window.removeEventListener(STUDIO_PREVIEW_EVENT, onPreview);
   }, [pickTab]);
 
-  /* ------------------------------------------------------------ focus mode */
-
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
       const typing =
-        el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || el.isContentEditable);
+        el &&
+        (el.tagName === "INPUT" ||
+          el.tagName === "TEXTAREA" ||
+          el.tagName === "SELECT" ||
+          el.isContentEditable);
       if (typing) return;
       if (e.key === "f" || e.key === "F") {
         e.preventDefault();
@@ -194,8 +271,22 @@ export const StudioShell: React.FC<{
       onDoubleClick={resetWidths}
       onKeyDown={(e) => {
         const step = e.shiftKey ? 32 : 12;
-        if (e.key === "ArrowLeft") setLayout({ [side]: clamp((side === "list" ? listW : settingsW) + step, side === "list" ? MIN_LIST : MIN_SETTINGS, side === "list" ? MAX_LIST : MAX_SETTINGS) } as Partial<Layout>);
-        if (e.key === "ArrowRight") setLayout({ [side]: clamp((side === "list" ? listW : settingsW) - step, side === "list" ? MIN_LIST : MIN_SETTINGS, side === "list" ? MAX_LIST : MAX_SETTINGS) } as Partial<Layout>);
+        if (e.key === "ArrowLeft")
+          setLayout({
+            [side]: clamp(
+              (side === "list" ? listW : settingsW) + step,
+              side === "list" ? MIN_LIST : MIN_SETTINGS,
+              side === "list" ? MAX_LIST : MAX_SETTINGS
+            ),
+          } as Partial<Layout>);
+        if (e.key === "ArrowRight")
+          setLayout({
+            [side]: clamp(
+              (side === "list" ? listW : settingsW) - step,
+              side === "list" ? MIN_LIST : MIN_SETTINGS,
+              side === "list" ? MAX_LIST : MAX_SETTINGS
+            ),
+          } as Partial<Layout>);
       }}
       className={cn(
         "group hidden cursor-col-resize touch-none items-center justify-center desk:flex",
@@ -214,70 +305,122 @@ export const StudioShell: React.FC<{
   );
 
   return (
-    <div className="flex min-h-0 flex-col gap-3 desk:h-full">
-      {/* ----------------------------------------------------------- header */}
-      <header className="flex shrink-0 flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/[0.06] bg-[#0C0C0F]/80 px-3 py-2 backdrop-blur">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <span
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border"
-            style={{
-              borderColor: "rgba(var(--accent-glow),0.28)",
-              background: "rgba(var(--accent-glow),0.10)",
-              color: "var(--accent)",
-            }}
-          >
-            <Icon className="h-3.5 w-3.5" />
-          </span>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h1 className="truncate font-hasti text-[15px] leading-tight text-white sm:text-[17px]">
-                {title}
-              </h1>
-              <span className="hidden shrink-0 font-mono text-[9px] tracking-[0.16em] text-zinc-600 sm:inline">
-                {eyebrow}
-              </span>
+    <div className="flex min-h-0 flex-col gap-2.5 desk:h-full">
+      {/* ----------------------------------------------------------- bespoke studio header */}
+      <header
+        className="glass-bevel flex shrink-0 flex-col gap-2 rounded-2xl border px-3.5 py-2.5 backdrop-blur-xl"
+        style={{
+          background: meta.headerBg,
+          borderColor: `${meta.accentHex}38`,
+        }}
+      >
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border"
+              style={{
+                borderColor: `${meta.accentHex}55`,
+                background: `${meta.accentHex}18`,
+                color: meta.accentHex,
+                boxShadow: `0 0 22px -6px ${meta.accentHex}80`,
+              }}
+            >
+              <Icon className="h-4.5 w-4.5" />
+            </span>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="truncate font-hasti text-[16px] leading-tight text-white sm:text-[19px]">
+                  {title}
+                </h1>
+                <span
+                  className="hidden shrink-0 rounded-md border px-2 py-0.5 font-mono text-[9px] tracking-[0.12em] sm:inline"
+                  style={{
+                    borderColor: `${meta.accentHex}40`,
+                    background: `${meta.accentHex}14`,
+                    color: meta.accentHex,
+                  }}
+                >
+                  {meta.badge}
+                </span>
+                <span className="hidden shrink-0 font-mono text-[9px] text-zinc-500 xl:inline">
+                  {eyebrow}
+                </span>
+              </div>
+              <p className="mt-0.5 hidden max-w-2xl truncate text-[11px] leading-tight text-zinc-300 sm:block">
+                {description}
+              </p>
             </div>
-            <p className="mt-0.5 hidden max-w-2xl truncate text-[10.5px] leading-tight text-zinc-500 sm:block">
-              {description}
-            </p>
+          </div>
+
+          <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+            {stats && <div className="hidden items-center gap-1.5 sm:flex">{stats}</div>}
+            {actions}
+            <button
+              type="button"
+              onClick={() => setLayout({ focus: !layout.focus })}
+              title={
+                layout.focus ? "خروج از حالت تمرکز (Esc)" : "حالت تمرکز — پنهان کردن ریل‌ها (F)"
+              }
+              aria-label="حالت تمرکز"
+              aria-pressed={layout.focus}
+              className={cn(
+                "hidden h-8 w-8 items-center justify-center rounded-xl border transition-colors desk:flex",
+                layout.focus
+                  ? "border-[color:var(--accent)]/40 bg-[color:var(--accent)]/12 text-[color:var(--accent)]"
+                  : "border-white/10 bg-white/[0.03] text-zinc-400 hover:border-white/25 hover:text-white"
+              )}
+            >
+              {layout.focus ? (
+                <Minimize2 className="h-3.5 w-3.5" />
+              ) : (
+                <Maximize2 className="h-3.5 w-3.5" />
+              )}
+            </button>
+            {onReset && (
+              <button
+                type="button"
+                onClick={onReset}
+                title="بازنشانی تنظیمات"
+                aria-label="بازنشانی تنظیمات"
+                className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-[10.5px] text-zinc-300 transition-colors hover:border-white/25 hover:text-white"
+              >
+                <RotateCcw className="h-3 w-3" />
+                <span className="hidden sm:inline">بازنشانی</span>
+              </button>
+            )}
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-1.5">
-          {stats && <div className="hidden items-center gap-1.5 sm:flex">{stats}</div>}
-          {actions}
-          <button
-            onClick={() => setLayout({ focus: !layout.focus })}
-            title={layout.focus ? "خروج از حالت تمرکز (Esc)" : "حالت تمرکز — پنهان کردن ریل‌ها (F)"}
-            aria-label="حالت تمرکز"
-            aria-pressed={layout.focus}
-            className={cn(
-              "hidden h-7 w-7 items-center justify-center rounded-lg border transition-colors desk:flex",
-              layout.focus
-                ? "border-[color:var(--accent)]/40 bg-[color:var(--accent)]/12 text-[color:var(--accent)]"
-                : "border-white/10 bg-white/[0.03] text-zinc-400 hover:border-white/25 hover:text-white"
-            )}
-          >
-            {layout.focus ? <Minimize2 className="h-3 w-3" /> : <Maximize2 className="h-3 w-3" />}
-          </button>
-          {onReset && (
-            <button
-              onClick={onReset}
-              title="بازنشانی تنظیمات"
-              aria-label="بازنشانی تنظیمات"
-              className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1.5 text-[10px] text-zinc-400 transition-colors hover:border-white/25 hover:text-white"
+        {/* 3-Step Zero-Confusion Guided Workflow Strip + Optional Bespoke Studio TopDeck */}
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.06] pt-2 text-[10px]">
+          <div className="flex flex-wrap items-center gap-1.5 text-zinc-300">
+            <span className="rounded-lg border border-white/[0.08] bg-black/30 px-2 py-0.5">
+              {meta.step1}
+            </span>
+            <span className="text-zinc-600">⟵</span>
+            <span className="rounded-lg border border-white/[0.08] bg-black/30 px-2 py-0.5">
+              {meta.step2}
+            </span>
+            <span className="text-zinc-600">⟵</span>
+            <span
+              className="rounded-lg border px-2 py-0.5 font-bold"
+              style={{
+                borderColor: `${meta.accentHex}45`,
+                background: `${meta.accentHex}15`,
+                color: meta.accentHex,
+              }}
             >
-              <RotateCcw className="h-3 w-3" />
-              <span className="hidden sm:inline">بازنشانی</span>
-            </button>
-          )}
+              {meta.step3}
+            </span>
+          </div>
+          {topDeck && <div className="flex flex-wrap items-center gap-1.5">{topDeck}</div>}
         </div>
       </header>
 
       {/* -------------------------------------------------- mobile panel tabs */}
       <nav
         aria-label="پنل‌های استودیو"
-        className="sticky top-14 z-20 flex shrink-0 items-center gap-1 rounded-xl border border-white/[0.07] bg-[#0B0B0E]/95 p-1 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.9)] backdrop-blur-xl desk:hidden"
+        className="sticky top-14 z-20 flex shrink-0 items-center gap-1 rounded-2xl border border-white/[0.09] bg-[#090B12]/95 p-1 shadow-[0_14px_34px_-14px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl desk:hidden"
       >
         {MOBILE_TABS.map(({ id, label, icon: TabIcon }) => {
           const active = tab === id;
@@ -288,14 +431,17 @@ export const StudioShell: React.FC<{
               onClick={() => pickTab(id)}
               aria-pressed={active}
               className={cn(
-                "tap-target flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-medium transition-colors",
+                "tap-target relative flex flex-1 items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-[11.5px] font-bold transition-all",
                 active
-                  ? "bg-[color:var(--accent)]/12 text-white ring-1 ring-inset ring-[color:var(--accent)]/25"
-                  : "text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-300"
+                  ? "bg-[color:var(--accent)]/15 text-white ring-1 ring-inset ring-[color:var(--accent)]/35 shadow-[0_0_20px_-6px_rgba(var(--accent-glow),0.55)]"
+                  : "text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-200"
               )}
             >
               <TabIcon
-                className={cn("h-3.5 w-3.5", active ? "text-[color:var(--accent)]" : "text-zinc-500")}
+                className={cn(
+                  "h-3.5 w-3.5",
+                  active ? "text-[color:var(--accent)]" : "text-zinc-500"
+                )}
               />
               {label}
             </button>
@@ -364,21 +510,23 @@ export const StudioList: React.FC<{
 }> = ({ title, subtitle, toolbar, children, footer, className, listClassName }) => (
   <section
     className={cn(
-      "flex flex-col overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0D0D10]/90 backdrop-blur-sm",
+      "flex flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0B0D14]/95 backdrop-blur-sm",
       "max-h-[62vh] desk:h-full desk:max-h-none",
       className
     )}
   >
-    <header className="flex shrink-0 items-start justify-between gap-2 border-b border-white/[0.06] px-3 py-2">
+    <header className="flex shrink-0 items-start justify-between gap-2 border-b border-white/[0.06] px-3 py-2.5">
       <div className="min-w-0">
         <h3 className="truncate text-[11.5px] font-bold text-zinc-100">{title}</h3>
-        {subtitle && <p className="mt-0.5 truncate text-[9.5px] text-zinc-500">{subtitle}</p>}
+        {subtitle && <p className="mt-0.5 truncate text-[9.5px] text-zinc-400">{subtitle}</p>}
       </div>
       {toolbar}
     </header>
-    <div className={cn("studio-scroll min-h-0 flex-1 overflow-y-auto p-1.5", listClassName)}>{children}</div>
+    <div className={cn("studio-scroll min-h-0 flex-1 overflow-y-auto p-1.5", listClassName)}>
+      {children}
+    </div>
     {footer && (
-      <div className="shrink-0 border-t border-white/[0.06] px-3 py-1.5 text-[9px] leading-tight text-zinc-600">
+      <div className="shrink-0 border-t border-white/[0.06] px-3 py-1.5 text-[9.5px] leading-tight text-zinc-500">
         {footer}
       </div>
     )}

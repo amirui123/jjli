@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SFX Mo — Procedural Sound Studio</title>
+<meta name="description" content="Procedural sound effects, synthesized live in your browser. No samples, no files — pure Web Audio.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Geist:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{background:#0e0e12;color:#f5f5f5;font-family:Geist,"Noto Sans TC",system-ui,sans-serif}
+.display{font-family:"Dela Gothic One","Noto Sans TC",sans-serif}
+.wrap{max-width:960px;margin:0 auto;padding:24px 20px 60px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.brand{font-size:15px;letter-spacing:.06em}
+.topbtns{display:flex;gap:8px}
+.tbtn{min-width:38px;height:38px;padding:0 10px;border-radius:50%;border:1px solid rgba(255,255,255,.22);background:transparent;color:#f5f5f5;cursor:pointer;font-size:13px;font-weight:600}
+h1{font-size:clamp(30px,6vw,54px);margin:0}
+.sub{color:rgba(245,245,245,.6);font-size:14px;margin:8px 0 22px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:10px;margin-bottom:24px}
+.cat{padding:16px 8px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:#f5f5f5;cursor:pointer;text-align:center;transition:all .18s}
+.cat:hover{border-color:rgba(255,255,255,.4);transform:translateY(-2px)}
+.cat.active{background:#f5f5f5;color:#0e0e12;border-color:#f5f5f5}
+.cat .ic{display:block;margin-bottom:6px}.cat .ic svg{width:30px;height:30px;display:block;margin:0 auto}
+.cat .nm{font-size:12px;font-weight:600}
+.panel{border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:22px;background:rgba(255,255,255,.03)}
+.panel h2{margin:0 0 4px;font-size:22px}
+.panel .desc{color:rgba(245,245,245,.55);font-size:13px;margin:0 0 16px}
+#wave{width:100%;height:110px;display:block;background:rgba(0,0,0,.4);border-radius:12px;margin-bottom:18px}
+.sliders{display:grid;gap:14px;margin-bottom:20px}
+.srow{display:grid;grid-template-columns:110px 1fr 46px;gap:12px;align-items:center}
+.srow label{font-size:13px;color:rgba(245,245,245,.75)}
+.srow output{font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:#f5f5f5}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{padding:12px 26px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:transparent;color:#f5f5f5;cursor:pointer;font-size:14px;font-weight:600;transition:all .18s}
+.btn:hover{border-color:#fff}
+.btn.primary{background:#f5f5f5;color:#0e0e12;border-color:#f5f5f5}
+.btn.primary:hover{transform:scale(1.03)}
+footer{margin-top:36px;padding-top:18px;border-top:1px solid rgba(255,255,255,.12);font-size:12px;color:rgba(245,245,245,.45);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+footer a{color:inherit}
+.hint{font-size:12px;color:rgba(245,245,245,.4);margin-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand display">OPENX · SFX MO</div>
+    <div class="topbtns"><a href="https://buymeacoffee.com/whynotartmoney" target="_blank" rel="noopener" title="Buy me a coffee" aria-label="Buy me a coffee" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;opacity:.85;line-height:0;flex-shrink:0;margin-right:8px"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#8a867e" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 8h1a3 3 0 0 1 0 6h-1"/><path d="M3 8h14v6a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><path d="M7 2v2M11 2v2M15 2v2"/></svg></a><button class="tbtn" id="langBtn">EN</button></div>
+  </header>
+  <h1 class="display" data-i18n="title">SFX Mo</h1>
+  <p class="sub" data-i18n="sub">Procedural sound effects — synthesized live, no samples. Tweak, play, export WAV.</p>
+  <div class="grid" id="grid"></div>
+  <div class="panel">
+    <h2 id="sfxName">Click</h2>
+    <p class="desc" id="sfxDesc"></p>
+    <canvas id="wave" width="880" height="110"></canvas>
+    <div class="sliders" id="sliders"></div>
+    <div class="btns">
+      <button class="btn primary" id="playBtn">▶ <span data-i18n="play">Play</span></button>
+      <button class="btn" id="randBtn">◈ <span data-i18n="random">Surprise me</span></button>
+      <button class="btn" id="wavBtn">↓ <span data-i18n="wav">WAV</span></button>
+      <button class="btn" id="allBtn">↓↓ <span data-i18n="all">All WAVs · Pro</span></button>
+    </div>
+    <p class="hint" data-i18n="hint">Tip: every sound is 100% code — no audio files. WAV exports at 44.1kHz 16-bit.</p>
+  </div>
+  <footer>
+    <span>artzdesignmo / sfx-mo — MIT</span>
+    <span><a href="https://openx-mo.vercel.app">openx-mo</a> · <a href="https://github.com/artzdesignmo/sfx-mo">GitHub</a></span>
+  </footer>
+</div>
+<script>
+"use strict";
+/* ================= i18n ================= */
+const STR={
+ en:{title:"SFX Mo",sub:"Procedural sound effects — synthesized live, no samples. Tweak, play, export WAV.",
+  play:"Play",random:"Surprise me",wav:"WAV",all:"All WAVs · Pro",proT:"Pro feature",proBody:"Batch export (all sounds at once) is an OpenX Pro feature. Enter your Pro key once — it unlocks all Mo tools.",unlock:"Unlock",getKey:"Get a Pro key →",badKey:"That key is not valid",badFmt:"Invalid key format",checking:"Verifying…",needNet:"Verification needs a connection — check your network",hint:"Tip: every sound is 100% code — no audio files. WAV exports at 44.1kHz 16-bit."},
+ zh:{title:"SFX Mo",sub:"程序化音效 — 即時合成，零採樣。扭參數、試聽、匯出 WAV。",
+  play:"播放",random:"隨機",wav:"WAV",all:"全部 WAV · Pro",proT:"Pro 功能",proBody:"批量匯出（一次過匯出全部音效）係 OpenX Pro 功能。輸入一次 Pro key，全部 Mo 工具一齊解鎖。",unlock:"解鎖",getKey:"攞 Pro key →",badKey:"條 key 唔啱",badFmt:"Key 格式唔啱",checking:"驗證中…",needNet:"驗證要連線，請檢查網絡",hint:"提示：所有聲音都係 100% code 即時合成 — 無音檔。WAV 匯出 44.1kHz 16-bit。"}
+};
+let lang=localStorage.getItem("sfxmo-lang")||"en";
+function applyLang(){document.querySelectorAll("[data-i18n]").forEach(el=>{const k=el.dataset.i18n;if(STR[lang][k])el.textContent=STR[lang][k];});
+ document.getElementById("langBtn").textContent=lang==="en"?"中":"EN";renderGrid();renderPanel();}
+document.getElementById("langBtn").onclick=()=>{lang=lang==="en"?"zh":"en";localStorage.setItem("sfxmo-lang",lang);applyLang();};
+
+/* ================= audio engine ================= */
+let AC=null,noiseBuf=null;
+function ac(){if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();}if(AC.state==="suspended")AC.resume();return AC;}
+function getNoise(c){if(noiseBuf&&noiseBuf.sampleRate===c.sampleRate)return noiseBuf;
+ const b=c.createBuffer(1,c.sampleRate*2,c.sampleRate),d=b.getChannelData(0);
+ for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;noiseBuf=b;return b;}
+function env(g,t0,a,peak,dec){g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(Math.max(peak,0.001),t0+a);g.gain.exponentialRampToValueAtTime(0.0001,t0+a+dec);}
+
+/* Each SFX: params [key,label_en,label_zh,min,max,def], build(ctx,dest,params,t0) -> stopTime */
+const SFX=[
+{id:"click",icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#8a867e" stroke-width="2" stroke-linejoin="round"><path d="M5 3l7.5 18 2.5-7.5L22.5 11z"/></svg>',en:"Click",zh:"點擊",desc_en:"Crisp UI click — filtered snap with body.",desc_zh:"清脆 UI 點擊聲 — 濾波 snap 加本體。",
+ params:[["bright","Brightness","亮度",0,1,.6],["decay","Decay","衰減",0,1,.35],["body","Body","厚度",0,1,.5]],
+ build(c,dest,p,t0){
+  const n=c.createBufferSource();n.buffer=getNoise(c);
+  const bp=c.createBiquadFilter();bp.type="bandpass";bp.frequency.value=1800+p.bright*6500;bp.Q.value=1.1;
+  const g=c.createGain();env(g,t0,0.002,0.9,0.03+p.decay*0.12);
+  n.connect(bp);bp.connect(g);g.connect(dest);n.start(t0);n.stop(t0+0.3);
+  const o=c.createOscillator();o.type="triangle";o.frequency.value=700+p.body*500;
+  const g2=c.createGain();env(g2,t0,0.002,0.5,0.02+p.decay*0.06);
+  o.connect(g2);g2.connect(dest);o.start(t0);o.stop(t0+0.2);
+  return t0+0.35;}},
+{id:"pop",icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#8a867e" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="14" r="5.5"/><path d="M12 2.5v2.5M5.5 4.5l1.8 1.8M18.5 4.5l-1.8 1.8"/></svg>',en:"Pop",zh:"泡泡",desc_en:"Bubble pop — pitch drops as it bursts.",desc_zh:"泡泡爆破 — 音高急墜。",
+ params:[["pitch","Pitch","音高",0,1,.5],["size","Size","大細",0,1,.5],["wet","Wet","水潤",0,1,.4]],
+ build(c,dest,p,t0){
+  const dur=0.07+p.size*0.14,f0=320+p.pitch*520;
+  const o=c.createOscillator();o.type="sine";
+  o.frequency.setValueAtTime(f0,t0);o.frequency.exponentialRampToValueAtTime(70,t0+dur);
+  const g=c.createGain();env(g,t0,0.004,0.95,dur);
+  o.connect(g);g.connect(dest);o.start(t0);o.stop(t0+dur+0.05);
+  if(p.wet>0.05){const n=c.createBufferSource();n.buffer=getNoise(c);
+   const hp=c.createBiquadFilter();hp.type="highpass";hp.frequency.value=2500+p.wet*3000;
+   const g2=c.createGain();env(g2,t0,0.002,0.25*p.wet,dur*0.7);
+   n.connect(hp);hp.connect(g2);g2.connect(dest);n.start(t0);n.stop(t0+dur+0.05);}
+  return t0+dur+0.1;}},
+{id:"whoosh",icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#8a867e" stroke-width="2" stroke-linecap="round"><path d="M2.5 8.5h9.5a2.75 2.75 0 1 0-2.75-2.75M2.5 12.5h14.5a2.75 2.75 0 1 1-2.75 2.75M2.5 16.5h6"/></svg>',en:"Whoosh",zh:"呼嘯",desc_en:"Air whoosh — noise swept through a band.",desc_zh:"空氣呼嘯 — 噪聲掃過頻帶。",
+ params:[["dur","Length","長度",0,1,.5],["bright","Brightness","亮度",0,1,.55],["dir","Direction","方向",0,1,.15]],
+ build(c,dest,p,t0){
+  const dur=0.35+p.dur*1.6,f1=250,f2=2500+p.bright*5500;
+  const n=c.createBufferSource();n.buffer=getNoise(c);n.loop=true;
+  const bp=c.createBiquadFilter();bp.type="bandpass";bp.Q.value=1.4;
+  const up=p.dir<0.5;
+  bp.frequency.setValueAtTime(up?f1:f2,t0);
+  bp.frequency.exponentialRampToValueAtTime(up?f2:f1,t0+dur);
+  const g=c.createGain();g.gain.setValueAtTime(0.0001,t0);
+  g.gain.exponentialRampToValueAtTime(0.85,t0+dur*0.4);
+  g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  n.connect(bp);bp.connect(g);g.connect(dest);n.start(t0);n.stop(t0+dur+0.05);
+  return t0+dur+0.1;}},
+{id:"keypress",icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#8a867e" stroke-width="2" stroke-linecap="round"><rect x="4" y="5.5" width="16" height="13" rx="2.5"/><path d="M12 9.5v5M9.5 12h5"/></svg>',en:"Keypress",zh:"鍵盤",desc_en:"Mechanical key — deep thock plus click.",desc_zh:"機械鍵盤 — 低沉 thock 加清脆 click。",
+ params:[["depth","Depth","深度",0,1,.55],["click","Click","清脆",0,1,.6],["weight","Weight","份量",0,1,.5]],
+ build(c,dest,p,t0){
+  const o=c.createOscillator();o.type="sine";o.frequency.value=110+p.depth*90;
+  const g=c.createGain();env(g,t0,0.003,0.55+p.weight*0.4,0.07+p.weight*0.08);
+  o.connect(g);g.connect(dest);o.start(t0);o.stop(t0+0.3);
+  const n=c.createBufferSource();n.buffer=getNoise(c);
+  const hp=c.createBiquadFilter();hp.type="highpass";hp.frequency.value=2800+p.click*4500;
+  const g2=c.createGain();env(g2,t0,0.001,0.5,0.015+p.click*0.03);
+  n.connect(hp);hp.connect(g2);g2.connect(dest);n.start(t0);n.stop(t0+0.15);
+  return t0+0.35;}},
+{id:"impact",icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#8a867e" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2.2"/><path d="M12 2.5v3.5M12 18v3.5M2.5 12H6M18 12h3.5M5.3 5.3l2.5 2.5M16.2 16.2l2.5 2.5M18.7 5.3l-2.5 2.5M7.8 16.2l-2.5 2.5"/></svg>',en:"Impact",zh:"撞擊",desc_en:"Deep hit — sub boom with punchy attack.",desc_zh:"深沉撞擊 — 低頻轟鳴加 punch。",
+ params:[["boom","Boom","轟鳴",0,1,.6],["punch","Punch","衝擊",0,1,.55],["length","Length","長度",0,1,.45]],
+ build(c,dest,p,t0){
+  const dur=0.5+p.length*1.6;
+  const o=c.createOscillator();o.type="sine";
+  o.frequency.setValueAtTime(55+p.boom*45,t0);
+  o.frequency.exponentialRampToValueAtTime(32,t0+dur*0.6);
+  const g=c.createGain();env(g,t0,0.005,1.0,dur);
+  o.connect(g);g.connect(dest);o.start(t0);o.stop(t0+dur+0.1);
+  const n=c.createBufferSource();n.buffer=getNoise(c);
+  const lp=c.createBiquadFilter();lp.type="lowpass";lp.frequency.value=180+p.punch*900;
+  const g2=c.createGain();env(g2,t0,0.003,0.7,dur*0.35);
+  n.connect(lp);lp.connect(g2);g2.connect(dest);n.start(t0);n.stop(t0+dur);
+  return t0+dur+0.15;}},
+{id:"riser",icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#8a867e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20.5l6-6 4 4 7.5-7.5M15.5 11H21v5.5"/></svg>',en:"Riser",zh:"上升",desc_en:"Tension riser — builds to the drop.",desc_zh:"緊張上升音 — 推向高潮。",
+ params:[["length","Length","長度",0,1,.55],["bright","Brightness","亮度",0,1,.6],["curve","Curve","曲線",0,1,.5]],
+ build(c,dest,p,t0){
+  const dur=0.6+p.length*2.2,f2=700+p.bright*1600;
+  const o=c.createOscillator();o.type="sawtooth";
+  o.frequency.setValueAtTime(90,t0);
+  if(p.curve<0.5)o.frequency.linearRampToValueAtTime(f2,t0+dur);
+  else o.frequency.exponentialRampToValueAtTime(f2,t0+dur);
+  const lp=c.createBiquadFilter();lp.type="lowpass";
+  lp.frequency.setValueAtTime(400,t0);lp.frequency.exponentialRampToValueAtTime(6000,t0+dur);
+  const g=c.createGain();g.gain.setValueAtTime(0.0001,t0);
+  g.gain.exponentialRampToValueAtTime(0.55,t0+dur);
+  g.gain.setValueAtTime(0.55,t0+dur);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur+0.08);
+  o.connect(lp);lp.connect(g);g.connect(dest);o.start(t0);o.stop(t0+dur+0.15);
+  const n=c.createBufferSource();n.buffer=getNoise(c);n.loop=true;
+  const hp=c.createBiquadFilter();hp.type="highpass";hp.frequency.value=3000;
+  const g2=c.createGain();g2.gain.setValueAtTime(0.0001,t0);
+  g2.gain.exponentialRampToValueAtTime(0.18,t0+dur);g2.gain.exponentialRampToValueAtTime(0.0001,t0+dur+0.08);
+  n.connect(hp);hp.connect(g2);g2.connect(dest);n.start(t0);n.stop(t0+dur+0.15);
+  return t0+dur+0.2;}},
+{id:"ding",icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#8a867e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16v-4.5a6 6 0 1 1 12 0V16l1.2 2.5H4.8zM10 21a2.2 2.2 0 0 0 4 0"/></svg>',en:"Ding",zh:"叮噹",desc_en:"FM bell — notification chime with shimmer.",desc_zh:"FM 鈴聲 — 通知音，帶 shimmer。",
+ params:[["pitch","Pitch","音高",0,1,.5],["shimmer","Shimmer","泛音",0,1,.5],["decay","Decay","餘音",0,1,.55]],
+ build(c,dest,p,t0){
+  const dur=0.8+p.decay*2.8,fc=420+p.pitch*820;
+  const car=c.createOscillator();car.type="sine";car.frequency.value=fc;
+  const mod=c.createOscillator();mod.type="sine";mod.frequency.value=fc*2.41;
+  const mg=c.createGain();mg.gain.setValueAtTime(fc*(1.5+p.shimmer*3),t0);
+  mg.gain.exponentialRampToValueAtTime(1,t0+dur*0.7);
+  mod.connect(mg);mg.connect(car.frequency);
+  const g=c.createGain();env(g,t0,0.004,0.75,dur);
+  car.connect(g);g.connect(dest);car.start(t0);mod.start(t0);
+  car.stop(t0+dur+0.1);mod.stop(t0+dur+0.1);
+  return t0+dur+0.15;}},
+{id:"zap",icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#8a867e" stroke-width="2" stroke-linejoin="round"><path d="M13 2.5L4.5 13.5H11l-1 8 8.5-11H12z"/></svg>',en:"Zap",zh:"激光",desc_en:"Sci-fi zap — pitch dive with grit.",desc_zh:"科幻激光 — 音高急墜加顆粒。",
+ params:[["pitch","Pitch","音高",0,1,.55],["speed","Speed","速度",0,1,.45],["grit","Grit","粗糙",0,1,.5]],
+ build(c,dest,p,t0){
+  const dur=0.12+p.speed*0.35,f0=750+p.pitch*1300;
+  const o=c.createOscillator();o.type="square";
+  o.frequency.setValueAtTime(f0,t0);o.frequency.exponentialRampToValueAtTime(90,t0+dur);
+  const ws=c.createWaveShaper();
+  const curve=new Float32Array(256);
+  for(let i=0;i<256;i++){const x=i/128-1;curve[i]=Math.tanh(x*(1+p.grit*8));}
+  ws.curve=curve;
+  const g=c.createGain();env(g,t0,0.003,0.6,dur);
+  const lp=c.createBiquadFilter();lp.type="lowpass";lp.frequency.value=4500;
+  o.connect(ws);ws.connect(lp);lp.connect(g);g.connect(dest);
+  o.start(t0);o.stop(t0+dur+0.1);
+  return t0+dur+0.15;}},
+];
+
+/* ================= state & UI ================= */
+let cur=0,lastBuf=null;
+const params={};
+SFX.forEach(s=>{params[s.id]={};s.params.forEach(p=>params[s.id][p[0]]=p[5]);});
+function P(){return params[SFX[cur].id];}
+
+function renderGrid(){const g=document.getElementById("grid");g.innerHTML="";
+ SFX.forEach((s,i)=>{const b=document.createElement("button");
+  b.className="cat"+(i===cur?" active":"");
+  b.innerHTML=`<span class="ic">${s.icon}</span><span class="nm">${lang==="en"?s.en:s.zh}</span>`;
+  b.onclick=()=>{cur=i;renderGrid();renderPanel();play();};
+  g.appendChild(b);});}
+
+function renderPanel(){const s=SFX[cur];
+ document.getElementById("sfxName").textContent=lang==="en"?s.en:s.zh;
+ document.getElementById("sfxDesc").textContent=lang==="en"?s.desc_en:s.desc_zh;
+ const sl=document.getElementById("sliders");sl.innerHTML="";
+ s.params.forEach(p=>{const[key,le,lz,mn,mx,df]=p;
+  const row=document.createElement("div");row.className="srow";
+  row.innerHTML=`<label>${lang==="en"?le:lz}</label>
+   <input type="range" min="${mn}" max="${mx}" step="0.01" value="${P()[key]}">
+   <output>${Math.round(P()[key]*100)}</output>`;
+  const inp=row.querySelector("input"),out=row.querySelector("output");
+  inp.oninput=()=>{P()[key]=+inp.value;out.textContent=Math.round(inp.value*100);play();};
+  sl.appendChild(row);});
+ drawWave();}
+
+function play(){
+ const c=ac(),t0=c.currentTime+0.03;
+ const s=SFX[cur],stop=s.build(c,c.destination,P(),t0);
+ // capture for waveform via offline render
+ renderOffline(buf=>{lastBuf=buf;drawWave();});
+}
+function renderOffline(cb){
+ const sr=44100,s=SFX[cur];
+ // estimate length: render 4s max, trim later
+ const off=new OfflineAudioContext(1,sr*4,sr);
+ const stop=s.build(off,off.destination,P(),0.05);
+ off.startRendering().then(buf=>{
+  // trim silence at end
+  const d=buf.getChannelData(0);let end=d.length;
+  while(end>100&&Math.abs(d[end-1])<0.002)end--;
+  const nb=off.createBuffer(1,Math.min(end+sr*0.05|0,d.length),sr);
+  nb.getChannelData(0).set(d.subarray(0,nb.length));
+  cb(nb);
+ });
+}
+function drawWave(){
+ const cv=document.getElementById("wave"),x=cv.getContext("2d");
+ const W=cv.width,H=cv.height;x.clearRect(0,0,W,H);
+ x.strokeStyle="rgba(255,255,255,.12)";x.beginPath();x.moveTo(0,H/2);x.lineTo(W,H/2);x.stroke();
+ if(!lastBuf)return;
+ const d=lastBuf.getChannelData(0);
+ x.strokeStyle="#f5f5f5";x.lineWidth=1.5;x.beginPath();
+ const step=Math.max(1,(d.length/W)|0);
+ for(let i=0;i<W;i++){const v=d[Math.min(d.length-1,i*step|0)];
+  const y=H/2-v*H*0.48;i?x.lineTo(i,y):x.moveTo(i,y);}
+ x.stroke();
+}
+document.getElementById("playBtn").onclick=play;
+document.getElementById("randBtn").onclick=()=>{
+ const s=SFX[cur];s.params.forEach(p=>P()[p[0]]=p[3]+Math.random()*(p[4]-p[3]));
+ renderPanel();play();
+};
+document.getElementById("wavBtn").onclick=()=>{
+ renderOffline(buf=>{
+  const blob=encodeWAV(buf),a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`sfx-mo-${SFX[cur].id}.wav`;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+ });
+};
+
+/* ---------- OpenX Pro gate + batch export ---------- */
+const PRO_API='https://openx-mo.vercel.app/api/pro/validate';
+const S2=k=>STR[lang][k]||k;
+const proFmt=k=>{const s=(k||'').trim();return /^OX1-[A-Z2-7]{8}-[A-Z2-7]{8}$/i.test(s)||/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);};
+async function proValidate(k){
+ const r=await fetch(PRO_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:(k||'').trim()})});
+ const j=await r.json();return !!j.valid;
+}
+async function proGate(next){
+ try{
+  if(localStorage.getItem('openx-pro-ok')==='1')return next();
+  const k=localStorage.getItem('openx-pro');
+  if(k&&proFmt(k)){
+   try{
+    if(await proValidate(k)){localStorage.setItem('openx-pro-ok','1');return next();}
+    localStorage.removeItem('openx-pro');
+   }catch(e){}
+  }
+ }catch(e){}
+ proModal(next);
+}
+function proModal(next){
+ let m=document.getElementById('proModal');
+ if(!m){
+  m=document.createElement('div');m.id='proModal';
+  m.style.cssText='display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;padding:20px';
+  m.innerHTML=`<div style="background:#17171c;border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:22px;max-width:400px;width:92vw;position:relative;color:#f5f5f5">
+   <button id="proClose" style="position:absolute;top:8px;right:12px;border:none;background:none;font-size:22px;cursor:pointer;color:#f5f5f5">×</button>
+   <h3 style="margin:0 0 8px">${S2("proT")}</h3>
+   <p style="margin:0 0 12px;font-size:13px;line-height:1.55">${S2("proBody")}</p>
+   <input id="proKey" type="text" placeholder="Pro key" autocomplete="off" spellcheck="false" style="width:100%;box-sizing:border-box;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.22);background:#0e0e12;color:#f5f5f5;font-family:inherit;font-size:14px">
+   <div id="proMsg" style="font-size:12px;min-height:16px;margin:8px 0;color:#ff5c7a"></div>
+   <button class="btn primary" id="proUnlock" style="width:100%">${S2("unlock")}</button>
+   <a href="https://buymeacoffee.com/whynotartmoney" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:10px;font-size:13px;color:#f5f5f5">${S2("getKey")}</a>
+  </div>`;
+  document.body.appendChild(m);
+  m.addEventListener('click',e=>{if(e.target===m)m.style.display='none';});
+  document.getElementById('proClose').onclick=()=>{m.style.display='none';};
+  document.getElementById('proUnlock').onclick=async()=>{
+   const inp=document.getElementById('proKey'),msg=document.getElementById('proMsg');
+   const k=(inp.value||'').trim();
+   if(!proFmt(k)){msg.textContent=S2("badFmt");return;}
+   msg.style.color='#f5f5f5';msg.textContent=S2("checking");
+   try{
+    if(await proValidate(k)){
+     localStorage.setItem('openx-pro',k);localStorage.setItem('openx-pro-ok','1');
+     m.style.display='none';next&&next();
+    }else{msg.style.color='#ff5c7a';msg.textContent=S2("badKey");}
+   }catch(e){msg.style.color='#ff5c7a';msg.textContent=S2("needNet");}
+  };
+ }
+ m.style.display='flex';
+}
+document.getElementById("allBtn").onclick=()=>proGate(()=>{
+ const orig=cur;let i=0;
+ const step=()=>{
+  if(i>=SFX.length){cur=orig;renderOffline(buf=>{lastBuf=buf;drawWave();});return;}
+  cur=i++;
+  const id=SFX[cur].id;
+  renderOffline(buf=>{
+   const blob=encodeWAV(buf),a=document.createElement("a");
+   a.href=URL.createObjectURL(blob);
+   a.download=`sfx-mo-${id}.wav`;a.click();
+   setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+   setTimeout(step,350);
+  });
+ };
+ step();
+});
+function encodeWAV(buf){
+ const n=buf.length,ch=1,sr=buf.sampleRate,d=buf.getChannelData(0);
+ const ab=new ArrayBuffer(44+n*2),v=new DataView(ab);
+ const ws=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));};
+ ws(0,"RIFF");v.setUint32(4,36+n*2,true);ws(8,"WAVE");ws(12,"fmt ");
+ v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,ch,true);
+ v.setUint32(24,sr,true);v.setUint32(28,sr*ch*2,true);
+ v.setUint16(32,ch*2,true);v.setUint16(34,16,true);ws(36,"data");
+ v.setUint32(40,n*2,true);
+ for(let i=0;i<n;i++){const s=Math.max(-1,Math.min(1,d[i]));v.setInt16(44+i*2,s<0?s*0x8000:s*0x7FFF,true);}
+ return new Blob([ab],{type:"audio/wav"});
+}
+applyLang();
+</script>
+</body>
+</html>

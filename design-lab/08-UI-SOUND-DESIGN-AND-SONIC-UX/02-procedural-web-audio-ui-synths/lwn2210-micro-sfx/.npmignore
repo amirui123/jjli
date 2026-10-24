@@ -1,0 +1,11 @@
+# Source and development files
+src/
+tests/
+tsconfig.json
+.github/
+examples/node/output/
+
+# Logs and temp files
+*.log
+.DS_Store
+node_modules/

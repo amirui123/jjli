@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hat tiling, extended – curved edges, two tiles</title>
+<meta name="description" content="The Hat tiling with curved edges. Curve the edges and the mirrored hats become a second tile: the mirror image with every bump turned inside out.">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../../favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://frankslav15.github.io/einstein-hat-explorer/tiles/hat-extended/">
+<meta property="og:title" content="Hat tiling, extended – curved edges, two tiles">
+<meta property="og:description" content="The Hat tiling with curved edges, where the mirrored hats become a second tile.">
+<meta property="og:image" content="https://drbuild.uk/social/hat-extended.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Hat tiles with jigsaw edges, where the mirrored hats become a second tile">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image:alt" content="Hat tiles with jigsaw edges, where the mirrored hats become a second tile">
+<meta name="twitter:creator" content="@davidryan59">
+<script src="../../assets/theme.js"></script>
+<script>Theme.initTheme();</script>
+<link rel="stylesheet" href="../engine/map.css">
+</head>
+<body>
+
+<canvas id="map" tabindex="0" aria-label="Hat tiling map, with curved edges. Drag to move, scroll or pinch to zoom, arrow keys to move, plus and minus to zoom, shift and the arrow keys to turn."></canvas>
+
+<div class="top">
+<div class="card title">
+  <a class="back" href="https://drbuild.uk/" target="_blank" rel="noopener">← David Ryan's builder page</a>
+  <button type="button" class="about-open" id="about-open">About</button>
+  <h1>Hat tiling (extended)</h1>
+  <p class="hint">Edge options on Hat make mirror image a separate tile</p>
+  <div class="row">
+    <nav class="switch" aria-label="Tiling">
+      <a href="../hat/index.html">Hat</a><a href="../spectre/index.html">Spectre</a><a href="../hat-extended/index.html" aria-current="page">Hat (extended)</a><a href="../krinkle/index.html">Krinkle</a>
+    </nav>
+    <!-- Hidden with the Tiling Puzzle until David finishes more work on it. <a class="puzzle-link" href="../../tiling-puzzle/#p=hat">Build it yourself</a> -->
+  </div>
+</div>
+
+<div class="card options">
+  <div class="head">
+    <button type="button" class="fold" id="options-fold" aria-expanded="false">Options</button>
+  </div>
+  <div class="body">
+    <div class="section">
+      <div class="slider">
+        <span>Tile shape</span><output id="shape-out"></output>
+        <input type="range" id="shape" min="0" max="90" step="0.25" aria-label="Tile shape, from chevron to comet">
+        <div class="ticks placed" id="ticks">
+          <button type="button" data-deg="0" style="left: 0">Chevron</button>
+          <button type="button" data-deg="30" style="left: 33.333%">Hat</button>
+          <button type="button" data-deg="45" style="left: 50%">Spectre</button>
+          <button type="button" data-deg="60" style="left: 66.667%">Turtle</button>
+          <button type="button" data-deg="90" style="left: 100%">Comet</button>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <label class="section-title" for="edge">Edge shape</label>
+      <select id="edge"></select>
+      <div class="inline" id="arrangement" role="radiogroup" aria-label="Arrangement">
+        <label><input type="radio" name="arrangement" value="alt"> Single</label>
+        <label><input type="radio" name="arrangement" value="S"> Double</label>
+      </div>
+      <div class="slider" id="bend-box">
+        <span>Height, a-edges</span><output></output>
+        <input type="range" min="-0.75" max="0.75" step="0.005" data-stops="0" aria-label="Height of the a-edges">
+        <div class="limits"></div>
+        <div class="ticks zero"><button type="button" title="Straight a-edges">0</button></div>
+        <div class="limit-note"></div>
+      </div>
+      <div class="slider" id="bendb-box">
+        <span>Height, b-edges</span><output></output>
+        <input type="range" min="-0.75" max="0.75" step="0.005" data-stops="0" aria-label="Height of the b-edges">
+        <div class="limits"></div>
+        <div class="ticks zero"><button type="button" title="Straight b-edges">0</button></div>
+        <div class="limit-note"></div>
+      </div>
+      <div class="slider" data-param="waves">
+        <span>Waves</span><output></output>
+        <input type="range" min="1" max="3" step="1" aria-label="Waves">
+      </div>
+      <div class="slider" data-param="peak">
+        <span>Peak position</span><output></output>
+        <input type="range" min="0" max="1" step="0.01" data-stops="0,0.5,1" aria-label="Peak position">
+      </div>
+      <div class="slider" data-param="rise">
+        <span>Rising side</span><output></output>
+        <input type="range" min="0" max="1" step="0.01" data-stops="0,0.5" aria-label="Rising side">
+      </div>
+      <div class="slider" data-param="fall">
+        <span>Falling side</span><output></output>
+        <input type="range" min="0" max="1" step="0.01" data-stops="0,0.5" aria-label="Falling side">
+      </div>
+      <div class="slider" data-param="neck">
+        <span>Neck width</span><output></output>
+        <input type="range" min="0" max="1" step="0.01" aria-label="Neck width">
+      </div>
+    </div>
+    <div class="section">
+      <label><input type="checkbox" id="outlines"> Supertiles</label>
+      <label><input type="checkbox" id="grid"> Grid</label>
+      <div class="sub" id="grid-sub" hidden>
+        <div class="inline">
+          <label><input type="checkbox" id="grid0"> 0° grid</label>
+          <label><input type="checkbox" id="grid30"> 30° grid</label>
+        </div>
+        <p class="hint" id="grid-hint"></p>
+        <div><button type="button" class="linkish" id="grid-clear">Start again</button></div>
+      </div>
+    </div>
+    <div class="section">
+      <div><button type="button" class="linkish" id="reset-options" title="Tile shape, edges, supertiles and grid back to how the page opens">Reset options</button></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="card zoom" role="group" aria-label="Zoom and turn">
+  <button type="button" id="compass" class="compass" title="Turn back to north" aria-label="Turn back to north" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 3 8.5 12h7z" fill="#d11a35"/><path d="M12 21 8.5 12h7z" fill="currentColor" opacity="0.55"/>
+    </svg>
+  </button>
+  <button type="button" id="zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
+  <button type="button" id="zoom-out" title="Zoom out" aria-label="Zoom out">−</button>
+  <button type="button" id="turn-left" title="Turn left 5°" aria-label="Turn left 5 degrees">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M5.5 12a6.5 6.5 0 1 0 2-4.7"/><path d="M7.5 3.5v4h4"/>
+    </svg>
+  </button>
+  <button type="button" id="turn-right" title="Turn right 5°" aria-label="Turn right 5 degrees">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M18.5 12a6.5 6.5 0 1 1-2-4.7"/><path d="M16.5 3.5v4h-4"/>
+    </svg>
+  </button>
+  <button type="button" id="home" title="Back to the start" aria-label="Back to the start">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/>
+      <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/>
+    </svg>
+  </button>
+</div>
+
+<div class="card legend" id="legend">
+  <div class="legend-head">
+    <select id="scheme" aria-label="Colours"></select>
+    <button type="button" class="dice" id="random-colours" title="Random colours" aria-label="Random colours">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/>
+        <g fill="currentColor" stroke="none"><circle cx="8.2" cy="8.2" r="1.35"/><circle cx="15.8" cy="8.2" r="1.35"/><circle cx="12" cy="12" r="1.35"/><circle cx="8.2" cy="15.8" r="1.35"/><circle cx="15.8" cy="15.8" r="1.35"/></g>
+      </svg>
+    </button>
+    <button class="theme-toggle" type="button" hidden>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.1"/>
+        <path d="M12 2.7v2.1M12 19.2v2.1M21.3 12h-2.1M4.8 12H2.7M18.6 5.4 17.1 6.9M6.9 17.1l-1.5 1.5M18.6 18.6l-1.5-1.5M6.9 6.9 5.4 5.4"/>
+      </svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20.4 14.5A8.6 8.6 0 0 1 9.5 3.6a8.6 8.6 0 1 0 10.9 10.9z"/>
+      </svg>
+    </button>
+    <button type="button" class="linkish" id="legend-toggle" aria-expanded="true">Hide</button>
+  </div>
+  <div id="legend-body" aria-live="polite"></div>
+</div>
+
+<div class="card status" id="status" hidden>Building tiles…</div>
+
+<div class="card about" id="about" role="dialog" aria-modal="false" aria-labelledby="about-title" hidden>
+  <button type="button" class="close" id="about-close" aria-label="Close">×</button>
+  <h2 id="about-title">The Hat, extended</h2>
+  <p>
+    This page shows the same tiling as the Hat page, and with Line edges it
+    looks the same. Here you can also curve the edges, as on the Spectre
+    page. Curved edges are how the Spectre gets rid of its mirror images.
+    On the Hat they can't do that.
+  </p>
+  <p>
+    No edge curve, of any shape, lets a hat and its exact mirror image tile
+    in the hat pattern. Some edges meet in a loop of three: a hat's edge 1
+    meets another hat's edge 2, edge 2 meets a mirrored hat's edge 12, and
+    edge 12 meets edge 1. Follow a curve round that loop and it comes back
+    reflected in the edge's own line. Only a straight edge equals its own
+    reflection.
+  </p>
+  <p>
+    Two tiles do work. Mirrored hats never touch each other, so each one
+    can take whatever shape its ring of hats leaves. That shape is the
+    mirror image of the curved hat with every bump turned inside out. With
+    <em>Double</em>, every edge in the tiling carries the same S, and the
+    mirrored hats keep the S instead of turning it into a Z. So once the
+    edges curve, this pattern is made of two different tiles, not one tile
+    and its mirror image. In the key, an m marks a mirrored hat, so 0° m is
+    a mirrored hat at 0°.
+  </p>
+  <p>
+    <em>Single</em> puts one bump on each edge; on seven of a hat's
+    fourteen edges it is turned half a turn, so it bulges the other way.
+    <em>Double</em> puts an S on every edge. The a-edges and b-edges never
+    meet each other, so each has its own height. At the hat's own shape the
+    a-edges are the short ones. Push a height past the marked limit and the
+    tiles collide: the red stripes show where they overlap. The tile shape
+    slider works as on the Hat page, and the curves reshape with the tiles.
+  </p>
+  <p>
+    Drag to move. Scroll, pinch or double-click to zoom. Turn with the turn
+    buttons, a two-finger twist, a right-drag, Ctrl and drag, or Shift and
+    the arrow keys. A trackpad twist works in Safari. The address bar keeps
+    your place, colours, shape and edges, so you can share a view.
+  </p>
+  <ul>
+    <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2303.10798">An aperiodic monotile</a> – the paper, on arXiv</li>
+    <li><a target="_blank" rel="noopener" href="https://cs.uwaterloo.ca/~csk/hat/">Craig Kaplan's Hat page</a> – the metatile construction here follows his hatviz code</li>
+    <li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Einstein_problem">Einstein problem</a> – on Wikipedia</li>
+    <li><a target="_blank" rel="noopener" href="https://github.com/davidryan59/davidryan59.github.io/blob/main/docs/hat-edge-research.md">How this was worked out</a> – the search behind this page, on GitHub</li>
+    <li><a target="_blank" rel="noopener" href="https://github.com/davidryan59/davidryan59.github.io/tree/main/app/tiles">Code on GitHub</a> – WebGL, no libraries</li>
+  </ul>
+</div>
+
+<div class="card fail" id="fail" hidden>
+  <p>This page needs WebGL 2, which this browser does not offer.</p>
+</div>
+
+<script src="../engine/tiling-core.js"></script>
+<script src="../hat/tiling.js"></script>
+<script src="../engine/edges.js"></script>
+<script src="../engine/map.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var TM = TilingMap, ES = EdgeShapes, oklch = TM.oklch, hex = TM.hex;
+  var H3 = Math.sqrt(3) / 2;
+  var NAMED = [[0, 'Chevron', 'Tile(0, 1)'], [30, 'Hat', 'Tile(1, √3)'], [45, 'Spectre', 'Tile(1, 1)'],
+               [60, 'Turtle', 'Tile(√3, 1)'], [90, 'Comet', 'Tile(1, 0)']];
+
+  /* --------------------------------------------------------- edge rule */
+
+  /* How each edge takes its curve, found by following every shared edge of
+     the hat tiling (docs/hat-edge-research.md). Symmetries are numbered as
+     in edges.js: 0 as it is, 1 backwards, 2 reflected in the edge's line,
+     3 a half turn. On a hat, edges 2, 4, 5, 8, 9, 12 and 13 take the half
+     turn. A mirrored hat takes the same, then reflects every curve in its
+     edge's line: it is the mirror image of the curved hat with every bump
+     turned inside out. No rule lets a mirrored hat be the exact mirror
+     image, which is why this page has two tiles. */
+  var HAT_SYM = [0, 0, 3, 0, 3, 3, 0, 0, 3, 3, 0, 0, 3, 3];
+  function symOf(hand) { return function (i) { return HAT_SYM[i] ^ (hand ? 2 : 0); }; }
+  var SYM_MASKS = [ES.mask(symOf(0), 14), ES.mask(symOf(1), 14)];
+
+  /* ------------------------------------------------------------- shape */
+
+  // Corners of the hat outline as two-part points, from the worker once it
+  // is ready. Until then the shape is empty. An edge is a b-edge where its
+  // r part changes, and a-edges and b-edges never meet.
+  var outlineTP = null, isB = [], SEL_B = 0;
+  var deg = 30;
+  try { var sd = parseFloat(localStorage.getItem('hat-extended-shape')); if (sd >= 0 && sd <= 90) deg = sd; } catch (e) {}
+
+  function cornersAt(a, b) {
+    return outlineTP.map(function (v) {
+      return [a * v.P[0] + b * (H3 * v.R[0] - 0.5 * v.R[1]), a * v.P[1] + b * (0.5 * v.R[0] + H3 * v.R[1])];
+    });
+  }
+  function areaAt(a, b) { return TM.area(cornersAt(a, b)); }
+  // Edge lengths for the slider angle, scaled so every tile keeps the hat's
+  // area and the tiling neither grows nor shrinks as the slider moves.
+  function abAt(d) {
+    var t = d * Math.PI / 180, a = Math.sin(t), b = Math.cos(t);
+    var k = Math.sqrt(areaAt(1, Math.sqrt(3)) / areaAt(a, b));
+    return [a * k, b * k];
+  }
+  var corners = null, ab = [1, Math.sqrt(3)];
+
+  /* ------------------------------------------------------------- edges */
+
+  // bend is the height of the a-edges' curve and bendB the b-edges'.
+  function defaults() {
+    return { shape: 'line', bend: 0.15, bendB: 0.15, params: Object.assign({}, ES.DEFAULTS), arrangement: 'alt' };
+  }
+  var st = defaults();
+  function clampBend(b) { return Math.max(-0.75, Math.min(0.75, b)); }
+  try {
+    var saved = JSON.parse(localStorage.getItem('hat-extended-edges') || '{}');
+    if (saved.params) Object.keys(ES.DEFAULTS).forEach(function (k) { if (typeof saved.params[k] === 'number') st.params[k] = saved.params[k]; });
+    if (typeof saved.bend === 'number') st.bend = clampBend(saved.bend);
+    if (typeof saved.bendB === 'number') st.bendB = clampBend(saved.bendB);
+    if (ES.BY_ID[saved.shape]) st.shape = saved.shape;
+    if (saved.arrangement === 'S') st.arrangement = 'S';
+  } catch (e) {}
+  function saveEdges() { try { localStorage.setItem('hat-extended-edges', JSON.stringify(st)); } catch (e) {} }
+
+  function straight() { return st.shape === 'line' || (Math.abs(st.bend) < 1e-9 && Math.abs(st.bendB) < 1e-9); }
+  function edgeState(h) { return { shape: st.shape, bend: h, params: st.params, arrangement: st.arrangement }; }
+
+  // The outline of a hat (hand 0) or a mirrored hat (hand 1), in the hat's
+  // own frame; the engine reflects a mirrored hat's outline as it draws it.
+  // Heights hA and hB default to the current ones.
+  function outlineOf(hand, res, hA, hB) {
+    if (!corners) return [];
+    if (res < 0) return corners.slice();
+    var pA = ES.fitted(edgeState(hA === undefined ? st.bend : hA), res);
+    var pB = ES.fitted(edgeState(hB === undefined ? st.bendB : hB), res);
+    return ES.outlineWith(corners, function (i) { return isB[i] ? pB : pA; }, symOf(hand));
+  }
+
+  /* The tile shape, as the engine asks for it. Level of detail -1 is the
+     plain polygon, used whenever the curves move edges under a third of a
+     pixel. */
+  var shape = {
+    hands: 2,
+    signature: function () { return (corners ? '' : 'none') + (straight() ? 'line' : JSON.stringify(st)) + '@' + deg; },
+    lodKey: function (res) {
+      var smooth = st.shape === 'curve' || st.shape === 'jigsaw';
+      return res < 0 ? 'straight' : smooth ? 'r' + res : 'poly';
+    },
+    lod: function (k) {
+      if (straight() || Math.max(Math.abs(st.bend) * ab[0], Math.abs(st.bendB) * ab[1]) * k < 0.3) return -1;
+      return k < 6 ? 0 : k < 20 ? 1 : k < 60 ? 2 : 3;
+    },
+    corners: function () { return corners; },
+    outline: function (res, hand) { return outlineOf(hand ? 1 : 0, res); },
+    profile: function (res) {
+      if (res < 0 || straight()) return null;
+      var pA = ES.fitted(edgeState(st.bend), res), pB = ES.fitted(edgeState(st.bendB), res);
+      return { pts: pA, pts2: pB, sel: SEL_B, sym: SYM_MASKS };
+    }
+  };
+
+  // How far a tile reaches from its first corner, curves included.
+  var radiusSig = '', radius = 5;
+  function tileRadius() {
+    var sig = shape.signature();
+    if (sig !== radiusSig && corners) {
+      radiusSig = sig;
+      radius = 0;
+      [0, 1].forEach(function (hand) {
+        outlineOf(hand, straight() ? -1 : 1).forEach(function (p) { radius = Math.max(radius, Math.hypot(p[0], p[1])); });
+      });
+      radius += 0.5;
+    }
+    return radius;
+  }
+
+  /* ----------------------------------------------------------- colours */
+
+  // Twelve classes: six turns in 60-degree steps, then the same six turns
+  // mirrored. The worker reports turns in 30-degree steps, always even here.
+  var classes = [];
+  for (var c = 0; c < 12; c++) {
+    classes.push({ turn: 2 * (c % 6), flip: c >= 6 ? 1 : 0, caption: (c % 6) * 60 + '°' + (c >= 6 ? ' m' : '') });
+  }
+  var groupings = [
+    { id: 'turnhand', name: '12 colours, turn and hand', n: 12, of: function (k) { return k; }, cols: 6 },
+    // No grouping by turn alone: it would pair each hat with a mirrored hat,
+    // and which one depends on an arbitrary choice of mirror line.
+    { id: 'hand', name: '2 colours, hand', n: 2, of: function (k) { return k >= 6 ? 1 : 0; }, cols: 1 },
+    { id: 'one', name: '1 colour', n: 1, of: function () { return 0; }, cols: 1 }
+  ];
+  // Pastel and Rainbow look the same in light and dark mode. The tiles fill
+  // the screen, and a darker Pastel turned murky. Each tile takes whichever
+  // ink contrasts with it, so dark mode changes only the panels. Mirrored
+  // hats and Plain keep a dark version, since one of their colours stands
+  // in for the background.
+  var presets = [
+    { id: 'pastel', name: 'Pastel', grouping: 'turnhand', colours: function () {
+      return classes.map(function (cl, k) {
+        var m = k >= 6, hue = (k % 6) * 60 + 25;
+        return oklch(m ? 0.60 : 0.88, m ? 0.15 : 0.075, hue);
+      });
+    } },
+    { id: 'rainbow', name: 'Rainbow', grouping: 'turnhand', colours: function () {
+      return classes.map(function (cl, k) {
+        return oklch(0.8, 0.12, 25 + (k % 6) * 60 + (k >= 6 ? 30 : 0));
+      });
+    } },
+    // Black to white in twelve even steps of lightness, unmirrored hats
+    // first: unmirrored 0° is black and mirrored 300° is white.
+    { id: 'grey', name: 'Greyscale', grouping: 'turnhand', colours: function () {
+      return classes.map(function (cl, k) { return oklch(k / 11, 0, 0); });
+    } },
+    { id: 'hands', name: 'Mirrored hats', grouping: 'hand', colours: function (dark) {
+      return dark ? [hex('#3a3935'), hex('#6fa0e8')] : [hex('#eee7d6'), hex('#2d5fa8')];
+    } },
+    { id: 'plain', name: 'Plain', grouping: 'one', colours: function (dark) { return [dark ? hex('#2a2a30') : hex('#fdfcf8')]; } }
+  ];
+
+  /* ------------------------------------------------------------ engine */
+
+  var map = TM.start({
+    name: 'hat-extended',
+    worker: '../hat/tiling.js',
+    build: HatTiling.build,
+    ab: [1, Math.sqrt(3)],
+    refB: Math.sqrt(3),
+    classMode: 1,
+    classes: classes,
+    groupings: groupings,
+    presets: presets,
+    shape: shape,
+    gridSpacing: function (v) { return [v[0], v[1]]; },
+    tileRadius: tileRadius,
+    onReset: function () {
+      deg = 30;
+      st = defaults();
+      try { localStorage.removeItem('hat-extended-shape'); } catch (e) {}
+      saveEdges();
+      syncControls();
+      applyShape();
+    },
+    hashGet: function () {
+      var h = { t: String(+deg.toFixed(2)), e: st.shape };
+      if (st.shape !== 'line') {
+        h.ha = st.bend.toFixed(3).replace(/\.?0+$/, '');
+        h.hb = st.bendB.toFixed(3).replace(/\.?0+$/, '');
+        h.a = st.arrangement;
+        var extra = ES.BY_ID[st.shape].params.map(function (k) { return k + ':' + (+st.params[k].toFixed(3)); });
+        if (extra.length) h.p = extra.join(';');
+      }
+      return h;
+    },
+    hashSet: function (q) {
+      if (q.t !== undefined && !isNaN(parseFloat(q.t))) deg = Math.max(0, Math.min(90, parseFloat(q.t)));
+      if (q.p) q.p.split(';').forEach(function (kv) {
+        var p = kv.split(':');
+        if (ES.DEFAULTS[p[0]] !== undefined && !isNaN(parseFloat(p[1]))) st.params[p[0]] = parseFloat(p[1]);
+      });
+      if (q.e && ES.BY_ID[q.e]) st.shape = q.e;
+      if (q.ha !== undefined && !isNaN(parseFloat(q.ha))) st.bend = clampBend(parseFloat(q.ha));
+      if (q.hb !== undefined && !isNaN(parseFloat(q.hb))) st.bendB = clampBend(parseFloat(q.hb));
+      if (q.a === 'alt' || q.a === 'S') st.arrangement = q.a;
+      syncControls();
+      if (outlineTP) applyShape();
+    },
+    onReady: function (info) {
+      outlineTP = info.outline;
+      isB = outlineTP.map(function (v, i) {
+        var w = outlineTP[(i + 1) % outlineTP.length];
+        return v.R[0] !== w.R[0] || v.R[1] !== w.R[1];
+      });
+      SEL_B = 0;
+      isB.forEach(function (b, i) { if (b) SEL_B |= 1 << i; });
+      applyShape();
+    }
+  });
+  if (!map) return;
+
+  /* ---------------------------------------------------------- controls */
+
+  var shapeEl = document.getElementById('shape');
+  var outEl = document.getElementById('shape-out'), ticks = document.querySelectorAll('#ticks button');
+
+  function applyShape() {
+    if (!outlineTP) return;
+    ab = abAt(deg);
+    corners = cornersAt(ab[0], ab[1]);
+    shapeEl.value = String(deg);
+    // A named shape shows as its lit tick, with its formula alongside.
+    var named = NAMED.filter(function (n) { return Math.abs(n[0] - deg) < 1e-9; })[0];
+    var t = deg * Math.PI / 180;
+    outEl.textContent = named ? named[2]
+      : deg <= 45 ? 'a : b = ' + Math.tan(t).toFixed(2) + ' : 1' : 'a : b = 1 : ' + (1 / Math.tan(t)).toFixed(2);
+    Array.prototype.forEach.call(ticks, function (b) { b.classList.toggle('on', +b.dataset.deg === deg); });
+    map.setAB(ab[0], ab[1]);
+    scheduleLimits();
+  }
+
+  shapeEl.addEventListener('input', function () {
+    var v = parseFloat(shapeEl.value);
+    // Sticky stops at the named shapes, wider at the three in the middle.
+    NAMED.forEach(function (n) { if (Math.abs(v - n[0]) < (n[0] % 90 ? 3 : 1.25)) v = n[0]; });
+    deg = v;
+    applyShape();
+  });
+  shapeEl.addEventListener('change', function () {
+    try { localStorage.setItem('hat-extended-shape', String(deg)); } catch (e) {}
+    map.changed();
+  });
+  Array.prototype.forEach.call(ticks, function (b) {
+    b.addEventListener('click', function () {
+      deg = +b.dataset.deg;
+      applyShape();
+      try { localStorage.setItem('hat-extended-shape', String(deg)); } catch (e) {}
+      map.changed();
+    });
+  });
+
+  var edgeEl = document.getElementById('edge');
+  edgeEl.innerHTML = ES.SHAPES.map(function (s) { return '<option value="' + s.id + '">' + s.name + '</option>'; }).join('');
+  // The two height sliders, for a-edges and b-edges.
+  var heights = ['bend', 'bendB'].map(function (key, j) {
+    var box = document.getElementById(j ? 'bendb-box' : 'bend-box');
+    return {
+      key: key, box: box, input: box.querySelector('input[type="range"]'), out: box.querySelector('output'),
+      zero: box.querySelector('.zero button'), strip: box.querySelector('.limits'), note: box.querySelector('.limit-note')
+    };
+  });
+  var sliders = {};
+  Array.prototype.forEach.call(document.querySelectorAll('[data-param]'), function (el) {
+    sliders[el.dataset.param] = { box: el, input: el.querySelector('input'), out: el.querySelector('output') };
+  });
+  var arrEls = document.querySelectorAll('input[name="arrangement"]');
+
+  // Sticky stops: a slider near one of its data-stops snaps to it. The
+  // pull reaches 4% of the slider's range either side.
+  function snap(input, v) {
+    var stops = (input.dataset.stops || '').split(',').filter(Boolean).map(parseFloat);
+    var reach = 0.04 * (parseFloat(input.max) - parseFloat(input.min));
+    stops.forEach(function (x) { if (Math.abs(v - x) < reach) v = x; });
+    return v;
+  }
+  function signed(x) { return (x > 0 ? '+' : x < 0 ? '−' : '') + Math.abs(x).toFixed(2); }
+  function describe(k) {
+    var v = st.params[k];
+    if (k === 'waves') return String(v);
+    if (k === 'peak') return (st.arrangement === 'alt' ? v : v / 2).toFixed(2) + ' of the edge';
+    if (k === 'rise' || k === 'fall') return v.toFixed(2) + ' of the hump';
+    return v.toFixed(2);
+  }
+
+  function syncControls() {
+    var def = ES.BY_ID[st.shape];
+    edgeEl.value = st.shape;
+    // Line has no heights and no arrangement to set.
+    var line = st.shape === 'line';
+    document.getElementById('arrangement').hidden = line;
+    heights.forEach(function (h) {
+      h.box.hidden = line;
+      h.input.value = String(st[h.key]);
+      h.out.textContent = signed(st[h.key]);
+      h.zero.classList.toggle('on', st[h.key] === 0);
+    });
+    Object.keys(sliders).forEach(function (k) {
+      var on = def.params.indexOf(k) >= 0;
+      sliders[k].box.hidden = !on;
+      if (on) { sliders[k].input.value = String(st.params[k]); sliders[k].out.textContent = describe(k); }
+    });
+    Array.prototype.forEach.call(arrEls, function (r) { r.checked = r.value === st.arrangement; });
+    scheduleLimits();
+  }
+
+  /* Where tiles start to overlap, shown under each height slider with the
+     other height held. A tile collides when a hat or a mirrored hat
+     crosses itself. Worked out shortly after anything changes. */
+  var limitTimer = 0, limitSig = '';
+  function crosses(poly) { return TM.crossings(poly, true).length > 0; }
+  function scheduleLimits() {
+    if (st.shape === 'line' || !corners) return;
+    var sig = [st.shape, st.arrangement, JSON.stringify(st.params), deg, st.bend, st.bendB].join('|');
+    if (sig === limitSig) return;
+    clearTimeout(limitTimer);
+    limitTimer = setTimeout(function () {
+      limitSig = sig;
+      var pct = function (x) { return ((x + 0.75) / 1.5 * 100).toFixed(1) + '%'; };
+      var red = 'var(--danger)', ok = 'var(--ring)';
+      heights.forEach(function (h, j) {
+        function hits(v) {
+          var hA = j ? st.bend : v, hB = j ? v : st.bendB;
+          return crosses(outlineOf(0, 2, hA, hB)) || crosses(outlineOf(1, 2, hA, hB));
+        }
+        if (hits(0)) {
+          h.strip.style.background = red;
+          h.note.hidden = false;
+          h.note.textContent = 'The ' + (j ? 'a' : 'b') + '-edge height already makes tiles collide.';
+          return;
+        }
+        var L = ES.limitsBy(hits);
+        var lo = L[1] === null ? -0.75 : L[1], hi = L[0] === null ? 0.75 : L[0];
+        h.strip.style.background = 'linear-gradient(to right, ' + red + ' 0, ' + red + ' ' + pct(lo) + ', ' + ok + ' ' +
+          pct(lo) + ', ' + ok + ' ' + pct(hi) + ', ' + red + ' ' + pct(hi) + ', ' + red + ' 100%)';
+        // The note shows only when tiles collide somewhere on the slider.
+        h.note.hidden = L[0] === null && L[1] === null;
+        h.note.textContent = h.note.hidden ? ''
+          : 'Tiles collide beyond ' + (L[0] !== null ? signed(L[0]) : 'none') + ' and ' + (L[1] !== null ? signed(L[1]) : 'none') + '.';
+      });
+    }, 150);
+  }
+
+  function edgesChanged() {
+    saveEdges();
+    syncControls();
+    map.shapeChanged();
+  }
+  // At the opening zoom a height of 0.15 moves an edge about one pixel, so
+  // the first curved edge zooms in far enough to see it.
+  var zoomedForCurves = false;
+  function zoomForCurves() {
+    if (!zoomedForCurves && map.scale() < 14) { zoomedForCurves = true; map.zoomTo(20); }
+  }
+  function setHeight(h, v, final) {
+    st[h.key] = v;
+    h.out.textContent = signed(v);
+    h.zero.classList.toggle('on', v === 0);
+    map.shapeChanged();
+    scheduleLimits();
+    if (final) { h.input.value = String(v); saveEdges(); map.changed(); }
+  }
+
+  edgeEl.addEventListener('change', function () {
+    var def = ES.BY_ID[edgeEl.value];
+    st.shape = def.id;
+    if (def.set) Object.keys(def.set).forEach(function (k) { st.params[k] = def.set[k]; });
+    if (st.shape !== 'line') {
+      // A new shape at zero height would look the same, so it gets a height.
+      if (straight()) { st.bend = 0.15; st.bendB = 0.15; }
+      zoomForCurves();
+    }
+    edgesChanged();
+  });
+  heights.forEach(function (h) {
+    h.input.addEventListener('input', function () {
+      var v = snap(h.input, parseFloat(h.input.value));
+      if (v !== 0) zoomForCurves();
+      setHeight(h, v, false);
+    });
+    h.input.addEventListener('change', function () { setHeight(h, st[h.key], true); });
+    // Two ways back to a straight edge: the 0 under the slider, or a double
+    // click on the slider.
+    h.zero.addEventListener('click', function () { setHeight(h, 0, true); });
+    h.input.addEventListener('dblclick', function () { setHeight(h, 0, true); });
+  });
+  Object.keys(sliders).forEach(function (k) {
+    sliders[k].input.addEventListener('input', function () {
+      st.params[k] = snap(sliders[k].input, parseFloat(sliders[k].input.value));
+      // The trapezium's two sloping sides must fit inside one hump.
+      if (k === 'rise' && st.params.rise + st.params.fall > 1) st.params.fall = +(1 - st.params.rise).toFixed(2);
+      if (k === 'fall' && st.params.rise + st.params.fall > 1) st.params.rise = +(1 - st.params.fall).toFixed(2);
+      edgesChanged();
+    });
+  });
+  Array.prototype.forEach.call(arrEls, function (r) {
+    r.addEventListener('change', function () { if (r.checked) { st.arrangement = r.value; edgesChanged(); } });
+  });
+
+  syncControls();
+})();
+</script>
+<script src="../engine/phone.js"></script>
+</body>
+</html>

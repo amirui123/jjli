@@ -1,0 +1,376 @@
+* {
+  /* for CSS debugging */
+  /* outline: 1px solid white; */
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  font-size: 18px;
+}
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 300;
+  color: rgb(255, 190, 137);
+  background-color: rgb(0,0,51);
+  /* anti-aliasing for crisper fonts */
+  -webkit-font-smoothing: subpixel-antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+canvas {
+	display: block;
+}
+
+#root {
+	display: flex;
+	flex-direction: column;
+}
+
+header {
+	padding: 1rem;
+  padding-bottom: 0;
+  min-height: 1rem;
+}
+
+.title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: left;
+}
+
+.title > h2 {
+  padding-left: 1rem;
+}
+
+#buttons > * {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+}
+
+.toprightcorner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 1rem;
+}
+
+main {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+  position: relative;
+  height: 75vh;
+}
+
+.bottomrightcorner {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 1rem;
+}
+
+.half {
+	flex: 1;
+	min-width: 300px;
+	display: flex;
+	flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.half > div:nth-child(2) {
+	width: 100%;
+	height: 100%;
+}
+
+.half > div:nth-child(1) {
+  width: 100%;
+	text-align: center;
+	padding-bottom: 0.5rem;
+  position: relative;
+}
+
+.save {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+footer {
+  display: flex;
+  flex-direction: column;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Raleway', 'Tinos', sans-serif;
+  line-height: 1.1;
+  color: rgb(255, 190, 137);
+  margin-top: 0.25rem;	
+  margin-bottom: 0.25rem;	
+}
+
+h1 {
+  text-align: left;
+  font-weight: 200;
+  font-size: 2.33rem;
+}
+
+h2 {
+  text-align: left;
+  font-weight: 300;
+  font-size: 1rem;
+}
+
+/*
+.slider {
+  height: 18px;
+  border-radius: 4px;  
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 28px;
+  height: 28px;
+}
+
+.slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+}
+*/
+
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 18px;
+  border-radius: 4px;  
+  background: rgb(85, 56, 100);
+  outline: none;
+  opacity: 1;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+  margin-bottom: 0.5rem;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%; 
+  border-color: rgb(40, 32, 68);
+  background: rgb(254, 199, 81);
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border-color: rgb(40, 32, 68);
+  background: rgb(254, 199, 81);
+  cursor: pointer;
+}
+
+.slider:hover {
+  background: rgb(69,10,76);
+}
+
+.slider:disabled {
+  background: rgb(56, 56, 56);
+}
+
+.slider:disabled::-webkit-slider-thumb {
+  background: rgb(220, 220, 220);
+}
+
+.slider:disabled::-moz-range-thumb {
+  background: rgb(220, 220, 220);
+}
+
+.grey {
+  color: rgb(220, 220, 220);
+}
+
+/*
+  background-color: rgb(56, 56, 56);
+  border: 0.125rem solid rgb(56, 56, 56);
+  color: rgb(240, 240, 240);
+*/
+
+button {
+  font-size: 1rem;
+  font-weight: 100;
+
+  text-align: center;
+  text-decoration: none;
+
+  transition-duration: 0.4s;
+
+  background-color: rgb(85, 56, 100);
+  color: rgb(254, 199, 81);
+  border: 0.125rem solid rgb(85, 56, 100);
+  border-radius: 0.25rem;
+
+  margin: 0rem;
+}
+
+button:hover {
+  background-color: rgb(69,10,76);
+  border: 0.125rem solid rgb(69,10,76);
+  color: rgb(254, 199, 81);
+}
+
+button:disabled {
+  background-color: rgb(56, 56, 56);
+  border: 0.125rem solid rgb(56, 56, 56);
+  color: rgb(240, 240, 240);
+}
+
+.nav {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.nav > div {
+  width: 4rem;
+  padding: 0.5rem;
+  text-align: center;
+  font-weight: 700;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.lightershade {
+  background-color: rgb(40, 20, 70);  
+}
+
+.grid {
+  width: 100%;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-around;
+}
+
+.grid > div {
+	width: 8.5rem;
+  height: 3rem;
+	padding: 1rem;
+	text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.dotted {
+  border-bottom: dotted 2px rgba(255, 190, 137, 0.5);  
+}
+
+.menu {
+  width: 7rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.menu > button {
+  margin: 0.25rem;
+}
+
+.stretch {
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.colorpicker {
+  display: none;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center
+}
+
+select { /* modified from https://stackoverflow.com/a/57510283 */
+  width: 7.5rem;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='50' fill='%23FEC751'><polygon points='0,0 100,0 50,50'/></svg>") no-repeat;
+  background-size: 12px;
+  background-position: calc(100% - 10px) center;
+  background-repeat: no-repeat;
+  background-color: rgb(85, 56, 100);
+  color: rgb(255, 190, 137);
+}
+
+
+/* screens under 600 px width OR height */
+@media screen and (max-width: 670px),
+       screen and (max-height: 600px),
+ {
+
+  .half {
+    height: 300px;
+  }
+
+  .menu {
+    flex-direction: row;
+    width: 100%;
+    padding-bottom: 0.5rem;
+  }
+
+  .title {
+    flex-direction: column;
+    justify-content: left;
+  }
+
+  header h1 {
+    text-align: center;
+  }
+
+  header h2 {
+    display: none;
+  }
+
+  #hideonmobile {
+    display: none;
+  }
+
+  main {
+    height: auto;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .stretch {
+    touch-action: auto;
+  }
+
+  footer {
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  #wrapper {
+    display: none;
+  }
+
+} 

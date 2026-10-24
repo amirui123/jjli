@@ -766,6 +766,575 @@ class ProceduralSoundEngine {
       ],
     });
   }
+
+  /** Returns true when Web Audio is unlocked and actively running in the browser. */
+  isUnlocked(): boolean {
+    const ctx = this.ctx;
+    return Boolean(ctx && ctx.state === "running");
+  }
+
+  /** Unlocks Web Audio on the first user gesture and resolves true if running. */
+  async unlock(): Promise<boolean> {
+    const ctx = this.getContext();
+    if (!ctx) return false;
+    if (ctx.state === "suspended") {
+      try {
+        await ctx.resume();
+      } catch {
+        return false;
+      }
+    }
+    return ctx.state === "running";
+  }
+
+  /**
+   * 4-Act Cinema-Grade Procedural Soundtrack for the Entrance Motion Graphic.
+   * Engineered using modal synthesis (wood/glass ratios), stereo RTL panning,
+   * calligraphic pink-noise foley, sub-bass bloom, and hall convolution reverb.
+   */
+  playEntranceAct(act: 1 | 2 | 3 | 4) {
+    if (!this.enabled) return;
+
+    if (act === 1) {
+      // Act I: Deep Sub-Bass Drop + Warm Modal Strike + RTL Reed-Pen Silk Whoosh
+      this.playDesign(
+        {
+          duration: 1.35,
+          gain: 0.85,
+          reverb: { decay: 1.45, mix: 0.28 },
+          layers: [
+            {
+              k: "tone",
+              f: 73.42, // D2
+              to: 36.71, // D1 sub drop
+              dur: 0.95,
+              gain: 0.28,
+              type: "sine",
+              attack: 0.015,
+              release: 0.65,
+              filter: { type: "lowpass", f: 180 },
+            },
+            {
+              k: "bell",
+              f: 293.66, // D4 warm wood/glass mallet
+              dur: 0.9,
+              at: 0.02,
+              gain: 0.18,
+              pan: 0.32,
+              ratios: [
+                [1, 1, 1],
+                [2.4, 0.36, 0.65],
+                [3.9, 0.14, 0.4],
+              ],
+            },
+            {
+              k: "noise",
+              color: "pink",
+              dur: 0.85,
+              at: 0.08,
+              gain: 0.09,
+              pan: 0.2,
+              attack: 0.14,
+              release: 0.45,
+              filter: { type: "bandpass", f: 280, to: 1480, q: 2.2 },
+            },
+          ],
+        },
+        { overlap: true, gain: 0.88 }
+      );
+      return;
+    }
+
+    if (act === 2) {
+      // Act II: 3-Word Kinetic Reveal (Stereo Right -> Center -> Left Crystalline Arpeggio + Bezier Snap)
+      this.playDesign(
+        {
+          duration: 1.4,
+          gain: 0.85,
+          reverb: { decay: 1.3, mix: 0.26 },
+          layers: [
+            {
+              k: "bell",
+              f: 293.66, // D4 (Right)
+              dur: 0.75,
+              at: 0.0,
+              gain: 0.16,
+              pan: 0.42,
+              ratios: [
+                [1, 0.95, 1],
+                [2.756, 0.3, 0.6],
+              ],
+            },
+            {
+              k: "bell",
+              f: 440.0, // A4 (Center)
+              dur: 0.8,
+              at: 0.2,
+              gain: 0.17,
+              pan: 0.0,
+              ratios: [
+                [1, 0.95, 1],
+                [2.756, 0.32, 0.62],
+              ],
+            },
+            {
+              k: "bell",
+              f: 659.25, // E5 (Left)
+              dur: 0.9,
+              at: 0.4,
+              gain: 0.18,
+              pan: -0.42,
+              ratios: [
+                [1, 1, 1],
+                [2.0, 0.35, 0.7],
+                [3.01, 0.14, 0.45],
+              ],
+            },
+            {
+              k: "tone",
+              f: 920,
+              to: 420,
+              dur: 0.08,
+              at: 0.58,
+              gain: 0.11,
+              type: "triangle",
+              filter: { type: "highpass", f: 600 },
+            },
+          ],
+        },
+        { overlap: true, gain: 0.85 }
+      );
+      return;
+    }
+
+    if (act === 3) {
+      // Act III: Lush Warm D-Major9 Studio Swell + Delicate Horological Ticks
+      this.playDesign(
+        {
+          duration: 1.65,
+          gain: 0.85,
+          reverb: { decay: 1.85, mix: 0.36 },
+          layers: [
+            {
+              k: "tone",
+              f: [146.83, 220.0, 329.63, 369.99], // D3 - A3 - E4 - F#4
+              dur: 1.45,
+              at: 0.0,
+              gain: 0.22,
+              type: "triangle",
+              attack: 0.22,
+              release: 0.85,
+              filter: { type: "lowpass", f: 460, to: 2100, q: 0.9 },
+              lfo: { rate: 4.2, depth: 8, target: "pitch" },
+            },
+            {
+              k: "seq",
+              gain: 0.25,
+              filter: { type: "highpass", f: 1400 },
+              steps: [
+                { f: 1760, at: 0.12, dur: 0.045, gain: 0.08, type: "sine" },
+                { f: 1975.5, at: 0.28, dur: 0.045, gain: 0.09, type: "sine" },
+                { f: 2217.4, at: 0.44, dur: 0.05, gain: 0.1, type: "sine" },
+              ],
+            },
+          ],
+        },
+        { overlap: true, gain: 0.85 }
+      );
+      return;
+    }
+
+    // Act IV: Camera Push-Through & L-Cut Crystalline Shimmer Release
+    this.playDesign(
+      {
+        duration: 1.6,
+        gain: 0.85,
+        reverb: { decay: 2.1, mix: 0.42 },
+        layers: [
+          {
+            k: "noise",
+            color: "pink",
+            dur: 0.65,
+            at: 0.0,
+            gain: 0.08,
+            attack: 0.08,
+            release: 0.45,
+            filter: { type: "bandpass", f: 420, to: 2600, q: 1.8 },
+          },
+          {
+            k: "bell",
+            f: 587.33, // D5
+            dur: 1.35,
+            at: 0.04,
+            gain: 0.17,
+            pan: -0.18,
+            ratios: [
+              [1, 1, 1],
+              [1.5, 0.48, 0.85], // A5
+              [2.0, 0.32, 0.72], // D6
+            ],
+          },
+        ],
+      },
+      { overlap: true, gain: 0.86 }
+    );
+  }
+
+  /**
+   * Interactive Physics/Chemistry/Geometry Pluck:
+   * Maps cursor (normX in -1..1, normY in 0..1) to a D-Dorian harmonic crystal/water droplet resonance.
+   */
+  /**
+   * Synchronized Studio Sound Engine for the "Line -> Spin -> Shatter -> Word-by-Word Morph" Entrance:
+   * - "sweep": Stereo RTL/LTR beam whoosh across the screen
+   * - "spin": Accelerating vortex swirl into the center
+   * - "shatter": Crystalline fracture into 7 glowing line shards + sub impact
+   * - "word": 7 ascending harmonic crystal notes (one for each word as its shard morphs into text)
+   * - "portal": Warm studio resolution chord with L-Cut reverb tail
+   */
+  playLineMorphCue(
+    stage:
+      | "sweep"
+      | "rebound"
+      | "astrolabe"
+      | "spin"
+      | "shatter"
+      | "word"
+      | "prism"
+      | "portal",
+    wordIndex = 0
+  ) {
+    if (!this.enabled) return;
+
+    if (stage === "sweep") {
+      this.playDesign(
+        {
+          duration: 0.95,
+          gain: 0.85,
+          reverb: { decay: 1.1, mix: 0.22 },
+          layers: [
+            {
+              k: "noise",
+              color: "pink",
+              dur: 0.85,
+              gain: 0.11,
+              pan: 0.45,
+              attack: 0.06,
+              release: 0.35,
+              filter: { type: "bandpass", f: 240, to: 1850, q: 2.0 },
+            },
+            {
+              k: "tone",
+              f: 98.0,
+              to: 220.0,
+              dur: 0.8,
+              gain: 0.2,
+              type: "sine",
+              attack: 0.03,
+              release: 0.4,
+              filter: { type: "lowpass", f: 420 },
+            },
+          ],
+        },
+        { overlap: true, gain: 0.88 }
+      );
+      return;
+    }
+
+    if (stage === "rebound") {
+      this.playDesign(
+        {
+          duration: 0.88,
+          gain: 0.86,
+          reverb: { decay: 1.25, mix: 0.26 },
+          layers: [
+            {
+              k: "noise",
+              color: "pink",
+              dur: 0.78,
+              gain: 0.11,
+              pan: -0.48,
+              attack: 0.04,
+              release: 0.32,
+              filter: { type: "bandpass", f: 340, to: 2400, q: 2.2 },
+            },
+            {
+              k: "tone",
+              f: 146.83,
+              to: 329.63,
+              dur: 0.75,
+              gain: 0.19,
+              pan: -0.35,
+              type: "triangle",
+              attack: 0.02,
+              release: 0.36,
+              filter: { type: "lowpass", f: 960, to: 2200 },
+            },
+          ],
+        },
+        { overlap: true, gain: 0.88 }
+      );
+      return;
+    }
+
+    if (stage === "astrolabe") {
+      this.playDesign(
+        {
+          duration: 1.15,
+          gain: 0.9,
+          reverb: { decay: 1.6, mix: 0.34 },
+          layers: [
+            {
+              k: "bell",
+              f: 440.0,
+              dur: 0.95,
+              gain: 0.18,
+              ratios: [
+                [1, 1, 1],
+                [1.5, 0.52, 0.8],
+                [2.0, 0.36, 0.65],
+                [3.0, 0.2, 0.45],
+              ],
+            },
+            {
+              k: "tone",
+              f: [110.0, 164.81, 220.0],
+              to: 293.66,
+              dur: 0.9,
+              gain: 0.22,
+              type: "sine",
+              attack: 0.015,
+              release: 0.55,
+              filter: { type: "lowpass", f: 1400 },
+            },
+          ],
+        },
+        { overlap: true, gain: 0.9 }
+      );
+      return;
+    }
+
+    if (stage === "prism") {
+      this.playDesign(
+        {
+          duration: 1.45,
+          gain: 0.92,
+          reverb: { decay: 1.95, mix: 0.38 },
+          layers: [
+            {
+              k: "seq",
+              gain: 0.17,
+              filter: { type: "lowpass", f: 3600 },
+              steps: [
+                { f: 587.33, at: 0.0, dur: 0.32, type: "triangle" },
+                { f: 739.99, at: 0.09, dur: 0.35, type: "triangle" },
+                { f: 880.0, at: 0.18, dur: 0.42, type: "triangle" },
+                { f: 1174.66, at: 0.28, dur: 0.65, type: "sine" },
+              ],
+            },
+            {
+              k: "tone",
+              f: [146.83, 220.0, 293.66, 440.0],
+              dur: 1.25,
+              gain: 0.22,
+              type: "sine",
+              attack: 0.06,
+              release: 0.85,
+              filter: { type: "lowpass", f: 1800, to: 3200 },
+            },
+          ],
+        },
+        { overlap: true, gain: 0.9 }
+      );
+      return;
+    }
+
+    if (stage === "spin") {
+      this.playDesign(
+        {
+          duration: 1.05,
+          gain: 0.85,
+          reverb: { decay: 1.25, mix: 0.26 },
+          layers: [
+            {
+              k: "tone",
+              f: 196.0,
+              to: 587.33,
+              dur: 0.95,
+              gain: 0.18,
+              type: "triangle",
+              attack: 0.05,
+              release: 0.35,
+              filter: { type: "lowpass", f: 600, to: 2800, q: 1.4 },
+              lfo: { rate: 14, depth: 32, target: "pitch" },
+            },
+            {
+              k: "noise",
+              color: "pink",
+              dur: 0.9,
+              gain: 0.09,
+              attack: 0.1,
+              release: 0.35,
+              filter: { type: "bandpass", f: 520, to: 2400, q: 2.4 },
+            },
+          ],
+        },
+        { overlap: true, gain: 0.86 }
+      );
+      return;
+    }
+
+    if (stage === "shatter") {
+      this.playDesign(
+        {
+          duration: 0.95,
+          gain: 0.9,
+          reverb: { decay: 1.4, mix: 0.3 },
+          layers: [
+            {
+              k: "tone",
+              f: 110.0,
+              to: 36.71,
+              dur: 0.55,
+              gain: 0.28,
+              type: "sine",
+              attack: 0.005,
+              release: 0.4,
+            },
+            {
+              k: "bell",
+              f: 587.33,
+              dur: 0.75,
+              gain: 0.2,
+              ratios: [
+                [1, 1, 1],
+                [1.414, 0.45, 0.7],
+                [2.38, 0.3, 0.55],
+                [3.92, 0.16, 0.4],
+              ],
+            },
+            {
+              k: "noise",
+              color: "white",
+              dur: 0.14,
+              gain: 0.1,
+              attack: 0.002,
+              release: 0.1,
+              filter: { type: "highpass", f: 2800 },
+            },
+          ],
+        },
+        { overlap: true, gain: 0.9 }
+      );
+      return;
+    }
+
+    if (stage === "word") {
+      const notes = [293.66, 329.63, 369.99, 440.0, 493.88, 587.33, 739.99];
+      const idx = Math.max(0, Math.min(notes.length - 1, wordIndex));
+      const f = notes[idx] ?? 440;
+      const pan = clamp(0.54 - idx * 0.18, -0.6, 0.6); // Right-to-Left stereo image
+
+      this.playDesign(
+        {
+          duration: 0.75,
+          gain: 0.85,
+          reverb: { decay: 1.2, mix: 0.28 },
+          layers: [
+            {
+              k: "bell",
+              f,
+              dur: 0.65,
+              gain: 0.17,
+              pan,
+              ratios: [
+                [1, 1, 1],
+                [2.0, 0.38, 0.75],
+                [2.756, 0.18, 0.5],
+              ],
+            },
+            ...(idx === 6
+              ? [
+                  {
+                    k: "tone" as const,
+                    f: [146.83, 220.0, 369.99],
+                    dur: 1.35,
+                    gain: 0.2,
+                    type: "triangle" as const,
+                    attack: 0.08,
+                    release: 0.85,
+                    filter: { type: "lowpass" as const, f: 1800 },
+                  },
+                ]
+              : []),
+          ],
+        },
+        { overlap: true, gain: 0.86 }
+      );
+      return;
+    }
+
+    // "portal" — Multi-stage Cinema Portal Opening (Riser -> Split-Curtain Whoosh -> Warm L-Cut Chord)
+    this.playDesign(
+      {
+        duration: 2.4,
+        gain: 0.92,
+        reverb: { decay: 2.3, mix: 0.44 },
+        layers: [
+          // 1. Inward Reverse-Crystal Riser (0.00s -> 0.36s) as words condense into the horizon seam
+          {
+            k: "tone",
+            f: 293.66,
+            to: 880.0,
+            dur: 0.36,
+            gain: 0.16,
+            type: "sine",
+            attack: 0.24,
+            release: 0.08,
+            filter: { type: "lowpass", f: 600, to: 3600 },
+          },
+          // 2. Deep Velvet Sub-Drop at the exact moment the shutter splits open (t = 0.32s)
+          {
+            k: "tone",
+            f: 98.0,
+            to: 36.71,
+            at: 0.3,
+            dur: 0.95,
+            gain: 0.3,
+            type: "sine",
+            attack: 0.01,
+            release: 0.75,
+            filter: { type: "lowpass", f: 180 },
+          },
+          // 3. Stereo Silk Curtain Whoosh (t = 0.30s -> 1.25s)
+          {
+            k: "noise",
+            color: "pink",
+            at: 0.28,
+            dur: 0.95,
+            gain: 0.12,
+            attack: 0.08,
+            release: 0.65,
+            filter: { type: "bandpass", f: 1800, to: 320, q: 1.5 },
+          },
+          // 4. Warm D-Major9 Studio Resolution Pad (L-Cut ringing inside the live site)
+          {
+            k: "tone",
+            f: [146.83, 220.0, 293.66, 369.99, 440.0, 659.25],
+            at: 0.32,
+            dur: 2.0,
+            gain: 0.24,
+            type: "triangle",
+            detune: 5,
+            attack: 0.14,
+            release: 1.55,
+            filter: { type: "lowpass", f: 2400, to: 720 },
+          },
+        ],
+      },
+      { overlap: true, gain: 0.92 }
+    );
+  }
 }
 
 export const soundEngine = new ProceduralSoundEngine();

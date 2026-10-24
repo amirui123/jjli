@@ -32,16 +32,21 @@ interface MotionSettings extends SpringParams {
   target: Target;
   mode: Mode;
   distance: number;
+  liftY: number;
   durationS: number;
   scale: number;
+  initialScale: number;
   rotate: number;
+  rotateX: number;
   blur: number;
   opacityFrom: number;
   stagger: number;
+  cascadeCount: number;
+  simHz: 60 | 120 | 144;
   rtl: boolean;
   loop: boolean;
   bezier: [number, number, number, number];
-  exportTab: "motion" | "css" | "variants";
+  exportTab: "motion" | "css" | "variants" | "raf120";
   /** the visitor's own content, used by every preview and by the code output */
   content: string;
 }
@@ -54,12 +59,17 @@ const DEFAULT: MotionSettings = {
   target: "type",
   mode: "spring",
   distance: 80,
+  liftY: 0,
   durationS: 0.6,
   scale: 1.02,
+  initialScale: 0.94,
   rotate: 0,
+  rotateX: 0,
   blur: 10,
   opacityFrom: 0,
   stagger: 0.06,
+  cascadeCount: 1,
+  simHz: 120,
   rtl: true,
   loop: false,
   bezier: [0.22, 1, 0.36, 1],
@@ -114,12 +124,14 @@ export const MotionStudio: React.FC = () => {
   const dirSign = s.rtl ? -1 : 1;
   const initial = {
     x: s.distance * dirSign,
+    y: s.liftY ?? 0,
     opacity: s.opacityFrom,
-    scale: 0.94,
+    scale: s.initialScale ?? 0.94,
     rotate: s.rotate * dirSign,
+    rotateX: s.rotateX ?? 0,
     filter: `blur(${s.blur}px)`,
   };
-  const animate = { x: 0, opacity: 1, scale: 1, rotate: 0, filter: "blur(0px)" };
+  const animate = { x: 0, y: 0, opacity: 1, scale: 1, rotate: 0, rotateX: 0, filter: "blur(0px)" };
   const hover = { scale: s.scale, rotate: s.rotate * 0.6 * dirSign };
   const loopTransition = { ...transition, repeat: Infinity, repeatType: "reverse" as const, repeatDelay: 0.5 };
 
@@ -219,7 +231,23 @@ export const item: Variants = {
   },
 };`;
 
-  const exportCode = { motion: motionSnippet, css: cssSnippet, variants: variantsSnippet }[s.exportTab];
+  const raf120Snippet = `// Rory Driscoll Frame-Rate Independent Damping (${s.simHz ?? 120}Hz ProMotion Calibrated)
+// Natural Frequency: ${analysis.naturalFreq.toFixed(2)}Hz · Damping Ratio ζ: ${analysis.dampingRatio.toFixed(2)}
+export function dampRtlFrameIndependent(
+  current: number,
+  target: number,
+  dtSeconds = ${(1 / (s.simHz ?? 120)).toFixed(5)}
+): number {
+  const decay = ${(analysis.naturalFreq * 4.2).toFixed(2)};
+  return current + (target - current) * (1 - Math.exp(-decay * dtSeconds));
+}`;
+
+  const exportCode = {
+    motion: motionSnippet,
+    css: cssSnippet,
+    variants: variantsSnippet,
+    raf120: raf120Snippet,
+  }[s.exportTab];
   const preset = MOTION_PRESETS.find((p) => p.id === s.presetId);
 
   const downloadConfig = () =>
@@ -452,6 +480,7 @@ ${preset?.hintFa ?? ""}
                 { value: "motion", label: "Motion" },
                 { value: "css", label: "CSS" },
                 { value: "variants", label: "Variants" },
+                { value: "raf120", label: `${s.simHz ?? 120}Hz Damp` },
               ]}
             />
             <DownloadButton
@@ -492,14 +521,31 @@ ${preset?.hintFa ?? ""}
         </div>
       </Panel>
 
-      <Panel title="مسیر حرکت">
+      <Panel title="مسیر و ابعاد حرکت (شخصی‌سازی پیشرفته)">
         <div className="space-y-3.5">
-          <Slider label="فاصله افقی" value={s.distance} min={0} max={320} step={4} unit="px" onChange={(v) => set({ distance: v })} />
-          <Slider label="بلور اولیه" value={s.blur} min={0} max={30} unit="px" onChange={(v) => set({ blur: v })} />
-          <Slider label="شفافیت اولیه" value={s.opacityFrom} min={0} max={1} step={0.05} format={(v) => v.toFixed(2)} onChange={(v) => set({ opacityFrom: v })} />
-          <Slider label="چرخش" value={s.rotate} min={0} max={20} unit="°" onChange={(v) => set({ rotate: v })} />
-          <Slider label="بزرگ‌نمایی هاور" value={s.scale} min={1} max={1.3} step={0.01} format={(v) => `${v.toFixed(2)}×`} onChange={(v) => set({ scale: v })} />
-          <Slider label="تأخیر پله‌ای" value={s.stagger} min={0} max={0.3} step={0.01} unit="s" format={(v) => v.toFixed(2)} onChange={(v) => set({ stagger: v })} />
+          <div>
+            <div className="mb-1 text-[10.5px] text-zinc-400">نرخ نوسازی هدف (Refresh Rate):</div>
+            <Segmented
+              className="w-full"
+              size="sm"
+              value={String(s.simHz ?? 120) as "60" | "120" | "144"}
+              onChange={(v) => set({ simHz: Number(v) as 60 | 120 | 144 })}
+              options={[
+                { value: "60", label: "60Hz" },
+                { value: "120", label: "120Hz ProMotion" },
+                { value: "144", label: "144Hz" },
+              ]}
+            />
+          </div>
+          <Slider label="فاصله افقی (X)" value={s.distance} min={0} max={320} step={4} unit="px" onChange={(v) => set({ distance: v })} />
+          <Slider label="پرش عمودی (Lift Y)" value={s.liftY ?? 0} min={-120} max={120} step={4} unit="px" onChange={(v) => set({ liftY: v })} />
+          <Slider label="مقیاس اولیه ورود (Initial Scale)" value={s.initialScale ?? 0.94} min={0.5} max={1.25} step={0.02} format={(v) => `${v.toFixed(2)}×`} onChange={(v) => set({ initialScale: v })} />
+          <Slider label="بلور اولیه (Motion Blur)" value={s.blur} min={0} max={30} unit="px" onChange={(v) => set({ blur: v })} />
+          <Slider label="شفافیت اولیه (Opacity)" value={s.opacityFrom} min={0} max={1} step={0.05} format={(v) => v.toFixed(2)} onChange={(v) => set({ opacityFrom: v })} />
+          <Slider label="چرخش دوبعدی (Rotate Z)" value={s.rotate} min={0} max={30} unit="°" onChange={(v) => set({ rotate: v })} />
+          <Slider label="چرخش سه‌بعدی (Tilt X)" value={s.rotateX ?? 0} min={-40} max={40} step={2} unit="°" onChange={(v) => set({ rotateX: v })} />
+          <Slider label="بزرگ‌نمایی هاور (Hover Scale)" value={s.scale} min={1} max={1.35} step={0.01} format={(v) => `${v.toFixed(2)}×`} onChange={(v) => set({ scale: v })} />
+          <Slider label="تأخیر پله‌ای (Stagger)" value={s.stagger} min={0} max={0.3} step={0.01} unit="s" format={(v) => v.toFixed(2)} onChange={(v) => set({ stagger: v })} />
           <div className="space-y-2 border-t border-white/[0.06] pt-3">
             <Toggle label="قرینه‌سازی RTL" checked={s.rtl} onChange={(v) => set({ rtl: v })} hint="محور حرکت با جهت صفحه برعکس می‌شود" />
             <Toggle label="حلقه پیوسته" checked={s.loop} onChange={(v) => set({ loop: v })} />

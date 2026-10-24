@@ -1,0 +1,41 @@
+@import 'tailwindcss';
+
+@layer base {
+  :root {
+    color-scheme: light dark;
+    --pop-color: var(--color-emerald-600);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --pop-color: var(--color-emerald-400);
+    }
+  }
+}
+
+.is-playing {
+  animation: sound-pop 300ms ease-out;
+}
+
+@keyframes sound-pop {
+  0% {
+    transform: scale(1);
+  }
+
+  40% {
+    transform: scale(1.08);
+    color: var(--pop-color);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.github-corner > svg {
+  @apply opacity-50 transition-opacity duration-400;
+}
+
+.github-corner:hover > svg {
+  @apply opacity-100;
+}

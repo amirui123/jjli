@@ -1,0 +1,7 @@
+version: 2
+projectIgnorePaths:
+  - 'demo.html'
+  - 'index.html'
+issueRules:
+  newAuthor: false
+  unmaintained: false

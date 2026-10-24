@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-030H46R5YW"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-030H46R5YW');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Superformula explorer</title>
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" type="image/png" href="favicon.png" sizes="256x256">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&family=STIX+Two+Text:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.21/katex.min.css">
+<script>
+// Set the theme before first paint: a saved choice wins, otherwise follow the system.
+(function(){
+  let t = null;
+  try { t = localStorage.getItem('sf-theme'); } catch {}
+  if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  document.documentElement.dataset.theme = t;
+})();
+</script>
+<style>
+:root{
+  --accent:#CDB6F6; --accent-hover:#B79AEF; --on-accent:#1C1230;
+  --primary:#FFFFFF; --primary-hover:#EDEDED; --on-primary:#0A090B;
+  --tint:#E6D9FC;
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --gutter:6px; --radius:20px;
+}
+:root,[data-theme=dark]{
+  color-scheme:dark;
+  --bg:#000; --tile:#161616; --raised:#262626; --raised-hover:#333;
+  --secondary:var(--raised); --secondary-hover:var(--raised-hover);
+  --ink:#F2F2F2; --muted:#8A8A8A; --line:#2C2C2C; --track:#3A3A3A;
+  --inset:rgba(22,22,22,.92);
+  --accent-fg:var(--accent);
+  --axis:rgba(255,255,255,.14); --curve:#FFFFFF; --mesh:#E6E8EA;
+  --shadow:rgba(0,0,0,.6); --backdrop:rgba(0,0,0,.6);
+}
+/* Light theme bakes the wash into its own tokens (each is a neutral multiplied by
+   --tint), so it needs no overlay and the mesh stays true silver. Randomize
+   rewrites those tokens from the same palette. */
+[data-theme=light]{
+  color-scheme:light;
+  --bg:#D6CAEA; --tile:#DFD2F4; --raised:#CCC0DF; --raised-hover:#C3B8D5;
+  --secondary:#E6D9FC; --secondary-hover:#DACEEF;
+  --ink:#0A090B; --muted:#605A69; --line:#C5BAD7; --track:#C1B6D3;
+  --inset:rgba(230,217,252,.92);
+  --accent:#B99BF3; --accent-hover:#A586EC; --on-accent:#190F2F;
+  --accent-fg:#724DC2;
+  --axis:rgba(0,0,0,.12); --curve:var(--accent-fg); --mesh:#DDE0E3;
+  --shadow:rgba(0,0,0,.12); --backdrop:rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{margin:0;height:100%;min-height:0;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font-family:"Instrument Sans",system-ui,sans-serif;font-size:15px;line-height:1.5}
+.mono{font-family:"Space Mono",ui-monospace,Menlo,monospace}
+.shell{width:100%;flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+header{flex:none;padding:24px 26px 14px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;flex-wrap:wrap;align-items:flex-end;gap:4px 16px;min-width:0}
+h1{font-family:"Instrument Sans",system-ui,sans-serif;font-size:40px;font-weight:500;line-height:1.15;margin:0;letter-spacing:-0.01em}
+.by{margin:0;display:flex;align-items:center;padding-bottom:5px;font-family:"Space Mono",monospace;font-size:12px;line-height:1;letter-spacing:.06em;text-transform:lowercase;color:var(--muted)}
+.by a{display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none}
+.by a span,.by .who{font-family:"Instrument Sans",system-ui,sans-serif;text-transform:none;letter-spacing:0}
+.by a span{text-decoration:underline;text-underline-offset:3px}
+.by .who{margin-left:6px}
+.by a:hover{color:var(--ink)}
+.ig{width:14px;height:14px;flex:none;display:block}
+.round-btn{flex:none;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;padding:0;border:0;border-radius:50%;background:var(--raised);color:var(--ink);cursor:pointer}
+.round-btn:hover{background:var(--raised-hover)}
+.round-btn svg{width:18px;height:18px;display:block}
+[data-theme=dark] .sun,[data-theme=light] .moon{display:none}
+#themeToggle{display:none} /* hidden for now; the theme follows the system or a saved choice */
+main{flex:1 1 auto;min-height:0;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) minmax(460px,560px);grid-template-rows:minmax(0,1fr);gap:var(--gutter);padding:0 26px 26px}
+.tile{background:var(--tile);border-radius:var(--radius);padding:16px 18px;min-width:0}
+.stage{position:relative;padding:0;background:var(--tile);min-height:0;overflow:hidden;cursor:grab}
+.stage:active{cursor:grabbing}
+.stage.flat,.stage.flat:active{cursor:default}
+.stage-tag{position:absolute;top:16px;left:18px;z-index:1;margin:0;font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:lowercase;color:var(--muted);pointer-events:none}
+#view,#c2view{position:absolute;inset:0}
+#c2view{width:100%;height:100%;background:transparent}
+/* Nested panel: one gutter in from the stage edge, radius reduced by the gutter so the corners stay concentric. */
+.inset{position:absolute;left:var(--gutter);bottom:var(--gutter);z-index:1;background:var(--inset);border:0;border-radius:calc(var(--radius) - var(--gutter));padding:12px;font:inherit;color:inherit;text-align:left;cursor:pointer;backdrop-filter:blur(6px)}
+.inset:hover{background:var(--raised)}
+.inset span{display:block;margin:0 0 6px;font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:lowercase;color:var(--muted)}
+#c2,#mini{display:block;width:150px;height:150px;overflow:hidden;pointer-events:none}
+#mini canvas{display:block}
+aside{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto auto minmax(0,1fr);gap:var(--gutter);min-height:0;overflow:auto}
+.span{grid-column:1/-1}
+.formula-tile{display:flex;align-items:center;justify-content:center;min-height:64px;padding-top:12px;padding-bottom:12px}
+.formula{width:100%;color:var(--ink);font-size:1em;line-height:1.2;overflow:hidden;white-space:nowrap;text-align:center}
+.formula .katex{font-size:1em;white-space:nowrap}
+/* While a slider is in use, the formula dims and only the matching variable keeps full
+   ink. Colour (not opacity) does the dimming, because a child can't undo its parent's
+   opacity; KaTeX draws rules and big delimiters in currentColor, so they dim too. */
+.formula,.formula .v{transition:color .45s var(--ease-out)}
+.formula.focus{color:color-mix(in srgb,var(--ink) 22%,transparent)}
+.formula.focus .v.hot{color:var(--ink)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.pill{font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:lowercase;padding:8px 13px;border-radius:999px;border:0;background:var(--secondary);color:var(--ink);cursor:pointer}
+.pill:hover{background:var(--secondary-hover)}
+.pill.has-icon,.more summary{display:inline-flex;align-items:center;gap:7px}
+.pill.has-icon{padding-left:9px}
+.pi{width:16px;height:16px;flex:none;display:block;overflow:visible}
+.pi path{fill:none;stroke:currentColor;stroke-width:1.25;stroke-linejoin:round}
+.pi .pi-b{opacity:.38}
+.pill.on,.more summary.on{background:var(--ink);color:var(--bg)}
+.more{position:relative}
+.more summary{list-style:none}
+.more summary::-webkit-details-marker{display:none}
+.more summary::after{content:"";border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid currentColor}
+.more-menu{position:absolute;z-index:3;top:calc(100% + 6px);left:0;display:flex;flex-wrap:wrap;align-content:flex-start;gap:6px;width:min(320px,calc(100vw - 48px));padding:8px;background:var(--tile);border:1px solid var(--line);border-radius:18px;box-shadow:0 16px 40px var(--shadow)}
+.tile.values{background:none;padding:0;border-radius:0}
+.values{display:flex;flex-direction:column;gap:calc(var(--gutter) * 2);min-height:0}
+.actions{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:var(--gutter)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:"Space Mono",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:13px 12px;border-radius:999px;border:0;background:var(--secondary);color:var(--ink);cursor:pointer;white-space:nowrap}
+.btn svg{width:16px;height:16px;flex:none;display:block}
+.btn:hover{background:var(--secondary-hover)}
+.btn.primary{background:var(--primary);color:var(--on-primary)}
+.btn.primary:hover{background:var(--primary-hover)}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent-fg);outline-offset:2px}
+h2{font-size:15px;font-weight:500;margin:0 0 12px}
+.label{font-family:"Space Mono",monospace;font-size:11px;font-weight:400;letter-spacing:.12em;text-transform:lowercase;color:var(--muted)}
+.set-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin:0 0 8px}
+.set-head h2{margin:0;line-height:1.25}
+.set-head h2 small{display:block;font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:lowercase;color:var(--muted);font-weight:400;margin-top:2px}
+.set-actions{display:flex;align-items:center;gap:10px}
+.icon-btn{display:inline-flex;flex:none;padding:0;border:0;border-radius:4px;background:none;color:var(--ink);cursor:pointer}
+.icon-btn:hover{color:var(--accent-fg)}
+.icon-btn svg{width:20px;height:20px;display:block}
+.text-btn{font-family:"Space Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:lowercase;padding:0;border:0;background:none;color:var(--ink);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.text-btn:hover{color:var(--accent-fg)}
+.set.dim .set-head h2,.set.dim #B{opacity:.35}
+.set.dim #B{pointer-events:none}
+.sub{font-size:13px;color:var(--muted);margin:0 0 10px}
+.row{display:grid;grid-template-columns:26px 1fr 40px;align-items:center;gap:10px;margin:2px 0}
+.row label{font-family:"STIX Two Text",serif;font-style:italic;font-size:16px}
+.row output{text-align:right;font-family:"Space Mono",monospace;font-variant-numeric:tabular-nums;font-size:12px;cursor:pointer}
+.row output input{width:100%;margin:0;padding:0;border:0;border-radius:0;border-bottom:1px solid var(--ink);background:transparent;color:inherit;font:inherit;text-align:right}
+.set.dim output{cursor:default}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:24px;margin:0;background:transparent;cursor:pointer;--fill:linear-gradient(var(--ink),var(--ink)) 0 / var(--p,0%) 100% no-repeat}
+input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:var(--fill),var(--track)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;margin-top:-6px;border-radius:50%;background:var(--ink);border:0;box-shadow:0 0 0 4px var(--tile)}
+input[type=range]::-moz-range-track{height:3px;border-radius:2px;background:var(--track)}
+input[type=range]::-moz-range-progress{height:3px;border-radius:2px;background:var(--ink)}
+input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--ink);border:0;box-shadow:0 0 0 4px var(--tile)}
+.config{flex:1 1 auto;min-height:0;overflow:auto;margin:0;font-family:"Space Mono",ui-monospace,Menlo,monospace;font-size:12px;line-height:1.5;white-space:pre-wrap;word-break:break-word;color:var(--ink);background:var(--tile);border-radius:14px;padding:12px 14px}
+@media (max-width:1024px){
+  html,body{height:auto;overflow:auto}
+  body{min-height:100%}
+  .shell{height:auto;overflow:visible}
+  main{overflow:visible;grid-template-columns:1fr;grid-template-rows:auto;padding:0 18px 22px}
+  header{padding:22px 18px 12px}
+  aside{overflow:visible;grid-template-rows:auto}
+  .config{flex:none;max-height:none;overflow:visible}
+  .stage{min-height:420px}
+}
+@media (max-width:600px){
+  aside{grid-template-columns:1fr}
+  h1{font-size:26px}
+  /* Square stage. Pinch-zoom stays off; a vertical pan still scrolls the page. */
+  .stage{aspect-ratio:1;min-height:0;touch-action:pan-y}
+  #stageTag,#to2d{display:none}
+  .actions{
+    position:fixed;z-index:4;left:0;right:0;bottom:0;
+    grid-template-columns:1fr 1fr;
+    padding:12px 18px calc(18px + env(safe-area-inset-bottom, 0px));
+    background:var(--bg);
+  }
+  #randomize{grid-column:1 / -1;grid-row:1}
+  #copyValues{grid-column:1;grid-row:2}
+  #downloadValues{grid-column:2;grid-row:2}
+  /* Clear the pinned bar, and keep the same gap that sits above the buttons. */
+  main{padding-bottom:calc(var(--gutter) * 2 + 12px + 44px + var(--gutter) + 44px + 18px + env(safe-area-inset-bottom, 0px))}
+}
+dialog{border:1px solid var(--line);border-radius:20px;background:var(--tile);color:var(--ink);padding:20px 22px 18px;width:min(420px,calc(100vw - 32px));box-shadow:0 18px 48px var(--shadow)}
+dialog::backdrop{background:var(--backdrop)}
+dialog h2{font-size:16px;margin-bottom:2px}
+.save-name{display:flex;flex-direction:column;gap:6px}
+.save-name input{font-family:"Space Mono",monospace;font-size:14px;text-transform:none;letter-spacing:0;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--secondary);color:var(--ink)}
+.save-error{margin:8px 0 0;font-size:13px;color:var(--ink)}
+.dialog-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:16px}
+/* Theme-colour wash over the whole UI: multiplied, so whites take on the pane colour
+   and blacks stay black. Two panes share one blend: the settled colour, and the next
+   one parked up-left. A new colour slides that pane in on a diagonal (see slideTint).
+   --accent is the same hue, a step darker, for focus rings and hovers. The wash never
+   takes pointer events. The modal dialog renders in the top layer, so it carries its
+   own copy of the panes, driven by the same --sx/--sy. */
+.tint{position:fixed;inset:0;z-index:2147483647;overflow:hidden;background:transparent;mix-blend-mode:multiply;pointer-events:none}
+.tint-dialog{position:absolute;z-index:2;border-radius:inherit}
+.tint-pane{position:absolute;inset:-50%;background:var(--tint-prev, var(--tint))}
+.tint-pane.is-next{background:var(--tint-next, transparent);transform:translate3d(var(--sx, -92%), var(--sy, -58%), 0) rotate(-18deg)}
+[data-theme=light] .tint{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+<div class="shell">
+<header>
+  <div class="brand">
+    <h1>Visualizing Gielis's Superformula</h1>
+    <p class="by"><a href="https://www.instagram.com/nikuowwi/" target="_blank" rel="noopener noreferrer"><svg class="ig" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" fill-rule="evenodd" d="M12 0C8.74 0 8.333.015 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg><span>@nikuowwi</span></a><span class="who">(nicole wei)</span></p>
+  </div>
+  <button type="button" class="round-btn" id="themeToggle"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/><g fill="currentColor"><circle cx="12" cy="2.8" r="1.3"/><circle cx="12" cy="21.2" r="1.3"/><circle cx="2.8" cy="12" r="1.3"/><circle cx="21.2" cy="12" r="1.3"/><circle cx="5.5" cy="5.5" r="1.3"/><circle cx="18.5" cy="18.5" r="1.3"/><circle cx="5.5" cy="18.5" r="1.3"/><circle cx="18.5" cy="5.5" r="1.3"/></g></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+</header>
+<main>
+  <div class="tile stage" id="stage">
+    <p class="stage-tag" id="stageTag">3D viewport</p>
+    <div id="view"></div>
+    <canvas id="c2view" hidden aria-label="Set 1 as a 2D curve"></canvas>
+    <button type="button" class="inset" id="to2d" aria-label="Show Set 1 as a large 2D curve">
+      <span>Set 1 as a 2D curve</span>
+      <canvas id="c2" width="300" height="300"></canvas>
+    </button>
+    <button type="button" class="inset" id="to3dInset" hidden aria-label="Show the 3D view">
+      <span>3D view</span>
+      <div id="mini"></div>
+    </button>
+  </div>
+  <aside>
+    <div class="tile span formula-tile"><div class="formula" id="formula">r(φ) = ( |cos(mφ/4) / a|<sup>n₂</sup> + |sin(mφ/4) / b|<sup>n₃</sup> )<sup>−1/n₁</sup></div></div>
+    <div class="tile span">
+      <h2>Shape categories</h2>
+      <div class="presets" id="presets"></div>
+    </div>
+    <div class="tile">
+      <div class="set-head">
+        <h2>Set 1<small>Horizontal θ</small></h2>
+        <button type="button" class="icon-btn" id="randA" title="Randomize Set 1" aria-label="Randomize Set 1"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8.2" cy="8.2" r="1.35" fill="currentColor"/><circle cx="15.8" cy="8.2" r="1.35" fill="currentColor"/><circle cx="12" cy="12" r="1.35" fill="currentColor"/><circle cx="8.2" cy="15.8" r="1.35" fill="currentColor"/><circle cx="15.8" cy="15.8" r="1.35" fill="currentColor"/></svg></button>
+      </div>
+      <div id="A"></div>
+    </div>
+    <div class="tile set" id="setB">
+      <div class="set-head">
+        <h2>Set 2<small>Vertical φ</small></h2>
+        <div class="set-actions">
+          <button type="button" class="text-btn" id="to3d" hidden>Switch to 3D</button>
+          <button type="button" class="icon-btn" id="randB" title="Randomize Set 2" aria-label="Randomize Set 2"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8.2" cy="8.2" r="1.35" fill="currentColor"/><circle cx="15.8" cy="8.2" r="1.35" fill="currentColor"/><circle cx="12" cy="12" r="1.35" fill="currentColor"/><circle cx="8.2" cy="15.8" r="1.35" fill="currentColor"/><circle cx="15.8" cy="15.8" r="1.35" fill="currentColor"/></svg></button>
+        </div>
+      </div>
+      <div id="B"></div>
+    </div>
+    <div class="tile span values">
+      <pre class="config" id="config"></pre>
+      <div class="actions">
+        <button class="btn" id="copyValues" title="Copy both sets to the clipboard as JSON"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg><span>Copy</span></button>
+        <button class="btn" id="downloadValues" title="Save both sets as a JSON file"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 4v11M8 11l4 4 4-4M5 20h14"/></svg><span>Download</span></button>
+        <button class="btn primary" id="randomize" title="Skewed toward well-formed shapes"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1.7" fill="currentColor"/><circle cx="16" cy="8" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="8" cy="16" r="1.7" fill="currentColor"/><circle cx="16" cy="16" r="1.7" fill="currentColor"/></svg><span>Randomize all</span></button>
+      </div>
+    </div>
+  </aside>
+</main>
+</div>
+<div class="tint" aria-hidden="true"><div class="tint-pane"></div><div class="tint-pane is-next"></div></div>
+<dialog id="saveDialog" aria-labelledby="saveTitle">
+  <form id="saveForm">
+    <h2 id="saveTitle">Download values</h2>
+    <p class="sub">Name the JSON file for both parameter sets.</p>
+    <label class="save-name label" for="saveName">File name
+      <input id="saveName" type="text" autocomplete="off" spellcheck="false" required value="superformula.json">
+    </label>
+    <p class="save-error" id="saveError" hidden></p>
+    <div class="dialog-actions">
+      <button type="button" class="btn" id="saveCancel">Cancel</button>
+      <button type="submit" class="btn primary">Download</button>
+    </div>
+  </form>
+  <div class="tint tint-dialog" aria-hidden="true"><div class="tint-pane"></div><div class="tint-pane is-next"></div></div>
+</dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.21/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+<script>
+const P = { A:{m:7,n1:0.2,n2:1.7,n3:1.7,a:1,b:1}, B:{m:7,n1:0.2,n2:1.7,n3:1.7,a:1,b:1} };
+const presets = {
+  "Sphere":[[0,1,1,1],[0,1,1,1]],
+  "Rounded box":[[4,4,4,4],[4,4,4,4]],
+  "Sharp cube":[[4,20,20,20],[4,20,20,20]],
+  "Diamond":[[4,1,1,1],[4,1,1,1]],
+  "Cylinder":[[0,1,1,1],[4,20,20,20]],
+  "Hex prism":[[6,20,20,20],[4,20,20,20]],
+  "Starfish":[[5,0.3,0.3,0.3],[1,0.3,0.3,0.3]],
+  "Flower":[[7,0.2,1.7,1.7],[7,0.2,1.7,1.7]],
+  "Urchin":[[12,0.5,0.5,0.5],[12,0.5,0.5,0.5]],
+  "Gear":[[6,1,7,8],[4,10,10,10]],
+  "Star prism":[[5,0.3,0.3,0.3],[4,20,20,20]],
+  "Flower-topped sphere":[[7,0.2,1.7,1.7],[0,1,1,1]],
+  "Torn form":[[7.3,0.2,1.7,1.7],[7,0.2,1.7,1.7]]
+};
+const specs = { m:[0,20,0.1], n1:[0.1,20,0.1], n2:[0.1,20,0.1], n3:[0.1,20,0.1], a:[0.5,2,0.05], b:[0.5,2,0.05] };
+const labels = { m:"m", n1:"n₁", n2:"n₂", n3:"n₃", a:"a", b:"b" };
+
+// While a slider is held or changing, dim the formula except the matching variable.
+// Keyboard nudges fire only 'input', so the focus fades a moment after the last one.
+// Only .focus is removed on release: .hot stays put so the variable doesn't flash to the
+// dimmed colour while the rest of the formula eases back.
+let held = false, hotTimer = 0;
+const formulaEl = document.getElementById('formula');
+function lightVar(k){
+  formulaEl.querySelectorAll('.v').forEach(el=>el.classList.toggle('hot', el.classList.contains('v-'+k)));
+  formulaEl.classList.add('focus');
+  clearTimeout(hotTimer);
+  if (!held) hotTimer = setTimeout(()=>formulaEl.classList.remove('focus'), 600);
+}
+
+function makeSliders(id){
+  const el = document.getElementById(id);
+  Object.keys(specs).forEach(k=>{
+    const [mn,mx,st] = specs[k];
+    const r = document.createElement('div'); r.className='row';
+    r.innerHTML = `<label for="${id}${k}">${labels[k]}</label><input type="range" id="${id}${k}" min="${mn}" max="${mx}" step="${st}"><output id="${id}${k}o"></output>`;
+    el.appendChild(r);
+    const input = r.querySelector('input');
+    const output = r.querySelector('output');
+    output.title = 'Click to edit';
+    output.addEventListener('click', ()=>{ if (!input.disabled) editOutput(id, k); });
+    input.addEventListener('input', e=>{ P[id][k]=parseFloat(e.target.value); clearActive(); sync(); lightVar(k); });
+    input.addEventListener('pointerdown', ()=>{ held = true; lightVar(k); });
+    input.addEventListener('pointerup', ()=>{ held = false; lightVar(k); });
+    input.addEventListener('pointercancel', ()=>{ held = false; lightVar(k); });
+  });
+}
+makeSliders('A'); makeSliders('B');
+
+// Clicking a readout replaces it with a field. Enter or blur keeps the number, clamped
+// to the slider's range and step; Escape puts the previous value back.
+function editOutput(id, k){
+  const output = document.getElementById(id+k+'o');
+  if (output.querySelector('input')) return;
+  const [mn,mx,st] = specs[k];
+  const field = document.createElement('input');
+  field.type = 'text';
+  field.inputMode = 'decimal';
+  field.setAttribute('aria-label', labels[k]);
+  field.value = fmt(P[id][k], k);
+  let cancel = false;
+  output.textContent = '';
+  output.appendChild(field);
+  field.focus();
+  field.select();
+  const finish = ()=>{
+    if (!output.contains(field)) return;
+    if (!cancel){
+      const n = parseFloat(field.value);
+      if (Number.isFinite(n)){
+        const snapped = mn + Math.round((n-mn)/st)*st;
+        P[id][k] = Math.min(mx, Math.max(mn, +snapped.toFixed(8)));
+        clearActive();
+      }
+    }
+    sync();
+    if (!cancel) lightVar(k);
+  };
+  field.addEventListener('keydown', e=>{
+    if (e.key === 'Enter'){ e.preventDefault(); field.blur(); }
+    else if (e.key === 'Escape'){ cancel = true; field.blur(); }
+  });
+  field.addEventListener('blur', finish);
+}
+
+const basicPresets = ["Sphere","Rounded box","Sharp cube","Diamond","Cylinder","Hex prism"];
+const pr = document.getElementById('presets');
+const more = document.createElement('details'); more.className = 'more';
+const summary = document.createElement('summary'); summary.className = 'pill'; summary.textContent = 'More';
+const menu = document.createElement('div'); menu.className = 'more-menu';
+more.append(summary, menu);
+function clearActive(){
+  pr.querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+  summary.classList.remove('on');
+  setSummary(null);
+}
+function applyPreset(name, btn){
+  const [s1,s2] = presets[name];
+  ['m','n1','n2','n3'].forEach((k,i)=>{ P.A[k]=s1[i]; P.B[k]=s2[i]; });
+  P.A.a=P.A.b=P.B.a=P.B.b=1;
+  clearActive();
+  if (btn) btn.classList.add('on');
+  sync();
+}
+// Tag icons: each preset's two sets drawn as 2D curves, Set 1 solid over a faded Set 2
+// (Set 1 alone would make e.g. Sphere and Cylinder identical circles).
+const SVGNS = 'http://www.w3.org/2000/svg';
+function curvePath(v){
+  const q = {m:v[0], n1:v[1], n2:v[2], n3:v[3], a:1, b:1}, pts = []; let mx = 0;
+  for (let i=0;i<180;i++){ const p = i/180*2*Math.PI, r = sf(p,q); mx = Math.max(mx,r); pts.push([r*Math.cos(p), r*Math.sin(p)]); }
+  const k = 6.6/(mx||1);
+  return pts.map(([x,y],i)=>`${i?'L':'M'}${(8+x*k).toFixed(2)} ${(8-y*k).toFixed(2)}`).join('')+'Z';
+}
+function presetIcon(name){
+  const svg = document.createElementNS(SVGNS,'svg');
+  svg.setAttribute('viewBox','0 0 16 16'); svg.setAttribute('class','pi'); svg.setAttribute('aria-hidden','true');
+  presets[name].slice().reverse().forEach((v,i)=>{
+    const path = document.createElementNS(SVGNS,'path');
+    path.setAttribute('d', curvePath(v));
+    if (i === 0) path.setAttribute('class','pi-b');
+    svg.appendChild(path);
+  });
+  return svg;
+}
+function presetButton(name){
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'pill has-icon'; b.dataset.preset = name;
+  const label = document.createElement('span'); label.textContent = name;
+  b.append(presetIcon(name), label);
+  b.onclick = ()=> applyPreset(name, b);
+  return b;
+}
+function setSummary(name){
+  summary.replaceChildren();
+  if (name){
+    const label = document.createElement('span'); label.textContent = name;
+    summary.append(presetIcon(name), label);
+  } else summary.textContent = 'More';
+}
+basicPresets.forEach(name=> pr.appendChild(presetButton(name)));
+Object.keys(presets).forEach(name=>{
+  if (basicPresets.includes(name)) return;
+  const b = presetButton(name);
+  b.onclick = ()=>{ applyPreset(name, b); setSummary(name); summary.classList.add('on'); more.open = false; };
+  menu.appendChild(b);
+});
+pr.appendChild(more);
+document.addEventListener('click', e=>{ if (!more.contains(e.target)) more.open = false; });
+document.addEventListener('keydown', e=>{ if (e.key === 'Escape') more.open = false; });
+
+// Random values are skewed toward ranges that tend to give interesting, well-formed shapes:
+// mostly whole-number m, exponents spread on a log scale, and a/b kept near 1.
+function rnd(min,max){ return min + Math.random()*(max-min); }
+function logRnd(min,max){ return Math.exp(rnd(Math.log(min),Math.log(max))); }
+function round(v,step){ return Math.round(v/step)*step; }
+function randomSet(){
+  const m = Math.random()<0.85 ? Math.floor(rnd(0,13)) : round(rnd(0.5,12.5),0.1);
+  const n1 = round(logRnd(0.15,12),0.1);
+  const same = Math.random()<0.5;
+  const n2 = round(logRnd(0.2,15),0.1);
+  const n3 = same ? n2 : round(logRnd(0.2,15),0.1);
+  const a = Math.random()<0.7 ? 1 : round(rnd(0.7,1.4),0.05);
+  const b = Math.random()<0.7 ? 1 : round(rnd(0.7,1.4),0.05);
+  return {m,n1,n2,n3,a,b};
+}
+function randomizeSet(id){ P[id] = randomSet(); clearActive(); sync(); }
+document.getElementById('randA').onclick = ()=> randomizeSet('A');
+document.getElementById('randB').onclick = ()=> randomizeSet('B');
+document.getElementById('randomize').onclick = ()=>{
+  P.A = randomSet(); P.B = randomSet();
+  clearActive(); sync();
+  randomTint();
+};
+
+// Both sets as JSON, for the copy and download buttons.
+function valuesJSON(){
+  const clean = q=>Object.fromEntries(Object.keys(specs).map(k=>[k, +q[k].toFixed(2)]));
+  return JSON.stringify({set1:clean(P.A), set2:clean(P.B)}, null, 2);
+}
+function flash(btn,msg){
+  const label = btn.querySelector('span');
+  const old = btn.dataset.label || (btn.dataset.label = label.textContent);
+  label.textContent = msg; clearTimeout(btn._t);
+  btn._t = setTimeout(()=>{ label.textContent = old; }, 1200);
+}
+document.getElementById('copyValues').onclick = async e=>{
+  const btn = e.currentTarget;
+  const text = valuesJSON();
+  try { await navigator.clipboard.writeText(text); flash(btn,'Copied'); return; } catch {}
+  // Fallback for contexts without the async clipboard API.
+  const ta = document.createElement('textarea'); ta.value = text;
+  ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  const ok = document.execCommand('copy'); ta.remove();
+  flash(btn, ok ? 'Copied' : 'Copy failed');
+};
+function downloadName(raw){
+  let name = raw.trim().replace(/[\\/:*?"<>|\u0000-\u001f]/g, '');
+  if (!name || name === '.' || name === '..') return '';
+  if (!/\.json$/i.test(name)) name += '.json';
+  return name;
+}
+function saveValues(name){
+  const url = URL.createObjectURL(new Blob([valuesJSON()+'\n'],{type:'application/json'}));
+  const a = document.createElement('a'); a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 0);
+}
+const saveDialog = document.getElementById('saveDialog');
+const saveName = document.getElementById('saveName');
+const saveError = document.getElementById('saveError');
+function showSaveError(msg){
+  saveError.hidden = !msg;
+  saveError.textContent = msg || '';
+}
+document.getElementById('downloadValues').onclick = ()=>{
+  saveName.value = 'superformula.json';
+  showSaveError('');
+  saveDialog.showModal();
+  saveName.focus();
+  const dot = saveName.value.lastIndexOf('.');
+  saveName.setSelectionRange(0, dot > 0 ? dot : saveName.value.length);
+};
+saveName.addEventListener('input', ()=> showSaveError(''));
+document.getElementById('saveCancel').onclick = ()=> saveDialog.close();
+saveDialog.addEventListener('click', e=>{ if (e.target === saveDialog) saveDialog.close(); });
+document.getElementById('saveForm').onsubmit = e=>{
+  e.preventDefault();
+  const name = downloadName(saveName.value);
+  if (!name){ showSaveError('Enter a file name.'); saveName.focus(); return; }
+  showSaveError('');
+  saveDialog.close();
+  saveValues(name);
+};
+
+function sf(p,q){
+  const t = q.m*p/4;
+  const v = Math.pow(Math.abs(Math.cos(t)/q.a),q.n2) + Math.pow(Math.abs(Math.sin(t)/q.b),q.n3);
+  if (v===0) return 0;
+  const r = Math.pow(v,-1/q.n1);
+  return isFinite(r) ? Math.min(r,50) : 50;
+}
+
+function css(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+function drawCurve(c, cssW, cssH){
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const bw = Math.max(1, Math.round(cssW * dpr)), bh = Math.max(1, Math.round(cssH * dpr));
+  if (c.width !== bw || c.height !== bh){ c.width = bw; c.height = bh; }
+  const x = c.getContext('2d');
+  x.setTransform(dpr, 0, 0, dpr, 0, 0);
+  x.clearRect(0, 0, cssW, cssH);
+  const side = Math.min(cssW, cssH);
+  const cx = cssW / 2, cy = cssH / 2;
+  const axisPad = side * (10 / 300);
+  const reach = side / 2 - axisPad;
+  x.strokeStyle = css('--axis'); x.lineWidth = 1;
+  x.beginPath();
+  x.moveTo(cx, cy - reach); x.lineTo(cx, cy + reach);
+  x.moveTo(cx - reach, cy); x.lineTo(cx + reach, cy);
+  x.stroke();
+  const pts = []; let mx = 0;
+  for (let i = 0; i <= 1500; i++){
+    const p = i / 1500 * 2 * Math.PI, r = sf(p, P.A);
+    mx = Math.max(mx, r); pts.push([r * Math.cos(p), r * Math.sin(p)]);
+  }
+  const s = (side * (98 / 300)) / (mx || 1);
+  x.strokeStyle = css('--curve'); x.lineWidth = 1.5; x.lineJoin = 'round'; x.lineCap = 'round';
+  x.beginPath();
+  pts.forEach((q, i)=>{ const X = cx + q[0] * s, Y = cy - q[1] * s; i ? x.lineTo(X, Y) : x.moveTo(X, Y); });
+  x.stroke();
+}
+function draw2(){
+  drawCurve(document.getElementById('c2'), 150, 150);
+  if (mode === '2d') drawCurve(c2view, stage.clientWidth, stage.clientHeight);
+}
+
+const stage = document.getElementById('stage'), view = document.getElementById('view');
+const R = new THREE.WebGLRenderer({antialias:true,alpha:true});
+R.setPixelRatio(window.devicePixelRatio);
+R.outputEncoding = THREE.sRGBEncoding;
+R.toneMapping = THREE.ACESFilmicToneMapping;
+R.toneMappingExposure = 0.95;
+view.appendChild(R.domElement);
+const S = new THREE.Scene();
+const C = new THREE.PerspectiveCamera(38,1,0.1,100); C.position.set(0,0,4.6);
+// Soft studio environment for the chrome to reflect: a pale sky, a dark band just
+// below the horizon, a bright floor, and a few large softboxes. PMREM blurs it, and
+// the material's roughness keeps the reflections diffused rather than mirror-sharp.
+function studioEnvironment(){
+  const env = new THREE.Scene();
+  const dome = new THREE.SphereGeometry(10, 128, 64);
+  const stops = [[-1,.7],[-.4,.3],[-.14,.015],[.03,.015],[.18,.4],[.55,.62],[1,.78]];
+  const shade = y=>{
+    for (let i=1;i<stops.length;i++) if (y <= stops[i][0]){
+      const [y0,v0] = stops[i-1], [y1,v1] = stops[i], t = (y-y0)/(y1-y0);
+      return v0 + (v1-v0)*t*t*(3-2*t);
+    }
+    return 1;
+  };
+  // Softboxes are baked into the dome as Gaussian lobes, so their reflections fade out
+  // at the edges. (Transparent panels would blend RGBE-encoded values inside PMREM.)
+  const boxes = [[[0,7,3],.42,5],[[-7,2.5,2],.3,3.5],[[7,1.5,-2],.28,2],[[0,1,-8],.34,1.5]]
+    .map(([d,w,k])=>[new THREE.Vector3(...d).normalize(), w, k]);
+  const p = dome.attributes.position, col = [], dir = new THREE.Vector3();
+  for (let i=0;i<p.count;i++){
+    dir.fromBufferAttribute(p,i).normalize();
+    let v = shade(dir.y);
+    boxes.forEach(([d,w,k])=>{ const ang = Math.acos(Math.min(1, dir.dot(d))); v += k*Math.exp(-((ang/w)**2)); });
+    col.push(v*.95, v*.98, v);
+  }
+  dome.setAttribute('color', new THREE.Float32BufferAttribute(col,3));
+  env.add(new THREE.Mesh(dome, new THREE.MeshBasicMaterial({vertexColors:true, side:THREE.BackSide})));
+  const pmrem = new THREE.PMREMGenerator(R);
+  const tex = pmrem.fromScene(env, 0.12).texture;
+  pmrem.dispose();
+  return tex;
+}
+S.environment = studioEnvironment();
+const G = new THREE.Group(); S.add(G);
+let mesh = null;
+// Fine per-texel noise: a bump map for grain, and a roughness map so the sheen breaks
+// up slightly. Independent random texels tile seamlessly, so wrapping needs no care.
+function grainTexture(){
+  const c = document.createElement('canvas'); c.width = c.height = 512;
+  const x = c.getContext('2d'), img = x.createImageData(512,512);
+  for (let i=0;i<img.data.length;i+=4){ const v = 228 + Math.random()*27; img.data[i]=img.data[i+1]=img.data[i+2]=v; img.data[i+3]=255; }
+  x.putImageData(img,0,0);
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(6,3);
+  return t;
+}
+const grain = grainTexture();
+// Liquid silver: fairly glossy metal under a soft clearcoat, with only a trace of grain.
+const mat = new THREE.MeshPhysicalMaterial({
+  metalness:1, roughness:0.36, roughnessMap:grain,
+  bumpMap:grain, bumpScale:0.0002,
+  clearcoat:0.6, clearcoatRoughness:0.5,
+  side:THREE.DoubleSide
+});
+
+// Shared GLSL for the mesh: simplex noise (plus the drift clock), and small helpers.
+const flowTime = {value:0};
+const FLOW_NOISE = `
+uniform float uFlowTime;
+vec4 sfPerm(vec4 x){ return mod(((x*34.0)+1.0)*x, 289.0); }
+vec4 sfInvSqrt(vec4 r){ return 1.79284291400159 - 0.85373472095314*r; }
+float snoise(vec3 v){
+  const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+  const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+  vec3 i = floor(v + dot(v, C.yyy));
+  vec3 x0 = v - i + dot(i, C.xxx);
+  vec3 g = step(x0.yzx, x0.xyz);
+  vec3 l = 1.0 - g;
+  vec3 i1 = min(g.xyz, l.zxy);
+  vec3 i2 = max(g.xyz, l.zxy);
+  vec3 x1 = x0 - i1 + C.xxx;
+  vec3 x2 = x0 - i2 + C.yyy;
+  vec3 x3 = x0 - D.yyy;
+  i = mod(i, 289.0);
+  vec4 p = sfPerm(sfPerm(sfPerm(i.z + vec4(0.0, i1.z, i2.z, 1.0)) + i.y + vec4(0.0, i1.y, i2.y, 1.0)) + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+  float n_ = 1.0/7.0;
+  vec3 ns = n_ * D.wyz - D.xzx;
+  vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+  vec4 x_ = floor(j * ns.z);
+  vec4 y_ = floor(j - 7.0 * x_);
+  vec4 x = x_ * ns.x + ns.yyyy;
+  vec4 y = y_ * ns.x + ns.yyyy;
+  vec4 h = 1.0 - abs(x) - abs(y);
+  vec4 b0 = vec4(x.xy, y.xy);
+  vec4 b1 = vec4(x.zw, y.zw);
+  vec4 s0 = floor(b0)*2.0 + 1.0;
+  vec4 s1 = floor(b1)*2.0 + 1.0;
+  vec4 sh = -step(h, vec4(0.0));
+  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy;
+  vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
+  vec3 p0 = vec3(a0.xy, h.x), p1 = vec3(a0.zw, h.y), p2 = vec3(a1.xy, h.z), p3 = vec3(a1.zw, h.w);
+  vec4 norm = sfInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+  p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+  vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+  m = m * m;
+  return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+}
+`;
+const FLOW_PALETTE = `
+float grainHash(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+vec3 sfHex(float r, float g, float b){ return pow(vec3(r, g, b)/255.0, vec3(2.2)); }
+`;
+// The mesh: liquid foil, after the silver reference. A smooth, domain-warped, low-frequency
+// height field, stretched so its folds run horizontally, drifts slowly. Its value colours
+// the metal (a soft grey-to-silvery-white gradient with a faint warm-grey region)
+// and its gradient tilts the normals so reflections bend over the folds. The gradient is
+// taken by finite differences per vertex and interpolated, which keeps it smooth.
+const FOIL_FIELD = `
+float foilField(vec3 p){
+  float t = uFlowTime * 0.03;
+  vec3 q = p * vec3(1.0, 2.0, 1.0);
+  vec3 w = vec3(snoise(q*0.7 + vec3(0.0, 0.0, t)), snoise(q*0.7 + vec3(4.1, 2.3, -t)), snoise(q*0.7 + vec3(-2.7, 5.1, 0.6*t)));
+  // A light warp only: a strong one folds the field into thin creases ("veins").
+  q += 0.32*w;
+  return 0.88*snoise(q + vec3(0.5*t, 0.0, 0.0)) + 0.12*snoise(q*1.7 + 3.3);
+}
+`;
+const FOIL_PALETTE = `
+// One continuous gradient (two wide, overlapping ramps, no thresholds or contour lines),
+// so the greys melt into the white rather than banding.
+vec3 foilColor(float h, float warm){
+  float f = clamp(h*0.45 + 0.62, 0.0, 1.0);
+  vec3 c = mix(sfHex(194.0,196.0,200.0), sfHex(220.0,222.0,225.0), smoothstep(0.0, 0.6, f));
+  c = mix(c, sfHex(242.0,243.0,245.0), smoothstep(0.3, 1.0, f));
+  return mix(c, c * sfHex(240.0,232.0,226.0), 0.5 * smoothstep(-0.3, 0.8, warm));
+}
+`;
+const flowRipple = {value:0.009};
+mat.onBeforeCompile = shader=>{
+  shader.uniforms.uFlowTime = flowTime;
+  shader.uniforms.uFlowGlow = {value:0.12};
+  shader.uniforms.uRipple = flowRipple;
+  shader.vertexShader = 'varying float vFlow;\nvarying float vWarm;\nvarying vec3 vRipple;\n' + FLOW_NOISE + FOIL_FIELD + shader.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+  float h0 = foilField(position);
+  const float fe = 0.05; // a wide step low-passes the gradient, so only broad folds bend reflections
+  vec3 hg = vec3(foilField(position + vec3(fe, 0.0, 0.0)), foilField(position + vec3(0.0, fe, 0.0)), foilField(position + vec3(0.0, 0.0, fe))) - h0;
+  vFlow = h0;
+  vWarm = snoise(position*0.9 + vec3(20.0, 0.0, uFlowTime*0.01));
+  vRipple = normalMatrix * (hg / fe);`);
+  shader.fragmentShader = 'varying float vFlow;\nvarying float vWarm;\nvarying vec3 vRipple;\nuniform float uFlowGlow;\nuniform float uRipple;\n' + FLOW_PALETTE + FOIL_PALETTE + shader.fragmentShader
+    .replace('vec4 diffuseColor = vec4( diffuse, opacity );', 'vec3 flowCol = foilColor(vFlow, vWarm);\n  vec4 diffuseColor = vec4( diffuse * flowCol, opacity );')
+    // Tilt the normal against the height field's view-space gradient (tangential part).
+    .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n  normal = normalize( normal - uRipple * ( vRipple - dot( vRipple, normal ) * normal ) );')
+    .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n  totalEmissiveRadiance += flowCol * uFlowGlow;')
+    // A little static film grain on the final (already sRGB-encoded) colour.
+    .replace('#include <dithering_fragment>', '#include <dithering_fragment>\n  gl_FragColor.rgb += (grainHash(floor(gl_FragCoord.xy)) - 0.5) * 0.05;');
+};
+const NU = 640, NV = 320;
+// The grid's topology, UVs and trig never change, so the geometry is built once and
+// build() only rewrites positions (and normals) in place.
+const VN = (NU+1)*(NV+1);
+const cosT = new Float32Array(NU+1), sinT = new Float32Array(NU+1), cosP = new Float32Array(NV+1), sinP = new Float32Array(NV+1);
+for (let i=0;i<=NU;i++){ const th = -Math.PI+i/NU*2*Math.PI; cosT[i]=Math.cos(th); sinT[i]=Math.sin(th); }
+for (let j=0;j<=NV;j++){ const ph = -Math.PI/2+j/NV*Math.PI; cosP[j]=Math.cos(ph); sinP[j]=Math.sin(ph); }
+const geo = new THREE.BufferGeometry();
+(function(){
+  const uv = new Float32Array(VN*2), idx = new Uint32Array(NU*NV*6);
+  for (let j=0,k=0;j<=NV;j++) for (let i=0;i<=NU;i++){ uv[k++]=i/NU; uv[k++]=j/NV; }
+  for (let j=0,k=0;j<NV;j++) for (let i=0;i<NU;i++){
+    const a=j*(NU+1)+i, b=a+1, c=a+NU+1, d=c+1;
+    idx[k++]=a; idx[k++]=c; idx[k++]=b; idx[k++]=b; idx[k++]=c; idx[k++]=d;
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(VN*3),3));
+  geo.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(VN*3),3));
+  geo.setAttribute('uv', new THREE.BufferAttribute(uv,2));
+  geo.setIndex(new THREE.BufferAttribute(idx,1));
+})();
+const r1 = new Float32Array(NU+1), r2 = new Float32Array(NV+1);
+
+// Normals straight from the grid: cross the central differences along θ and φ. θ wraps
+// across the seam (columns 0 and NU are the same point), so closed shapes shade without
+// a seam; at the poles, where the θ difference collapses, the normal points along the axis.
+function gridNormals(pos, attr){
+  const n = attr.array, W = NU+1;
+  for (let j=0;j<=NV;j++){
+    const jd = j>0 ? j-1 : 0, ju = j<NV ? j+1 : NV;
+    for (let i=0;i<=NU;i++){
+      const il = i>0 ? i-1 : NU-1, ir = i<NU ? i+1 : 1;
+      const L=(j*W+il)*3, Rr=(j*W+ir)*3, D=(jd*W+i)*3, U=(ju*W+i)*3, o=(j*W+i)*3;
+      const ux=pos[Rr]-pos[L], uy=pos[Rr+1]-pos[L+1], uz=pos[Rr+2]-pos[L+2];
+      const vx=pos[U]-pos[D], vy=pos[U+1]-pos[D+1], vz=pos[U+2]-pos[D+2];
+      let nx=vy*uz-vz*uy, ny=vz*ux-vx*uz, nz=vx*uy-vy*ux;
+      const len = Math.hypot(nx,ny,nz);
+      if (len > 1e-12){ nx/=len; ny/=len; nz/=len; }
+      else { nx=0; ny=j<NV/2 ? -1 : 1; nz=0; }
+      n[o]=nx; n[o+1]=ny; n[o+2]=nz;
+    }
+  }
+  attr.needsUpdate = true;
+}
+
+function build(){
+  for(let i=0;i<=NU;i++) r1[i] = sf(-Math.PI+i/NU*2*Math.PI,P.A);
+  for(let j=0;j<=NV;j++) r2[j] = sf(-Math.PI/2+j/NV*Math.PI,P.B);
+  const posAttr = geo.attributes.position, pos = posAttr.array;
+  let mx = 0, k = 0;
+  for(let j=0;j<=NV;j++){
+    const rc = r2[j]*cosP[j], z = r2[j]*sinP[j], az = Math.abs(z);
+    if (az > mx) mx = az;
+    for(let i=0;i<=NU;i++){
+      const x = r1[i]*cosT[i]*rc, y = r1[i]*sinT[i]*rc;
+      const ax = Math.abs(x), ay = Math.abs(y);
+      if (ax > mx) mx = ax;
+      if (ay > mx) mx = ay;
+      pos[k++]=x; pos[k++]=z; pos[k++]=y;
+    }
+  }
+  const s = 1.1/(mx||1);
+  for(let i=0;i<pos.length;i++) pos[i]*=s;
+  posAttr.needsUpdate = true;
+  gridNormals(pos, geo.attributes.normal);
+  geo.computeBoundingSphere();
+  if(!mesh){ mesh = new THREE.Mesh(geo, mat); G.add(mesh); }
+}
+
+function fmt(v,k){ return k==='m' ? (Number.isInteger(v)?v:v.toFixed(1)) : (k==='a'||k==='b'?v.toFixed(2):v.toFixed(1)); }
+function sync(){
+  ['A','B'].forEach(id=>Object.keys(specs).forEach(k=>{
+    const input = document.getElementById(id+k), [mn,mx] = specs[k];
+    input.value = P[id][k];
+    input.style.setProperty('--p', ((P[id][k]-mn)/(mx-mn)*100)+'%');
+    document.getElementById(id+k+'o').textContent = fmt(P[id][k],k);
+  }));
+  document.getElementById('config').textContent = valuesJSON();
+  draw2(); build();
+}
+
+const c2view = document.getElementById('c2view');
+const to2d = document.getElementById('to2d');
+const to3d = document.getElementById('to3d');
+const to3dInset = document.getElementById('to3dInset');
+const mini = document.getElementById('mini');
+const setB = document.getElementById('setB');
+let mode = '3d';
+let mainZ = C.position.z;
+
+function setMode(next){
+  const wasFlat = mode === '2d';
+  mode = next;
+  const flat = mode === '2d';
+  // The inset is a small square, so the shared camera sits closer and the shape fills it.
+  if (flat && !wasFlat){ mainZ = C.position.z; C.position.z = 3.6; }
+  else if (!flat && wasFlat) C.position.z = mainZ;
+  stage.classList.toggle('flat', flat);
+  to2d.hidden = flat;
+  to3dInset.hidden = !flat;
+  c2view.hidden = !flat;
+  view.hidden = flat;
+  (flat ? mini : view).appendChild(R.domElement);
+  setB.classList.toggle('dim', flat);
+  document.getElementById('stageTag').textContent = flat ? '2D · Set 1 curve' : '3D viewport';
+  to3d.hidden = !flat;
+  document.querySelectorAll('#B input').forEach(input=>{ input.disabled = flat; });
+  resize();
+}
+
+function resize(){
+  const flat = mode === '2d';
+  const w = flat ? 150 : stage.clientWidth, h = flat ? 150 : stage.clientHeight;
+  R.setSize(w,h); C.aspect = w/h; C.updateProjectionMatrix();
+  if (flat) draw2();
+}
+window.addEventListener('resize', resize);
+
+let drag=false, lx=0, ly=0, auto=!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const narrowStage = matchMedia('(max-width: 600px)');
+function syncNarrowStage(){
+  if (narrowStage.matches && mode === '2d') setMode('3d');
+}
+narrowStage.addEventListener('change', syncNarrowStage);
+stage.addEventListener('pointerdown', e=>{
+  if (mode === '2d' || e.target.closest('.inset')) return;
+  drag=true; auto=false; lx=e.clientX; ly=e.clientY; stage.setPointerCapture(e.pointerId);
+});
+stage.addEventListener('pointermove', e=>{ if(!drag) return; G.rotation.y += (e.clientX-lx)*0.01; G.rotation.x += (e.clientY-ly)*0.01; lx=e.clientX; ly=e.clientY; });
+stage.addEventListener('pointerup', ()=>drag=false);
+stage.addEventListener('wheel', e=>{
+  if (mode === '2d' || narrowStage.matches) return;
+  e.preventDefault(); C.position.z = Math.min(10,Math.max(2.2, C.position.z + e.deltaY*0.003));
+}, {passive:false});
+stage.addEventListener('gesturestart', e=>{ if (narrowStage.matches) e.preventDefault(); }, {passive:false});
+stage.addEventListener('gesturechange', e=>{ if (narrowStage.matches) e.preventDefault(); }, {passive:false});
+to2d.addEventListener('click', ()=>{ setMode('2d'); to3dInset.focus({preventScroll:true}); });
+to3d.addEventListener('click', ()=>{ setMode('3d'); to2d.focus({preventScroll:true}); });
+to3dInset.addEventListener('click', ()=>{ setMode('3d'); to2d.focus({preventScroll:true}); });
+
+if (window.katex){
+  const formula = document.getElementById('formula');
+  // Each variable is wrapped in \htmlClass{v v-<key>} so lightVar() can find it.
+  const v = (k, tex)=>`\\htmlClass{v v-${k}}{${tex}}`;
+  const tex = String.raw`\displaystyle r\left(\varphi\right)=\left(\left|\frac{\cos\left(\frac{${v('m','m')}\varphi}{4}\right)}{${v('a','a')}}\right|^{${v('n2','n_{2}')}}+\left|\frac{\sin\left(\frac{${v('m','m')}\varphi}{4}\right)}{${v('b','b')}}\right|^{${v('n3','n_{3}')}}\right)^{-\frac{1}{${v('n1','n_{1}')}}}`;
+  katex.render(tex, formula, {throwOnError:false, trust:ctx=>ctx.command==='\\htmlClass', strict:code=>code==='htmlExtension' ? 'ignore' : 'warn'});
+  // Body size, unless that line is wider than the panel — then shrink to fit.
+  const fitFormula = ()=>{
+    const box = formula.querySelector('.katex');
+    const width = formula.clientWidth;
+    if (!box || !width) return;
+    box.style.fontSize = '1em';
+    const need = box.getBoundingClientRect().width;
+    if (!need) return;
+    box.style.fontSize = (need > width ? width / need : 1) + 'em';
+  };
+  fitFormula();
+  document.fonts.ready.then(fitFormula);
+  new ResizeObserver(fitFormula).observe(formula);
+}
+// Overlay colours share the lavender tint's OKLCH lightness (0.906) and chroma (0.049);
+// only the hue changes, so a new wash stays the same darkness. Light theme has no
+// overlay: its surfaces are these greys multiplied by the tint, rewritten here.
+const TINT_HUES = [0, 24, 48, 78, 115, 150, 178, 205, 232, 262, 302, 332];
+const LIGHT_BASE = {'--bg':0xED,'--tile':0xF7,'--raised':0xE2,'--raised-hover':0xD8,'--secondary':0xFF,'--secondary-hover':0xF2,'--muted':0x6A,'--line':0xDA,'--track':0xD6};
+let tintHue = null;
+function oklchRgb(L, C, H){
+  const h = H * Math.PI / 180, a = C * Math.cos(h), b = C * Math.sin(h);
+  const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+  const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+  const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+  const l = l_ ** 3, m = m_ ** 3, s = s_ ** 3;
+  return [
+    4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+    -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s,
+  ];
+}
+function byte(c){
+  c = Math.min(1, Math.max(0, c));
+  const s = c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+  return Math.round(Math.min(1, Math.max(0, s)) * 255);
+}
+function oklch(L, C, H){
+  let c = C, rgb = oklchRgb(L, c, H);
+  while (c > 0 && rgb.some(v => v < -0.001 || v > 1.001)){ c -= 0.002; rgb = oklchRgb(L, c, H); }
+  const [r, g, b] = rgb.map(byte);
+  return {r, g, b, hex:'#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('')};
+}
+function mulGrey(base, tint){
+  return '#' + [tint.r, tint.g, tint.b].map(v => Math.round(base * v / 255).toString(16).padStart(2, '0')).join('');
+}
+const SLIDE_FROM = {x:-92, y:-58};
+let wipe = null, wipeId = 0;
+function placeSlide(x, y){
+  const root = document.documentElement;
+  root.style.setProperty('--sx', x + '%');
+  root.style.setProperty('--sy', y + '%');
+}
+function holdTint(hex){
+  document.documentElement.style.setProperty('--tint-prev', hex);
+  placeSlide(SLIDE_FROM.x, SLIDE_FROM.y);
+}
+function slideTint(hex){
+  const root = document.documentElement;
+  if (wipe) wipe.pause();
+  const id = ++wipeId;
+  const prev = root.style.getPropertyValue('--tint-prev').trim()
+    || getComputedStyle(root).getPropertyValue('--tint').trim();
+  root.style.setProperty('--tint-prev', prev);
+  root.style.setProperty('--tint-next', hex);
+  root.style.setProperty('--tint', hex);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || typeof anime !== 'function'){ holdTint(hex); wipe = null; return; }
+  const state = {x:SLIDE_FROM.x, y:SLIDE_FROM.y};
+  placeSlide(state.x, state.y);
+  wipe = anime({
+    targets: state,
+    x: 0, y: 0,
+    duration: 880,
+    easing: 'cubicBezier(.22,1,.36,1)',
+    update: () => { if (id === wipeId) placeSlide(state.x, state.y); },
+    complete: () => { if (id !== wipeId) return; holdTint(hex); wipe = null; }
+  });
+}
+function paintTint(hue, slide){
+  tintHue = hue;
+  const root = document.documentElement;
+  const tint = oklch(0.9065, 0.0492, hue);
+  const light = root.dataset.theme === 'light';
+  if (light){
+    Object.entries(LIGHT_BASE).forEach(([key, base]) => root.style.setProperty(key, mulGrey(base, tint)));
+    root.style.setProperty('--inset', `rgba(${tint.r},${tint.g},${tint.b},.92)`);
+    root.style.setProperty('--accent', oklch(0.7496, 0.1273, hue).hex);
+    root.style.setProperty('--accent-hover', oklch(0.691, 0.1483, hue).hex);
+    root.style.setProperty('--on-accent', oklch(0.2021, 0.0615, hue).hex);
+    root.style.setProperty('--accent-fg', oklch(0.5216, 0.1749, hue).hex);
+  } else {
+    Object.keys(LIGHT_BASE).forEach(key => root.style.removeProperty(key));
+    root.style.removeProperty('--inset');
+    root.style.removeProperty('--accent-fg');
+    root.style.setProperty('--accent', oklch(0.8176, 0.0917, hue).hex);
+    root.style.setProperty('--accent-hover', oklch(0.7442, 0.1233, hue).hex);
+    root.style.setProperty('--on-accent', oklch(0.2131, 0.0577, hue).hex);
+  }
+  if (slide) slideTint(tint.hex);
+  else {
+    if (wipe){ wipe.pause(); wipe = null; wipeId++; }
+    root.style.setProperty('--tint', tint.hex);
+    holdTint(tint.hex);
+  }
+}
+function randomTint(){
+  const current = tintHue == null ? 302 : tintHue;
+  const choices = TINT_HUES.filter(h => h !== current);
+  paintTint(choices[Math.floor(Math.random() * choices.length)], true);
+  draw2();
+}
+// Light / dark theme. The saved choice (if any) was applied in <head> before paint.
+const themeToggle = document.getElementById('themeToggle');
+function applyTheme(t){
+  document.documentElement.dataset.theme = t;
+  const next = t === 'dark' ? 'light' : 'dark';
+  themeToggle.setAttribute('aria-label', `Switch to ${next} theme`);
+  themeToggle.title = `Switch to ${next} theme`;
+  if (tintHue != null) paintTint(tintHue);
+  mat.color.set(css('--mesh')).convertSRGBToLinear();
+  draw2();
+}
+themeToggle.addEventListener('click', ()=>{
+  const t = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('sf-theme', t); } catch {}
+  applyTheme(t);
+});
+matchMedia('(prefers-color-scheme: light)').addEventListener('change', e=>{
+  let saved = null; try { saved = localStorage.getItem('sf-theme'); } catch {}
+  if (!saved) applyTheme(e.matches ? 'light' : 'dark');
+});
+
+G.rotation.x = 0.4;
+resize();
+applyTheme(document.documentElement.dataset.theme);
+const start = menu.querySelector('[data-preset="Flower"]');
+start.classList.add('on');
+setSummary('Flower');
+summary.classList.add('on');
+sync();
+
+const flowStill = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+(function loop(now){
+  if(auto) G.rotation.y += 0.004;
+  if(!flowStill) flowTime.value = (now || 0) / 1000;
+  R.render(S,C);
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

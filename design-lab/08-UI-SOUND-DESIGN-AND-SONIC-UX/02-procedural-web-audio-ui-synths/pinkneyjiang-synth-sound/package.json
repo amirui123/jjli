@@ -1,0 +1,55 @@
+{
+  "name": "@pinkney/synth-sound",
+  "version": "1.0.0",
+  "description": "Zero-audio-file, ultra-lightweight Web Audio API mathematical sound effect synthesizer for modern web apps & cyber UI.",
+  "author": "Pinkney Jiang <pinkney.jiang@gmail.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pinkney/profile-pinkney.git",
+    "directory": "packages/synth-sound"
+  },
+  "keywords": [
+    "sound-effects",
+    "web-audio-api",
+    "synthesizer",
+    "sfx",
+    "cyberpunk",
+    "zero-dependency",
+    "micro-interaction",
+    "oscillator"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.6",
+    "typescript": "^5.7.3"
+  }
+}

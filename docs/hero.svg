@@ -99,55 +99,58 @@
   </text>
 
   <!-- =======================================================================
-       RIGHT COLUMN (RTL PRIMARY HERO): BRAND & HEADLINE
+       RIGHT COLUMN: HERO BRAND, VALUE PROPOSITION & METRICS
        ======================================================================= -->
   <!-- Eyebrow Badge -->
-  <rect x="852" y="82" width="296" height="32" rx="16" fill="#17151C" stroke="#E8B33A" stroke-opacity="0.45" stroke-width="1" />
-  <circle cx="1128" cy="98" r="4.5" fill="#E8B33A" />
-  <text x="1112" y="103" text-anchor="end" direction="rtl" fill="#FDE68A" font-family="Vazirmatn, 'IRANSansX', Tahoma, 'Segoe UI', sans-serif" font-size="13" font-weight="600">
-    آزمایشگاه موشن و تایپوگرافی فارسی
+  <rect x="830" y="82" width="318" height="32" rx="16" fill="#17151C" stroke="#E8B33A" stroke-opacity="0.45" stroke-width="1" />
+  <circle cx="850" cy="98" r="4.5" fill="#E8B33A" />
+  <text x="864" y="103" fill="#FDE68A" font-family="'SF Mono', Consolas, monospace" font-size="11.5" font-weight="700">
+    6-ACT CINEMA INTRO · 11-PILLAR VAULT
   </text>
 
-  <!-- Main Headline (RTL) -->
-  <text x="1148" y="170" text-anchor="end" direction="rtl" fill="#F7F8F8" font-family="Vazirmatn, 'IRANSansX', Tahoma, 'Segoe UI', sans-serif" font-size="46" font-weight="800">
-    حرکت، زبانِ رابطِ
+  <!-- Main Headline (English + Persian Calligraphic Specimen) -->
+  <text x="830" y="156" fill="#F7F8F8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="38" font-weight="800">
+    RTL Motion Lab
   </text>
-  <text x="1148" y="232" text-anchor="end" direction="rtl" fill="url(#gold-grad)" font-family="Vazirmatn, 'IRANSansX', Tahoma, 'Segoe UI', sans-serif" font-size="48" font-weight="900">
-    فارسی است.
+  <text x="830" y="198" fill="url(#gold-grad)" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="24" font-weight="800">
+    Motion, Typography &amp; Shader OS
+  </text>
+  <text x="1148" y="242" text-anchor="end" direction="rtl" fill="#FDE68A" font-family="Vazirmatn, 'IRANSansX', Tahoma, sans-serif" font-size="20" font-weight="700">
+    «در امتدادِ نور، هر خط جان می‌گیرد»
   </text>
 
   <!-- Subtitle Description -->
-  <text x="1148" y="278" text-anchor="end" direction="rtl" fill="#A2A9B8" font-family="Vazirmatn, 'IRANSansX', Tahoma, 'Segoe UI', sans-serif" font-size="15.5" font-weight="400">
-    مهندسی فونت، فیزیک فنر، کامپوننت‌های واقعی، سینتز صدا و شیدرهای زنده
+  <text x="830" y="276" fill="#A2A9B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="13.5" font-weight="400">
+    Zero-backend browser workbench for native RTL interfaces,
   </text>
-  <text x="1148" y="304" text-anchor="end" direction="rtl" fill="#8A8F98" font-family="Vazirmatn, 'IRANSansX', Tahoma, 'Segoe UI', sans-serif" font-size="14.5" font-weight="400">
-    بر پایهٔ ۱۷۹ سند مهارتی و ۸۴ سیستم طراحی برندهای پیشرو جهان.
+  <text x="830" y="298" fill="#8A8F98" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="13.5" font-weight="400">
+    analytical spring physics, WebGL shaders &amp; procedural audio.
   </text>
 
   <!-- 2x2 Key Counter Bento on the Right -->
-  <!-- Counter 1: Fonts -->
+  <!-- Counter 1: Vault Files -->
   <rect x="996" y="330" width="152" height="74" rx="14" fill="url(#card-surface)" stroke="#232634" stroke-width="1" />
   <line x1="1016" y1="330" x2="1128" y2="330" stroke="#E8B33A" stroke-width="2" stroke-opacity="0.7" />
-  <text x="1132" y="364" text-anchor="end" fill="#F7F8F8" font-family="'SF Mono', Consolas, monospace" font-size="24" font-weight="700">50</text>
-  <text x="1132" y="388" text-anchor="end" direction="rtl" fill="#949BA8" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12.5">خانواده فونت فارسی</text>
+  <text x="1012" y="364" fill="#F7F8F8" font-family="'SF Mono', Consolas, monospace" font-size="24" font-weight="700">4,037</text>
+  <text x="1012" y="388" fill="#949BA8" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12">Design-Lab Vault Files</text>
 
   <!-- Counter 2: Components -->
   <rect x="830" y="330" width="152" height="74" rx="14" fill="url(#card-surface)" stroke="#232634" stroke-width="1" />
   <line x1="850" y1="330" x2="962" y2="330" stroke="#5EEAD4" stroke-width="2" stroke-opacity="0.7" />
-  <text x="966" y="364" text-anchor="end" fill="#F7F8F8" font-family="'SF Mono', Consolas, monospace" font-size="24" font-weight="700">4,199</text>
-  <text x="966" y="388" text-anchor="end" direction="rtl" fill="#949BA8" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12.5">سورس کامپوننت واقعی</text>
+  <text x="846" y="364" fill="#F7F8F8" font-family="'SF Mono', Consolas, monospace" font-size="24" font-weight="700">4,199</text>
+  <text x="846" y="388" fill="#949BA8" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12">Real TSX Components</text>
 
-  <!-- Counter 3: Skills & Brands -->
+  <!-- Counter 3: Fonts & Brands -->
   <rect x="996" y="416" width="152" height="74" rx="14" fill="url(#card-surface)" stroke="#232634" stroke-width="1" />
   <line x1="1016" y1="416" x2="1128" y2="416" stroke="#A78BFA" stroke-width="2" stroke-opacity="0.7" />
-  <text x="1132" y="450" text-anchor="end" fill="#F7F8F8" font-family="'SF Mono', Consolas, monospace" font-size="24" font-weight="700">179+84</text>
-  <text x="1132" y="474" text-anchor="end" direction="rtl" fill="#949BA8" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12.5">سند مهارت و سیستم برند</text>
+  <text x="1012" y="450" fill="#F7F8F8" font-family="'SF Mono', Consolas, monospace" font-size="24" font-weight="700">50 + 84</text>
+  <text x="1012" y="474" fill="#949BA8" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12">Fonts &amp; Brand Systems</text>
 
   <!-- Counter 4: Sounds & Shaders -->
   <rect x="830" y="416" width="152" height="74" rx="14" fill="url(#card-surface)" stroke="#232634" stroke-width="1" />
   <line x1="850" y1="416" x2="962" y2="416" stroke="#FB7185" stroke-width="2" stroke-opacity="0.7" />
-  <text x="966" y="450" text-anchor="end" fill="#F7F8F8" font-family="'SF Mono', Consolas, monospace" font-size="24" font-weight="700">285+18</text>
-  <text x="966" y="474" text-anchor="end" direction="rtl" fill="#949BA8" font-family="Vazirmatn, Tahoma, sans-serif" font-size="12.5">صدای سینتز و شیدر زنده</text>
+  <text x="846" y="450" fill="#F7F8F8" font-family="'SF Mono', Consolas, monospace" font-size="24" font-weight="700">285 + 18</text>
+  <text x="846" y="474" fill="#949BA8" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12">Audio Synths &amp; Shaders</text>
 
   <!-- =======================================================================
        LEFT & CENTER STUDIO TELEMETRY CARDS (LIVE WORKBENCH PREVIEW)

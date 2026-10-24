@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-063933E3C2"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-063933E3C2");
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Space-Filling Curves: Hilbert, Peano, Gosper, Dragon and More</title>
+    <meta
+      name="description"
+      content="Space-Filling Curves: one line that visits every cell of a square. Draw the Hilbert, Peano, Moore, Gosper flowsnake, Sierpinski, dragon, Levy C and Z-order curves level by level, and download them as SVG or PNG."
+    />
+    <meta name="author" content="Olivier Giulieri" />
+    <link
+      rel="canonical"
+      href="https://evoluteur.github.io/space-filling-curves/"
+    />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <meta name="theme-color" content="#1a212d" />
+    <meta property="og:site_name" content="Space-Filling Curves" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Space-Filling Curves" />
+    <meta
+      property="og:description"
+      content="One line that visits every cell: Hilbert, Peano, Gosper's flowsnake, the dragon and more, level by level."
+    />
+    <meta
+      property="og:url"
+      content="https://evoluteur.github.io/space-filling-curves/"
+    />
+    <meta
+      property="og:image"
+      content="https://evoluteur.github.io/space-filling-curves/space-filling-curves.png"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Overpass"
+    />
+    <link id="omg-core-css" rel="stylesheet" href="css/core.css" />
+    <script>
+      // Themes (dark, light, evol-blue) are copies of omg-themes; set OMG_THEMES_BASE to link the hosted ones instead.
+      window.OMG_THEMES_BASE = ""; // or "https://evoluteur.github.io/omg-themes/" to link the hosted themes
+      window.OMG_DEFAULT_THEME = "dark";
+      (function () {
+        var t = window.OMG_DEFAULT_THEME;
+        try {
+          t = localStorage.getItem("omg-theme") || t;
+        } catch (e) {}
+        if (t !== "dark" && t !== "light" && t !== "evol-blue")
+          t = window.OMG_DEFAULT_THEME;
+        document.documentElement.setAttribute("data-theme", t);
+        // written here (not in the markup) so the saved theme loads before first paint
+        document.write(
+          '<link id="omg-theme-css" rel="stylesheet" href="' +
+            window.OMG_THEMES_BASE +
+            "css/themes/" +
+            t +
+            "/" +
+            t +
+            '.css" />',
+        );
+      })();
+    </script>
+    <link id="omg-density-css" rel="stylesheet" href="css/densities.css" />
+    <link rel="stylesheet" href="css/curves.css" />
+
+    <script src="js/omg.js"></script>
+    <script src="js/curves.js"></script>
+  </head>
+
+  <body
+    onload="
+      setupPage('home');
+      initCurves();
+    "
+    id="omg-body"
+  >
+    <div id="omg-header">
+      <h1>Space-Filling Curves</h1>
+      <div id="omg-header-tools">
+        <div id="omg-theme-picker"></div>
+        <a
+          id="omg-github"
+          href="https://github.com/evoluteur/space-filling-curves"
+          target="_blank"
+          rel="noopener"
+          title="Space-Filling Curves on GitHub"
+          aria-label="Space-Filling Curves on GitHub"
+          ><svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" /></svg
+        ></a>
+      </div>
+    </div>
+    <h2>One line, every point</h2>
+    <div class="content">
+      <div class="app-layout">
+        <div class="art-wrap">
+          <canvas id="curve" aria-label="Space-filling curve"></canvas>
+        </div>
+        <div class="controls">
+          <label>Curve <select id="type"></select></label>
+          <p id="curve-text" class="hint"></p>
+          <label><span>Level <b id="v-level"></b></span><input id="level" type="range" min="1" max="8" step="1" /></label>
+          <label><span>Line width <b id="v-width"></b></span><input id="width" type="range" min="0.05" max="0.9" step="0.05" /></label>
+          <label>Colors <select id="palette"></select></label>
+          <label class="check"><input type="checkbox" id="animate" /> Draw it step by step</label>
+          <div class="stats">
+            <div><span>Segments</span><b id="v-steps">0</b></div>
+          </div>
+          <div class="buttons">
+            <button type="button" id="btn-play" class="wide">Draw again</button>
+            <button type="button" id="btn-png" class="secondary">Download PNG</button>
+            <button type="button" id="btn-svg" class="secondary">Download SVG</button>
+          </div>
+          <p class="hint">The colors follow the line from its start to its end. The address of the page keeps the curve, to share it.</p>
+        </div>
+      </div>
+
+      <h3>A line with no thickness that fills a square</h3>
+      <div class="explain">
+        <p>
+          In 1890 Giuseppe Peano did something that seemed impossible: he
+          described a continuous curve, a line drawn without lifting the pen,
+          that passes through every single point of a square. Mathematicians
+          had just learned from Georg Cantor that a line and a square have
+          "as many" points; Peano showed that one can be drawn onto the
+          other. A year later David Hilbert gave a simpler picture of the
+          same idea.
+        </p>
+        <p>
+          Each curve is the limit of a recipe. Draw a simple path, then
+          replace each part with a smaller copy of the whole path, turned to
+          fit, and again, and again. Raise the <em>Level</em> to watch the
+          line crowd the square: at every level it visits every cell of a
+          finer grid. Here the recipes are written as L-systems, the
+          rewriting rules the biologist Aristid Lindenmayer invented in 1968
+          to describe how plants grow.
+        </p>
+        <p>
+          The curves are not only curiosities. Because points close
+          together on the line stay close together in the square, the
+          Hilbert curve and the Z-order are used to store maps and images in
+          databases, to dither pictures, and to divide the globe into cells
+          (Google's S2 library uses a Hilbert curve on the faces of a cube).
+          The dragon curve, from a strip of paper folded in half again and
+          again, decorates the chapter pages of <em>Jurassic Park</em>.
+        </p>
+      </div>
+
+      <div class="footer">
+        <p>
+          Space-Filling Curves is open source on
+          <a href="https://github.com/evoluteur/space-filling-curves">GitHub</a>
+          with an MIT license.
+        </p>
+        <p>
+          Had fun browsing the app?
+          <a href="https://github.com/sponsors/evoluteur"
+            >Buy me a coffee by becoming a sponsor</a
+          >.
+        </p>
+        <p>
+          You may also enjoy
+          <a href="https://evoluteur.github.io/truchet-tiles/">Truchet Tiles</a>,
+          <a href="https://evoluteur.github.io/maze-maker/">Maze Maker</a>
+          and
+          <a href="https://evoluteur.github.io/spiral-gallery/">Spiral Gallery</a>.
+          See them all on
+          <a href="https://evoluteur.github.io/generative-art.html">Generative Art</a>.
+        </p>
+        <p class="copyright">
+          &#169; 2026
+          <a href="https://evoluteur.github.io/">Olivier Giulieri</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

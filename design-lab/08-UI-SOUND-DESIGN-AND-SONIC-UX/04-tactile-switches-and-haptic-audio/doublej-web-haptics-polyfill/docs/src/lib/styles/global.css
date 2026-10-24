@@ -1,0 +1,50 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-primary: #fafafa;
+  --bg-secondary: #fff;
+  --bg-code: #f0f0f0;
+  --text-primary: #1a1a1a;
+  --text-secondary: #404040;
+  --text-tertiary: #606060;
+  --border: #e0e0e0;
+  --accent: #1a1a1a;
+  --section-padding: 60px;
+  --container-max-width: 1200px;
+  --container-padding: 24px;
+  --grid-gap: 24px;
+}
+
+body {
+  font-family: 'Instrument Sans', system-ui, -apple-system, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  font-size: 1.1rem;
+}
+
+code, pre {
+  font-family: 'DM Mono', monospace;
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -31,6 +31,14 @@ interface ShaderSettings {
   hue: number;
   warp: number;
   grain: number;
+  ior: number;
+  chromatic: number;
+  fresnelPower: number;
+  vignette: number;
+  glassOverlay: boolean;
+  overlayText: string;
+  glyphText: string;
+  glyphFont: string;
   paused: boolean;
   interactive: boolean;
   mode: "shader" | "rtl";
@@ -42,6 +50,14 @@ const DEFAULT: ShaderSettings = {
   hue: 0.4,
   warp: 1.1,
   grain: 0.35,
+  ior: 1.52,
+  chromatic: 0.28,
+  fresnelPower: 3.2,
+  vignette: 30,
+  glassOverlay: true,
+  overlayText: "در امتدادِ نور، هر خط جان می‌گیرد",
+  glyphText: "نور خط جان کد رمز هکر ۰ ۱ ۲ ۳ ۴ ۵ ۶ ۷ ۸ ۹",
+  glyphFont: '"Vazirmatn", "Hasti", sans-serif',
   paused: false,
   interactive: true,
   mode: "shader",
@@ -294,7 +310,7 @@ uniforms:
           <div className="sticky top-0 z-10 -m-1.5 mb-1.5 space-y-2 bg-[#0D0D10]/95 p-1.5 backdrop-blur">
             <SearchField value={q} onChange={setQ} placeholder="نام شیدر…" />
             <div className="flex flex-wrap gap-1">
-              {(["all", "gradient", "noise", "geometric", "liquid", "retro"] as const).map((c) => (
+              {(["all", "hacker", "gradient", "noise", "geometric", "liquid", "retro"] as const).map((c) => (
                 <button
                   key={c}
                   onClick={() => setCat(c)}
@@ -354,8 +370,44 @@ uniforms:
             grain={s.grain}
             paused={s.paused}
             interactive={s.interactive}
+            glyphText={s.glyphText}
+            glyphFont={s.glyphFont}
             className="absolute inset-0"
           />
+          {(s.vignette ?? 30) > 0 && (
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                boxShadow: `inset 0 0 ${(s.vignette ?? 30) * 1.5}px rgba(3,5,10,${(
+                  (s.vignette ?? 30) / 100
+                ).toFixed(2)})`,
+              }}
+            />
+          )}
+          {(s.glassOverlay ?? true) && (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-4">
+              <div
+                dir="rtl"
+                className="max-w-md rounded-2xl border border-white/25 bg-black/35 px-5 py-3.5 text-center text-white transition-all"
+                style={{
+                  backdropFilter: `blur(${Math.round(((s.ior ?? 1.52) - 1) * 22)}px) saturate(${Math.round(
+                    130 + (s.chromatic ?? 0.28) * 90
+                  )}%)`,
+                  boxShadow: `0 20px 44px -16px rgba(0,0,0,0.65), inset 0 1px 0 0 rgba(255,255,255,${Math.min(
+                    0.85,
+                    (s.fresnelPower ?? 3.2) / 6
+                  ).toFixed(2)})`,
+                }}
+              >
+                <div className="font-mono text-[9.5px] text-amber-200/80" dir="ltr">
+                  SNELL IOR n={(s.ior ?? 1.52).toFixed(2)} · CAUCHY Δn={(s.chromatic ?? 0.28).toFixed(2)} · FRESNEL p={(s.fresnelPower ?? 3.2).toFixed(1)}
+                </div>
+                <p className="mt-1 font-nastaliq text-[24px] leading-[2] text-white">
+                  {s.overlayText || "در امتدادِ نور، هر خط جان می‌گیرد"}
+                </p>
+              </div>
+            </div>
+          )}
           <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between bg-gradient-to-t from-black/70 to-transparent p-3">
             <span className="font-mono text-[9px] tracking-[0.2em] text-white/60">LIVE · GLSL ES 1.0</span>
             <span className="font-mono text-[9px] text-white/50" dir="ltr">
@@ -522,6 +574,99 @@ uniforms:
           <Slider label="چرخش رنگ" value={s.hue} min={0} max={1} step={0.01} format={(v) => `${Math.round(v * 360)}°`} onChange={(v) => set({ hue: v })} />
           <Slider label="اعوجاج" value={s.warp} min={0} max={3} step={0.01} format={(v) => v.toFixed(2)} onChange={(v) => set({ warp: v })} />
           <Slider label="دانه" value={s.grain} min={0} max={1.5} step={0.01} format={(v) => v.toFixed(2)} onChange={(v) => set({ grain: v })} />
+        </div>
+      </Panel>
+
+      <Panel title="اطلس حروف فارسی و شیدرهای هکری (WebGL Glyph Atlas)" subtitle="حروف و واژه‌هایی که داخل باران ماتریکس و شیدرهای هکری می‌بارند">
+        <div className="space-y-2.5">
+          <input
+            value={s.glyphText ?? "نور خط جان کد رمز هکر ۰ ۱ ۲ ۳ ۴ ۵ ۶ ۷ ۸ ۹"}
+            onChange={(e) => set({ glyphText: e.target.value })}
+            dir="rtl"
+            placeholder="حروف یا واژه‌های فارسی دلخواه برای رندر در شیدر…"
+            className="w-full rounded-lg border border-white/[0.08] bg-black/40 px-2.5 py-1.5 text-[11.5px] text-zinc-200 outline-none focus:border-[color:var(--accent)]/50"
+          />
+          <div className="flex flex-wrap gap-1">
+            {[
+              { label: "الفبا + ارقام", text: "" },
+              { label: "نور و خط", text: "نور خط جان حق هو لا موج روح" },
+              { label: "ترمینال هکری", text: "کد رمز هکر صفر یک شبکه نود ۰ ۱" },
+              { label: "باینری ۰ و ۱", text: "۰ ۱ ۰ ۱ کد رمز ۰ ۱" },
+            ].map((p) => (
+              <button
+                key={p.label}
+                onClick={() => set({ glyphText: p.text })}
+                className="rounded-md border border-white/[0.08] bg-white/[0.02] px-2 py-1 text-[9.5px] text-zinc-300 hover:border-[color:var(--accent)]/40 hover:text-white"
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+          <Segmented
+            size="sm"
+            value={s.glyphFont ?? '"Vazirmatn", "Hasti", sans-serif'}
+            onChange={(v) => set({ glyphFont: v })}
+            options={[
+              { value: '"Vazirmatn", "Hasti", sans-serif', label: "وزیرمتن" },
+              { value: '"IranNastaliq", serif', label: "نستعلیق" },
+              { value: '"Morabba", sans-serif', label: "مربع" },
+              { value: '"Vazir Code", monospace', label: "وزیر کد" },
+            ]}
+          />
+        </div>
+      </Panel>
+
+      <Panel title="عدسی شیشه مایع و اپتیک اسنل (Liquid Glass)">
+        <div className="space-y-3">
+          <Toggle
+            label="نمایش کارت شیشه مایع روی شیدر"
+            checked={s.glassOverlay ?? true}
+            onChange={(v) => set({ glassOverlay: v })}
+          />
+          <input
+            value={s.overlayText ?? "در امتدادِ نور، هر خط جان می‌گیرد"}
+            onChange={(e) => set({ overlayText: e.target.value })}
+            dir="rtl"
+            placeholder="متن روی عدسی شیشه مایع…"
+            className="w-full rounded-lg border border-white/[0.08] bg-black/40 px-2.5 py-1.5 text-[11.5px] text-zinc-200 outline-none focus:border-[color:var(--accent)]/50"
+          />
+          <Slider
+            label="ضریب شکست اسنل (IOR n)"
+            value={s.ior ?? 1.52}
+            min={1.0}
+            max={2.42}
+            step={0.02}
+            format={(v) => v.toFixed(2)}
+            onChange={(v) => set({ ior: v })}
+            hint="۱.۳۳ آب · ۱.۵۲ شیشه کراون · ۲.۴۲ الماس"
+          />
+          <Slider
+            label="پراکندگی کروماتیک کوشی (Δn)"
+            value={s.chromatic ?? 0.28}
+            min={0}
+            max={1}
+            step={0.02}
+            format={(v) => v.toFixed(2)}
+            onChange={(v) => set({ chromatic: v })}
+          />
+          <Slider
+            label="بازتاب لبه‌ای فرنل (Fresnel p)"
+            value={s.fresnelPower ?? 3.2}
+            min={1}
+            max={8}
+            step={0.2}
+            format={(v) => v.toFixed(1)}
+            onChange={(v) => set({ fresnelPower: v })}
+          />
+          <Slider
+            label="وینیت اپتیکال (Vignette)"
+            value={s.vignette ?? 30}
+            min={0}
+            max={85}
+            step={5}
+            unit="%"
+            onChange={(v) => set({ vignette: v })}
+          />
         </div>
       </Panel>
 

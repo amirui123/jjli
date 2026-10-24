@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NECKLACE · Euclidean rhythm necklaces</title>
+  <meta name="description" content="Euclidean rhythms drawn as polygons inscribed in a circle and played in the browser. Toussaint's rhythm necklaces, zero dependencies.">
+  <meta name="theme-color" content="#0a0c12">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="NECKLACE · Euclidean rhythm necklaces">
+  <meta property="og:description" content="Euclidean rhythms drawn as polygons in a circle and played in your browser. Toussaint's 27 named rhythms, layered as polyrhythms. Zero dependencies.">
+  <meta property="og:url" content="https://quigles1337.github.io/NECKLACE/">
+  <meta property="og:image" content="https://quigles1337.github.io/NECKLACE/docs/screenshot.jpg">
+  <meta property="og:image:alt" content="Four Euclidean rhythm necklaces drawn as polygons inscribed in a circle">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="NECKLACE · Euclidean rhythm necklaces">
+  <meta name="twitter:description" content="Euclidean rhythms drawn as polygons in a circle and played in your browser. Toussaint's 27 named rhythms, layered as polyrhythms. Zero dependencies.">
+  <meta name="twitter:image" content="https://quigles1337.github.io/NECKLACE/docs/screenshot.jpg">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='26' fill='none' stroke='%23596179' stroke-width='2'/%3E%3Cpath d='M32 6 L50.4 50.4 L13.6 32 Z' fill='%23f7b73355' stroke='%23f7b733' stroke-width='3' stroke-linejoin='round'/%3E%3Ccircle cx='32' cy='6' r='4' fill='%23f7b733'/%3E%3Ccircle cx='50.4' cy='50.4' r='4' fill='%23f7b733'/%3E%3Ccircle cx='13.6' cy='32' r='4' fill='%23f7b733'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div class="brand">
+        <h1>NECKLACE</h1>
+        <span>Euclidean rhythm necklaces</span>
+      </div>
+      <div class="transport">
+        <button id="play" class="btn primary" aria-pressed="false" title="Play / stop (space)">Play</button>
+        <label class="tempo">Tempo
+          <input id="tempo" type="range" min="40" max="240" value="120" aria-label="Tempo in beats per minute">
+          <output id="tempo-out">120</output><span class="unit">bpm</span>
+        </label>
+        <button id="add" class="btn" title="Layer another necklace (up to four)">+ Necklace</button>
+        <button id="surprise" class="btn" title="Two or three of the paper's rhythms that share a bar, on fresh voices, at a new tempo">Surprise me</button>
+        <button id="share" class="btn" title="Copy a link to exactly this">Share link</button>
+        <button id="poster" class="btn" title="Download a 1600×2000 PNG poster of this scene">Poster</button>
+        <button id="midi" class="btn" aria-pressed="false" title="Send every onset to a MIDI output (Web MIDI)">MIDI</button>
+        <span class="rec-group">
+          <button id="record" class="btn rec" title="Record a clip with sound (.webm), aligned to the next bar">Record</button>
+          <select id="rec-bars" class="rec-bars" aria-label="Bars to record" title="Bars to record">
+            <option value="1">1 bar</option>
+            <option value="2" selected>2 bars</option>
+            <option value="4">4 bars</option>
+          </select>
+        </span>
+      </div>
+    </header>
+    <div class="midibar" id="midibar" hidden>
+      <label>output <select id="midi-out" aria-label="MIDI output"></select></label>
+      <label>channel <input id="midi-ch" type="number" min="1" max="16" value="10" aria-label="MIDI channel"></label>
+      <span class="midi-notes" id="midi-notes" aria-label="MIDI note per necklace"></span>
+      <span class="midi-hint">one note-on/off per onset, scheduled on the MIDI clock · GM drums live on channel 10</span>
+    </div>
+    <main class="layout">
+      <div class="stage">
+        <canvas id="stage" aria-label="Rhythm necklaces"></canvas>
+        <div class="rec-badge" id="rec-badge" role="status" aria-live="polite" hidden><span class="rec-dot"></span><span id="rec-text">REC</span></div>
+        <div class="hint" id="hint">Click the necklace to hear its voices</div>
+        <button id="embed-play" class="embed-play" aria-pressed="false" title="Play / stop" hidden>&#9654;</button>
+        <a id="embed-link" class="embed-link" href="./" target="_blank" rel="noopener" title="Open this scene in NECKLACE" hidden>NECKLACE</a>
+      </div>
+      <aside class="panel" id="panel"></aside>
+    </main>
+    <footer>
+      <span>Rhythms from Godfried Toussaint, <a href="http://cgm.cs.mcgill.ca/~godfried/publications/banff.pdf" target="_blank" rel="noopener">The Euclidean Algorithm Generates Traditional Musical Rhythms</a> (2005)</span>
+      <span><a href="https://github.com/Quigles1337/NECKLACE" target="_blank" rel="noopener">github.com/Quigles1337/NECKLACE</a></span>
+    </footer>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

@@ -360,6 +360,307 @@ export const FONT_FILE_BY_FAMILY: Record<string, FontFileInfo> = {
     "ext": "woff2",
     "format": "woff2",
     "weight": "400"
+  },
+  "Aref Ruqaa": {
+    "url": "/fonts/01-nastaliq-and-calligraphy/ArefRuqaa-Regular.woff2",
+    "file": "ArefRuqaa-Regular.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "Mirza": {
+    "url": "/fonts/01-nastaliq-and-calligraphy/Mirza-Medium.woff2",
+    "file": "Mirza-Medium.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "500"
+  },
+  "Lateef": {
+    "url": "/fonts/01-nastaliq-and-calligraphy/Lateef-Regular.woff2",
+    "file": "Lateef-Regular.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "Reem Kufi": {
+    "url": "/fonts/02-special-and-display/ReemKufi-SemiBold.woff2",
+    "file": "ReemKufi-SemiBold.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "600"
+  },
+  "Rakkas": {
+    "url": "/fonts/02-special-and-display/Rakkas-Regular.woff2",
+    "file": "Rakkas-Regular.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "Changa": {
+    "url": "/fonts/02-special-and-display/Changa-SemiBold.woff2",
+    "file": "Changa-SemiBold.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "600"
+  },
+  "El Messiri": {
+    "url": "/fonts/02-special-and-display/ElMessiri-SemiBold.woff2",
+    "file": "ElMessiri-SemiBold.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "600"
+  },
+  "Kufam": {
+    "url": "/fonts/02-special-and-display/Kufam-SemiBold.woff2",
+    "file": "Kufam-SemiBold.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "600"
+  },
+  "Qahiri": {
+    "url": "/fonts/02-special-and-display/Qahiri-Regular.woff2",
+    "file": "Qahiri-Regular.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "Cairo": {
+    "url": "/fonts/03-modern-ui-and-variable/Cairo-SemiBold.woff2",
+    "file": "Cairo-SemiBold.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "600"
+  },
+  "Tajawal": {
+    "url": "/fonts/03-modern-ui-and-variable/Tajawal-Medium.woff2",
+    "file": "Tajawal-Medium.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "500"
+  },
+  "Almarai": {
+    "url": "/fonts/03-modern-ui-and-variable/Almarai-Regular.woff2",
+    "file": "Almarai-Regular.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "Readex Pro": {
+    "url": "/fonts/03-modern-ui-and-variable/ReadexPro-Regular.woff2",
+    "file": "ReadexPro-Regular.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "Alexandria": {
+    "url": "/fonts/03-modern-ui-and-variable/Alexandria-Medium.woff2",
+    "file": "Alexandria-Medium.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "500"
+  },
+  "Fustat": {
+    "url": "/fonts/03-modern-ui-and-variable/Fustat-Medium.woff2",
+    "file": "Fustat-Medium.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "500"
+  },
+  "Zain": {
+    "url": "/fonts/03-modern-ui-and-variable/Zain-Regular.woff2",
+    "file": "Zain-Regular.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "IBM Plex Sans Arabic": {
+    "url": "/fonts/03-modern-ui-and-variable/IBMPlexSansArabic-Medium.woff2",
+    "file": "IBMPlexSansArabic-Medium.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "500"
+  },
+  "Rubik": {
+    "url": "/fonts/03-modern-ui-and-variable/RubikArabic-Medium.woff2",
+    "file": "RubikArabic-Medium.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "500"
+  },
+  "Nahid FD": {
+    "url": "/fonts/05-editorial-and-international/Nahid-FD.woff2",
+    "file": "Nahid-FD.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "Markazi Text": {
+    "url": "/fonts/05-editorial-and-international/MarkaziText-Medium.woff2",
+    "file": "MarkaziText-Medium.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "500"
+  },
+  "Harmattan": {
+    "url": "/fonts/05-editorial-and-international/Harmattan-Regular.woff2",
+    "file": "Harmattan-Regular.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "JetBrains Mono": {
+    "url": "/fonts/06-english-coding-and-display/JetBrainsMono-Medium.woff2",
+    "file": "JetBrainsMono-Medium.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "500"
+  },
+  "Fira Code": {
+    "url": "/fonts/06-english-coding-and-display/FiraCode-Medium.woff2",
+    "file": "FiraCode-Medium.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "500"
+  },
+  "Geist Mono": {
+    "url": "/fonts/06-english-coding-and-display/GeistMono-Medium.woff2",
+    "file": "GeistMono-Medium.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "500"
+  },
+  "Cascadia Code": {
+    "url": "/fonts/06-english-coding-and-display/CascadiaCode-Regular.woff2",
+    "file": "CascadiaCode-Regular.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "Space Mono": {
+    "url": "/fonts/06-english-coding-and-display/SpaceMono-Regular.woff2",
+    "file": "SpaceMono-Regular.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "IBM Plex Mono": {
+    "url": "/fonts/06-english-coding-and-display/IBMPlexMono-Medium.woff2",
+    "file": "IBMPlexMono-Medium.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "500"
+  },
+  "Share Tech Mono": {
+    "url": "/fonts/06-english-coding-and-display/ShareTechMono-Regular.woff2",
+    "file": "ShareTechMono-Regular.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "VT323": {
+    "url": "/fonts/06-english-coding-and-display/VT323-Regular.woff2",
+    "file": "VT323-Regular.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "Silkscreen": {
+    "url": "/fonts/06-english-coding-and-display/Silkscreen-Regular.woff2",
+    "file": "Silkscreen-Regular.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "Space Grotesk": {
+    "url": "/fonts/06-english-coding-and-display/SpaceGrotesk-SemiBold.woff2",
+    "file": "SpaceGrotesk-SemiBold.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "600"
+  },
+  "Syne": {
+    "url": "/fonts/06-english-coding-and-display/Syne-Bold.woff2",
+    "file": "Syne-Bold.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "700"
+  },
+  "Orbitron": {
+    "url": "/fonts/06-english-coding-and-display/Orbitron-Bold.woff2",
+    "file": "Orbitron-Bold.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "700"
+  },
+  "Chakra Petch": {
+    "url": "/fonts/06-english-coding-and-display/ChakraPetch-SemiBold.woff2",
+    "file": "ChakraPetch-SemiBold.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "600"
+  },
+  "Rajdhani": {
+    "url": "/fonts/06-english-coding-and-display/Rajdhani-SemiBold.woff2",
+    "file": "Rajdhani-SemiBold.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "600"
+  },
+  "Unbounded": {
+    "url": "/fonts/06-english-coding-and-display/Unbounded-Bold.woff2",
+    "file": "Unbounded-Bold.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "700"
+  },
+  "Bricolage Grotesque": {
+    "url": "/fonts/06-english-coding-and-display/BricolageGrotesque-SemiBold.woff2",
+    "file": "BricolageGrotesque-SemiBold.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "600"
+  },
+  "Plus Jakarta Sans": {
+    "url": "/fonts/06-english-coding-and-display/PlusJakartaSans-SemiBold.woff2",
+    "file": "PlusJakartaSans-SemiBold.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "600"
+  },
+  "Outfit": {
+    "url": "/fonts/06-english-coding-and-display/Outfit-SemiBold.woff2",
+    "file": "Outfit-SemiBold.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "600"
+  },
+  "Sora": {
+    "url": "/fonts/06-english-coding-and-display/Sora-SemiBold.woff2",
+    "file": "Sora-SemiBold.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "600"
+  },
+  "Fraunces": {
+    "url": "/fonts/06-english-coding-and-display/Fraunces-SemiBold.woff2",
+    "file": "Fraunces-SemiBold.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "600"
+  },
+  "Instrument Serif": {
+    "url": "/fonts/06-english-coding-and-display/InstrumentSerif-Regular.woff2",
+    "file": "InstrumentSerif-Regular.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "400"
+  },
+  "Cinzel": {
+    "url": "/fonts/06-english-coding-and-display/Cinzel-SemiBold.woff2",
+    "file": "Cinzel-SemiBold.woff2",
+    "ext": "woff2",
+    "format": "woff2",
+    "weight": "600"
   }
 };
 

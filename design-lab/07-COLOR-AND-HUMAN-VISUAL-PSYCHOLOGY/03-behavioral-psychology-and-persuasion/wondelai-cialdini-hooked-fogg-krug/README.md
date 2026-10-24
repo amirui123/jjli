@@ -1,0 +1,1742 @@
+# Wondel.ai Agent Skills — Business, Marketing, UX & Coding Frameworks from Bestselling Books
+
+65 agent skills for Claude, Claude Code, Claude Cowork, Codex, Cursor, OpenClaw, Hermes Agent and other agentskills.io-compatible agents — also packaged as spec-conformant [Agent Plugins](https://agent-plugins.org/): 51 expert frameworks from bestselling books and industry style guides, plus 14 **metaskills** — guided journeys that orchestrate them step by step to create, improve, or grow a business, website, or app, and to improve code quality, remove technical debt, design code architecture, optimize a conversion flow, or optimize an existing codebase. Each metaskill asks you the decision questions phase by phase and keeps its state in your project's `docs/` folder, so a journey survives across sessions. Browse all skills at [skills.wondel.ai](https://skills.wondel.ai/).
+
+## Installation
+
+### Via Claude Code Plugin Marketplace
+
+```bash
+# Add the marketplace
+/plugin marketplace add wondelai/skills
+
+# Install plugin collections
+/plugin install product-strategy@wondelai-skills      # Jobs to Be Done, Negotiation, Mom Test
+/plugin install ux-design@wondelai-skills             # Refactoring UI, iOS HIG, UX Heuristics, Hooked, Improve Retention, Web Typography, Top Design, Design of Everyday Things, Lean UX, Microinteractions, Steve Jobs Design Review
+/plugin install marketing-cro@wondelai-skills         # CRO Methodology, StoryBrand, Scorecard Marketing, Contagious, 1-Page Marketing
+/plugin install sales-influence@wondelai-skills       # Influence Psychology, Predictable Revenue, Made to Stick, $100M Offers
+/plugin install product-innovation@wondelai-skills    # Lean Startup, Design Sprint, Design of Everyday Things, Inspired, Continuous Discovery, 37signals Way
+/plugin install strategy-growth@wondelai-skills       # Crossing the Chasm, Blue Ocean Strategy, Traction/EOS, Obviously Awesome
+/plugin install team-motivation@wondelai-skills       # Drive (Autonomy, Mastery, Purpose)
+/plugin install code-craftsmanship@wondelai-skills    # Clean Code, Refactoring Patterns, Software Design Philosophy, Pragmatic Programmer, DDD, Working with Legacy Code, Google Docs Style
+/plugin install systems-architecture@wondelai-skills  # DDIA, System Design, Clean Architecture, Release It!, High Performance Browser Networking
+/plugin install metaskills@wondelai-skills            # 14 guided journeys: create/improve/grow a business, website, or app + code quality, tech debt, architecture, conversion, optimization
+```
+
+### Via skills.sh
+
+Install via [skills.sh](https://skills.sh):
+
+```bash
+# Install all skills
+npx skills add wondelai/skills --all --global
+
+# Or install individual skills
+npx skills add wondelai/skills/jobs-to-be-done --global
+npx skills add wondelai/skills/cro-methodology --global
+npx skills add wondelai/skills/refactoring-ui --global
+npx skills add wondelai/skills/ios-hig-design --global
+npx skills add wondelai/skills/scorecard-marketing --global
+npx skills add wondelai/skills/storybrand-messaging --global
+npx skills add wondelai/skills/hooked-ux --global
+npx skills add wondelai/skills/improve-retention --global
+npx skills add wondelai/skills/ux-heuristics --global
+npx skills add wondelai/skills/web-typography --global
+npx skills add wondelai/skills/top-design --global
+npx skills add wondelai/skills/negotiation --global
+npx skills add wondelai/skills/influence-psychology --global
+npx skills add wondelai/skills/lean-startup --global
+npx skills add wondelai/skills/design-sprint --global
+npx skills add wondelai/skills/crossing-the-chasm --global
+npx skills add wondelai/skills/blue-ocean-strategy --global
+npx skills add wondelai/skills/traction-eos --global
+npx skills add wondelai/skills/design-everyday-things --global
+npx skills add wondelai/skills/predictable-revenue --global
+npx skills add wondelai/skills/made-to-stick --global
+npx skills add wondelai/skills/drive-motivation --global
+npx skills add wondelai/skills/hundred-million-offers --global
+npx skills add wondelai/skills/obviously-awesome --global
+npx skills add wondelai/skills/contagious --global
+npx skills add wondelai/skills/one-page-marketing --global
+npx skills add wondelai/skills/mom-test --global
+npx skills add wondelai/skills/inspired-product --global
+npx skills add wondelai/skills/lean-ux --global
+npx skills add wondelai/skills/continuous-discovery --global
+npx skills add wondelai/skills/microinteractions --global
+npx skills add wondelai/skills/clean-code --global
+npx skills add wondelai/skills/refactoring-patterns --global
+npx skills add wondelai/skills/software-design-philosophy --global
+npx skills add wondelai/skills/pragmatic-programmer --global
+npx skills add wondelai/skills/domain-driven-design --global
+npx skills add wondelai/skills/ddia-systems --global
+npx skills add wondelai/skills/system-design --global
+npx skills add wondelai/skills/clean-architecture --global
+npx skills add wondelai/skills/release-it --global
+npx skills add wondelai/skills/high-perf-browser --global
+npx skills add wondelai/skills/37signals-way --global
+npx skills add wondelai/skills/steve-jobs-design-review --global
+npx skills add wondelai/skills/good-strategy-bad-strategy --global
+npx skills add wondelai/skills/monetizing-innovation --global
+npx skills add wondelai/skills/cold-start-problem --global
+npx skills add wondelai/skills/working-with-legacy-code --global
+npx skills add wondelai/skills/team-topologies --global
+npx skills add wondelai/skills/high-output-management --global
+npx skills add wondelai/skills/lean-analytics --global
+npx skills add wondelai/skills/technical-documentation --global
+
+# Metaskills — guided journeys that orchestrate the skills above
+npx skills add wondelai/skills/create-business --global
+npx skills add wondelai/skills/create-website --global
+npx skills add wondelai/skills/create-app --global
+npx skills add wondelai/skills/improve-business --global
+npx skills add wondelai/skills/improve-website --global
+npx skills add wondelai/skills/improve-app --global
+npx skills add wondelai/skills/grow-business --global
+npx skills add wondelai/skills/grow-website --global
+npx skills add wondelai/skills/grow-app --global
+npx skills add wondelai/skills/improve-code-quality --global
+npx skills add wondelai/skills/remove-technical-debt --global
+npx skills add wondelai/skills/design-code-architecture --global
+npx skills add wondelai/skills/conversion-optimization --global
+npx skills add wondelai/skills/architecture-optimization --global
+```
+
+### Via OpenAI Codex
+
+Codex adopted the same open `SKILL.md` standard, so every skill here works in Codex CLI too:
+
+- **Individual skills** — the `npx skills add wondelai/skills/<name>` commands above target Codex as well (Codex is a supported [agentskills.io](https://agentskills.io) agent).
+- **As Codex plugins** — this repo ships a Codex plugin marketplace at [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json) with the same 10 collections. In a clone, Codex auto-discovers it (and the skills under `.agents/skills/`); manage installs from the `/plugins` menu in the Codex TUI. The Codex manifests are generated from `.claude-plugin/marketplace.json` (single source of truth) by `scripts/generate-plugins.sh`.
+
+### Via Agent Plugins (agent-plugins.org)
+
+The same collections also ship in the open [Agent Plugins](https://agent-plugins.org/) format (spec v1.0.0), so any conforming client can install them:
+
+- **Collection plugins** — each `plugins/<collection>/` directory is a self-contained Agent Plugin: a root `plugin.json` manifest plus real copies of its skills under `skills/` — the same 10 collections as the Claude marketplace.
+- **All-in-one bundle** — [`plugins/wondelai-skills/`](plugins/wondelai-skills/) is a single Agent Plugin containing all 65 skills.
+- **Installing** — the spec defines the package format; installation is client-specific. Clone this repo and point your client at a plugin directory (e.g. `plugins/marketing-cro` or `plugins/wondelai-skills`). The manifests are generated from [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) (single source of truth) by `scripts/generate-plugins.sh`.
+
+## Available Skills
+
+| Skill | Description | Based On |
+|-------|-------------|----------|
+| [jobs-to-be-done](https://skills.wondel.ai/skills/jobs-to-be-done/) | JTBD framework for product innovation | [Clayton Christensen](https://x.com/claychristensen)'s [*"Competing Against Luck"*](https://www.amazon.com/Competing-Against-Luck-Innovation-Customer/dp/0062435612?tag=wondelai00-20) |
+| [cro-methodology](https://skills.wondel.ai/skills/cro-methodology/) | Conversion rate optimization methodology | [Karl Blanks](https://www.karlblanks.com/) & [Ben Jesson](https://www.ben-jesson.co.uk/)'s [*"Making Websites Win"*](https://www.amazon.com/Making-Websites-Win-Customer-Centric-Methodology/dp/1544500513?tag=wondelai00-20) |
+| [refactoring-ui](https://skills.wondel.ai/skills/refactoring-ui/) | Practical UI design system | [Adam Wathan](https://x.com/adamwathan) & [Steve Schoger](https://x.com/steveschoger)'s [*"Refactoring UI"*](https://www.refactoringui.com/) |
+| [ios-hig-design](https://skills.wondel.ai/skills/ios-hig-design/) | Native iOS app design guidelines | [Apple](https://x.com/Apple)'s [*Human Interface Guidelines*](https://developer.apple.com/design/human-interface-guidelines/) |
+| [scorecard-marketing](https://skills.wondel.ai/skills/scorecard-marketing/) | Quiz/assessment funnel lead generation | [Daniel Priestley](https://x.com/DanielPriestley)'s [*"Scorecard Marketing"*](https://www.amazon.com/Scorecard-Marketing-four-step-playbook-getting/dp/1781337195?tag=wondelai00-20) |
+| [storybrand-messaging](https://skills.wondel.ai/skills/storybrand-messaging/) | Clear brand messaging using story structure | [Donald Miller](https://x.com/donlonemiller)'s [*"Building a StoryBrand"*](https://www.amazon.com/Building-StoryBrand-Clarify-Message-Customers/dp/0718033329?tag=wondelai00-20) |
+| [hooked-ux](https://skills.wondel.ai/skills/hooked-ux/) | Habit-forming product design | [Nir Eyal](https://x.com/naboreeyal)'s [*"Hooked"*](https://www.amazon.com/Hooked-How-Build-Habit-Forming-Products/dp/1591847788?tag=wondelai00-20) |
+| [improve-retention](https://skills.wondel.ai/skills/improve-retention/) | Behavior design for user retention using B=MAP | [BJ Fogg](https://x.com/bjfogg)'s [*"Tiny Habits"*](https://www.amazon.com/Tiny-Habits-Small-Changes-Everything/dp/0358003326?tag=wondelai00-20) |
+| [ux-heuristics](https://skills.wondel.ai/skills/ux-heuristics/) | Usability evaluation and principles | [Steve Krug](https://x.com/skrug)'s [*"Don't Make Me Think"*](https://www.amazon.com/Dont-Make-Think-Revisited-Usability/dp/0321965515?tag=wondelai00-20) & [Jakob Nielsen](https://x.com/nngroup)'s [10 Heuristics](https://www.nngroup.com/articles/ten-usability-heuristics/) |
+| [web-typography](https://skills.wondel.ai/skills/web-typography/) | Web typography principles and implementation | [Jason Santa Maria](https://x.com/jasonsantamaria)'s [*"On Web Typography"*](https://www.amazon.com/Web-Typography-Jason-Santa-Maria/dp/1937557065?tag=wondelai00-20) |
+| [top-design](https://skills.wondel.ai/skills/top-design/) | Award-winning 10/10 web design matching elite agencies | Techniques from Locomotive, Studio Freight, AREA 17, Awwwards winners |
+| [negotiation](https://skills.wondel.ai/skills/negotiation/) | Tactical negotiation framework for high-stakes conversations | [Chris Voss](https://x.com/VossNegotiation)'s [*"Never Split the Difference"*](https://www.amazon.com/Never-Split-Difference-Negotiating-Depended/dp/0062407805?tag=wondelai00-20) |
+| [influence-psychology](https://skills.wondel.ai/skills/influence-psychology/) | Persuasion science and ethical influence principles | [Robert Cialdini](https://x.com/RobertCialdini)'s [*"Influence: The Psychology of Persuasion"*](https://www.amazon.com/Influence-Psychology-Persuasion-Robert-Cialdini/dp/006124189X?tag=wondelai00-20) |
+| [lean-startup](https://skills.wondel.ai/skills/lean-startup/) | Build-Measure-Learn methodology for startups and new products | [Eric Ries](https://x.com/ericries)'s [*"The Lean Startup"*](https://www.amazon.com/Lean-Startup-Entrepreneurs-Continuous-Innovation/dp/0307887898?tag=wondelai00-20) |
+| [design-sprint](https://skills.wondel.ai/skills/design-sprint/) | 5-day process for validating ideas through prototyping and testing | [Jake Knapp](https://x.com/jakek)'s [*"Sprint"*](https://www.amazon.com/Sprint-Solve-Problems-Test-Ideas/dp/150112174X?tag=wondelai00-20) |
+| [crossing-the-chasm](https://skills.wondel.ai/skills/crossing-the-chasm/) | Technology adoption lifecycle and go-to-market for tech products | [Geoffrey Moore](https://x.com/geoffreyamoore)'s [*"Crossing the Chasm"*](https://www.amazon.com/Crossing-Chasm-3rd-Disruptive-Mainstream/dp/0062292986?tag=wondelai00-20) |
+| [blue-ocean-strategy](https://skills.wondel.ai/skills/blue-ocean-strategy/) | Create uncontested market space with value innovation | W. Chan Kim & Renée Mauborgne's [*"Blue Ocean Strategy"*](https://www.amazon.com/Blue-Ocean-Strategy-Expanded-Uncontested/dp/1625274491?tag=wondelai00-20) |
+| [traction-eos](https://skills.wondel.ai/skills/traction-eos/) | Entrepreneurial Operating System for running a business | [Gino Wickman](https://x.com/ginowickman)'s [*"Traction"*](https://www.amazon.com/Traction-Get-Grip-Your-Business/dp/1936661837?tag=wondelai00-20) |
+| [design-everyday-things](https://skills.wondel.ai/skills/design-everyday-things/) | Foundational design principles: affordances, signifiers, feedback | [Don Norman](https://x.com/jabornik)'s [*"The Design of Everyday Things"*](https://www.amazon.com/Design-Everyday-Things-Revised-Expanded/dp/0465050654?tag=wondelai00-20) |
+| [predictable-revenue](https://skills.wondel.ai/skills/predictable-revenue/) | Outbound sales process and Cold Calling 2.0 methodology | [Aaron Ross](https://x.com/motoceo)'s [*"Predictable Revenue"*](https://www.amazon.com/Predictable-Revenue-Business-Practices-Salesforce-com/dp/0984380213?tag=wondelai00-20) |
+| [made-to-stick](https://skills.wondel.ai/skills/made-to-stick/) | SUCCESs framework for creating memorable messaging | [Chip Heath](https://x.com/chipheath) & Dan Heath's [*"Made to Stick"*](https://www.amazon.com/Made-Stick-Ideas-Survive-Others/dp/1400064287?tag=wondelai00-20) |
+| [drive-motivation](https://skills.wondel.ai/skills/drive-motivation/) | Intrinsic motivation science: Autonomy, Mastery, Purpose | [Daniel Pink](https://x.com/DanielPink)'s [*"Drive"*](https://www.amazon.com/Drive-Surprising-Truth-About-Motivates/dp/1594484805?tag=wondelai00-20) |
+| [hundred-million-offers](https://skills.wondel.ai/skills/hundred-million-offers/) | Grand Slam Offer creation: Value Equation, pricing, bonuses, guarantees, scarcity | [Alex Hormozi](https://x.com/AlexHormozi)'s [*"$100M Offers"*](https://www.amazon.com/100M-Offers-People-Cant-Refuse/dp/1737475731?tag=wondelai00-20) |
+| [obviously-awesome](https://skills.wondel.ai/skills/obviously-awesome/) | Product positioning: competitive alternatives, unique value, target customers, market category | [April Dunford](https://x.com/aprildunford)'s [*"Obviously Awesome"*](https://www.amazon.com/Obviously-Awesome-Product-Positioning-Customers/dp/1999023005?tag=wondelai00-20) |
+| [contagious](https://skills.wondel.ai/skills/contagious/) | Word-of-mouth and virality using the STEPPS framework | [Jonah Berger](https://x.com/j1berger)'s [*"Contagious"*](https://www.amazon.com/Contagious-Things-Catch-Jonah-Berger/dp/1451686587?tag=wondelai00-20) |
+| [one-page-marketing](https://skills.wondel.ai/skills/one-page-marketing/) | End-to-end marketing plan: 9-square grid from prospect to raving fan | [Allan Dib](https://x.com/successwise)'s [*"The 1-Page Marketing Plan"*](https://www.amazon.com/1-Page-Marketing-Plan-Customers-Money/dp/1989025013?tag=wondelai00-20) |
+| [mom-test](https://skills.wondel.ai/skills/mom-test/) | Customer interview framework: talk about their life, not your idea | [Rob Fitzpatrick](https://x.com/robfitz)'s [*"The Mom Test"*](https://www.amazon.com/Mom-Test-customers-business-everyone/dp/1492180742?tag=wondelai00-20) |
+| [inspired-product](https://skills.wondel.ai/skills/inspired-product/) | Empowered product teams with discovery and delivery dual-track | [Marty Cagan](https://x.com/caborez)'s [*"Inspired"*](https://www.amazon.com/INSPIRED-Create-Tech-Products-Customers/dp/1119387507?tag=wondelai00-20) |
+| [lean-ux](https://skills.wondel.ai/skills/lean-ux/) | Hypothesis-driven UX design with rapid experiments | [Jeff Gothelf](https://x.com/jboogie)'s [*"Lean UX"*](https://www.amazon.com/Lean-UX-Applying-Principles-Experience/dp/1098116305?tag=wondelai00-20) |
+| [continuous-discovery](https://skills.wondel.ai/skills/continuous-discovery/) | Weekly customer touchpoints using Opportunity Solution Trees | [Teresa Torres](https://x.com/ttorres)'s [*"Continuous Discovery Habits"*](https://www.amazon.com/Continuous-Discovery-Habits-Discover-Products/dp/1736633309?tag=wondelai00-20) |
+| [microinteractions](https://skills.wondel.ai/skills/microinteractions/) | Design triggers, rules, feedback, loops and modes for interaction polish | [Dan Saffer](https://x.com/odannyboy)'s [*"Microinteractions"*](https://www.amazon.com/Microinteractions-Full-Color-Designing-Details/dp/1491945923?tag=wondelai00-20) |
+| [clean-code](https://skills.wondel.ai/skills/clean-code/) | Readable, maintainable code through naming, small functions, and clean error handling | [Robert C. Martin](https://x.com/unclebobmartin)'s [*"Clean Code"*](https://www.amazon.com/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882?tag=wondelai00-20) |
+| [refactoring-patterns](https://skills.wondel.ai/skills/refactoring-patterns/) | Named refactoring transformations to improve code structure safely | [Martin Fowler](https://x.com/martinfowler)'s [*"Refactoring"*](https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599?tag=wondelai00-20) |
+| [software-design-philosophy](https://skills.wondel.ai/skills/software-design-philosophy/) | Managing complexity through deep modules and information hiding | [John Ousterhout](https://x.com/JohnOusterhout)'s [*"A Philosophy of Software Design"*](https://www.amazon.com/Philosophy-Software-Design-2nd/dp/173210221X?tag=wondelai00-20) |
+| [pragmatic-programmer](https://skills.wondel.ai/skills/pragmatic-programmer/) | Meta-principles: DRY, orthogonality, tracer bullets, design by contract | [Andrew Hunt](https://x.com/pragmaticandy) & David Thomas's [*"The Pragmatic Programmer"*](https://www.amazon.com/Pragmatic-Programmer-journey-mastery-Anniversary/dp/0135957052?tag=wondelai00-20) |
+| [domain-driven-design](https://skills.wondel.ai/skills/domain-driven-design/) | Model software around business domains with bounded contexts and aggregates | [Eric Evans](https://x.com/ericevans0)'s [*"Domain-Driven Design"*](https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215?tag=wondelai00-20) |
+| [ddia-systems](https://skills.wondel.ai/skills/ddia-systems/) | Data system design: storage engines, replication, partitioning, consistency | [Martin Kleppmann](https://x.com/martinkl)'s [*"Designing Data-Intensive Applications"*](https://www.amazon.com/Designing-Data-Intensive-Applications-Reliable-Maintainable/dp/1449373321?tag=wondelai00-20) |
+| [system-design](https://skills.wondel.ai/skills/system-design/) | Scalable distributed systems: load balancing, caching, database scaling | [Alex Xu](https://x.com/aleaborysov)'s [*"System Design Interview"*](https://www.amazon.com/System-Design-Interview-insiders-Second/dp/B08CMF2CQF?tag=wondelai00-20) |
+| [clean-architecture](https://skills.wondel.ai/skills/clean-architecture/) | The Dependency Rule: dependencies point inward from frameworks to entities | [Robert C. Martin](https://x.com/unclebobmartin)'s [*"Clean Architecture"*](https://www.amazon.com/Clean-Architecture-Craftsmans-Software-Structure/dp/0134494164?tag=wondelai00-20) |
+| [release-it](https://skills.wondel.ai/skills/release-it/) | Production-ready systems: circuit breakers, bulkheads, timeouts, retry logic | [Michael Nygard](https://x.com/mtnygard)'s [*"Release It!"*](https://www.amazon.com/Release-Design-Deploy-Production-Ready-Software/dp/1680502395?tag=wondelai00-20) |
+| [high-perf-browser](https://skills.wondel.ai/skills/high-perf-browser/) | Web performance: network protocols, resource loading, browser rendering | [Ilya Grigorik](https://x.com/igrigorik)'s [*"High Performance Browser Networking"*](https://www.amazon.com/High-Performance-Browser-Networking-performance/dp/1449344763?tag=wondelai00-20) |
+| [37signals-way](https://skills.wondel.ai/skills/37signals-way/) | Build less, shape work, ship in six-week cycles with small autonomous teams | [Jason Fried](https://x.com/jasonfried) & [DHH](https://x.com/dhh)'s [*"Getting Real"*](https://www.amazon.com/Getting-Real-Smarter-Successful-Application/dp/0578012812?tag=wondelai00-20), [*"Rework"*](https://www.amazon.com/Rework-Jason-Fried/dp/0307463745?tag=wondelai00-20) & [Ryan Singer](https://x.com/rjs)'s [*"Shape Up"*](https://basecamp.com/shapeup) |
+| [steve-jobs-design-review](https://skills.wondel.ai/skills/steve-jobs-design-review/) | Jobs-style design reviews: ruthless simplicity, focus, demo culture, binary verdicts | [Walter Isaacson](https://x.com/WalterIsaacson)'s [*"Steve Jobs"*](https://www.amazon.com/Steve-Jobs-Walter-Isaacson/dp/1451648537?tag=wondelai00-20), [Ken Segall](https://x.com/ksegall)'s [*"Insanely Simple"*](https://www.amazon.com/Insanely-Simple-Obsession-Drives-Success/dp/1591846218?tag=wondelai00-20) & [Ken Kocienda](https://x.com/kocienda)'s [*"Creative Selection"*](https://www.amazon.com/Creative-Selection-Inside-Apples-Process/dp/1250194466?tag=wondelai00-20) |
+| [good-strategy-bad-strategy](https://skills.wondel.ai/skills/good-strategy-bad-strategy/) | Strategy kernels: diagnosis, guiding policy, coherent action — and bad-strategy detection | Richard Rumelt's [*"Good Strategy Bad Strategy"*](https://www.amazon.com/Good-Strategy-Bad-Strategy-Difference/dp/0307886239?tag=wondelai00-20) |
+| [monetizing-innovation](https://skills.wondel.ai/skills/monetizing-innovation/) | Price-before-product: willingness-to-pay research, packaging, monetization models | Madhavan Ramanujam & Georg Tacke's [*"Monetizing Innovation"*](https://www.amazon.com/Monetizing-Innovation-Companies-Design-Product/dp/1119240867?tag=wondelai00-20) |
+| [cold-start-problem](https://skills.wondel.ai/skills/cold-start-problem/) | Network effects: atomic networks, the hard side, tipping points, escape velocity | [Andrew Chen](https://x.com/andrewchen)'s [*"The Cold Start Problem"*](https://www.amazon.com/Cold-Start-Problem-Andrew-Chen/dp/0062969749?tag=wondelai00-20) |
+| [working-with-legacy-code](https://skills.wondel.ai/skills/working-with-legacy-code/) | Safely change untested code: seams, characterization tests, sprout/wrap, dependency breaking | [Michael Feathers](https://x.com/mfeathers)' [*"Working Effectively with Legacy Code"*](https://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052?tag=wondelai00-20) |
+| [team-topologies](https://skills.wondel.ai/skills/team-topologies/) | Four team types, three interaction modes, Conway's law, team cognitive load | [Matthew Skelton](https://x.com/matthewpskelton) & [Manuel Pais](https://x.com/manupaisable)'s [*"Team Topologies"*](https://www.amazon.com/Team-Topologies-Organizing-Business-Technology/dp/1942788819?tag=wondelai00-20) |
+| [high-output-management](https://skills.wondel.ai/skills/high-output-management/) | Managerial leverage, one-on-ones, OKRs, task-relevant maturity | Andrew S. Grove's [*"High Output Management"*](https://www.amazon.com/High-Output-Management-Andrew-Grove/dp/0679762884?tag=wondelai00-20) |
+| [lean-analytics](https://skills.wondel.ai/skills/lean-analytics/) | One Metric That Matters, metrics by business model and stage, benchmarks | [Alistair Croll](https://x.com/acroll) & [Ben Yoskovitz](https://x.com/byosko)'s [*"Lean Analytics"*](https://www.amazon.com/Lean-Analytics-Better-Startup-Faster/dp/1449335675?tag=wondelai00-20) |
+| [technical-documentation](https://skills.wondel.ai/skills/technical-documentation/) | Audit, write, and improve developer docs: reader fit, procedures, code samples, API reference, changelogs | [Google](https://developers.google.com/style)'s *Developer Documentation Style Guide* |
+| [create-business](https://skills.wondel.ai/skills/create-business/) | Guided journey: raw idea → validated, positioned, priced business | Orchestrates 10 skills, from jobs-to-be-done to crossing-the-chasm |
+| [create-website](https://skills.wondel.ai/skills/create-website/) | Guided journey: blank page → high-converting website | Orchestrates 10 skills, from storybrand-messaging to steve-jobs-design-review |
+| [create-app](https://skills.wondel.ai/skills/create-app/) | Guided journey: idea → validated, well-architected app | Orchestrates 10 skills, from lean-startup to software-design-philosophy |
+| [improve-business](https://skills.wondel.ai/skills/improve-business/) | Guided journey: diagnose and fix a plateaued business | Orchestrates 8 skills, from good-strategy-bad-strategy to monetizing-innovation |
+| [improve-website](https://skills.wondel.ai/skills/improve-website/) | Guided journey: diagnose, fix, and prove website improvements | Orchestrates 8 skills, from cro-methodology to design-everyday-things |
+| [improve-app](https://skills.wondel.ai/skills/improve-app/) | Guided journey: product, UX, copy, and in-app persuasion — fix what users feel | Orchestrates 9 skills, from jobs-to-be-done to steve-jobs-design-review |
+| [grow-business](https://skills.wondel.ai/skills/grow-business/) | Guided journey: build a repeatable growth engine | Orchestrates 9 skills, from one-page-marketing to negotiation |
+| [grow-website](https://skills.wondel.ai/skills/grow-website/) | Guided journey: convert, capture, and compound website traffic | Orchestrates 8 skills, from cro-methodology to one-page-marketing |
+| [grow-app](https://skills.wondel.ai/skills/grow-app/) | Guided journey: retention-first app growth | Orchestrates 8 skills, from hooked-ux to drive-motivation |
+| [improve-code-quality](https://skills.wondel.ai/skills/improve-code-quality/) | Guided journey: vibe-coded prototype → production-ready code | Orchestrates 9 skills, from working-with-legacy-code to ddia-systems |
+| [remove-technical-debt](https://skills.wondel.ai/skills/remove-technical-debt/) | Guided journey: pay down debt in place without stopping shipping | Orchestrates 8 skills, from working-with-legacy-code to domain-driven-design |
+| [design-code-architecture](https://skills.wondel.ai/skills/design-code-architecture/) | Guided journey: deliberate architecture for a new system | Orchestrates 8 skills, from clean-architecture to 37signals-way |
+| [conversion-optimization](https://skills.wondel.ai/skills/conversion-optimization/) | Guided journey: find, fix, and prove one leaking conversion flow | Orchestrates 6 skills, from lean-analytics to design-everyday-things |
+| [architecture-optimization](https://skills.wondel.ai/skills/architecture-optimization/) | Guided journey: make a working codebase measurably faster and cleaner | Orchestrates 8 skills, from working-with-legacy-code to pragmatic-programmer |
+
+> **Looking for real-world scenarios?** See [EXAMPLES.md](EXAMPLES.md) for 96 copy-pasteable prompts organized by persona (founders, PMs, marketers, designers, sales, copywriters, solopreneurs) — including one for each guided journey.
+
+---
+
+## Skill Details
+
+### [jobs-to-be-done](https://skills.wondel.ai/skills/jobs-to-be-done/)
+
+Strategic framework for discovering and designing product innovations. Customers don't buy products—they "hire" them to make progress in specific circumstances.
+
+**About the author:** [Clayton M. Christensen](https://x.com/claychristensen) (1952–2020) was a Harvard Business School professor widely regarded as one of the most influential business thinkers of our time. Named the world's most influential business thinker by Thinkers50 in 2011 and 2013, he developed the theory of "disruptive innovation" and authored nine books including *The Innovator's Dilemma*. Christensen co-founded Innosight (growth strategy consultancy), Rose Park Advisors (investment firm), and the Christensen Institute (non-profit think tank). His JTBD framework, detailed in [*"Competing Against Luck"*](https://www.amazon.com/Competing-Against-Luck-Innovation-Customer/dp/0062435612?tag=wondelai00-20), has been adopted by companies like Netflix, Intuit, and countless startups worldwide.
+
+**Use when you need to:**
+- Understand why customers really buy (or don't buy) your product
+- Design a new product or feature from scratch
+- Write customer discovery interview questions
+- Analyze competition beyond obvious product categories
+- Diagnose why a product isn't selling or customers are churning
+- Create positioning and messaging strategy
+- Reframe product metrics around customer progress
+- Understand why customers actually buy and what job they hire the product for
+
+**Example prompts:**
+- *"Help me write interview questions to discover the job our customers hire our app for. Use jobs-to-be-done skill."*
+- *"Our signup-to-active rate is 20%. Diagnose why users aren't completing the Little Hire. Use jobs-to-be-done skill."*
+- *"What jobs might compete with our meditation app that aren't other meditation apps? Use jobs-to-be-done skill."*
+- *"Write a job statement for someone buying a $3000 online course. Use jobs-to-be-done skill."*
+
+---
+
+### [cro-methodology](https://skills.wondel.ai/skills/cro-methodology/)
+
+Scientific, customer-centric approach to conversion rate optimization. Rejects "best practices" in favor of evidence-based testing—understand WHY visitors don't convert before changing anything.
+
+**About the authors:** [Dr. Karl Blanks](https://www.karlblanks.com/) and [Ben Jesson](https://www.ben-jesson.co.uk/) are co-founders of Conversion Rate Experts (CRE), the world's leading conversion rate optimization agency. They received the Queen's Award for Enterprise twice—first for Innovation (codifying the scientific methodology now used by companies like Amazon and Google), and again for International Trade. Their client list includes Google, Apple, Facebook, Amazon, Dropbox, and many other leading tech companies. Their methodology has generated billions in additional revenue. [*"Making Websites Win"*](https://www.amazon.com/Making-Websites-Win-Customer-Centric-Methodology/dp/1544500513?tag=wondelai00-20) became an Amazon #1 bestseller in 15 categories. All profits from the book are donated to the charity Mary's Meals.
+
+**Use when you need to:**
+- Audit a landing page or website for conversion issues
+- Identify why visitors aren't converting (objections vs. UX problems)
+- Write persuasive copy that addresses customer objections
+- Design A/B tests with bold hypotheses (not button color tests)
+- Find hidden "persuasion assets" you're not using
+- Map and optimize a conversion funnel
+- Create an objection/counter-objection framework
+- Increase signups or fix a checkout where people add to cart but don't buy
+
+**Example prompts:**
+- *"Audit this landing page and list the top 5 objections a visitor might have. Use cro-methodology skill."*
+- *"Create an O/CO (objection/counter-objection) table for our SaaS pricing page. Use cro-methodology skill."*
+- *"What persuasion assets are we missing on this page? (testimonials, guarantees, credentials). Use cro-methodology skill."*
+- *"Rewrite this headline to address the 'is this worth my time?' objection. Use cro-methodology skill."*
+
+---
+
+### [refactoring-ui](https://skills.wondel.ai/skills/refactoring-ui/)
+
+Practical, opinionated UI design system for developers. Design in grayscale first, add color last. Start with too much white space, then remove.
+
+**About the authors:** [Adam Wathan](https://x.com/adamwathan) is a full-stack developer and entrepreneur best known as the creator of Tailwind CSS, the utility-first CSS framework that has become one of the most popular styling tools in modern web development. [Steve Schoger](https://x.com/steveschoger) is a visual designer from Canada known for his practical design tips that went viral on Twitter, helping developers improve their UI skills. Together, they created [*"Refactoring UI"*](https://www.refactoringui.com/)—a book and video series teaching developers how to design beautiful interfaces without formal design training. Their collaboration bridges the gap between development and design, making good UI accessible to everyone who writes code.
+
+**Use when you need to:**
+- Make a UI "look less amateur" without a designer
+- Fix visual hierarchy problems (everything looks the same importance)
+- Choose a consistent spacing and typography scale
+- Build a color palette with proper shades and contrast
+- Add depth with shadows and layering
+- Review UI code for common design mistakes
+- Style components in Tailwind CSS
+- Fix a UI that looks off, amateur, or unprofessional and make it look polished
+
+**Example prompts:**
+- *"This dashboard looks cluttered. Fix the hierarchy. Use refactoring-ui skill."*
+- *"Generate a color palette with 9 shades for a warm, friendly SaaS app. Use refactoring-ui skill."*
+- *"Review this card component and suggest spacing/typography improvements. Use refactoring-ui skill."*
+- *"The text is hard to read. What's wrong with the contrast and line height? Use refactoring-ui skill."*
+- *"Convert this design to Tailwind classes. Use refactoring-ui skill."*
+
+---
+
+### [ios-hig-design](https://skills.wondel.ai/skills/ios-hig-design/)
+
+Design native iOS apps that feel intuitive and aligned with Apple's platform conventions. Covers layout, typography, navigation, gestures, colors, and accessibility.
+
+**About the source:** [Apple Inc.](https://x.com/Apple) has published Human Interface Guidelines since the original Macintosh in 1984, making it one of the oldest and most influential design documentation in computing history. The [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/) define the design language for iOS, macOS, watchOS, tvOS, and visionOS—covering everything from typography and color to navigation patterns and accessibility. Apple's design philosophy emphasizes clarity, deference, and depth, creating interfaces that feel intuitive to billions of users worldwide. The HIG is continuously updated and represents decades of research into human-computer interaction.
+
+**Use when you need to:**
+- Design iPhone or iPad app interfaces
+- Build SwiftUI or UIKit components that feel native
+- Validate if a design follows iOS conventions
+- Implement proper navigation patterns (tab bar, nav bar, modals)
+- Ensure accessibility (VoiceOver, Dynamic Type, contrast)
+- Handle safe areas, notch, and Dynamic Island correctly
+- Choose correct touch target sizes and spacing
+- Make an iPhone or iPad app feel native and follow Apple's guidelines
+
+**Example prompts:**
+- *"Review this SwiftUI view and check if it follows HIG guidelines. Use ios-hig-design skill."*
+- *"What's the correct navigation pattern for a settings screen with sub-pages? Use ios-hig-design skill."*
+- *"Add proper accessibility labels to these interactive elements. Use ios-hig-design skill."*
+- *"This design uses a hamburger menu. What's the iOS-native alternative? Use ios-hig-design skill."*
+- *"Generate the correct icon sizes for App Store submission. Use ios-hig-design skill."*
+
+---
+
+### [scorecard-marketing](https://skills.wondel.ai/skills/scorecard-marketing/)
+
+Lead generation system using interactive quiz/assessment funnels. Converts 30-50% vs 3-10% for traditional PDF lead magnets by creating psychological tension and self-qualification.
+
+**About the author:** [Daniel Priestley](https://x.com/DanielPriestley) is a serial entrepreneur who has built and sold multiple businesses. He founded Dent Global, one of the world's leading business accelerators for entrepreneurs, and co-founded ScoreApp, a marketing software platform serving over 150,000 businesses globally. Priestley has won major business awards and authored seven books on entrepreneurship, including bestsellers *Key Person of Influence*, *Entrepreneur Revolution*, *Oversubscribed*, and *24 Assets*. [*"Scorecard Marketing"*](https://www.amazon.com/Scorecard-Marketing-four-step-playbook-getting/dp/1781337195?tag=wondelai00-20), co-authored with Glen Carlson, distills the methodology that powers ScoreApp into a practical playbook for generating qualified leads at scale.
+
+**Use when you need to:**
+- Create a lead magnet that actually converts
+- Build a quiz funnel landing page
+- Design assessment questions that qualify leads
+- Write dynamic results content based on score tiers
+- Set up automated follow-up sequences by segment
+- Generate scorecard concepts for any industry
+- Build a quiz or assessment that captures and qualifies leads
+
+**Example prompts:**
+- *"Create a scorecard concept for a B2B accounting software company. Use scorecard-marketing skill."*
+- *"Write 15 assessment questions for a 'Marketing Maturity' scorecard with 5 categories. Use scorecard-marketing skill."*
+- *"Generate landing page copy for a 'Are You Ready to Scale?' quiz using the 3 Cs formula. Use scorecard-marketing skill."*
+- *"Write dynamic results page content for Low/Medium/High scoring tiers. Use scorecard-marketing skill."*
+- *"What follow-up email sequence should we send based on scorecard results? Use scorecard-marketing skill."*
+
+---
+
+### [storybrand-messaging](https://skills.wondel.ai/skills/storybrand-messaging/)
+
+StoryBrand framework for clarifying your message so customers will listen. Positions your customer as the hero and your brand as the guide in a story structure that resonates.
+
+**About the author:** [Donald Miller](https://x.com/donlonemiller) is the CEO of StoryBrand, a company that has helped more than 10,000 businesses clarify their messaging. His StoryBrand Framework is used by brands ranging from small startups to Fortune 500 companies. Miller is a New York Times bestselling author and popular keynote speaker. [*"Building a StoryBrand"*](https://www.amazon.com/Building-StoryBrand-Clarify-Message-Customers/dp/0718033329?tag=wondelai00-20) has become one of the most influential marketing books of the past decade, teaching the 7-part framework that transforms confusing messaging into clear, compelling communication.
+
+**Use when you need to:**
+- Clarify your brand message so customers understand it instantly
+- Write website copy that converts visitors to customers
+- Create one-liners and elevator pitches
+- Build landing pages with narrative structure
+- Position your customer as the hero (not your brand)
+- Diagnose why your current messaging isn't resonating
+- Develop a brand script for consistent communication
+- Rewrite confusing homepage copy so the customer is the hero
+
+**Example prompts:**
+- *"Create a StoryBrand brand script for my SaaS project management tool. Use storybrand-messaging skill."*
+- *"Write a one-liner for our accounting firm. Use storybrand-messaging skill."*
+- *"Audit this homepage copy—is the customer positioned as the hero? Use storybrand-messaging skill."*
+- *"What's the internal problem our customers face beyond the external one? Use storybrand-messaging skill."*
+- *"Generate a 3-step plan section for our services page. Use storybrand-messaging skill."*
+
+---
+
+### [hooked-ux](https://skills.wondel.ai/skills/hooked-ux/)
+
+Hook Model framework for building habit-forming products. The four-phase process (Trigger → Action → Variable Reward → Investment) that connects users to your product through successive cycles.
+
+**About the author:** [Nir Eyal](https://x.com/naboreeyal) is an author, lecturer, and investor who writes about the intersection of psychology, technology, and business. He previously taught at Stanford Graduate School of Business and has worked in the video gaming and advertising industries. [*"Hooked: How to Build Habit-Forming Products"*](https://www.amazon.com/Hooked-How-Build-Habit-Forming-Products/dp/1591847788?tag=wondelai00-20) has become essential reading for product designers and entrepreneurs, providing a practical framework for creating products that users return to repeatedly. His work has influenced product design at companies from startups to Fortune 500.
+
+**Use when you need to:**
+- Increase user engagement and retention
+- Design habit loops in your product
+- Audit why users aren't returning
+- Create effective triggers and notifications
+- Design variable reward systems
+- Increase investment and switching costs
+- Evaluate the ethics of your engagement tactics
+- Optimize onboarding for habit formation
+- Build a habit loop so users come back instead of churning after signup
+
+**Example prompts:**
+- *"What's the internal trigger for our meditation app? Use hooked-ux skill."*
+- *"Design a variable reward system for our fitness tracking app. Use hooked-ux skill."*
+- *"Audit our onboarding—does it complete the full Hook cycle? Use hooked-ux skill."*
+- *"How can we increase investment in our note-taking app to improve retention? Use hooked-ux skill."*
+- *"Are we in the Habit Zone? Analyze our usage frequency vs. perceived value. Use hooked-ux skill."*
+
+---
+
+### [improve-retention](https://skills.wondel.ai/skills/improve-retention/)
+
+Behavior design framework for diagnosing and fixing retention problems. Uses BJ Fogg's B=MAP model (Behavior = Motivation + Ability + Prompt) to systematically identify why users aren't completing key actions and design behaviors that stick.
+
+**About the author:** [BJ Fogg, PhD](https://x.com/bjfogg) is the founder of the Behavior Design Lab at Stanford University, where he has directed research on behavior change since 1998. He created the Fogg Behavior Model (B=MAP), which has become the foundational framework used by product designers, health researchers, and behavior change professionals worldwide. Fogg coined the term "behavior design" and has trained thousands of innovators in his methods, including the founders of Instagram. [*"Tiny Habits: The Small Changes That Change Everything"*](https://www.amazon.com/Tiny-Habits-Small-Changes-Everything/dp/0358003326?tag=wondelai00-20) distills two decades of research into a practical system for behavior change.
+
+**Use when you need to:**
+- Diagnose why users aren't completing key actions
+- Reduce friction using the Ability Chain (6 simplicity factors)
+- Design effective prompts and notifications
+- Create tiny behaviors that compound into retention
+- Audit motivation-ability mismatches
+- Design onboarding that builds lasting habits
+- Apply B=MAP to improve activation and retention metrics
+- Fix a product where people sign up but don't stick around
+
+**Example prompts:**
+- *"Our Day-7 retention is 20%. Diagnose using B=MAP — is it a motivation, ability, or prompt problem? Use improve-retention skill."*
+- *"Run a friction audit on our onboarding flow using the Ability Chain. Use improve-retention skill."*
+- *"Design a Tiny Habits recipe for our core daily action. Use improve-retention skill."*
+- *"Our push notifications have low click-through rates. Are we prompting below the Action Line? Use improve-retention skill."*
+- *"Why do users sign up but never complete their first project? Use improve-retention skill."*
+
+---
+
+### [ux-heuristics](https://skills.wondel.ai/skills/ux-heuristics/)
+
+Usability heuristics and evaluation principles combining Steve Krug's practical "Don't Make Me Think" approach with Jakob Nielsen's 10 heuristics for systematic interface evaluation.
+
+**About the sources:** [Steve Krug](https://x.com/skrug) is a usability consultant whose book [*"Don't Make Me Think"*](https://www.amazon.com/Dont-Make-Think-Revisited-Usability/dp/0321965515?tag=wondelai00-20) has been the go-to guide for web usability since 2000, selling over 600,000 copies. His common-sense approach has influenced a generation of designers. [Jakob Nielsen](https://x.com/nngroup), co-founder of Nielsen Norman Group, is often called "the king of usability." His [10 Usability Heuristics](https://www.nngroup.com/articles/ten-usability-heuristics/), published in 1994, remain the most-used framework for evaluating interface usability worldwide.
+
+**Use when you need to:**
+- Audit a UI for usability problems
+- Identify why users are confused or frustrated
+- Simplify navigation and information architecture
+- Conduct heuristic evaluations
+- Prioritize UX fixes by severity
+- Review designs before development
+- Improve form usability
+- Validate that interfaces follow established UX principles
+- Check whether something is easy to use and find concrete usability problems
+
+**Example prompts:**
+- *"Run a heuristic evaluation on this checkout flow. Use ux-heuristics skill."*
+- *"Apply the Trunk Test to this homepage—can users answer the 6 key questions? Use ux-heuristics skill."*
+- *"Rate the severity of these usability issues from 0-4. Use ux-heuristics skill."*
+- *"What UX heuristics is this error message violating? Use ux-heuristics skill."*
+- *"Audit this form for usability issues and suggest fixes. Use ux-heuristics skill."*
+
+---
+
+### [web-typography](https://skills.wondel.ai/skills/web-typography/)
+
+Web typography principles for choosing, pairing, and implementing typefaces. Typography serves communication—the best typography is invisible, immersing readers in content rather than calling attention to itself.
+
+**About the author:** [Jason Santa Maria](https://x.com/jasonsantamaria) is a graphic designer, author, and educator whose work focuses on the intersection of design and technology. He has worked with clients including The New York Times, AIGA, and Happy Cog. Santa Maria was Creative Director at Typekit (now Adobe Fonts) and co-founded A Book Apart, the influential publisher of books for web professionals. He teaches at the School of Visual Arts in New York. [*"On Web Typography"*](https://www.amazon.com/Web-Typography-Jason-Santa-Maria/dp/1937557065?tag=wondelai00-20), published by A Book Apart in 2014, distills his expertise into a practical guide for choosing, evaluating, and implementing type on the web.
+
+**Use when you need to:**
+- Select typefaces for body text, headlines, and UI
+- Evaluate typeface quality for screen readability
+- Pair fonts that work together (or decide to use just one)
+- Set optimal line length, line height, and font size
+- Implement responsive typography with CSS
+- Build type hierarchies that guide readers
+- Optimize web font loading for performance
+- Choose a font and improve readability when text is hard to read
+
+**Example prompts:**
+- *"Recommend a typeface pairing for a legal services website. Use web-typography skill."*
+- *"Evaluate if this Google Font is suitable for long-form reading. Use web-typography skill."*
+- *"Set up a fluid type scale using clamp() for responsive typography. Use web-typography skill."*
+- *"What's wrong with the typography on this blog post? The text feels hard to read. Use web-typography skill."*
+- *"Create CSS for optimal body text: font-size, line-height, and max-width. Use web-typography skill."*
+
+---
+
+### [top-design](https://skills.wondel.ai/skills/top-design/)
+
+Create award-winning websites and applications with design and typography rated 10/10. Build premium digital experiences that match the quality of elite agencies like Locomotive, Studio Freight, AREA 17, Active Theory, Hello Monday, and Awwwards winners.
+
+**About the source:** This skill synthesizes techniques from the world's top digital agencies—studios that consistently win FWA, Awwwards, CSS Design Awards, and Webby Awards. Every pixel is intentional, typography is architecture, motion creates emotion, and performance is non-negotiable.
+
+**Use when you need to:**
+- Build premium portfolio sites, brand websites, or agency-level experiences
+- Create immersive web experiences with custom animations
+- Implement exceptional typography with dramatic scale contrast
+- Design scroll-based compositions with purposeful motion
+- Match the quality of Awwwards-winning sites
+- Give a site a wow factor and make it genuinely impressive
+
+**Example prompts:**
+- *"Build a portfolio site at the level of Studio Freight or Locomotive. Use top-design skill."*
+- *"Create an immersive hero section with award-winning typography. Use top-design skill."*
+- *"Design a scroll-based experience for a luxury brand. Use top-design skill."*
+- *"Review this website against top agency standards. Use top-design skill."*
+- *"Add custom animations that feel like an Awwwards winner. Use top-design skill."*
+
+---
+
+### [negotiation](https://skills.wondel.ai/skills/negotiation/)
+
+Tactical empathy-based negotiation framework from FBI hostage negotiator Chris Voss. Master techniques like mirroring, labeling, calibrated questions, and the Ackerman bargaining method to navigate high-stakes conversations.
+
+**About the author:** [Chris Voss](https://x.com/VossNegotiation) is a former FBI hostage negotiator who served as the lead international kidnapping negotiator for the FBI. During his 24-year career, he was trained in the art of negotiation by the FBI, Scotland Yard, and Harvard Law School. Voss has taught negotiation at Harvard, Georgetown, MIT, and USC. He founded The Black Swan Group, a consulting firm that trains Fortune 500 companies, including Microsoft, Google, and Cisco. [*"Never Split the Difference: Negotiating As If Your Life Depended On It"*](https://www.amazon.com/Never-Split-Difference-Negotiating-Depended/dp/0062407805?tag=wondelai00-20), co-authored with Tahl Raz, became a Wall Street Journal bestseller and has transformed how people negotiate in business, salary discussions, and everyday life.
+
+**Use when you need to:**
+- Prepare for salary or contract negotiations
+- Handle difficult conversations with stakeholders
+- Craft responses to unreasonable demands
+- Analyze counterpart behavior and motivations
+- Navigate vendor or partnership negotiations
+- De-escalate tense situations
+- Build rapport in adversarial settings
+- Close deals without compromising your position
+- Ask for a raise or get a better deal when the other side won't budge
+
+**Example prompts:**
+- *"I'm negotiating a 20% raise. Help me prepare using the Ackerman method. Use negotiation skill."*
+- *"My client said 'that's not fair.' How do I respond? Use negotiation skill."*
+- *"Write calibrated questions to uncover why the vendor won't budge on price. Use negotiation skill."*
+- *"Draft an accusation audit for a meeting where they think we've been unresponsive. Use negotiation skill."*
+- *"How do I get them to say 'That's right' about our proposal? Use negotiation skill."*
+- *"The other party has gone silent. What's my re-engagement strategy? Use negotiation skill."*
+
+---
+
+### [influence-psychology](https://skills.wondel.ai/skills/influence-psychology/)
+
+Persuasion science framework applying Robert Cialdini's seven universal principles of influence (Reciprocity, Commitment & Consistency, Social Proof, Authority, Liking, Scarcity, Unity) to product design, marketing, and communication.
+
+**About the author:** [Robert B. Cialdini, PhD](https://x.com/RobertCialdini) is Regents' Professor Emeritus of Psychology and Marketing at Arizona State University. His research on the psychology of influence has been published extensively and cited across disciplines. [*"Influence: The Psychology of Persuasion"*](https://www.amazon.com/Influence-Psychology-Persuasion-Robert-Cialdini/dp/006124189X?tag=wondelai00-20) has sold over 5 million copies worldwide and is considered the foundational text on persuasion science. Cialdini has consulted for Fortune 500 companies, government agencies, and nonprofits on ethical influence strategies.
+
+**Use when you need to:**
+- Design features that leverage social proof
+- Write persuasive copy and messaging
+- Analyze why users take (or don't take) actions
+- Create onboarding flows using commitment/consistency
+- Design referral programs using reciprocity
+- Audit for ethical persuasion
+- Apply influence psychology to product, marketing, or sales
+- Make copy more persuasive and build trust so more people say yes
+
+**Example prompts:**
+- *"Audit this landing page for Cialdini's influence principles. Which are missing? Use influence-psychology skill."*
+- *"Design a referral program using reciprocity and social proof. Use influence-psychology skill."*
+- *"How can we use commitment/consistency in our onboarding flow? Use influence-psychology skill."*
+- *"Is this scarcity tactic ethical? Review against the ethical checklist. Use influence-psychology skill."*
+
+---
+
+### [lean-startup](https://skills.wondel.ai/skills/lean-startup/)
+
+Build-Measure-Learn methodology for startups and new products. Test assumptions with MVPs, measure with actionable metrics, and decide when to pivot or persevere.
+
+**About the author:** [Eric Ries](https://x.com/ericries) is an entrepreneur and author who co-founded IMVU, where he pioneered continuous deployment and customer development practices that became the foundation of Lean Startup. [*"The Lean Startup"*](https://www.amazon.com/Lean-Startup-Entrepreneurs-Continuous-Innovation/dp/0307887898?tag=wondelai00-20) has been translated into over 30 languages and has influenced startup culture worldwide. Ries is also the creator of the Long-Term Stock Exchange (LTSE).
+
+**Use when you need to:**
+- Design MVP scope for new product ideas
+- Define validated learning experiments
+- Create innovation accounting frameworks
+- Decide when to pivot vs. persevere
+- Set up actionable metrics vs. vanity metrics
+- Reduce product development waste
+- Apply scientific method to entrepreneurship
+- Decide whether to pivot and test a business idea with the smallest version first
+
+**Example prompts:**
+- *"What's the smallest MVP we can build to test our riskiest assumption? Use lean-startup skill."*
+- *"Are these vanity metrics or actionable metrics? Evaluate our dashboard. Use lean-startup skill."*
+- *"Should we pivot or persevere? Here's our data from the last 3 months. Use lean-startup skill."*
+- *"Design a smoke test to validate demand before we build anything. Use lean-startup skill."*
+
+---
+
+### [design-sprint](https://skills.wondel.ai/skills/design-sprint/)
+
+Google Ventures' 5-day process for answering critical business questions through design, prototyping, and testing with real users.
+
+**About the author:** [Jake Knapp](https://x.com/jakek) created the Design Sprint process while at Google, where he ran sprints on products like Gmail, Chrome, and Google X. As a design partner at Google Ventures (GV), he refined the process by running over 100 sprints with startups. [*"Sprint"*](https://www.amazon.com/Sprint-Solve-Problems-Test-Ideas/dp/150112174X?tag=wondelai00-20) is now used by teams at Google, Slack, Airbnb, LEGO, and thousands of companies worldwide.
+
+**Use when you need to:**
+- Validate product ideas in 5 days instead of months
+- Rapidly prototype and test solutions
+- Align teams on product direction
+- De-risk product development before building
+- Make fast strategic decisions through structured process
+- Decide whether to build something by validating it fast before investing
+
+**Example prompts:**
+- *"Plan a 5-day design sprint for our new checkout flow. Use design-sprint skill."*
+- *"Create Monday mapping exercises for our sprint. Use design-sprint skill."*
+- *"Write a Friday interview script for testing our prototype. Use design-sprint skill."*
+- *"How do I run a design sprint with a remote team? Use design-sprint skill."*
+
+---
+
+### [crossing-the-chasm](https://skills.wondel.ai/skills/crossing-the-chasm/)
+
+Strategic framework for marketing and selling disruptive technology products, focusing on the critical transition from early adopters to mainstream customers.
+
+**About the author:** [Geoffrey A. Moore](https://x.com/geoffreyamoore) is a consultant, venture partner, and author focused on disruptive innovation and market development. [*"Crossing the Chasm"*](https://www.amazon.com/Crossing-Chasm-3rd-Disruptive-Mainstream/dp/0062292986?tag=wondelai00-20) has sold over 1 million copies and is required reading at many business schools and tech companies. Moore serves on the boards of several technology companies and advises Fortune 500 firms on technology adoption.
+
+**Use when you need to:**
+- Identify where your product is in the adoption lifecycle
+- Choose a beachhead market segment
+- Build a "whole product" solution for mainstream buyers
+- Position against incumbent competition
+- Transition from early adopters to mainstream market
+- Develop B2B tech marketing strategy
+- Restart growth that stalled after early adopters and reach mainstream buyers
+
+**Example prompts:**
+- *"Where is our product in the Technology Adoption Life Cycle? Use crossing-the-chasm skill."*
+- *"Help us choose a beachhead market segment. Here are our current customers. Use crossing-the-chasm skill."*
+- *"What's missing from our whole product? Use crossing-the-chasm skill."*
+- *"Rewrite our positioning for pragmatist buyers. Use crossing-the-chasm skill."*
+
+---
+
+### [blue-ocean-strategy](https://skills.wondel.ai/skills/blue-ocean-strategy/)
+
+Create uncontested market space using value innovation. Use the Strategy Canvas, Four Actions Framework (ERRC), and Six Paths to find blue oceans where competition is irrelevant.
+
+**About the authors:** **W. Chan Kim** and **Renée Mauborgne** are professors of strategy at INSEAD and co-directors of the INSEAD Blue Ocean Strategy Institute. [*"Blue Ocean Strategy"*](https://www.amazon.com/Blue-Ocean-Strategy-Expanded-Uncontested/dp/1625274491?tag=wondelai00-20) has sold over 4 million copies, been translated into 46 languages, and is one of the best-selling business books of all time.
+
+**Use when you need to:**
+- Analyze competitive landscape (red vs. blue oceans)
+- Create strategy canvas mapping competition
+- Use Four Actions Framework (Eliminate-Reduce-Raise-Create)
+- Design value innovation propositions
+- Identify non-customers and convert them
+- Break the value-cost trade-off
+- Escape a crowded market or price war and stand out instead of competing head-to-head
+
+**Example prompts:**
+- *"Create a strategy canvas for our market. Here are the competing factors. Use blue-ocean-strategy skill."*
+- *"Apply the ERRC grid to our product. What should we eliminate, reduce, raise, create? Use blue-ocean-strategy skill."*
+- *"Who are the three tiers of non-customers for our product? Use blue-ocean-strategy skill."*
+- *"Use the Six Paths Framework to find blue ocean opportunities in our industry. Use blue-ocean-strategy skill."*
+
+---
+
+### [traction-eos](https://skills.wondel.ai/skills/traction-eos/)
+
+Complete Entrepreneurial Operating System (EOS) for running a business. Covers Vision/Traction Organizer, quarterly Rocks, Level 10 Meetings, Scorecard, Accountability Chart, and IDS process.
+
+**About the author:** [Gino Wickman](https://x.com/ginowickman) is the creator of EOS and founder of EOS Worldwide. [*"Traction"*](https://www.amazon.com/Traction-Get-Grip-Your-Business/dp/1936661837?tag=wondelai00-20) has sold over 2 million copies and EOS is used by over 250,000 companies worldwide. His work focuses on the practical tools needed to run an entrepreneurial company.
+
+**Use when you need to:**
+- Implement a complete business operating system
+- Create a Vision/Traction Organizer (V/TO)
+- Set quarterly rocks (priorities)
+- Run Level 10 meetings
+- Build accountability charts
+- Solve issues using IDS (Identify-Discuss-Solve)
+- Bring order to a chaotic company that keeps having the same problems
+
+**Example prompts:**
+- *"Help us create a V/TO for our startup. Use traction-eos skill."*
+- *"Write 5 SMART rocks for Q2 based on our 1-year plan. Use traction-eos skill."*
+- *"Create a Level 10 meeting agenda and facilitation guide. Use traction-eos skill."*
+- *"Run the People Analyzer on this role—right person, right seat? Use traction-eos skill."*
+
+---
+
+### [design-everyday-things](https://skills.wondel.ai/skills/design-everyday-things/)
+
+Foundational design principles: affordances, signifiers, mappings, constraints, feedback, and conceptual models. The "bible of UX" for creating intuitive, discoverable products.
+
+**About the author:** [Don Norman, PhD](https://x.com/jabornik) is co-founder of the Nielsen Norman Group and coined the term "user experience" while at Apple. [*"The Design of Everyday Things"*](https://www.amazon.com/Design-Everyday-Things-Revised-Expanded/dp/0465050654?tag=wondelai00-20) (originally 1988, revised 2013) is considered the most influential design book ever written and is required reading in virtually every design program worldwide.
+
+**Use when you need to:**
+- Design affordances and signifiers into interfaces
+- Analyze why products are confusing (conceptual model mismatch)
+- Apply constraints to prevent errors
+- Design clear feedback mechanisms
+- Bridge gulfs of execution and evaluation
+- Understand why users make errors and design fault-tolerant systems
+- Figure out why users keep making mistakes or find something unintuitive
+
+**Example prompts:**
+- *"Audit this form for missing affordances and signifiers. Use design-everyday-things skill."*
+- *"Why do users keep making this error? Analyze using Norman's error types. Use design-everyday-things skill."*
+- *"Walk through the seven stages of action for this checkout flow. Use design-everyday-things skill."*
+- *"What constraints can we add to prevent this mistake? Use design-everyday-things skill."*
+
+---
+
+### [predictable-revenue](https://skills.wondel.ai/skills/predictable-revenue/)
+
+Outbound sales process and Cold Calling 2.0 methodology. Build a scalable sales machine with role specialization (SDR/AE/CSM) and predictable pipeline generation.
+
+**About the author:** [Aaron Ross](https://x.com/motoceo) built the outbound sales process at Salesforce.com that added $100M+ in recurring revenue. [*"Predictable Revenue"*](https://www.amazon.com/Predictable-Revenue-Business-Practices-Salesforce-com/dp/0984380213?tag=wondelai00-20) is known as "The Bible of Outbound Sales" and has influenced an entire generation of SaaS sales organizations.
+
+**Use when you need to:**
+- Build a scalable outbound sales process
+- Implement Cold Calling 2.0 email sequences
+- Structure sales team roles (SDR/AE/CSM)
+- Design lead qualification frameworks
+- Scale B2B SaaS sales predictably
+- Calculate pipeline math and capacity planning
+- Build an outbound sales team and fill a pipeline with cold outreach that works
+
+**Example prompts:**
+- *"Design a Cold Calling 2.0 email sequence for our B2B SaaS product. Use predictable-revenue skill."*
+- *"Calculate pipeline math: how many SDRs do we need to hit $2M ARR? Use predictable-revenue skill."*
+- *"Create an ANUM qualification framework for our sales team. Use predictable-revenue skill."*
+- *"Structure our sales team: when should we hire SDRs vs. AEs? Use predictable-revenue skill."*
+
+---
+
+### [made-to-stick](https://skills.wondel.ai/skills/made-to-stick/)
+
+SUCCESs framework for creating memorable, impactful messaging. Make ideas stick using Simple, Unexpected, Concrete, Credible, Emotional, Stories principles.
+
+**About the authors:** [Chip Heath](https://x.com/chipheath) is a professor at Stanford Graduate School of Business, and **Dan Heath** is a senior fellow at Duke University's CASE center. [*"Made to Stick"*](https://www.amazon.com/Made-Stick-Ideas-Survive-Others/dp/1400064287?tag=wondelai00-20) spent over 2 years on the New York Times bestseller list. The SUCCESs framework is used by educators, marketers, nonprofits, and product teams worldwide.
+
+**Use when you need to:**
+- Make product messaging more memorable
+- Write sticky taglines and value propositions
+- Create compelling product demos and presentations
+- Design memorable onboarding experiences
+- Craft internal communications that stick
+- Diagnose why messaging isn't resonating
+- Make a message memorable when people keep forgetting the pitch
+
+**Example prompts:**
+- *"Score this landing page copy on the SUCCESs framework. Use made-to-stick skill."*
+- *"Rewrite this value proposition to be stickier. Use made-to-stick skill."*
+- *"Our product demo is forgettable. Make it surprising and concrete. Use made-to-stick skill."*
+- *"Create a Commander's Intent for our product's core message. Use made-to-stick skill."*
+
+---
+
+### [drive-motivation](https://skills.wondel.ai/skills/drive-motivation/)
+
+Intrinsic motivation science: Autonomy, Mastery, Purpose (AMP). Design products, features, and teams that tap into what truly motivates people — replacing carrot-and-stick with lasting engagement.
+
+**About the author:** [Daniel H. Pink](https://x.com/DanielPink) is the author of seven books including four New York Times bestsellers. [*"Drive"*](https://www.amazon.com/Drive-Surprising-Truth-About-Motivates/dp/1594484805?tag=wondelai00-20) has been translated into over 40 languages and fundamentally changed how organizations think about motivation. Pink's TED Talk on the science of motivation has over 45 million views.
+
+**Use when you need to:**
+- Design features that leverage intrinsic motivation
+- Create progress systems that support mastery
+- Craft purpose-driven messaging and missions
+- Audit if product mechanics undermine autonomy
+- Design team structures and incentives with AMP principles
+- Understand why gamification fails
+- Replace carrot-and-stick approaches with intrinsic motivation
+- Re-engage a disengaged team when rewards and incentives aren't working
+
+**Example prompts:**
+- *"Audit our gamification system—is it intrinsic or extrinsic motivation? Use drive-motivation skill."*
+- *"How can we add mastery progression to our learning platform? Use drive-motivation skill."*
+- *"Our users disengage after the first week. Diagnose using AMP. Use drive-motivation skill."*
+- *"Design team incentives that support autonomy instead of controlling behavior. Use drive-motivation skill."*
+
+---
+
+### [hundred-million-offers](https://skills.wondel.ai/skills/hundred-million-offers/)
+
+Grand Slam Offer creation framework for building offers so good people feel stupid saying no. Covers the Value Equation, value-based pricing, bonus stacking, guarantees, scarcity, urgency, and the MAGIC naming formula.
+
+**About the author:** [Alex Hormozi](https://x.com/AlexHormozi) is an entrepreneur, investor, and author who has built and scaled multiple businesses generating over $100M in revenue. He is the founder of Acquisition.com, a portfolio of companies that generates over $200M per year. Hormozi's companies span SaaS, brick-and-mortar, e-commerce, and service businesses. [*"$100M Offers: How To Make Offers So Good People Feel Stupid Saying No"*](https://www.amazon.com/100M-Offers-People-Cant-Refuse/dp/1737475731?tag=wondelai00-20) became a Wall Street Journal bestseller and has helped thousands of entrepreneurs restructure their pricing and packaging. His follow-up, *$100M Leads*, covers customer acquisition.
+
+**Use when you need to:**
+- Create an irresistible offer using the Value Equation
+- Design Grand Slam Offers with bonuses, guarantees, and scarcity
+- Find your starving crowd and ideal market
+- Implement value-based pricing with a 10:1 value-to-price ratio
+- Stack bonuses that multiply perceived value
+- Design risk-reversing guarantees
+- Apply ethical scarcity and urgency
+- Name your offer using the MAGIC formula
+- Make an offer so compelling people stop saying it's too expensive
+
+**Example prompts:**
+- *"Redesign our SaaS pricing using the Value Equation. Use hundred-million-offers skill."*
+- *"Create a Grand Slam Offer for our coaching program with bonuses and guarantees. Use hundred-million-offers skill."*
+- *"What bonuses should we stack to increase perceived value of our $997 course? Use hundred-million-offers skill."*
+- *"Name our new offer using the MAGIC formula. Use hundred-million-offers skill."*
+- *"Audit our current offer—where is it losing value on the Value Equation? Use hundred-million-offers skill."*
+
+---
+
+### [obviously-awesome](https://skills.wondel.ai/skills/obviously-awesome/)
+
+Product positioning framework for defining how your product wins in customers' minds. Covers competitive alternatives, unique attributes, value mapping, target customers, and market category selection.
+
+**About the author:** [April Dunford](https://x.com/aprildunford) is the world's leading authority on product positioning. She is a consultant, speaker, and author who has launched 16 products across her career at companies including IBM, Nortel, and Siebel Systems. Dunford has advised hundreds of companies—from startups to Fortune 500—on positioning strategy. [*"Obviously Awesome: How to Nail Product Positioning so Customers Get It, Buy It, Love It"*](https://www.amazon.com/Obviously-Awesome-Product-Positioning-Customers/dp/1999023005?tag=wondelai00-20) is the definitive guide to product positioning, used by product teams, marketers, and founders worldwide. Her follow-up, *Sales Pitch*, extends the positioning framework into sales conversations.
+
+**Use when you need to:**
+- Define what makes your product different from competitive alternatives
+- Identify your unique attributes and map them to customer value
+- Find your best-fit target customers
+- Choose the right market category (existing, subcategory, or new)
+- Create a positioning canvas for team alignment
+- Run a team positioning workshop
+- Diagnose why your product messaging isn't resonating
+- Fix positioning when prospects don't understand what you do or which category you're in
+
+**Example prompts:**
+- *"Help us identify the real competitive alternatives for our project management tool. Use obviously-awesome skill."*
+- *"Map our unique attributes to customer value themes using the 'So what?' test. Use obviously-awesome skill."*
+- *"Should we position in an existing category, create a subcategory, or define a new one? Use obviously-awesome skill."*
+- *"Create a positioning canvas for our B2B analytics product. Use obviously-awesome skill."*
+- *"Facilitate a positioning exercise for our team. Use obviously-awesome skill."*
+
+---
+
+### [contagious](https://skills.wondel.ai/skills/contagious/)
+
+Word-of-mouth and virality framework using the STEPPS model (Social Currency, Triggers, Emotion, Public, Practical Value, Stories). Engineer sharing into your products, content, and campaigns.
+
+**About the author:** [Jonah Berger](https://x.com/j1berger) is a marketing professor at the Wharton School at the University of Pennsylvania. His research on social influence, word of mouth, and viral marketing has been published in top academic journals and popular outlets. [*"Contagious: Why Things Catch On"*](https://www.amazon.com/Contagious-Things-Catch-Jonah-Berger/dp/1451686587?tag=wondelai00-20) became a New York Times and Wall Street Journal bestseller and has been translated into over 35 languages. Berger has consulted for companies including Google, Apple, Nike, and the Gates Foundation on making products and ideas spread.
+
+**Use when you need to:**
+- Engineer word-of-mouth for product launches
+- Design features that people naturally share
+- Create content that goes viral
+- Build social currency into your product
+- Design environmental triggers that keep your brand top-of-mind
+- Craft high-arousal emotional content
+- Make your product publicly visible and imitable
+- Get people to share something when nobody is sharing it yet
+
+**Example prompts:**
+- *"Audit our product launch plan using the STEPPS framework. Which principles are we missing? Use contagious skill."*
+- *"How can we build social currency into our fitness app so users brag about it? Use contagious skill."*
+- *"Design environmental triggers that link our productivity tool to daily habits. Use contagious skill."*
+- *"Is our content high-arousal or low-arousal? Audit for shareability. Use contagious skill."*
+- *"Create a Trojan Horse story for our brand that people can't retell without mentioning us. Use contagious skill."*
+
+---
+
+### [one-page-marketing](https://skills.wondel.ai/skills/one-page-marketing/)
+
+Complete end-to-end marketing plan on a single page using Allan Dib's 9-square grid. Covers the full customer journey from prospect to raving fan across three phases: Before (target market, message, media), During (capture, nurture, convert), and After (experience, lifetime value, referrals).
+
+**About the author:** [Allan Dib](https://x.com/successwise) is a serial entrepreneur, rebellious marketer, and technology expert who has started, grown, and successfully exited multiple businesses in various industries. He is the founder of Successwise, a business coaching and education company. [*"The 1-Page Marketing Plan: Get New Customers, Make More Money, And Stand Out From The Crowd"*](https://www.amazon.com/1-Page-Marketing-Plan-Customers-Money/dp/1989025013?tag=wondelai00-20) is an international bestseller that has been translated into numerous languages and has helped hundreds of thousands of business owners create a simple, actionable marketing plan. His follow-up, *Lean Marketing*, applies lean principles to marketing execution.
+
+**Use when you need to:**
+- Create a complete marketing plan from scratch
+- Define your target market using the PVP Index
+- Craft a compelling USP and messaging
+- Choose the right advertising media and channels
+- Design lead capture systems and magnets
+- Build lead nurture email sequences
+- Optimize sales conversion
+- Create world-class customer experiences
+- Increase customer lifetime value
+- Build referral and advocacy systems
+- Build a marketing plan from scratch when you don't know where to start
+
+**Example prompts:**
+- *"Create a 1-page marketing plan for our B2B SaaS product. Use one-page-marketing skill."*
+- *"Help me define my target market using the PVP Index. Use one-page-marketing skill."*
+- *"Design a lead magnet and capture system for our consulting firm. Use one-page-marketing skill."*
+- *"What's our ascension model? Map the customer journey from first touch to premium tier. Use one-page-marketing skill."*
+- *"Build a referral system that generates word-of-mouth consistently. Use one-page-marketing skill."*
+
+---
+
+### [mom-test](https://skills.wondel.ai/skills/mom-test/)
+
+Customer interview framework that teaches you to talk about customers' lives instead of your idea. The three rules: talk about their life not your idea, ask about specifics in the past, and talk less.
+
+**About the author:** [Rob Fitzpatrick](https://x.com/robfitz) is an entrepreneur, author, and educator. [*"The Mom Test"*](https://www.amazon.com/Mom-Test-customers-business-everyone/dp/1492180742?tag=wondelai00-20) has become the go-to guide for customer development conversations and is used by accelerators, VCs, and startup programs worldwide.
+
+**Use when you need to:**
+- Write customer interview questions that don't lead
+- Validate a business idea without pitching
+- Identify if users are giving you compliments instead of commitments
+- Process and share learnings from customer conversations
+- Distinguish real demand from polite encouragement
+- Run customer interviews without leading them or asking biased questions
+
+**Example prompts:**
+- *"Help me write interview questions for our B2B SaaS idea without leading the witness. Use mom-test skill."*
+- *"I keep hearing 'that's a great idea' but nobody buys. Diagnose my conversations. Use mom-test skill."*
+- *"What commitment should I ask for at the end of this customer call? Use mom-test skill."*
+
+---
+
+### [inspired-product](https://skills.wondel.ai/skills/inspired-product/)
+
+Build empowered product teams using discovery and delivery dual-track. Replace feature factories with teams that discover solutions customers love, that work for the business.
+
+**About the author:** [Marty Cagan](https://x.com/caborez) is the founder of Silicon Valley Product Group (SVPG) and a former product executive at eBay, Netscape, and HP. [*"Inspired"*](https://www.amazon.com/INSPIRED-Create-Tech-Products-Customers/dp/1119387507?tag=wondelai00-20) is considered essential reading for product managers worldwide.
+
+**Use when you need to:**
+- Structure empowered product teams (PM, designer, engineers)
+- Run product discovery to reduce risk before building
+- Create compelling product vision and strategy
+- Manage stakeholders without surrendering team empowerment
+- Assess product opportunities systematically
+- Decide what to build next when the roadmap is just a feature list
+
+**Example prompts:**
+- *"Are we a feature factory? Diagnose our product team structure. Use inspired-product skill."*
+- *"Create an opportunity assessment for this new feature idea. Use inspired-product skill."*
+- *"Help me write a product vision for our B2B platform. Use inspired-product skill."*
+
+---
+
+### [lean-ux](https://skills.wondel.ai/skills/lean-ux/)
+
+Hypothesis-driven UX design that replaces heavy deliverables with rapid experiments and collaborative sketching. Outcomes over outputs.
+
+**About the authors:** [Jeff Gothelf](https://x.com/jboogie) and [Josh Seiden](https://x.com/jseiden) are consultants and coaches specializing in Lean and Agile product development. [*"Lean UX"*](https://www.amazon.com/Lean-UX-Applying-Principles-Experience/dp/1098116305?tag=wondelai00-20) bridges Lean Startup, design thinking, and Agile development.
+
+**Use when you need to:**
+- Write UX hypothesis statements
+- Design minimum viable experiments for UX ideas
+- Integrate UX work into Agile sprints
+- Run collaborative design sessions with cross-functional teams
+- Measure UX outcomes instead of outputs
+- Cut heavy design documentation and get the whole team designing together
+
+**Example prompts:**
+- *"Write a hypothesis statement for our new onboarding flow. Use lean-ux skill."*
+- *"What's the minimum viable experiment to test this design idea? Use lean-ux skill."*
+- *"How do I fit UX discovery into our 2-week sprints? Use lean-ux skill."*
+
+---
+
+### [continuous-discovery](https://skills.wondel.ai/skills/continuous-discovery/)
+
+Build a weekly cadence of customer touchpoints using Opportunity Solution Trees, assumption mapping, and interview snapshots.
+
+**About the author:** [Teresa Torres](https://x.com/ttorres) is an internationally acclaimed author, speaker, and coach who helps product teams adopt continuous discovery practices. [*"Continuous Discovery Habits"*](https://www.amazon.com/Continuous-Discovery-Habits-Discover-Products/dp/1736633309?tag=wondelai00-20) is the definitive guide to making discovery a regular team habit.
+
+**Use when you need to:**
+- Build an Opportunity Solution Tree for your product
+- Create a weekly interview cadence
+- Map and prioritize assumptions by risk
+- Synthesize customer interviews into actionable insights
+- Prioritize which opportunities to pursue
+- Set up a habit of talking to customers so you stop building things nobody uses
+
+**Example prompts:**
+- *"Help me build an Opportunity Solution Tree for our retention OKR. Use continuous-discovery skill."*
+- *"How do I set up a weekly interview cadence with limited resources? Use continuous-discovery skill."*
+- *"Map our riskiest assumptions for this feature. Use continuous-discovery skill."*
+
+---
+
+### [microinteractions](https://skills.wondel.ai/skills/microinteractions/)
+
+Design the small details — triggers, rules, feedback, loops and modes — that separate good products from great ones.
+
+**About the author:** [Dan Saffer](https://x.com/odannyboy) is a product designer and author who has worked at Smart Design, Motorola, and Twitter. [*"Microinteractions"*](https://www.amazon.com/Microinteractions-Full-Color-Designing-Details/dp/1491945923?tag=wondelai00-20) focuses on the tiny, crucial design details that make products delightful.
+
+**Use when you need to:**
+- Design button feedback, loading states, or toggle interactions
+- Create signature moments that define brand identity
+- Audit interactions for missing feedback or unclear states
+- Design progressive loops that evolve over time
+- Reduce and simplify complex interactions
+- Add polish to an interface that feels dead or unresponsive
+
+**Example prompts:**
+- *"Design the microinteraction for our save button — trigger, rules, feedback, and loop. Use microinteractions skill."*
+- *"Audit this form submission flow for missing feedback. Use microinteractions skill."*
+- *"Create a signature loading animation that reflects our brand. Use microinteractions skill."*
+
+---
+
+### [clean-code](https://skills.wondel.ai/skills/clean-code/)
+
+Write readable, maintainable code through disciplined naming, small functions, and clean error handling. Code is read far more than it is written.
+
+**About the author:** [Robert C. Martin](https://x.com/unclebobmartin) (Uncle Bob) is a software engineer, author, and one of the signatories of the Agile Manifesto. [*"Clean Code"*](https://www.amazon.com/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882?tag=wondelai00-20) has become the standard reference for code quality and craftsmanship.
+
+**Use when you need to:**
+- Review code for naming, function size, and readability
+- Identify and fix code smells
+- Write clean error handling
+- Apply the Single Responsibility Principle
+- Write clean, readable unit tests
+- Clean up code that's hard to read or a function that's become a mess
+
+**Example prompts:**
+- *"Review this function for clean code principles. Use clean-code skill."*
+- *"This class has 500 lines. Help me identify the code smells. Use clean-code skill."*
+- *"Rewrite this error handling to follow clean code principles. Use clean-code skill."*
+
+---
+
+### [refactoring-patterns](https://skills.wondel.ai/skills/refactoring-patterns/)
+
+Apply named refactoring transformations to improve code structure without changing behavior. Smell-driven, test-guarded, safe transformations.
+
+**About the author:** [Martin Fowler](https://x.com/martinfowler) is an author, speaker, and Chief Scientist at Thoughtworks. [*"Refactoring"*](https://www.amazon.com/Refactoring-Improving-Existing-Addison-Wesley-Signature/dp/0134757599?tag=wondelai00-20) (2nd edition) is the definitive catalog of refactoring techniques.
+
+**Use when you need to:**
+- Refactor code safely with named transformations
+- Identify code smells and choose the right refactoring
+- Simplify complex conditional logic
+- Extract methods, classes, or modules
+- Plan a safe refactoring workflow with tests
+- Restructure messy code safely without changing its behavior
+
+**Example prompts:**
+- *"This method has nested conditionals. Which refactoring pattern should I apply? Use refactoring-patterns skill."*
+- *"Identify the code smells in this class and suggest refactorings. Use refactoring-patterns skill."*
+- *"Help me plan a safe refactoring sequence for this module. Use refactoring-patterns skill."*
+
+---
+
+### [software-design-philosophy](https://skills.wondel.ai/skills/software-design-philosophy/)
+
+Manage software complexity through deep modules, information hiding, and strategic programming. Complexity is the root cause of most software problems.
+
+**About the author:** [John Ousterhout](https://x.com/JohnOusterhout) is a professor of computer science at Stanford University and creator of Tcl/Tk. [*"A Philosophy of Software Design"*](https://www.amazon.com/Philosophy-Software-Design-2nd/dp/173210221X?tag=wondelai00-20) distills decades of teaching and practice into actionable design principles.
+
+**Use when you need to:**
+- Evaluate whether a module is too shallow or deep
+- Detect and fix information leakage between modules
+- Choose between general-purpose and special-purpose interfaces
+- Write comments that serve as design documentation
+- Decide between strategic and tactical programming approaches
+- Simplify a design that's over-engineered or buried under too many layers
+
+**Example prompts:**
+- *"Is this class deep or shallow? Evaluate the interface-to-functionality ratio. Use software-design-philosophy skill."*
+- *"This API feels too complex. How do I simplify it? Use software-design-philosophy skill."*
+- *"Are we programming strategically or tactically? Audit our approach. Use software-design-philosophy skill."*
+
+---
+
+### [pragmatic-programmer](https://skills.wondel.ai/skills/pragmatic-programmer/)
+
+Meta-principles of software craftsmanship: DRY, orthogonality, tracer bullets, and design by contract. Think about your work as you work.
+
+**About the authors:** [Andrew Hunt](https://x.com/pragmaticandy) and **David Thomas** are co-founders of the Pragmatic Bookshelf and signatories of the Agile Manifesto. [*"The Pragmatic Programmer"*](https://www.amazon.com/Pragmatic-Programmer-journey-mastery-Anniversary/dp/0135957052?tag=wondelai00-20) (20th Anniversary Edition) remains one of the most influential software development books ever written.
+
+**Use when you need to:**
+- Apply DRY principle correctly (knowledge, not code)
+- Design orthogonal systems with minimal coupling
+- Choose between tracer bullets and prototypes
+- Apply design by contract and assertive programming
+- Estimate software projects with ranges
+- Level up as a developer and avoid the technical debt that slows teams down
+
+**Example prompts:**
+- *"Is this duplication a DRY violation or coincidental? Use pragmatic-programmer skill."*
+- *"Should I build a tracer bullet or a prototype for this feature? Use pragmatic-programmer skill."*
+- *"How do I estimate this project? Use pragmatic-programmer skill."*
+
+---
+
+### [domain-driven-design](https://skills.wondel.ai/skills/domain-driven-design/)
+
+Model software around the business domain using bounded contexts, aggregates, and ubiquitous language. The structure of the code should reflect the structure of the domain.
+
+**About the author:** [Eric Evans](https://x.com/ericevans0) is a software design consultant and the originator of Domain-Driven Design. [*"Domain-Driven Design"*](https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215?tag=wondelai00-20) fundamentally changed how the industry thinks about the relationship between code and business domains.
+
+**Use when you need to:**
+- Define bounded context boundaries for a system
+- Choose between entities, value objects, and aggregates
+- Build a ubiquitous language with domain experts
+- Design domain events for integration between contexts
+- Identify your core domain vs supporting subdomains
+- Model the business in code when the code no longer matches how the business works
+
+**Example prompts:**
+- *"Help me define bounded contexts for our e-commerce platform. Use domain-driven-design skill."*
+- *"Should this be an entity or a value object? Use domain-driven-design skill."*
+- *"Design the aggregate boundaries for our order management system. Use domain-driven-design skill."*
+
+---
+
+### [ddia-systems](https://skills.wondel.ai/skills/ddia-systems/)
+
+Design data systems by understanding storage engines, replication, partitioning, transactions, and consistency models. Fundamentals of data-intensive application design.
+
+**About the author:** [Martin Kleppmann](https://x.com/martinkl) is a researcher in distributed systems at the University of Cambridge. [*"Designing Data-Intensive Applications"*](https://www.amazon.com/Designing-Data-Intensive-Applications-Reliable-Maintainable/dp/1449373321?tag=wondelai00-20) is widely regarded as the best technical book on distributed data systems.
+
+**Use when you need to:**
+- Choose between database types (relational, document, graph)
+- Design replication and partitioning strategies
+- Understand consistency vs availability tradeoffs
+- Choose appropriate isolation levels for transactions
+- Design batch or stream processing pipelines
+- Pick the right database (SQL vs NoSQL) or fix queries that are slow at scale
+
+**Example prompts:**
+- *"Should we use a relational or document database for this use case? Use ddia-systems skill."*
+- *"How should we partition this table? Use ddia-systems skill."*
+- *"What consistency guarantees do we need? Use ddia-systems skill."*
+
+---
+
+### [system-design](https://skills.wondel.ai/skills/system-design/)
+
+Design scalable distributed systems using structured approaches for load balancing, caching, database scaling, and message queues.
+
+**About the author:** [Alex Xu](https://x.com/aleaborysov) is the author of the bestselling System Design Interview series. [*"System Design Interview"*](https://www.amazon.com/System-Design-Interview-insiders-Second/dp/B08CMF2CQF?tag=wondelai00-20) (Volumes 1 & 2) has helped millions of engineers prepare for system design challenges.
+
+**Use when you need to:**
+- Design a system from requirements to architecture
+- Do back-of-the-envelope estimation for capacity
+- Choose the right caching strategy
+- Design common systems (URL shortener, rate limiter, chat, etc.)
+- Scale database reads and writes
+- Prep for a system design interview (design Twitter, Uber, a URL shortener)
+
+**Example prompts:**
+- *"Design a URL shortener service. Walk me through the four-step process. Use system-design skill."*
+- *"How many servers do we need to handle 10M daily active users? Use system-design skill."*
+- *"Design a rate limiter for our API. Use system-design skill."*
+
+---
+
+### [clean-architecture](https://skills.wondel.ai/skills/clean-architecture/)
+
+Structure software around the Dependency Rule: source code dependencies point inward from frameworks to use cases to entities.
+
+**About the author:** [Robert C. Martin](https://x.com/unclebobmartin) (Uncle Bob) is a legendary software engineer and author of the Clean series. [*"Clean Architecture"*](https://www.amazon.com/Clean-Architecture-Craftsmans-Software-Structure/dp/0134494164?tag=wondelai00-20) provides the architectural counterpart to Clean Code.
+
+**Use when you need to:**
+- Structure an application with proper dependency direction
+- Separate business rules from frameworks and infrastructure
+- Apply SOLID principles at the architecture level
+- Design component boundaries and their interactions
+- Keep frameworks at arm's length
+- Decide where business logic belongs and decouple it from the database or framework
+
+**Example prompts:**
+- *"Review our architecture — do dependencies point inward? Use clean-architecture skill."*
+- *"How do I structure this app so the database is a detail, not a dependency? Use clean-architecture skill."*
+- *"Apply the Dependency Rule to our microservice. Use clean-architecture skill."*
+
+---
+
+### [release-it](https://skills.wondel.ai/skills/release-it/)
+
+Build production-ready systems with stability patterns: circuit breakers, bulkheads, timeouts, and retry logic. Design for the real world.
+
+**About the author:** [Michael Nygard](https://x.com/mtnygard) is an architect and author who has designed and operated some of the largest transactional systems in the world. [*"Release It!"*](https://www.amazon.com/Release-Design-Deploy-Production-Ready-Software/dp/1680502395?tag=wondelai00-20) (2nd edition) is the definitive guide to building production-ready software.
+
+**Use when you need to:**
+- Diagnose cascading failure patterns
+- Implement circuit breakers, bulkheads, or timeouts
+- Plan capacity and availability
+- Choose deployment strategies (blue-green, canary, rolling)
+- Design health checks and observability
+- Stop a service from crashing and prevent cascading failures in production
+
+**Example prompts:**
+- *"We had a cascading failure yesterday. Diagnose the anti-patterns. Use release-it skill."*
+- *"Implement a circuit breaker for this external API call. Use release-it skill."*
+- *"Design health checks for our microservices. Use release-it skill."*
+
+---
+
+### [high-perf-browser](https://skills.wondel.ai/skills/high-perf-browser/)
+
+Optimize web performance through network protocols, resource loading, and browser rendering internals.
+
+**About the author:** [Ilya Grigorik](https://x.com/igrigorik) is a web performance engineer, previously at Google. [*"High Performance Browser Networking"*](https://www.amazon.com/High-Performance-Browser-Networking-performance/dp/1449344763?tag=wondelai00-20) is the definitive guide to understanding network protocols and browser performance.
+
+**Use when you need to:**
+- Optimize Core Web Vitals (LCP, INP, CLS)
+- Reduce page load times and TTFB
+- Choose between HTTP/2 and HTTP/3
+- Implement effective caching strategies
+- Choose between WebSocket, SSE, and long polling for real-time features
+- Speed up a site that's slow to load and improve Core Web Vitals
+
+**Example prompts:**
+- *"Our LCP is 4.5 seconds. Diagnose and fix it. Use high-perf-browser skill."*
+- *"Should we use WebSocket or SSE for our real-time feature? Use high-perf-browser skill."*
+- *"Audit our caching strategy for static assets. Use high-perf-browser skill."*
+
+---
+
+### [37signals-way](https://skills.wondel.ai/skills/37signals-way/)
+
+Build lean, opinionated products using the 37signals philosophy: build less, shape work before building, ship in fixed six-week cycles with small autonomous teams, and say no to almost everything by default.
+
+**About the authors:** [Jason Fried](https://x.com/jasonfried) is the co-founder and CEO of 37signals (Basecamp, HEY), a prominent advocate for calm companies and product simplicity. [David Heinemeier Hansson (DHH)](https://x.com/dhh) is the co-founder and CTO of 37signals and creator of Ruby on Rails. Together they wrote [*"Getting Real"*](https://www.amazon.com/Getting-Real-Smarter-Successful-Application/dp/0578012812?tag=wondelai00-20) and [*"Rework"*](https://www.amazon.com/Rework-Jason-Fried/dp/0307463745?tag=wondelai00-20). [Ryan Singer](https://x.com/rjs) is the former Head of Strategy at 37signals and author of [*"Shape Up"*](https://basecamp.com/shapeup).
+
+**Use when you need to:**
+- Shape work before giving it to a team (breadboarding, fat marker sketches, pitches)
+- Run fixed-time, variable-scope development cycles (six-week bets)
+- Cut features and scope ruthlessly to ship on time
+- Structure small autonomous teams (3-person teams, no PMs)
+- Replace backlogs and roadmaps with a betting table
+- Track progress with hill charts instead of burndowns or standups
+- Cut scope and ship faster when the project keeps growing or meetings pile up
+
+**Example prompts:**
+- *"We have a 200-item backlog and nothing ships on time. Help us switch to Shape Up cycles. Use 37signals-way skill."*
+- *"Shape this feature idea into a pitch with appetite, breadboard, rabbit holes, and no-gos. Use 37signals-way skill."*
+- *"Our product has too many features and users are overwhelmed. Help us apply the 'build less' philosophy. Use 37signals-way skill."*
+- *"Review our team process and score it against 37signals principles. Use 37signals-way skill."*
+
+---
+
+### [steve-jobs-design-review](https://skills.wondel.ai/skills/steve-jobs-design-review/)
+
+Review designs, products, and features the way Steve Jobs ran reviews: start from the customer experience and work backwards, subtract until only the essential remains, demand working demos over specs, audit the whole experience end to end, and deliver a binary verdict — insanely great or not done — with a specific cut list and fix list.
+
+**About the source material:** Steve Jobs (1955-2011) co-founded Apple and led the creation of the Mac, iPod, iPhone, and iPad through famously demanding design reviews. This skill distills his documented review practices from [Walter Isaacson](https://x.com/WalterIsaacson)'s authorized biography [*"Steve Jobs"*](https://www.amazon.com/Steve-Jobs-Walter-Isaacson/dp/1451648537?tag=wondelai00-20), [Ken Segall](https://x.com/ksegall)'s [*"Insanely Simple"*](https://www.amazon.com/Insanely-Simple-Obsession-Drives-Success/dp/1591846218?tag=wondelai00-20), and [Ken Kocienda](https://x.com/kocienda)'s [*"Creative Selection"*](https://www.amazon.com/Creative-Selection-Inside-Apples-Process/dp/1250194466?tag=wondelai00-20).
+
+**Use when you need to:**
+- Run a brutal, specific design or product review with a clear verdict
+- Simplify a product drowning in features, settings, and steps
+- Cut a roadmap down to the few bets that matter (the no list, the 2×2 matrix)
+- Pressure-test the complete experience from first run to cancellation
+- Replace spec/slide reviews with a working-demo culture
+- Audit "back of the fence" surfaces: empty states, error copy, invoices
+- Pressure-test whether something is simple and good enough to ship
+
+**Example prompts:**
+- *"Here's my app's onboarding flow. Review it like Steve Jobs would — what gets cut? Use steve-jobs-design-review skill."*
+- *"Our SaaS has 14 nav items and 60 settings. Run a simplicity audit. Use steve-jobs-design-review skill."*
+- *"Review our landing page promise against what the product actually does on first run. Use steve-jobs-design-review skill."*
+- *"We're debating two competing designs. Set up a demo derby and pick a winner. Use steve-jobs-design-review skill."*
+
+---
+
+### [good-strategy-bad-strategy](https://skills.wondel.ai/skills/good-strategy-bad-strategy/)
+
+Formulate and audit real strategy using the kernel — an honest diagnosis of the challenge, a guiding policy that rules out vast realms of action, and coherent actions that reinforce each other — and detect the four hallmarks of bad strategy: fluff, failure to face the challenge, mistaking goals for strategy, and bad strategic objectives.
+
+**About the author:** Richard Rumelt is professor emeritus at UCLA Anderson School of Management and one of the world's most influential thinkers on strategy — The Economist called him a "strategist's strategist." He is the author of [*"Good Strategy Bad Strategy"*](https://www.amazon.com/Good-Strategy-Bad-Strategy-Difference/dp/0307886239?tag=wondelai00-20) and [*"The Crux"*](https://www.amazon.com/Crux-How-Leaders-Become-Strategists/dp/1541701240?tag=wondelai00-20).
+
+**Use when you need to:**
+- Audit a strategy doc, pitch deck, or annual plan for fluff and goals-masquerading-as-strategy
+- Write a strategy kernel: diagnosis, guiding policy, coherent actions
+- Find sources of power: leverage, proximate objectives, chain-link systems, design
+- Ride waves of change and exploit incumbent inertia
+- Turn a list of ambitions into a focused, resourced plan
+- Turn a vague goals-and-vision deck into a real strategy with an honest diagnosis
+
+**Example prompts:**
+- *"Here's our annual plan. Audit it for bad strategy — fluff, missing diagnosis, goals instead of strategy. Use good-strategy-bad-strategy skill."*
+- *"Help me write a strategy kernel for our developer-tools startup. Use good-strategy-bad-strategy skill."*
+- *"We have 12 strategic priorities this year. Help us concentrate on a proximate objective. Use good-strategy-bad-strategy skill."*
+- *"Our competitor is 10x bigger. Find asymmetries and leverage we can build a strategy around. Use good-strategy-bad-strategy skill."*
+
+---
+
+### [monetizing-innovation](https://skills.wondel.ai/skills/monetizing-innovation/)
+
+Design the product around the price instead of bolting a price onto a finished product: validate willingness to pay early, segment by value, package with leader/filler/killer logic, pick the right monetization model, and avoid the four monetization failures — feature shock, minivation, hidden gems, and undead products.
+
+**About the authors:** Madhavan Ramanujam is a board member and partner at Simon-Kucher & Partners, the world's leading pricing consultancy, and has advised dozens of unicorns on monetization. Georg Tacke was co-CEO of Simon-Kucher. Together they wrote [*"Monetizing Innovation"*](https://www.amazon.com/Monetizing-Innovation-Companies-Design-Product/dp/1119240867?tag=wondelai00-20).
+
+**Use when you need to:**
+- Set or change pricing for a product, plan, or feature
+- Run willingness-to-pay conversations before building
+- Design pricing tiers and packages (good-better-best, leader/filler/killer features)
+- Choose between subscription, usage-based, freemium, and outcome-based models
+- Diagnose why a launch is underperforming its revenue potential
+- Figure out what to charge and stop leaving money on the table
+
+**Example prompts:**
+- *"We're launching a SaaS product in 3 months and haven't validated pricing. Design the WTP research. Use monetizing-innovation skill."*
+- *"Audit our pricing page and tier structure for leader/filler/killer mistakes. Use monetizing-innovation skill."*
+- *"Are we heading toward feature shock, minivation, hidden gem, or undead? Diagnose our roadmap. Use monetizing-innovation skill."*
+- *"Should we price per seat or per usage? Help us pick the right price metric. Use monetizing-innovation skill."*
+
+---
+
+### [cold-start-problem](https://skills.wondel.ai/skills/cold-start-problem/)
+
+Start and scale products with network effects: launch one atomic network at a time, solve the hard side first, tip markets with repeatable playbooks, then manage escape velocity, ceilings, and moats as the network grows.
+
+**About the author:** [Andrew Chen](https://x.com/andrewchen) is a general partner at Andreessen Horowitz investing in consumer technology, previously led rider growth at Uber, and writes one of the most-read essay series on growth and network effects. He is the author of [*"The Cold Start Problem"*](https://www.amazon.com/Cold-Start-Problem-Andrew-Chen/dp/0062969749?tag=wondelai00-20).
+
+**Use when you need to:**
+- Launch a marketplace, social, or collaboration product that's worthless when empty
+- Define your atomic network and magic moment
+- Identify and win the hard side (creators, sellers, supply)
+- Design invite-only launches, seeding, and subsidies that tip markets
+- Diagnose stalled network growth, degradation, or competitive attacks
+- Get the first users for a marketplace or network when it's empty (chicken-and-egg)
+
+**Example prompts:**
+- *"We're launching a B2B marketplace. Define our atomic network and the first market to tip. Use cold-start-problem skill."*
+- *"Our app has 50K signups but dead feeds. Diagnose the network quality problem. Use cold-start-problem skill."*
+- *"Who is the hard side of our network and what playbook wins them? Use cold-start-problem skill."*
+- *"Design an invite-only launch with waitlist mechanics for our social product. Use cold-start-problem skill."*
+
+---
+
+### [working-with-legacy-code](https://skills.wondel.ai/skills/working-with-legacy-code/)
+
+Safely change untested codebases: find seams, break dependencies just enough to get tests in place, pin current behavior with characterization tests, and use sprout/wrap techniques when you can't get the area under test yet — legacy code is simply code without tests.
+
+**About the author:** [Michael C. Feathers](https://x.com/mfeathers) is the founder of R7K Research & Conveyance and a long-time consultant on software design and legacy systems. He wrote [*"Working Effectively with Legacy Code"*](https://www.amazon.com/Working-Effectively-Legacy-Michael-Feathers/dp/0131177052?tag=wondelai00-20), which defined legacy code as code without tests.
+
+**Use when you need to:**
+- Add a feature or fix a bug in code with no tests
+- Get a class under test when constructors, statics, or singletons block you
+- Write characterization tests that pin down current behavior before refactoring
+- Apply sprout method/class or wrap method when there's no time to test first
+- Untangle monster methods and god classes incrementally
+- Safely change a codebase you inherited that has no tests and you're scared to touch
+
+**Example prompts:**
+- *"I need to change this 800-line untested service class. Walk me through the legacy code change algorithm. Use working-with-legacy-code skill."*
+- *"This module uses singletons everywhere and I can't unit test it. Find the seams. Use working-with-legacy-code skill."*
+- *"Write characterization tests for this function before we refactor it. Use working-with-legacy-code skill."*
+- *"We want to add behavior to a tangled module without making it worse. Sprout or wrap? Use working-with-legacy-code skill."*
+
+---
+
+### [team-topologies](https://skills.wondel.ai/skills/team-topologies/)
+
+Organize teams for fast flow using four fundamental team types (stream-aligned, enabling, complicated-subsystem, platform) and three interaction modes (collaboration, X-as-a-Service, facilitating), sized to team cognitive load and aligned with the architecture you want via the inverse Conway maneuver.
+
+**About the authors:** [Matthew Skelton](https://x.com/matthewpskelton) is the founder of Conflux and a leading voice on organizational design for software delivery. [Manuel Pais](https://x.com/manupaisable) is an independent IT organizational consultant. Together they wrote [*"Team Topologies"*](https://www.amazon.com/Team-Topologies-Organizing-Business-Technology/dp/1942788819?tag=wondelai00-20).
+
+**Use when you need to:**
+- Reorganize engineering teams around the architecture you want (inverse Conway)
+- Decide whether a team should be stream-aligned, enabling, complicated-subsystem, or platform
+- Reduce cross-team dependencies, handoffs, and meeting overload
+- Split a monolith along fracture planes and assign clear ownership
+- Design an internal platform that teams actually want to use
+- Plan a reorg so teams stop stepping on each other and handoffs shrink
+
+**Example prompts:**
+- *"We have 40 engineers and every feature needs 4 teams. Redesign our team topology. Use team-topologies skill."*
+- *"Classify each of our teams by type and flag the anti-patterns. Use team-topologies skill."*
+- *"We're splitting our monolith — propose fracture planes and team ownership. Use team-topologies skill."*
+- *"Our ops team is a ticket-queue bottleneck. Turn it into a platform team. Use team-topologies skill."*
+
+---
+
+### [high-output-management](https://skills.wondel.ai/skills/high-output-management/)
+
+Manage for output, not activity: a manager's output is the output of their organization, raised through high-leverage activities — training, well-run one-on-ones, clear decisions, honest indicators, and management style matched to each person's task-relevant maturity.
+
+**About the author:** Andrew S. Grove (1936-2016) escaped communist Hungary, became Intel's third employee, and led the company as president, CEO, and chairman through its pivot from memory chips to microprocessors. His book [*"High Output Management"*](https://www.amazon.com/High-Output-Management-Andrew-Grove/dp/0679762884?tag=wondelai00-20) is the origin of OKRs and a foundational text for Silicon Valley managers.
+
+**Use when you need to:**
+- Restructure a manager's calendar around high-leverage activities
+- Run one-on-ones, staff meetings, and operation reviews that raise output
+- Design team indicators with pairing metrics that can't be gamed
+- Write OKRs the way Grove intended (and keep them away from compensation)
+- Match management style to task-relevant maturity and fix performance reviews
+- Find your footing as a new manager: run 1:1s, set OKRs, escape meeting overload
+
+**Example prompts:**
+- *"I'm a new engineering manager drowning in meetings. Audit my week for leverage. Use high-output-management skill."*
+- *"Design 1:1 agendas and cadence for my team of 6. Use high-output-management skill."*
+- *"Our velocity is up but quality is down. Design pairing indicators. Use high-output-management skill."*
+- *"Help me cascade company OKRs to my team without turning them into a compensation formula. Use high-output-management skill."*
+
+---
+
+### [lean-analytics](https://skills.wondel.ai/skills/lean-analytics/)
+
+Choose the One Metric That Matters for your business model and stage, kill vanity metrics, and set lines in the sand: good metrics are comparative, understandable, ratios or rates, and change your behavior — everything else is noise that feels like progress.
+
+**About the authors:** [Alistair Croll](https://x.com/acroll) is an entrepreneur and analyst who co-founded Coradiant and chairs Startupfest. [Ben Yoskovitz](https://x.com/byosko) is a founding partner at Highline Beta and a serial founder and investor. Together they wrote [*"Lean Analytics"*](https://www.amazon.com/Lean-Analytics-Better-Startup-Faster/dp/1449335675?tag=wondelai00-20).
+
+**Use when you need to:**
+- Pick the metrics (and the One Metric That Matters) for your product or feature
+- Audit a dashboard for vanity metrics and replace them with actionable ones
+- Instrument a product by business model (SaaS, marketplace, e-commerce, media, UGC, mobile)
+- Figure out which stage you're at (empathy, stickiness, virality, revenue, scale) and what gates the next one
+- Set realistic targets and baselines when you have no benchmarks
+- Pick the one metric that matters and stop tracking vanity numbers
+
+**Example prompts:**
+- *"Our dashboard has 34 widgets and no one looks at it. Pick our OMTM and counter-metric. Use lean-analytics skill."*
+- *"We're a two-sided marketplace. Define our liquidity metrics and instrumentation plan. Use lean-analytics skill."*
+- *"Are these metrics vanity or actionable? Audit and rewrite them. Use lean-analytics skill."*
+- *"Should we spend on growth yet, or fix stickiness first? Use lean-analytics skill."*
+
+---
+
+### [technical-documentation](https://skills.wondel.ai/skills/technical-documentation/)
+
+Audit, write, and improve developer documentation the way Google's technical writers do: start from the reader's task, verify every command and parameter against the code, then apply the style guide in severity order — structure before voice, voice before word choice. Covers READMEs, getting-started guides, tutorials and how-tos, API reference and docstrings, CLI help text, changelogs, and migration guides, with a scored audit report and a rewrite that keeps the facts intact.
+
+**About the source material:** [Google's Developer Documentation Style Guide](https://developers.google.com/style) is the public house style Google's technical writers maintain for developers.google.com, Android, and Google Cloud, released under CC BY 4.0; the companion [Technical Writing One and Two](https://developers.google.com/tech-writing) courses are Google's internal engineer training made public. Release-note structure follows [Keep a Changelog](https://keepachangelog.com/).
+
+**Use when you need to:**
+- Audit a README, docs site, or API reference and get a scored report with exact fixes
+- Write a getting-started guide, tutorial, or how-to from the code without inventing commands
+- Rewrite confusing docs for clarity while preserving every fact
+- Turn weak docstrings or JSDoc into formulaic, complete API reference
+- Write a CHANGELOG, release notes, or a migration guide readers can act on
+- Set a documentation standard for a team and enforce it consistently
+
+**Example prompts:**
+- *"Audit our README against a real docs style guide, score it, and give me the fixed version. Use technical-documentation skill."*
+- *"Write a how-to for adding a plugin to this repo — use only what's in the code and CLAUDE.md. Use technical-documentation skill."*
+- *"Rewrite the JSDoc in src/client.ts so it reads like proper API reference. Don't touch the code. Use technical-documentation skill."*
+- *"Turn our git log since v2.3 into a Keep a Changelog entry with a migration section for the breaking change. Use technical-documentation skill."*
+
+---
+
+### [create-business](https://skills.wondel.ai/skills/create-business/)
+
+Guided journey from raw idea to a validated, positioned, priced business with a chosen beachhead. The agent drives every phase, asks you the decision questions, and records everything as living documents in your project's `docs/` folder so the journey resumes across sessions.
+
+**About the journey:** Orchestrates ten skills in a defended order — jobs-to-be-done, mom-test, design-sprint, lean-startup, good-strategy-bad-strategy, blue-ocean-strategy, obviously-awesome, hundred-million-offers, monetizing-innovation, crossing-the-chasm — writing CUSTOMER.md, EXPERIMENTS.md, STRATEGY.md, POSITIONING.md, OFFER.md, and PRODUCT.md as it goes.
+
+**Use when you need to:**
+- Turn a business idea into evidence before writing code
+- Validate demand with real customer conversations, not compliments
+- Build strategy, positioning, and an offer in the right order
+- Price against measured willingness to pay before launch
+- Pick a beachhead market you can actually dominate
+
+**Example prompts:**
+- *"I have an idea for a company — walk me through validating and launching it. Use create-business skill."*
+- *"Help me go from this SaaS idea to a positioned, priced offer step by step. Use create-business skill."*
+- *"Continue my business journey where we left off. Use create-business skill."*
+
+---
+
+### [create-website](https://skills.wondel.ai/skills/create-website/)
+
+Guided journey from blank page to a high-converting website: message first, then design, then conversion engineering, then a brutal final review. Every phase asks you the decision questions and lands its output in your project's `docs/` folder.
+
+**About the journey:** Orchestrates ten skills — one-page-marketing, storybrand-messaging, made-to-stick, top-design, web-typography, refactoring-ui, ux-heuristics, cro-methodology, scorecard-marketing, steve-jobs-design-review — writing MARKETING.md, POSITIONING.md, WEBSITE.md, and DESIGN.md as it goes.
+
+**Use when you need to:**
+- Build a new marketing site or landing page from scratch, in the right order
+- Get the message and one-liner locked before any design work
+- Create a design system, typography, and signature moments that convert
+- Engineer objection handling and lead capture into the site
+- Ship only after a cold, end-to-end design review
+
+**Example prompts:**
+- *"We need a website for our new product — take me through the whole build. Use create-website skill."*
+- *"Start the website journey: message first, then design, then conversion. Use create-website skill."*
+- *"Resume my website project from the tracker. Use create-website skill."*
+
+---
+
+### [create-app](https://skills.wondel.ai/skills/create-app/)
+
+Guided journey from idea to a validated, well-architected app: validate the riskiest assumption fast while making the expensive-to-reverse technical decisions deliberately. Interactive phase by phase, recorded in your project's `docs/` folder.
+
+**About the journey:** Orchestrates ten skills — lean-startup, design-sprint, clean-architecture, domain-driven-design, clean-code, pragmatic-programmer, system-design, ios-hig-design, 37signals-way, software-design-philosophy — writing PRODUCT.md, EXPERIMENTS.md, ARCHITECTURE.md, TESTING.md, and DESIGN.md as it goes.
+
+**Use when you need to:**
+- Start a new app without betting months on an unvalidated idea
+- Sequence validation, architecture, and domain modeling correctly
+- Keep the codebase clean and honestly sized from day one
+- Ship on an appetite-bounded cadence instead of an endless roadmap
+- Decide which scaling techniques you do NOT need yet
+
+**Example prompts:**
+- *"I want to build an app for [idea] — guide me from validation to architecture. Use create-app skill."*
+- *"Set up the create-app journey for this repo and run the intake. Use create-app skill."*
+- *"Pick up my app-building journey at the architecture phase. Use create-app skill."*
+
+---
+
+### [improve-business](https://skills.wondel.ai/skills/improve-business/)
+
+Guided journey for a plateaued or struggling business: diagnose the real challenge first, then fix execution rhythm, management leverage, team structure, motivation, metrics, margin, and pricing — in that order.
+
+**About the journey:** Orchestrates eight skills — good-strategy-bad-strategy, traction-eos, high-output-management, team-topologies, drive-motivation, lean-analytics, negotiation, monetizing-innovation — writing STRATEGY.md, OPERATIONS.md, and METRICS.md as it goes.
+
+**Use when you need to:**
+- Figure out why growth stalled before launching new initiatives
+- Replace a goals-as-strategy plan with a real strategy kernel
+- Install an execution rhythm (rocks, weekly meetings, ownership)
+- Stop leaking margin in renewals and vendor deals
+- Reprice around value instead of cost-plus guesswork
+
+**Example prompts:**
+- *"Our revenue has been flat for three quarters — diagnose and fix it with me. Use improve-business skill."*
+- *"Run the improve-business journey; start with the strategy diagnosis. Use improve-business skill."*
+- *"Continue our business turnaround from the tracker. Use improve-business skill."*
+
+---
+
+### [improve-website](https://skills.wondel.ai/skills/improve-website/)
+
+Guided journey to diagnose, fix, and prove website improvements: evidence from real visitors decides what changes, and every fix ships as a testable hypothesis with a pre-committed metric.
+
+**About the journey:** Orchestrates eight skills — cro-methodology, ux-heuristics, refactoring-ui, web-typography, storybrand-messaging, high-perf-browser, made-to-stick, design-everyday-things — extending WEBSITE.md, DESIGN.md, POSITIONING.md, EXPERIMENTS.md, and METRICS.md as it goes.
+
+**Use when you need to:**
+- Find out why visitors don't convert before redesigning anything
+- Remove usability friction with severity-ranked audits
+- Fix visual hierarchy, typography, and page speed systematically
+- Sharpen the message so a first-time visitor gets it in five seconds
+- Turn every change into an experiment you can prove or revert
+
+**Example prompts:**
+- *"Our landing page isn't converting — diagnose it and fix it phase by phase. Use improve-website skill."*
+- *"Audit and improve our site end to end, evidence first. Use improve-website skill."*
+- *"Resume the website improvement journey. Use improve-website skill."*
+
+---
+
+### [improve-app](https://skills.wondel.ai/skills/improve-app/)
+
+Guided journey to improve an existing app where users feel it: product fit, UX friction, visual polish, interaction detail, in-app copy, ethical in-app persuasion, perceived speed — closed out with a brutal end-to-end review. Product and experience work, not code work.
+
+**About the journey:** Orchestrates nine skills — jobs-to-be-done, ux-heuristics, design-everyday-things, refactoring-ui, microinteractions, made-to-stick, influence-psychology, high-perf-browser, steve-jobs-design-review — extending CUSTOMER.md, DESIGN.md, POSITIONING.md, PRODUCT.md, and EXPERIMENTS.md as it goes. For code quality, tests, or production hardening, use improve-code-quality or remove-technical-debt instead.
+
+**Use when you need to:**
+- Re-anchor the app on the job users actually hire it for
+- Remove usability friction with severity-ranked audits before any visual polish
+- Fix hierarchy, spacing, and microinteraction detail so screens feel professional
+- Rewrite in-app copy (onboarding, empty states, errors, CTAs) so it lands
+- Make paywalls and upgrade prompts persuade honestly, then face a cold final review
+
+**Example prompts:**
+- *"The app works but feels rough and users say it's confusing — improve the experience end to end. Use improve-app skill."*
+- *"Run the improve-app journey; start by checking what job users hire us for. Use improve-app skill."*
+- *"Continue improving the app from where the tracker says we stopped. Use improve-app skill."*
+
+---
+
+### [grow-business](https://skills.wondel.ai/skills/grow-business/)
+
+Guided journey to build a repeatable growth engine: each phase produces an asset the next phase consumes — offer feeds pipeline, pipeline feeds word-of-mouth, and metrics keep it honest.
+
+**About the journey:** Orchestrates nine skills — one-page-marketing, hundred-million-offers, predictable-revenue, contagious, influence-psychology, crossing-the-chasm, cold-start-problem, lean-analytics, negotiation — writing MARKETING.md and extending OFFER.md, STRATEGY.md, METRICS.md, and CUSTOMER.md as it goes.
+
+**Use when you need to:**
+- Turn ad-hoc marketing into an operating system with owners
+- Build an offer strong enough to carry outbound and referrals
+- Manufacture pipeline with a repeatable outbound process
+- Engineer word-of-mouth and network effects deliberately
+- Stop discounting your way to growth
+
+**Example prompts:**
+- *"We have customers but growth is ad hoc — build us a growth engine. Use grow-business skill."*
+- *"Run the grow-business journey; our weakest square is lead generation. Use grow-business skill."*
+- *"Pick up our growth plan from the tracker. Use grow-business skill."*
+
+---
+
+### [grow-website](https://skills.wondel.ai/skills/grow-website/)
+
+Guided journey for growing a website: most traffic problems are conversion problems in costume, so capture and convert the visitors you have before buying more — then make them bring the next ones.
+
+**About the journey:** Orchestrates eight skills — cro-methodology, scorecard-marketing, storybrand-messaging, made-to-stick, influence-psychology, hundred-million-offers, contagious, one-page-marketing — extending MARKETING.md, POSITIONING.md, OFFER.md, WEBSITE.md, EXPERIMENTS.md, and METRICS.md as it goes.
+
+**Use when you need to:**
+- Grow leads and signups without a bigger ad budget
+- Capture the 97% of visitors who leave without converting
+- Sharpen the message and offer so the traffic you have converts
+- Make results shareable so visitors bring visitors
+- Tie the whole lifecycle together into one marketing plan
+
+**Example prompts:**
+- *"We get traffic but few leads — grow this site's output step by step. Use grow-website skill."*
+- *"Start the grow-website journey with a conversion diagnosis. Use grow-website skill."*
+- *"Resume the website growth journey. Use grow-website skill."*
+
+---
+
+### [grow-app](https://skills.wondel.ai/skills/grow-app/)
+
+Guided journey for retention-first app growth: fix the leaky bucket before pouring in acquisition — habit loops, activation, weekly discovery, and metrics before any growth spend.
+
+**About the journey:** Orchestrates eight skills — hooked-ux, improve-retention, continuous-discovery, lean-ux, inspired-product, lean-analytics, microinteractions, drive-motivation — writing METRICS.md and extending PRODUCT.md, EXPERIMENTS.md, DESIGN.md, CUSTOMER.md, and OFFER.md as it goes.
+
+**Use when you need to:**
+- Grow an app whose retention can't yet support acquisition
+- Design ethical habit loops and fix activation friction
+- Replace opinion-driven roadmaps with weekly discovery
+- Choose the One Metric That Matters for your stage
+- Sustain engagement with intrinsic motivation, not gimmicks
+
+**Example prompts:**
+- *"Users sign up and vanish — grow this app the retention-first way. Use grow-app skill."*
+- *"Run the grow-app journey; start with the habit-loop audit. Use grow-app skill."*
+- *"Continue our app growth journey from the tracker. Use grow-app skill."*
+
+---
+
+### [improve-code-quality](https://skills.wondel.ai/skills/improve-code-quality/)
+
+Guided journey from vibe-coded prototype to production-ready code: a week-old untested prototype is already legacy code, so build the safety net first, then raise readability, structure, and production hardening in order.
+
+**About the journey:** Orchestrates nine skills — working-with-legacy-code, clean-code, refactoring-patterns, software-design-philosophy, clean-architecture, pragmatic-programmer, release-it, system-design, ddia-systems — writing TESTING.md, TECH-DEBT.md, and RELIABILITY.md, and extending ARCHITECTURE.md as it goes.
+
+**Use when you need to:**
+- Take an AI-generated or hackathon prototype to production
+- Put untested code under characterization tests before touching it
+- Raise code quality without mixing refactors and behavior changes
+- Add timeouts, circuit breakers, and health checks before launch
+- Make honest scaling and data-layer decisions
+
+**Example prompts:**
+- *"I vibe-coded this app in a weekend — make it production-ready. Use improve-code-quality skill."*
+- *"Run the code-quality journey on this repo, safety net first. Use improve-code-quality skill."*
+- *"Resume hardening this codebase from the tracker. Use improve-code-quality skill."*
+
+---
+
+### [remove-technical-debt](https://skills.wondel.ai/skills/remove-technical-debt/)
+
+Guided journey for a codebase buried in technical debt: feedback over fear — cover and modify, never edit and pray, pay debt down in place on the paths you actually walk, and never stop shipping.
+
+**About the journey:** Orchestrates eight skills — working-with-legacy-code, refactoring-patterns, clean-code, software-design-philosophy, clean-architecture, pragmatic-programmer, release-it, domain-driven-design — writing TESTING.md and TECH-DEBT.md, and extending ARCHITECTURE.md and RELIABILITY.md as it goes.
+
+**Use when you need to:**
+- Tame a large, aged codebase the team is afraid to change
+- Build a characterization-test safety net before any refactoring
+- Work smells down with named, behavior-preserving refactorings
+- Draw dependency boundaries and carve bounded contexts without a rewrite
+- Keep a debt ledger with priorities instead of a vague "cleanup" wish
+
+**Example prompts:**
+- *"Our codebase is a minefield nobody dares touch — dig us out. Use remove-technical-debt skill."*
+- *"Start the tech-debt journey: pick the starting module and build the safety net. Use remove-technical-debt skill."*
+- *"Continue the debt paydown from the tracker. Use remove-technical-debt skill."*
+
+---
+
+### [design-code-architecture](https://skills.wondel.ai/skills/design-code-architecture/)
+
+Guided journey to design deliberate architecture for a new system: architecture is the set of decisions that are expensive to reverse — make exactly those, log why, and defer everything cheap.
+
+**About the journey:** Orchestrates eight skills — clean-architecture, domain-driven-design, system-design, ddia-systems, software-design-philosophy, release-it, pragmatic-programmer, 37signals-way — writing ARCHITECTURE.md and RELIABILITY.md, and extending TECH-DEBT.md and TESTING.md as it goes.
+
+**Use when you need to:**
+- Design a new system's structure before the first sprint locks it in
+- Draw boundaries and model the domain so the code speaks the business language
+- Size the system honestly and skip the scaling machinery you don't need
+- Make data, consistency, and failure-handling decisions explicitly
+- Cut speculative abstractions with an appetite-bounded review
+
+**Example prompts:**
+- *"We're starting a new service — design the architecture with me, decision by decision. Use design-code-architecture skill."*
+- *"Run the architecture journey for this system; default to a modular monolith. Use design-code-architecture skill."*
+- *"Resume the architecture design from the decision log. Use design-code-architecture skill."*
+
+---
+
+### [conversion-optimization](https://skills.wondel.ai/skills/conversion-optimization/)
+
+Guided journey for one leaking conversion flow — landing page, signup, checkout, or in-app onboarding: find the leak with numbers, learn the reason from customers, fix message, offer, proof, and friction in that order, and prove every fix with a pre-committed test.
+
+**About the journey:** Orchestrates six skills — lean-analytics, cro-methodology, storybrand-messaging, hundred-million-offers, influence-psychology, design-everyday-things — writing FUNNEL.md and extending METRICS.md, EXPERIMENTS.md, POSITIONING.md, OFFER.md, and DESIGN.md as it goes. Every phase carries its full method inline (plus `references/methods.md`), so it runs standalone with no other skills installed.
+
+**Use when you need to:**
+- Fix checkout or signup abandonment on a specific flow
+- Diagnose onboarding drop-off inside a product
+- Replace guesses about why people quit with researched objections in their words
+- Strengthen the offer and place honest proof at each point of doubt
+- Ship each fix as a test with a pre-committed metric, not a hunch
+
+**Example prompts:**
+- *"Our checkout loses 60% at the payment step — find the leak and fix it. Use conversion-optimization skill."*
+- *"Run the conversion journey on our signup flow, starting with the funnel numbers. Use conversion-optimization skill."*
+- *"Resume the funnel work from the tracker and design the next test. Use conversion-optimization skill."*
+
+---
+
+### [architecture-optimization](https://skills.wondel.ai/skills/architecture-optimization/)
+
+Guided journey for a working codebase grown slow and tangled: measure before optimizing, pin before restructuring — the profiler and the safety net decide what changes, and every optimization proves itself with before/after numbers.
+
+**About the journey:** Orchestrates eight skills — working-with-legacy-code, clean-architecture, software-design-philosophy, refactoring-patterns, system-design, ddia-systems, release-it, pragmatic-programmer — writing PERFORMANCE.md and extending ARCHITECTURE.md, TECH-DEBT.md, TESTING.md, and RELIABILITY.md as it goes. Every phase carries its full method inline (plus `references/methods.md`), so it runs standalone with no other skills installed.
+
+**Use when you need to:**
+- Make slow endpoints and queries measurably faster, guided by a profile
+- Untangle boundaries that drifted as the codebase grew
+- Fix N+1 queries, missing indexes, and unbounded result sets by evidence
+- Keep latency stable when a dependency is slow or down
+- Turn performance budgets into CI gates so the gains hold
+
+**Example prompts:**
+- *"Our API got slow as we grew — profile it and optimize the hot paths. Use architecture-optimization skill."*
+- *"Run the architecture-optimization journey: baseline first, then boundaries and queries. Use architecture-optimization skill."*
+- *"Resume the optimization journey and check the ledger before/afters. Use architecture-optimization skill."*
+
+---
+
+## Learn More: The Skills Ecosystem
+
+Want to go deeper with skills — how they work, how to create your own, and what's available across the community?
+
+**[The Skills Ecosystem](https://developertoolkit.ai/en/shared-workflows/skills-ecosystem/)** on [Developer Toolkit](https://developertoolkit.ai/) covers everything you need:
+
+- **How skills work** — persistent, markdown-based instructions that load automatically at the start of every AI coding session
+- **The skills marketplace** — browse 200+ community skills across categories at [skills.sh](https://skills.sh)
+- **Creating your own skills** — write custom skills encoding your team's conventions, framework patterns, and workflow instructions
+- **Cross-tool support** — skills work across Claude Code, Cursor, and Codex
+
+Developer Toolkit is a comprehensive learning platform for mastering AI-assisted coding, with 350+ tutorials, 80+ copy-paste recipes, and weekly updates tracking tool evolution.
+
+---
+
+## Work With Us
+
+These 65 skills are the open-source tip of what we do. **[Wondel.ai](https://skills.wondel.ai/work-with-us/)** builds custom Claude skills, agents, and MCP integrations — shipped to production, not demoed.
+
+- **Skill sprints** — a focused, eval-backed skill scoped and shipped fast
+- **Custom builds** — production AI systems combining skills, agents, and MCP integrations
+- **Skills library** — an ongoing, maintained library of skills for your team
+
+Evals are the deliverable, not an afterthought — shipped to production, or you don't pay the final milestone. **[Book a quick call →](https://skills.wondel.ai/work-with-us/)**
+
+---
+
+## Copyright & Disclaimer
+
+The methodologies and frameworks referenced in these skills are the intellectual property of their respective authors and publishers. All copyrights belong to:
+
+- **Jobs to Be Done**: Clayton M. Christensen, Taddy Hall, Karen Dillon, David S. Duncan
+- **Making Websites Win**: Karl Blanks, Ben Jesson (Conversion Rate Experts)
+- **Refactoring UI**: Adam Wathan, Steve Schoger
+- **Human Interface Guidelines**: Apple Inc.
+- **Scorecard Marketing**: Daniel Priestley, Glen Carlson
+- **Building a StoryBrand**: Donald Miller
+- **Hooked**: Nir Eyal
+- **Tiny Habits**: BJ Fogg
+- **Don't Make Me Think**: Steve Krug
+- **10 Usability Heuristics**: Jakob Nielsen (Nielsen Norman Group)
+- **On Web Typography**: Jason Santa Maria
+- **Top Design**: Techniques inspired by Locomotive, Studio Freight, AREA 17, Active Theory, Hello Monday, Dogstudio, Tonik, Instrument, Resn
+- **Never Split the Difference**: Chris Voss, Tahl Raz
+- **Influence: The Psychology of Persuasion**: Robert B. Cialdini
+- **The Lean Startup**: Eric Ries
+- **Sprint**: Jake Knapp, John Zeratsky, Braden Kowitz
+- **Crossing the Chasm**: Geoffrey A. Moore
+- **Blue Ocean Strategy**: W. Chan Kim, Renée Mauborgne
+- **Traction**: Gino Wickman
+- **The Design of Everyday Things**: Don Norman
+- **Predictable Revenue**: Aaron Ross, Marylou Tyler
+- **Made to Stick**: Chip Heath, Dan Heath
+- **Drive**: Daniel H. Pink
+- **$100M Offers**: Alex Hormozi
+- **Obviously Awesome**: April Dunford
+- **Contagious**: Jonah Berger
+- **The 1-Page Marketing Plan**: Allan Dib
+- **The Mom Test**: Rob Fitzpatrick
+- **Inspired**: Marty Cagan
+- **Lean UX**: Jeff Gothelf, Josh Seiden
+- **Continuous Discovery Habits**: Teresa Torres
+- **Microinteractions**: Dan Saffer
+- **Clean Code**: Robert C. Martin
+- **Refactoring**: Martin Fowler
+- **A Philosophy of Software Design**: John Ousterhout
+- **The Pragmatic Programmer**: Andrew Hunt, David Thomas
+- **Domain-Driven Design**: Eric Evans
+- **Designing Data-Intensive Applications**: Martin Kleppmann
+- **System Design Interview**: Alex Xu
+- **Clean Architecture**: Robert C. Martin
+- **Release It!**: Michael Nygard
+- **High Performance Browser Networking**: Ilya Grigorik
+- **Getting Real**: Jason Fried, David Heinemeier Hansson
+- **Rework**: Jason Fried, David Heinemeier Hansson
+- **Shape Up**: Ryan Singer
+- **Steve Jobs**: Walter Isaacson
+- **Insanely Simple**: Ken Segall
+- **Creative Selection**: Ken Kocienda
+- **Good Strategy Bad Strategy**: Richard P. Rumelt
+- **Monetizing Innovation**: Madhavan Ramanujam, Georg Tacke
+- **The Cold Start Problem**: Andrew Chen
+- **Working Effectively with Legacy Code**: Michael C. Feathers
+- **Team Topologies**: Matthew Skelton, Manuel Pais
+- **High Output Management**: Andrew S. Grove
+- **Lean Analytics**: Alistair Croll, Benjamin Yoskovitz
+- **Google Developer Documentation Style Guide**: Google LLC, adapted under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+
+The 14 metaskills (create/improve/grow × business/website/app, improve-code-quality, remove-technical-debt, design-code-architecture, conversion-optimization, architecture-optimization) are orchestration workflows authored by Wondel.ai. They sequence and invoke the skills above; the frameworks they reference remain the intellectual property of the authors listed here.
+
+These skills were created without directly copying or reproducing content from the original books or materials. They are based on:
+- Publicly available information about the methodologies
+- General knowledge embedded in large language models
+- Common industry practices and terminology
+
+We encourage users to purchase and read the original books for the complete, authoritative treatment of each methodology. The skills in this repository are intended as practical aids, not replacements for the source materials.

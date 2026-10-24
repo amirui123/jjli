@@ -6,7 +6,7 @@ export const TOOLKIT_STATS = {
   skills: 179,
   brands: 84,
   sounds: 285,
-  fonts: 50,
+  fonts: 93,
   banks: 18,
   components: 4199,
   componentFiles: 4888,

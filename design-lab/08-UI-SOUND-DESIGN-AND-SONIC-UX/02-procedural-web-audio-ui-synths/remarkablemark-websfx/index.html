@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>websfx: Play synthesized UI sound effects</title>
+    <meta
+      name="description"
+      content="🔊 Play synthesized UI sound effects in your browser. No dependencies. No audio assets. Sounds are generated at runtime with the Web Audio API."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔊</text></svg>"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+    <script type="module" src="/main.ts"></script>
+  </head>
+  <body
+    class="min-h-screen bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-200"
+  >
+    <header class="mx-auto max-w-5xl px-6 pt-14 pb-8">
+      <div class="flex flex-wrap items-baseline gap-x-4 gap-y-2">
+        <h1
+          class="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white"
+        >
+          websfx
+        </h1>
+      </div>
+      <p class="mt-3 text-lg text-zinc-600 dark:text-zinc-400">
+        🔊 Play synthesized UI sound effects in the browser. No dependencies. No
+        audio assets. Sounds are generated at runtime with the Web Audio API.
+      </p>
+      <p class="mt-4 text-sm text-zinc-500">
+        <a
+          href="https://github.com/remarkablemark/websfx"
+          class="font-medium text-zinc-700 underline underline-offset-4 hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
+          >GitHub</a
+        >
+        ·
+        <a
+          href="https://www.npmjs.com/package/websfx"
+          class="font-medium text-zinc-700 underline underline-offset-4 hover:text-emerald-600 dark:text-zinc-300 dark:hover:text-emerald-400"
+          >npm</a
+        >
+        · MIT licensed
+      </p>
+    </header>
+
+    <div
+      class="sticky top-0 z-10 border-y border-zinc-200 bg-zinc-50/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90"
+    >
+      <div
+        class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-5 gap-y-2 px-6 py-3"
+      >
+        <label
+          for="volume"
+          class="text-sm font-medium text-zinc-600 dark:text-zinc-400"
+          >Volume</label
+        >
+        <input
+          id="volume"
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value="1"
+          class="w-36 cursor-pointer accent-emerald-500"
+        />
+        <button
+          id="mute"
+          type="button"
+          aria-pressed="false"
+          class="cursor-pointer rounded-md border border-zinc-300 px-3 py-1 text-sm text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:bg-zinc-800"
+        >
+          Mute
+        </button>
+        <output
+          id="readout"
+          for="volume"
+          class="font-mono text-sm text-zinc-500"
+          >volume: 100%</output
+        >
+        <span
+          class="ml-auto hidden text-sm text-zinc-600 lg:block dark:text-zinc-500"
+        >
+          AudioContext unlocks on your first play
+        </span>
+      </div>
+    </div>
+
+    <main
+      id="sounds"
+      class="mx-auto flex max-w-5xl flex-col gap-10 px-6 pt-10 pb-24"
+    ></main>
+
+    <script
+      src="https://unpkg.com/github-corners/dist/embed.min.js"
+      data-href="https://github.com/remarkablemark/websfx"
+      data-target="_blank"
+      async
+      defer
+    ></script>
+  </body>
+</html>

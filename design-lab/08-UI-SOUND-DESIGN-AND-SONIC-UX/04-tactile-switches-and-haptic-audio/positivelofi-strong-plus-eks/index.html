@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STRONG+ — Extended Karplus-Strong</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Bebas+Neue&display=swap');
+:root{
+  --bg:#0d0d0d;--panel:#181818;--border:#2a2a2a;--border2:#383838;
+  --accent:#6dcde8;--accent2:#4aabb8;--warm:#f0e4c4;
+  --text:#c8c8c8;--dim:#888;--green:#00e87a;--amber:#ffaa00;
+  --purple:#b87ad8;--teal:#4aab80;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);font-family:'Rajdhani',sans-serif;color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:12px;gap:8px;user-select:none;}
+.header{width:100%;max-width:1100px;display:flex;align-items:center;gap:16px;padding:10px 16px;background:var(--panel);border:1px solid var(--border);border-radius:4px;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:5px;color:var(--warm);line-height:1;}
+.logo em{font-style:normal;color:var(--accent);}
+.tagline{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim);letter-spacing:1.5px;line-height:1.9;}
+.hdr-right{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.leds{display:flex;gap:6px;}
+.led{width:8px;height:8px;border-radius:50%;background:#1a1a1a;border:1px solid #2a2a2a;transition:all .08s;}
+.led.green{background:var(--green);box-shadow:0 0 5px var(--green);}
+.led.amber{background:var(--amber);box-shadow:0 0 5px var(--amber);}
+.archive-btn{cursor:pointer;background:#0d1e26;border:1px solid var(--accent2);border-radius:4px;padding:7px 14px;transition:all .18s;text-align:right;min-width:175px;}
+.archive-btn:hover{background:#0d2a38;border-color:var(--accent);}
+.archive-btn:hover .ab-title{color:var(--accent);}
+.ab-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;color:var(--warm);line-height:1;}
+.ab-sub{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--accent2);letter-spacing:1px;margin-top:3px;line-height:1.6;}
+.statusbar{width:100%;max-width:1100px;display:flex;align-items:center;gap:14px;padding:8px 16px;background:var(--panel);border:1px solid var(--border);border-radius:4px;}
+.note-big{font-family:'Share Tech Mono',monospace;font-size:30px;color:var(--warm);min-width:68px;}
+.hz-txt{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--dim);}
+.preset-name{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--accent2);max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.panic-btn{font-family:'Share Tech Mono',monospace;font-size:11px;color:#c84040;border:1px solid #4a1a1a;padding:5px 12px;border-radius:3px;cursor:pointer;background:#1a0a0a;letter-spacing:1px;transition:all .15s;flex-shrink:0;margin-left:auto;}
+.panic-btn:hover{background:#2a1010;color:#e86060;}
+.preset-bar{width:100%;max-width:1100px;background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:10px 16px;display:flex;align-items:center;gap:16px;}
+.preset-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;white-space:nowrap;flex-shrink:0;}
+.preset-select{flex:1;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text);background:#111;border:1px solid var(--border2);border-radius:3px;padding:7px 10px;cursor:pointer;outline:none;}
+.preset-select:hover,.preset-select:focus{border-color:var(--accent2);}
+.story-link{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--accent2);white-space:nowrap;cursor:pointer;letter-spacing:.5px;padding:6px 12px;border:1px solid #1e3a42;border-radius:3px;background:#0a1820;transition:all .15s;flex-shrink:0;}
+.story-link:hover{color:var(--warm);border-color:var(--accent);background:#0d2028;}
+.story-link em{font-style:normal;color:var(--accent);}
+.engine{width:100%;max-width:1100px;display:grid;grid-template-columns:repeat(7,1fr);gap:7px;}
+.section{background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:10px 12px;}
+.sec-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid #1e1e1e;display:flex;align-items:center;justify-content:space-between;}
+.sec-badge{font-family:'Share Tech Mono',monospace;font-size:8px;color:#1e4050;background:#0a1820;padding:1px 4px;border-radius:2px;letter-spacing:.5px;}
+.knob-group{display:flex;flex-direction:column;align-items:center;gap:3px;margin-bottom:8px;}
+.knob-wrap{position:relative;width:44px;height:44px;cursor:ns-resize;}
+.knob-body{position:absolute;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 36% 34%,#3a3530,#1c1c1c);border:1px solid var(--border2);}
+.knob-arc{position:absolute;width:48px;height:48px;top:-2px;left:-2px;pointer-events:none;}
+.knob-dot{position:absolute;width:3px;height:14px;background:var(--warm);border-radius:1px;left:50%;top:5px;transform-origin:50% 17px;transform:translateX(-50%) rotate(-135deg);}
+.knob-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim);text-align:center;pointer-events:none;}
+.knob-dot,.knob-arc,.knob-body{pointer-events:none;}
+.knob-val{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--accent);text-align:center;font-weight:600;}
+.toggle-row{display:flex;gap:2px;justify-content:center;margin-bottom:8px;flex-wrap:wrap;}
+.tbtn{font-family:'Share Tech Mono',monospace;font-size:8px;padding:3px 5px;background:#111;border:1px solid #282828;border-radius:3px;color:#555;cursor:pointer;transition:all .12s;}
+.tbtn:hover{color:var(--dim);}
+.tbtn.active{background:#0d2028;border-color:var(--accent);color:var(--accent);}
+.body-select{width:100%;font-family:'Share Tech Mono',monospace;font-size:8.5px;color:var(--text);background:#0e0e0e;border:1px solid var(--border2);border-radius:3px;padding:5px 6px;cursor:pointer;outline:none;margin-bottom:8px;}
+.body-select:hover,.body-select:focus{border-color:var(--accent2);}
+.body-select option{background:#111;}
+.kb-wrap{width:100%;max-width:1100px;background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:10px 14px 8px;}
+.kb-container{position:relative;height:70px;overflow:hidden;}
+.wkey{position:absolute;background:#e8dcb8;border:1px solid #888;border-radius:0 0 5px 5px;cursor:pointer;transition:background .04s;top:0;bottom:0;}
+.bkey{position:absolute;background:#1a1814;border:1px solid #3a3a3a;border-radius:0 0 3px 3px;cursor:pointer;height:44px;z-index:2;transition:background .04s;top:0;}
+.wkey:active,.wkey.on{background:var(--accent)!important;}
+.bkey:active,.bkey.on{background:var(--accent2)!important;}
+.kb-footer{display:flex;align-items:center;gap:12px;margin-top:7px;}
+.kb-hint{font-family:'Share Tech Mono',monospace;font-size:9px;color:#444;letter-spacing:.8px;}
+.oct-ctrl{display:flex;align-items:center;gap:6px;margin-left:12px;}
+.oct-btn{width:22px;height:22px;background:#111;border:1px solid var(--border2);border-radius:3px;color:var(--accent);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;}
+.oct-num{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--accent);min-width:18px;text-align:center;}
+.archive-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:100;overflow-y:auto;padding:24px;}
+.archive-overlay.open{display:block;}
+.archive-panel{max-width:860px;margin:0 auto;background:#141414;border:1px solid var(--border2);border-radius:6px;overflow:hidden;}
+.archive-header{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);background:#181818;}
+.archive-title{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:4px;color:var(--warm);}
+.archive-sub{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);margin-left:14px;letter-spacing:1.5px;}
+.archive-close{margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim);cursor:pointer;border:1px solid var(--border2);padding:5px 14px;border-radius:3px;background:#111;transition:all .15s;letter-spacing:1px;}
+.archive-close:hover{color:var(--text);}
+.archive-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.atab{font-family:'Share Tech Mono',monospace;font-size:10px;padding:8px 14px;color:var(--dim);cursor:pointer;border-right:1px solid var(--border);transition:all .15s;letter-spacing:1px;}
+.atab:hover{color:var(--text);background:#1e1e1e;}
+.atab.active{color:var(--accent);background:#0d2028;border-bottom:2px solid var(--accent);margin-bottom:-1px;}
+.archive-content{padding:20px;}
+.archive-section{display:none;}
+.archive-section.active{display:block;}
+.acard{border:1px solid var(--border);border-radius:4px;padding:14px;margin-bottom:10px;background:#111;}
+.acard-year{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--accent2);letter-spacing:1px;}
+.acard-title{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--warm);margin:3px 0;}
+.acard-subtitle{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);margin-bottom:10px;letter-spacing:.5px;}
+.acard-body{font-size:14px;line-height:1.75;color:var(--text);}
+.acard-body b{color:var(--warm);font-weight:600;}
+.acard-tag{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:9px;padding:2px 7px;border-radius:2px;margin:8px 3px 0 0;}
+.tag-algo{background:#0a1820;color:var(--accent2);border:1px solid #1e3a4a;}
+.tag-music{background:#0a1a0a;color:var(--teal);border:1px solid #1a3a1a;}
+.tag-hw{background:#1a0a0a;color:#c87070;border:1px solid #3a1a1a;}
+.tag-theory{background:#1a0a1a;color:var(--purple);border:1px solid #3a1a3a;}
+.acard-eq{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--accent);background:#0a1820;padding:10px 14px;border-radius:3px;margin:10px 0;border-left:2px solid var(--accent2);letter-spacing:.5px;line-height:1.9;}
+.person-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.person-card{background:#0e0e0e;border:1px solid var(--border);border-radius:4px;padding:14px;}
+.person-name{font-size:16px;font-weight:700;color:var(--warm);margin-bottom:4px;}
+.person-role{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--accent2);letter-spacing:1px;margin-bottom:9px;}
+.person-bio{font-size:13px;line-height:1.7;color:var(--text);}
+.person-bio b{color:var(--warm);}
+.timeline{border-left:2px solid var(--border2);padding-left:18px;margin-left:6px;}
+.tl-item{position:relative;padding-bottom:16px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-dot{position:absolute;left:-23px;top:4px;width:9px;height:9px;border-radius:50%;background:var(--accent2);border:2px solid var(--bg);}
+.tl-year{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--accent2);margin-bottom:3px;letter-spacing:1px;}
+.tl-text{font-size:14px;line-height:1.7;color:var(--text);}
+.tl-text b{color:var(--warm);}
+.preset-ref{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:9px;padding:2px 8px;border-radius:2px;margin:8px 3px 0 0;cursor:pointer;transition:all .15s;}
+.preset-ref-hist{background:#0a1e14;color:var(--teal);border:1px solid #1a4a2a;}
+.preset-ref-hist:hover{background:#0d2a1a;border-color:var(--teal);}
+.preset-ref-conc{background:#190d24;color:var(--purple);border:1px solid #3a1a4a;}
+.preset-ref-conc:hover{background:#220d30;border-color:var(--purple);}
+.tooltip{display:none;position:fixed;background:#0d2028;border:1px solid var(--accent2);border-radius:4px;padding:9px 13px;max-width:310px;z-index:200;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text);line-height:1.65;pointer-events:none;}
+.tooltip.show{display:block;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="logo">STRONG<em>+</em></div>
+    <div class="tagline">Extended Karplus–Strong &nbsp;·&nbsp; EKS &nbsp;·&nbsp; Jaffe & Smith 1983<br>Commuted Synthesis — the body and the room are one &nbsp;·&nbsp; v1.0</div>
+  </div>
+  <div class="hdr-right">
+    <div class="leds"><div id="ledAudio" class="led"></div><div id="ledPlay" class="led"></div></div>
+    <div class="archive-btn" onclick="openArchive()">
+      <div class="ab-title">◈ ARCHIVE</div>
+      <div class="ab-sub">The people · the algorithm · the history<br>An accident that became a revolution</div>
+    </div>
+  </div>
+</div>
+
+<div class="statusbar">
+  <div id="noteDisp" class="note-big">—</div>
+  <div id="hzDisp" class="hz-txt">— Hz</div>
+  <div id="presetName" class="preset-name"></div>
+  <div class="panic-btn" onclick="doPanic()" title="Stop all sound">■ PANIC</div>
+</div>
+
+<div class="preset-bar">
+  <div class="preset-label">PRESET</div>
+  <select id="presetSelect" class="preset-select" onchange="onSelectPreset(this)">
+    <option value="" disabled selected>— select a preset —</option>
+    <optgroup label="◈ Historical" id="optHist"></optgroup>
+    <optgroup label="◈ Conceptual" id="optConc"></optgroup>
+  </select>
+  <div class="preset-or" style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#333;white-space:nowrap;flex-shrink:0;">or</div>
+  <div class="story-link" onclick="openArchive()">explore the <em>full story</em> ◈</div>
+</div>
+
+
+<div class="engine">
+  <div class="section">
+    <div class="sec-title">EXCITATION <span class="sec-badge">H_p · H_L</span></div>
+    <div class="toggle-row"><div class="tbtn active" onclick="setExc('noise',this)">NOISE</div><div class="tbtn" onclick="setExc('pluck',this)">PLUCK</div><div class="tbtn" onclick="setExc('sine',this)">SINE</div></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="dynLevel" data-min="0" data-max="1" data-v="0.7"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Dyn Level</div><div class="knob-val" id="v-dynLevel">--</div></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="burstMs" data-min="0.5" data-max="50" data-v="8"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Burst ms</div><div class="knob-val" id="v-burstMs">--</div></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="detune" data-min="-100" data-max="100" data-v="0"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Detune c</div><div class="knob-val" id="v-detune">--</div></div>
+  </div>
+  <div class="section">
+    <div class="sec-title">STRING <span class="sec-badge">H_d loop</span></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="loopGain" data-min="0.980" data-max="0.9998" data-v="0.9960"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Loop Gain</div><div class="knob-val" id="v-loopGain">--</div></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="material" data-min="0.05" data-max="0.95" data-v="0.5"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Material</div><div class="knob-val" id="v-material">--</div></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="stiffness" data-min="0" data-max="0.15" data-v="0"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Stiffness</div><div class="knob-val" id="v-stiffness">--</div></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="eta" data-min="0.05" data-max="0.93" data-v="0.5"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">η Tuning</div><div class="knob-val" id="v-eta">--</div></div>
+  </div>
+  <div class="section">
+    <div class="sec-title">PICK <span class="sec-badge">H_β · H_p</span></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="pickPos" data-min="0.05" data-max="0.49" data-v="0.12"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Pick Pos β</div><div class="knob-val" id="v-pickPos">--</div></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="pickDir" data-min="0" data-max="0.92" data-v="0"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Pick Dir p</div><div class="knob-val" id="v-pickDir">--</div></div>
+  </div>
+  <div class="section">
+    <div class="sec-title">SYMPATHETIC <span class="sec-badge">waveguide</span></div>
+    <div class="toggle-row" id="sympRow"><div class="tbtn active" data-s="off" onclick="setSympMode('off',this)">OFF</div><div class="tbtn" data-s="unison" onclick="setSympMode('unison',this)">UNI</div><div class="tbtn" data-s="fifth" onclick="setSympMode('fifth',this)">5TH</div><div class="tbtn" data-s="octave" onclick="setSympMode('octave',this)">8VA</div></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="sympTune" data-min="-50" data-max="50" data-v="0"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Tune c</div><div class="knob-val" id="v-sympTune">--</div></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="sympDecay" data-min="0.980" data-max="0.9998" data-v="0.994"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Decay</div><div class="knob-val" id="v-sympDecay">--</div></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="sympMix" data-min="0" data-max="1" data-v="0.3"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Mix</div><div class="knob-val" id="v-sympMix">--</div></div>
+  </div>
+  <div class="section">
+    <div class="sec-title">BODY <span class="sec-badge">commuted</span></div>
+    <select id="bodySelect" class="body-select" onchange="setBodyFromSelect(this)">
+      <option value="room">ROOM — concert hall</option>
+      <option value="spring">SPRING — metallic coil</option>
+      <option value="cave">CAVE — stone chamber</option>
+      <option value="plate">PLATE — studio EMT 140</option>
+      <option value="nano">NANO — tiny resonator</option>
+      <option value="cathedral">CATHEDRAL — stone space</option>
+      <option value="titan">TITAN — building scale</option>
+      <option value="void">VOID — infinite space</option>
+      <option value="wood">WOOD — guitar body</option>
+      <option value="metal">METAL — steel resonator</option>
+    </select>
+    <div class="knob-group"><div class="knob-wrap" data-p="bodySize" data-min="0.05" data-max="0.98" data-v="0.45"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Body Size</div><div class="knob-val" id="v-bodySize">--</div></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="bodyMix" data-min="0" data-max="1" data-v="0.25"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Body Mix</div><div class="knob-val" id="v-bodyMix">--</div></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="bodyDamp" data-min="0" data-max="1" data-v="0.4"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Damping</div><div class="knob-val" id="v-bodyDamp">--</div></div>
+  </div>
+  <div class="section">
+    <div class="sec-title">POST <span class="sec-badge">degrade</span></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="saturation" data-min="0" data-max="1" data-v="0"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Saturation</div><div class="knob-val" id="v-saturation">--</div></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="bitCrush" data-min="0" data-max="1" data-v="0"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Bit Crush</div><div class="knob-val" id="v-bitCrush">--</div></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="decimation" data-min="0" data-max="1" data-v="0"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Decimation</div><div class="knob-val" id="v-decimation">--</div></div>
+  </div>
+  <div class="section">
+    <div class="sec-title">OUTPUT</div>
+    <div class="knob-group"><div class="knob-wrap" data-p="volume" data-min="0" data-max="1" data-v="0.75"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Volume</div><div class="knob-val" id="v-volume">--</div></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="vibRate" data-min="0" data-max="8" data-v="0"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Vib Rate</div><div class="knob-val" id="v-vibRate">--</div></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="vibDepth" data-min="0" data-max="40" data-v="0"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Vib Depth</div><div class="knob-val" id="v-vibDepth">--</div></div>
+    <div class="knob-group"><div class="knob-wrap" data-p="chorus" data-min="0" data-max="1" data-v="0"><div class="knob-body"></div><canvas class="knob-arc" width="48" height="48"></canvas><div class="knob-dot"></div></div><div class="knob-label">Ensemble</div><div class="knob-val" id="v-chorus">--</div></div>
+  </div>
+</div>
+
+
+<div class="kb-wrap">
+  <div class="kb-container" id="kbContainer"></div>
+  <div class="kb-footer">
+    <div class="kb-hint">QWERTY: A W S E D F T G Y H U J K O L P</div>
+    <div class="oct-ctrl">
+      <div class="kb-hint" style="color:#555;">OCT</div>
+      <div class="oct-btn" onclick="changeOct(-1)">−</div>
+      <div class="oct-num" id="octDisp">3</div>
+      <div class="oct-btn" onclick="changeOct(1)">+</div>
+    </div>
+    <div class="kb-hint" style="margin-left:auto;color:#333;">double-click knob = reset</div>
+  </div>
+</div>
+
+<div class="archive-overlay" id="archiveOverlay" onclick="closeArchiveOutside(event)">
+  <div class="archive-panel">
+    <div class="archive-header">
+      <div class="archive-title">ARCHIVE</div>
+      <div class="archive-sub">The history and culture of Karplus–Strong synthesis</div>
+      <div class="archive-close" onclick="closeArchive()">× CLOSE</div>
+    </div>
+    <div class="archive-tabs">
+      <div class="atab active" onclick="showTab('story',this)">THE STORY</div>
+      <div class="atab" onclick="showTab('tutorial',this)">HOW KS WORKS</div>
+      <div class="atab" onclick="showTab('people',this)">PEOPLE</div>
+      <div class="atab" onclick="showTab('timeline',this)">TIMELINE</div>
+      <div class="atab" onclick="showTab('works',this)">WORKS</div>
+      <div class="atab" onclick="showTab('algorithm',this)">ALGORITHM</div>
+      <div class="atab" onclick="showTab('hardware',this)">HARDWARE</div>
+      <div class="atab" onclick="showTab('vibe',this)">VIBE CODING</div>
+    </div>
+    <div class="archive-content">
+      <div class="archive-section active" id="tab-story">
+<div class="acard">
+  <div class="acard-title">An Accident That Sounded Like a String</div>
+  <div class="acard-body">Around 1978-79, <b>Alex Strong</b> — a CS student at Stanford who also played viola — was experimenting with wavetable synthesis on an 8-bit microprocessor. He tried filtering the wavetable on each reading pass: average each sample with its neighbor. A two-point average. No multiplications. The result sounded like a plucked string. Not a simulation — something alive, with natural decay, harmonics fading in the right order. "Almost no matter what initial table was used," the paper would say. Even random noise sounded like a string.<br><br>This was the accident. Strong brought it to Karplus, who did the math. They built the <b>Digitar VLSI chip</b> (reportedly 16 voices, Intel 8080A/TI TMS9900) and published in 1983. Neither had set out to synthesize a string.</div>
+</div>
+<div class="acard">
+  <div class="acard-title">The Composer Who Made It Music</div>
+  <div class="acard-body"><b>David A. Jaffe</b> was a composition PhD at CCRMA who played in the same string quartet as Strong. He brought the algorithm to <b>Julius O. Smith III</b>, who recognized something extraordinary: the KS transfer function coincided exactly with that of an ideal vibrating string. Karplus and Strong had suspected this — Smith demonstrated that the KS transfer function corresponded to an idealized vibrating string model. Together Jaffe and Smith developed the <b>Extended KS (EKS) algorithm</b> — six filters: H_eta (tuning), H_beta (pick position), H_L (dynamic level), H_p (pick direction), H_s (stiffness), H_d (loop gain). Published 1983, same issue of Computer Music Journal.</div>
+</div>
+<div class="acard">
+  <div class="acard-title">Silicon Valley Breakdown — Imaginary Instruments</div>
+  <div class="acard-body">Jaffe's <b>Silicon Valley Breakdown</b> (1982, premiered Venice Biennale 1983) — an orchestra of imaginary plucked string instruments, from a "piccolo mandolin" to an immense bass "plucked Golden Gate Bridge." Four ensembles in quadraphonic space. Hailed by Le Monde. Performed in 28+ countries. Jaffe described it as blurring "the dividing line between string resonance and reverberation, between instrument and space" — the seed of commuted synthesis.
+  <span class="preset-ref preset-ref-hist" onclick="loadPresetById('piccolo')">→ Piccolo Mandolin</span>
+  <span class="preset-ref preset-ref-hist" onclick="loadPresetById('pluckedgate')">→ Plucked Gate</span>
+  <span class="preset-ref preset-ref-hist" onclick="loadPresetById('quadraspace')">→ Quadraspace</span>
+  <span class="preset-ref preset-ref-hist" onclick="loadPresetById('venice83')">→ Venice Biennale</span></div>
+</div>
+<div class="acard">
+  <div class="acard-title">The NeXT Machine — Two Revolutions, One Black Cube</div>
+  <div class="acard-body">Steve Jobs recruited Jaffe and Smith (1986-91) to build the <b>NeXT Music Kit</b> — first demonstrated October 12, 1988 at Davies Symphony Hall with a live duet between the Cube and an SF Symphony violinist. Independently, <b>Tim Berners-Lee</b> built WorldWideWeb.app on a NeXT Cube at CERN in September 1990 — in Objective-C on NeXTSTEP, the same language and OS as the Music Kit. Two revolutions, one machine. Both open-sourced within 12 months: Music Kit → CCRMA 1992, WWW → public domain <b>April 30, 1993</b>.
+  <span class="preset-ref preset-ref-hist" onclick="loadPresetById('www89')">→ WWW·89</span>
+  <span class="preset-ref preset-ref-hist" onclick="loadPresetById('jobsdemo88')">→ Jobs Demo '88</span>
+  <span class="preset-ref preset-ref-conc" onclick="loadPresetById('publicdomain93')">→ Public Domain '93</span></div>
+</div>
+<div class="acard">
+  <div class="acard-title">Commuted Synthesis — The Room IS the String</div>
+  <div class="acard-body">Smith's insight (1992): since both string and body are linear time-invariant systems, their order can be <b>commuted</b>. The body IR is folded into the excitation — the string plucks a pre-convolved body. In Strong+, the BODY section applies an impulse response before the feedback loop. The reverb is not an effect: it is the instrument body. ROOM, SPRING, CAVE, PLATE, NANO, CATHEDRAL, TITAN, VOID, WOOD, METAL — ten different physical structures.
+  <span class="preset-ref preset-ref-conc" onclick="loadPresetById('commuted')">→ Commuted Body</span></div>
+</div>
+<div class="acard">
+  <div class="acard-title">Vibe Coding — A New Kind of Making</div>
+  <div class="acard-body">Strong+ was built through dialogue between <b>Yuwa</b> (musician, composer, creator of <b>Positive Lofi</b> YouTube channel, passionate amateur of synthesis) and Claude (Anthropic). Yuwa is not a programmer — he is someone who loves sound deeply and wanted to understand what happens inside a physical string model when you pluck it. The same question Alex Strong was asking in 1978.<br><br><b>The NeXT parallel:</b> Jaffe/Smith built the Music Kit on NeXT hardware. Berners-Lee built the web browser on the same machine, same language (Objective-C), same years. Both released freely. Strong+ inherits this lineage: algorithm public domain, Music Kit open-sourced, web made distribution free, vibe coding makes building accessible. The same compression, applied to creation itself.<br><br><b>Authorship:</b> Yuwa brought curiosity, musical ear, direction, corrections. Claude brought implementation, research, code. Knowledge distributed across the conversation — exactly as in 1983, where Strong discovered, Karplus analyzed, Jaffe musicalized, and Smith proved. The original patents have expired and the algorithm is freely implementable. The history is documented. The sounds are yours.</div>
+</div>
+</div>
+      <div class="archive-section" id="tab-tutorial">
+<div class="acard">
+  <div class="acard-title">Step 1 — The Simplest Possible Loop</div>
+  <div class="acard-body">A circular buffer of N samples filled with white noise. On each cycle, replace each sample with the average of itself and its neighbor. That is the entire Karplus-Strong algorithm.</div>
+  <div class="acard-eq">y[n] = 0.5 * (y[n-N] + y[n-N-1])</div>
+  <div class="acard-body">The averaging filter attenuates high frequencies progressively — the string loses upper harmonics first, exactly as a real string does. Pitch = sampleRate / N. No multiplications — designed for 8-bit CPUs.</div>
+</div>
+<div class="acard">
+  <div class="acard-title">Step 2 — EKS Controls</div>
+  <div class="acard-body"><b>Loop Gain (H_d)</b> — energy retained per cycle. 0.999 = long decay, 0.982 = short. This is your sustain control.<br><br><b>Material (one-zero weight)</b> — 0.5 = original KS, bright. Towards 1 = dark (nylon/gut). Towards 0 = bright (steel).<br><br><b>Dynamic Level (H_L)</b> — lowpass bandwidth on excitation. Loud=bright. Soft=dark. Velocity-sensitive.<br><br><b>Pick Position (H_beta)</b> — comb filter. Near bridge = nasal. Over soundhole = warm. Cancels harmonics at pick node.<br><br><b>Pick Direction (H_p)</b> — one-pole LP on excitation. Shapes attack character.</div>
+</div>
+<div class="acard">
+  <div class="acard-title">Step 3 — The Tuning Problem (H_eta)</div>
+  <div class="acard-body">N must be an integer, but the true period is fractional. At 44100 Hz, A=440 gives N=100.227. A first-order allpass introduces a sub-sample delay that compensates the pitch error.</div>
+  <div class="acard-eq">H_eta(z) = -(eta - z^-1) / (1 - eta * z^-1)</div>
+</div>
+<div class="acard">
+  <div class="acard-title">Step 4 — Commuted Synthesis</div>
+  <div class="acard-body">String and body are both linear time-invariant systems — their order can be swapped. Fold the body IR into the excitation. The string plucks a pre-convolved body. No separate reverb step. In Strong+: the BODY section IS the instrument body, not an effect insert.</div>
+</div>
+<div class="acard">
+  <div class="acard-title">Step 5 — Sympathetic Strings</div>
+  <div class="acard-body">A second KS delay line tuned at an interval (unison+detune, fifth, octave) coupled to the first via shared energy. A sitar has sympathetic drone strings. A piano has undamped strings that resonate. In Strong+: SYMPATHETIC section — tune offset, decay, and mix of the secondary string.</div>
+</div>
+<div class="acard">
+  <div class="acard-title">Bonus — The Drum Algorithm</div>
+  <div class="acard-body">Karplus & Strong's original paper also described a drum variant: with probability (1-b), flip the sign of the averaged sample. At b=0.5: pure noise/drum. At b=1: pure string. In between: indefinite-pitch percussion. The boundary between string and drum is a single probability value.</div>
+</div>
+</div>
+      <div class="archive-section" id="tab-people">
+<div class="person-grid">
+  <div class="person-card"><div class="person-name">Alex Strong</div><div class="person-role">INVENTOR · VIOLIST · BLUEGRASS MUSICIAN</div><div class="person-bio">CS student at Stanford and practicing violist. <b>Invented the algorithm</b> c.1978-79 while experimenting with wavetable modification on an 8-bit microprocessor. The two-point average was a surprise — the string sound was not the goal. Co-designed the <b>Digitar VLSI chip</b> (16 voices, Intel 8080A). Later published a superior method as a patent (never commercialized).</div></div>
+  <div class="person-card"><div class="person-name">Kevin Karplus</div><div class="person-role">ANALYST · COMPUTER SCIENTIST · STANFORD</div><div class="person-bio">Performed the <b>first mathematical analysis</b> using Z-transforms. Co-designed the Digitar chip. Their 1983 paper in Computer Music Journal (MIT Press, vol.7 no.2) established the algorithm formally. Later moved to bioinformatics at UC Santa Cruz.</div></div>
+  <div class="person-card"><div class="person-name">David A. Jaffe</div><div class="person-role">COMPOSER · CCRMA STANFORD · b. 1955</div><div class="person-bio">Composition PhD at CCRMA, played in the same string quartet as Strong. Gave KS its first musical voice in <i>May All Your Children Be Acrobats</i> (1981). Created <i>Silicon Valley Breakdown</i> (1982) — the landmark work. With Smith developed EKS. Built the NeXT Music Kit for Steve Jobs (1986-91). Over 90 compositions.</div></div>
+  <div class="person-card"><div class="person-name">Julius O. Smith III</div><div class="person-role">THEORIST · DSP ENGINEER · PROFESSOR EMERITUS CCRMA</div><div class="person-bio">Proved that KS = transfer function of an ideal vibrating string. Derived KS as a special case of <b>digital waveguide synthesis</b>. 1983 PhD thesis applied theory to violin synthesis. Formalized <b>commuted synthesis</b> (1992). Co-invented the audio fingerprinting algorithm behind <b>Shazam</b>. CCRMA textbooks are the definitive reference.</div></div>
+</div>
+</div>
+      <div class="archive-section" id="tab-timeline">
+<div class="timeline">
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1978-79</div><div class="tl-text">Alex Strong discovers the algorithm on an 8-bit microprocessor at Stanford. Two-point average produces string sounds unexpectedly.</div></div>
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1981</div><div class="tl-text"><b>May All Your Children Be Acrobats</b>, Jaffe. First musical use — 8 guitars, mezzo-soprano, tape. Text from Carl Sandburg's <i>The People, Yes</i>.</div></div>
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1982</div><div class="tl-text">Jaffe and Smith present EKS at ICMC Venice. <b>Silicon Valley Breakdown</b> composed.</div></div>
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">Oct 1983</div><div class="tl-text">Two papers in Computer Music Journal (MIT Press, vol.7 no.2): KS original + EKS extensions. Smith's PhD thesis links KS to digital waveguide synthesis. Patent licensed to a company that goes bankrupt.</div></div>
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">Venice 1983</div><div class="tl-text"><b>Silicon Valley Breakdown</b> premieres at the Venice Biennale. Hailed by Le Monde as a landmark of computer music.</div></div>
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1984</div><div class="tl-text"><b>Telegram to the President</b>, Jaffe — string quartet + tape. First major mixed acoustic/electronic KS work.</div></div>
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1986-91</div><div class="tl-text">Steve Jobs recruits Jaffe and Smith for the <b>NeXT Music Kit</b>. First demonstrated October 12, 1988 at Davies Symphony Hall with a live duet between the Cube and an SF Symphony violinist.</div></div>
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1987</div><div class="tl-text"><b>Grass</b>, Jaffe — SSA female chorus + tape (Carl Sandburg). Uses Smith's waveguide time-varying reverb — early commuted synthesis.</div></div>
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">Sep 1990</div><div class="tl-text">Tim Berners-Lee begins building WorldWideWeb.app on a NeXT Cube at CERN — in Objective-C on NeXTSTEP, same language as the Music Kit.</div></div>
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">Dec 1990</div><div class="tl-text">First website became available on the CERN NeXT system in late 1990.</div></div>
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1989</div><div class="tl-text">Stanford signs agreement with Yamaha (Sondius patent package) for digital waveguide synthesis.</div></div>
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1992</div><div class="tl-text">NeXT Music Kit open-sourced to CCRMA. Smith formalizes commuted synthesis.</div></div>
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">Apr 30, 1993</div><div class="tl-text">CERN puts the World Wide Web in the public domain. Two revolutions, one machine, both open-sourced within 12 months.</div></div>
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1994</div><div class="tl-text"><b>Yamaha VL1</b> — first commercial physical modeling synthesizer. 2-voice, extraordinarily expressive. Direct descendant of KS.</div></div>
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">~2010</div><div class="tl-text">All original KS and waveguide synthesis patents expire. All original patents expired — the algorithm is freely implementable.</div></div>
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">2015</div><div class="tl-text">Mutable Instruments <b>Rings</b> — KS-adjacent synthesis in Eurorack. One of the most celebrated modules ever made.</div></div>
+  <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">2025</div><div class="tl-text">Strymon <b>Superkar+</b> — 32-voice Eurorack, one of the most advanced dedicated hardware KS instruments currently available.</div></div>
+</div>
+</div>
+      <div class="archive-section" id="tab-works">
+<div class="acard"><div class="acard-year">1981</div><div class="acard-title">May All Your Children Be Acrobats</div><div class="acard-subtitle">DAVID A. JAFFE · 8 guitars, mezzo-soprano, computer tape</div><div class="acard-body">First musical use of KS. Text from Carl Sandburg's <i>The People, Yes</i>. Synthetic strings blend with mezzo-soprano, blurring acoustic/computer-generated for the first time.<span class="preset-ref preset-ref-hist" onclick="loadPresetById('acrobat81')">→ Acrobat '81</span></div></div>
+<div class="acard"><div class="acard-year">1982 / Venice 1983</div><div class="acard-title">Silicon Valley Breakdown</div><div class="acard-subtitle">DAVID A. JAFFE · computer-generated plucked strings · quadraphonic · ~18'</div><div class="acard-body">The landmark work. Imaginary instruments from piccolo mandolin to plucked Golden Gate Bridge. Four ensembles in quadraphonic space. Hailed by Le Monde. 28+ countries. Described as blurring "the dividing line between string resonance and reverberation, between instrument and space."<span class="preset-ref preset-ref-hist" onclick="loadPresetById('piccolo')">→ Piccolo Mandolin</span><span class="preset-ref preset-ref-hist" onclick="loadPresetById('pluckedgate')">→ Plucked Gate</span><span class="preset-ref preset-ref-hist" onclick="loadPresetById('venice83')">→ Venice Biennale</span></div></div>
+<div class="acard"><div class="acard-year">1984</div><div class="acard-title">Telegram to the President</div><div class="acard-subtitle">DAVID A. JAFFE · string quartet + computer tape</div><div class="acard-body">Political work. KS creates synthetic doubles of the acoustic quartet — at times indistinguishable. First major mixed acoustic/electronic KS work.<span class="preset-ref preset-ref-hist" onclick="loadPresetById('telegram84')">→ Telegram '84</span></div></div>
+<div class="acard"><div class="acard-year">1987</div><div class="acard-title">Grass</div><div class="acard-subtitle">DAVID A. JAFFE · SSA female chorus + computer tape · 11'30"</div><div class="acard-body">Carl Sandburg's poem on healing after war. Uses Smith's waveguide time-varying reverb networks — early commuted synthesis. The string sounds are airy, vocal, almost indistinguishable from human voices. Skidmore College Chorus.<span class="preset-ref preset-ref-hist" onclick="loadPresetById('grass87')">→ Grass '87</span></div></div>
+</div>
+      <div class="archive-section" id="tab-algorithm">
+<div class="acard"><div class="acard-title">The Original Algorithm (Karplus & Strong 1983)</div><div class="acard-body">Initialize N samples with white noise. On each cycle, average each sample with its neighbor and write back.</div><div class="acard-eq">y[n] = 0.5 * (y[n-N] + y[n-N-1])</div><div class="acard-body">H(z) = 0.5 + 0.5*z-1 — one-zero lowpass. Attenuates highs progressively. N = sampleRate / pitch. No multiplications — 8-bit compatible.<span class="preset-ref preset-ref-conc" onclick="loadPresetById('kingstrong')">→ King Strong</span><span class="preset-ref preset-ref-hist" onclick="loadPresetById('transfer')">→ Transfer Function</span></div></div>
+<div class="acard"><div class="acard-title">Extended KS Filters (Jaffe & Smith 1983)</div><div class="acard-eq">H_p(z)   = (1-p)/(1-p*z-1)          pick direction LP
+H_beta(z) = 1 - z^(-floor(beta*N+0.5)) pick position comb
+H_L(z)   = (1-R_L)/(1-R_L*z-1)       dynamic level LP
+H_eta(z) = -(eta-z-1)/(1-eta*z-1)     fractional delay tuning
+H_s(z)   = allpass chain               stiffness / dispersion
+H_d(z)   = g * one-zero filter         loop gain + decay</div></div>
+<div class="acard"><div class="acard-title">Commuted Synthesis (Smith 1992)</div><div class="acard-body">String and body are both linear time-invariant systems — their order can be commuted. Fold the body IR into the excitation. Eliminates hundreds of resonator filter sections. In Strong+: the BODY section IS the instrument body — applied before the feedback loop, not after.<span class="preset-ref preset-ref-conc" onclick="loadPresetById('commuted')">→ Commuted Body</span><span class="preset-ref preset-ref-conc" onclick="loadPresetById('waveequation')">→ Wave Equation</span></div></div>
+<div class="acard"><div class="acard-title">Digital Waveguide Synthesis</div><div class="acard-body">Smith showed KS is a degenerate case of a bidirectional digital waveguide — two delay lines propagating traveling waves in opposite directions. The full theory models strings, tubes, membranes, vocal tracts. Yamaha licensed waveguide patents from Stanford 1989 (Sondius). All original patents expired ~2010 — the algorithm is freely implementable.</div></div>
+</div>
+      <div class="archive-section" id="tab-hardware">
+<div class="acard"><div class="acard-year">1978-83 · Stanford</div><div class="acard-title">Digitar Chip</div><div class="acard-subtitle">KARPLUS & STRONG · custom VLSI · Intel 8080A · TI TMS9900 · 16 voices</div><div class="acard-body">Custom VLSI chip, 16 polyphonic voices, no multiplications. Patent licensed to a company that folded before shipping: the synth that never was.<span class="preset-ref preset-ref-hist" onclick="loadPresetById('digitar78')">→ Digitar '78</span><span class="preset-ref preset-ref-conc" onclick="loadPresetById('ghostpatent')">→ Ghost Patent</span></div></div>
+<div class="acard"><div class="acard-year">1986-1992 · NeXT Computer</div><div class="acard-title">NeXT Music Kit — Two Revolutions, One Black Cube</div><div class="acard-subtitle">JAFFE & SMITH · NeXT Cube · Motorola DSP56001 · Objective-C · first demonstrated October 12, 1988</div><div class="acard-body">First architecture to unify Music-N and MIDI. Demo ended with a live duet between the Cube and an SF Symphony violinist. Tim Berners-Lee built WorldWideWeb.app on the same machine (Objective-C, NeXTSTEP) at CERN in 1990. Music Kit open-sourced to CCRMA 1992. WWW public domain April 30, 1993.<span class="preset-ref preset-ref-hist" onclick="loadPresetById('www89')">→ WWW·89</span><span class="preset-ref preset-ref-hist" onclick="loadPresetById('jobsdemo88')">→ Jobs Demo '88</span><span class="preset-ref preset-ref-conc" onclick="loadPresetById('publicdomain93')">→ Public Domain '93</span><span class="preset-ref preset-ref-conc" onclick="loadPresetById('objective_c')">→ Objective-C String</span></div></div>
+<div class="acard"><div class="acard-year">1994 · Yamaha</div><div class="acard-title">Yamaha VL1</div><div class="acard-subtitle">PHYSICAL MODELING SYNTHESIZER · 2-voice polyphony · Sondius patent</div><div class="acard-body">First commercial physical modeling synthesizer. Extraordinarily expressive — breath, embouchure, technique shaped the sound in real time. 2-voice because computation per voice was immense. Cult object.</div></div>
+<div class="acard"><div class="acard-year">2015 · Mutable Instruments</div><div class="acard-title">Rings</div><div class="acard-subtitle">EURORACK · 3 resonator models · V/oct + gate · open-source firmware</div><div class="acard-body">KS-adjacent string and modal resonator synthesis in Eurorack. One of the most celebrated modules ever made. Open-source firmware continued by community.</div></div>
+<div class="acard"><div class="acard-year">2025 · Strymon</div><div class="acard-title">Superkar+</div><div class="acard-subtitle">EURORACK · 32-voice · Solo + Chord · 10HP</div><div class="acard-body">One of the most advanced dedicated hardware KS instruments currently available. 32 voices, two independent channels, MIDI polyphony, CV/gate.</div></div>
+</div>
+      <div class="archive-section" id="tab-vibe">
+        <div class="acard">
+          <div class="acard-title">Vibe Coding — A New Kind of Making</div>
+          <div class="acard-body">Strong+ was built through dialogue between <b>Yuwa</b> (musician, composer, passionate amateur of synthesis and ambient textures, creator of the <b>Positive Lofi</b> YouTube channel) and Claude (Anthropic). Yuwa is not a programmer — he is someone who loves sound deeply and wanted to understand what happens inside a physical string model when you pluck it. The same question Alex Strong was asking in 1978.<br><br><b>The NeXT parallel:</b> Jaffe and Smith built the Music Kit on NeXT hardware. Tim Berners-Lee built the world's first web browser on the same machine, in the same language (Objective-C on NeXTSTEP), in the same years. Both were released freely: Music Kit → CCRMA (1992), WWW → public domain (April 30, 1993). The act of making something and releasing it freely was not incidental. It was the whole point.<br><br>Strong+ inherits this lineage. The original patents have expired and the algorithm is freely implementable. The Music Kit was open-sourced. The web made distribution free. Vibe coding makes <i>building</i> radically accessible. The same compression — applied to creation itself.<br><br><b>Authorship:</b> Yuwa brought curiosity, musical ear, direction, corrections ("that dulcimer sounds nothing like milk"), the insistence on historical accuracy. Claude brought DSP implementation, research, code. Knowledge distributed across the conversation — exactly as in 1983, where Strong discovered, Karplus analyzed, Jaffe musicalized, and Smith proved. Collaborative making has always worked this way, when we’re honest about it.<br><br>The original patents have expired and the algorithm is freely implementable. The history is documented. The sounds are yours.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+
+const PRESETS={
+  hist:[
+    {id:'digitar78',label:"Digitar '78",desc:"KS on Intel 8080A/TI TMS9900 — the original Digitar chip. BitCrush + Decimation simulate 8-bit output.",p:{exc:'noise',body:'room',dynLevel:.92,burstMs:1.8,bitCrush:.55,decimation:.25,saturation:0,loopGain:.981,material:.5,stiffness:0,detune:0,pickPos:.12,pickDir:0,eta:.5,bodySize:.04,bodyMix:.01,bodyDamp:.95,volume:.82,vibRate:0,vibDepth:0,chorus:0,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'acrobat81',label:"Acrobat '81",desc:"May All Your Children Be Acrobats, Jaffe 1981. First musical use of KS. 8 guitars + mezzo-soprano. Warm nylon ensemble.",p:{exc:'pluck',body:'room',dynLevel:.65,burstMs:10,bitCrush:0,decimation:0,saturation:0,loopGain:.9955,material:.42,stiffness:0,detune:0,pickPos:.14,pickDir:0,eta:.5,bodySize:.52,bodyMix:.35,bodyDamp:.45,volume:.78,vibRate:.8,vibDepth:6,chorus:.3,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'piccolo',label:"Piccolo Mandolin",desc:"Silicon Valley Breakdown — the smallest imaginary instrument. Ultra-bright, NANO body, picked near bridge.",p:{exc:'noise',body:'nano',dynLevel:.85,burstMs:1,bitCrush:0,decimation:0,saturation:0,loopGain:.988,material:.12,stiffness:.02,detune:0,pickPos:.35,pickDir:0,eta:.55,bodySize:.28,bodyMix:.3,bodyDamp:.2,volume:.75,vibRate:0,vibDepth:0,chorus:.15,sympMix:.2,sympTune:12,sympDecay:.985,symp:'fifth'}},
+    {id:'pluckedgate',label:"Plucked Gate",desc:"SVB — the immense bass plucked Golden Gate Bridge. Infra-bass, TITAN body. The body is the bay.",p:{exc:'noise',body:'titan',dynLevel:.55,burstMs:45,bitCrush:0,decimation:0,saturation:0,loopGain:.9996,material:.86,stiffness:.04,detune:-19,pickPos:.05,pickDir:0,eta:.48,bodySize:.97,bodyMix:.78,bodyDamp:.06,volume:.68,vibRate:0,vibDepth:0,chorus:0,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'quadraspace',label:"Quadraspace",desc:"SVB — 4 ensembles in quadraphonic space. CATHEDRAL body, wide spread. The room is the composition.",p:{exc:'noise',body:'cathedral',dynLevel:.7,burstMs:12,bitCrush:0,decimation:0,saturation:0,loopGain:.994,material:.45,stiffness:.01,detune:0,pickPos:.2,pickDir:.3,eta:.5,bodySize:.68,bodyMix:.6,bodyDamp:.35,volume:.72,vibRate:.2,vibDepth:5,chorus:.7,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'transfer',label:"Transfer Function",desc:"Julius O. Smith recognizes KS = transfer function of an ideal string. Material=0.5 exactly, PLATE body, pristine.",p:{exc:'noise',body:'plate',dynLevel:.75,burstMs:8,bitCrush:0,decimation:0,saturation:0,loopGain:.999,material:.5,stiffness:0,detune:0,pickPos:.12,pickDir:0,eta:.5,bodySize:.3,bodyMix:.18,bodyDamp:.5,volume:.75,vibRate:0,vibDepth:0,chorus:0,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'telegram84',label:"Telegram '84",desc:"Jaffe 1984. String quartet + tape. SPRING body, vibrato, warm cello character.",p:{exc:'pluck',body:'spring',dynLevel:.6,burstMs:15,bitCrush:0,decimation:0,saturation:0,loopGain:.9972,material:.68,stiffness:.02,detune:0,pickPos:.09,pickDir:.2,eta:.48,bodySize:.58,bodyMix:.42,bodyDamp:.55,volume:.74,vibRate:1.8,vibDepth:12,chorus:.2,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'grass87',label:"Grass '87",desc:"Jaffe 1987. SSA chorus + tape. Sandburg poem. VOID body, sine excitation, high vibrato — almost vocal.",p:{exc:'sine',body:'void',dynLevel:.48,burstMs:22,bitCrush:0,decimation:0,saturation:0,loopGain:.9945,material:.24,stiffness:.01,detune:0,pickPos:.28,pickDir:.55,eta:.54,bodySize:.82,bodyMix:.62,bodyDamp:.22,volume:.66,vibRate:2.8,vibDepth:12,chorus:.45,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'www89',label:"WWW·89",desc:"NeXT Cube 1989. Jaffe & Smith for Jobs; Berners-Lee at CERN. Clean, precise, slightly cold. ROOM body.",p:{exc:'pluck',body:'room',dynLevel:.72,burstMs:6,bitCrush:0,decimation:0,saturation:0,loopGain:.9945,material:.35,stiffness:.01,detune:0,pickPos:.18,pickDir:0,eta:.52,bodySize:.22,bodyMix:.15,bodyDamp:.6,volume:.76,vibRate:0,vibDepth:0,chorus:.05,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'jobsdemo88',label:"Jobs Demo '88",desc:"October 12, 1988 — Davies Symphony Hall. Music Kit live duet with SF Symphony violinist. PLATE body, vibrato.",p:{exc:'pluck',body:'plate',dynLevel:.8,burstMs:5,bitCrush:0,decimation:0,saturation:0,loopGain:.9938,material:.3,stiffness:0,detune:0,pickPos:.12,pickDir:0,eta:.53,bodySize:.35,bodyMix:.25,bodyDamp:.52,volume:.78,vibRate:1.5,vibDepth:9,chorus:.2,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'venice83',label:"Venice Biennale",desc:"SVB world premiere 1983. CATHEDRAL body, maximum space — the body is the palazzo.",p:{exc:'noise',body:'cathedral',dynLevel:.7,burstMs:14,bitCrush:0,decimation:0,saturation:0,loopGain:.9968,material:.4,stiffness:.01,detune:0,pickPos:.16,pickDir:0,eta:.5,bodySize:.88,bodyMix:.68,bodyDamp:.22,volume:.72,vibRate:.3,vibDepth:4,chorus:.45,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+  ],
+  conc:[
+    {id:'kingstrong',label:"King Strong",desc:"Tribute to Alex Strong. Material=0.5 exactly, bodyMix=0. The algorithm as born.",p:{exc:'noise',body:'room',dynLevel:.8,burstMs:8,bitCrush:0,decimation:0,saturation:0,loopGain:.997,material:.5,stiffness:0,detune:0,pickPos:.12,pickDir:0,eta:.5,bodySize:.05,bodyMix:0,bodyDamp:.5,volume:.8,vibRate:0,vibDepth:0,chorus:0,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'empiresting',label:"Empire Str(ing)",desc:"A string 443m tall. TITAN body, detune -36st. One pluck = a sound event.",p:{exc:'noise',body:'titan',dynLevel:.45,burstMs:50,bitCrush:0,decimation:0,saturation:0,loopGain:.9997,material:.9,stiffness:.04,detune:-36,pickPos:.04,pickDir:0,eta:.5,bodySize:.99,bodyMix:.88,bodyDamp:.03,volume:.62,vibRate:0,vibDepth:0,chorus:0,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'ghostpatent',label:"Ghost Patent",desc:"The patent that went bankrupt before shipping. Slightly unstable, mild BitCrush. Almost works.",p:{exc:'noise',body:'spring',dynLevel:.38,burstMs:4,bitCrush:.15,decimation:.12,saturation:0,loopGain:.9855,material:.48,stiffness:.01,detune:11,pickPos:.19,pickDir:.08,eta:.46,bodySize:.38,bodyMix:.52,bodyDamp:.68,volume:.52,vibRate:.7,vibDepth:5,chorus:.08,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'dulcimer',label:"Dulcimer de Leche",desc:"Dulcimer soaked in condensed milk. Soft material, WOOD body, slow caramel decay.",p:{exc:'pluck',body:'wood',dynLevel:.5,burstMs:20,bitCrush:0,decimation:0,saturation:0,loopGain:.9935,material:.82,stiffness:0,detune:5,pickPos:.22,pickDir:.38,eta:.58,bodySize:.48,bodyMix:.44,bodyDamp:.72,volume:.72,vibRate:.9,vibDepth:7,chorus:.08,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'commuted',label:"Commuted Body",desc:"Smith's commuted synthesis. SPRING body, bodyMix=0.78 — the body IS the instrument.",p:{exc:'sine',body:'spring',dynLevel:.65,burstMs:12,bitCrush:0,decimation:0,saturation:0,loopGain:.9965,material:.55,stiffness:.02,detune:0,pickPos:.15,pickDir:.15,eta:.5,bodySize:.62,bodyMix:.78,bodyDamp:.38,volume:.72,vibRate:.4,vibDepth:5,chorus:.25,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'infinitebluegrass',label:"Inf. Bluegrass",desc:"Strong was a bluegrass musician. Infinite banjo — percussive, bright, METAL body.",p:{exc:'noise',body:'metal',dynLevel:1,burstMs:1.5,bitCrush:0,decimation:0,saturation:0,loopGain:.9978,material:.15,stiffness:0,detune:0,pickPos:.42,pickDir:0,eta:.55,bodySize:.35,bodyMix:.22,bodyDamp:.3,volume:.82,vibRate:0,vibDepth:0,chorus:.08,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'waveequation',label:"Wave Equation",desc:"Karplus & Strong tried to prove their algo solved the wave equation. Smith demonstrated the correspondence — that moment of recognition.",p:{exc:'sine',body:'room',dynLevel:.7,burstMs:6,bitCrush:0,decimation:0,saturation:0,loopGain:.9985,material:.5,stiffness:.01,detune:0,pickPos:.2,pickDir:.1,eta:.62,bodySize:.38,bodyMix:.28,bodyDamp:.45,volume:.74,vibRate:.6,vibDepth:4,chorus:.12,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'shazam',label:"Shazam String",desc:"Smith co-invented Shazam's fingerprinting algorithm. Crystalline, unmistakable attack.",p:{exc:'pluck',body:'room',dynLevel:.88,burstMs:3,bitCrush:0,decimation:0,saturation:0,loopGain:.991,material:.22,stiffness:0,detune:0,pickPos:.08,pickDir:0,eta:.48,bodySize:.18,bodyMix:.12,bodyDamp:.7,volume:.78,vibRate:0,vibDepth:0,chorus:0,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'sandburg',label:"Sandburg Reed",desc:"Both Acrobats and Grass are Sandburg settings. Reedy, vocal, SPRING body.",p:{exc:'sine',body:'spring',dynLevel:.58,burstMs:22,bitCrush:0,decimation:0,saturation:0,loopGain:.993,material:.72,stiffness:.01,detune:0,pickPos:.28,pickDir:.45,eta:.58,bodySize:.55,bodyMix:.48,bodyDamp:.5,volume:.68,vibRate:1.5,vibDepth:9,chorus:.35,sympMix:.25,sympTune:-1,sympDecay:.991,symp:'unison'}},
+    {id:'ccrma',label:"CCRMA Room",desc:"Stanford CCRMA — the room where all of this was born. ROOM body, contemplative.",p:{exc:'noise',body:'room',dynLevel:.6,burstMs:10,bitCrush:0,decimation:0,saturation:0,loopGain:.9958,material:.38,stiffness:.01,detune:0,pickPos:.18,pickDir:.1,eta:.5,bodySize:.65,bodyMix:.52,bodyDamp:.42,volume:.7,vibRate:.4,vibDepth:3,chorus:.3,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'publicdomain93',label:"Public Domain '93",desc:"April 30, 1993 — WWW public domain, Music Kit open-sourced. A string released into the commons.",p:{exc:'sine',body:'void',dynLevel:.58,burstMs:16,bitCrush:0,decimation:0,saturation:0,loopGain:.9972,material:.42,stiffness:.01,detune:0,pickPos:.2,pickDir:.2,eta:.5,bodySize:.85,bodyMix:.65,bodyDamp:.18,volume:.68,vibRate:.5,vibDepth:5,chorus:.35,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+    {id:'objective_c',label:"Objective-C String",desc:"WorldWideWeb.app and the Music Kit share Objective-C on NeXTSTEP. Same language, same machine.",p:{exc:'pluck',body:'room',dynLevel:.75,burstMs:5,bitCrush:0,decimation:0,saturation:0,loopGain:.9955,material:.32,stiffness:.01,detune:0,pickPos:.15,pickDir:.08,eta:.51,bodySize:.25,bodyMix:.18,bodyDamp:.58,volume:.76,vibRate:0,vibDepth:0,chorus:.08,sympMix:0,sympTune:0,sympDecay:.994,symp:'off'}},
+  ]
+};
+
+
+let audioCtx=null,masterGain,convolver,dryGain,wetGain,choLFO,choDelay,choDepthNode,choWet;
+let excType='noise',bodyType='room',currentOct=3,sympMode='off';
+const P={};
+document.querySelectorAll('[data-p]').forEach(k=>{P[k.dataset.p]=parseFloat(k.dataset.v);});
+
+// ── PRESETS ──────────────────────────────────────────────────────────────
+function renderPresets(){
+  ['hist','conc'].forEach(grp=>{
+    const og=document.getElementById('opt'+grp.charAt(0).toUpperCase()+grp.slice(1));
+    PRESETS[grp].forEach(pr=>{
+      const o=document.createElement('option');o.value=pr.id;o.textContent=pr.label;og.appendChild(o);
+    });
+  });
+}
+function onSelectPreset(sel){
+  const all=[...PRESETS.hist,...PRESETS.conc];
+  const pr=all.find(p=>p.id===sel.value);if(pr)loadPreset(pr);
+}
+function loadPreset(pr){
+  document.getElementById('presetName').textContent=pr.label;
+  Object.entries(pr.p).forEach(([k,v])=>{
+    if(k==='exc'){setExcDirect(v);return;}
+    if(k==='body'){setBodyDirect(v);return;}
+    if(k==='symp'){sympMode=v;
+      document.querySelectorAll('#sympRow .tbtn').forEach(b=>b.classList.remove('active'));
+      const sb=document.querySelector('#sympRow .tbtn[data-s="'+v+'"]');if(sb)sb.classList.add('active');
+      return;}
+    P[k]=v;
+    const el=document.querySelector('[data-p="'+k+'"]');
+    if(el){el.dataset.v=v;renderKnob(el,v,parseFloat(el.dataset.min),parseFloat(el.dataset.max));}
+  });
+  if(audioCtx){buildIR(P.bodySize,bodyType);applyParam('bodyMix',P.bodyMix);applyParam('volume',P.volume);applyParam('chorus',P.chorus);}
+}
+function loadPresetById(id){
+  const all=[...PRESETS.hist,...PRESETS.conc];
+  const pr=all.find(p=>p.id===id);if(!pr)return;
+  document.getElementById('presetSelect').value=id;
+  loadPreset(pr);closeArchive();
+}
+
+// ── TOOLTIP ──────────────────────────────────────────────────────────────
+const ttEl=document.getElementById('tooltip');
+function showTT(e,t){ttEl.textContent=t;ttEl.classList.add('show');moveTT(e);}
+function hideTT(){ttEl.classList.remove('show');}
+function moveTT(e){let x=e.clientX+14,y=e.clientY+14;if(x+320>window.innerWidth)x=e.clientX-330;ttEl.style.left=x+'px';ttEl.style.top=y+'px';}
+
+// ── AUDIO INIT ───────────────────────────────────────────────────────────
+async function initAudio(){
+  if(audioCtx)return;
+  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  masterGain=audioCtx.createGain();masterGain.gain.value=P.volume||.75;
+  convolver=audioCtx.createConvolver();
+  dryGain=audioCtx.createGain();dryGain.gain.value=1-(P.bodyMix||.25);
+  wetGain=audioCtx.createGain();wetGain.gain.value=P.bodyMix||.25;
+  choDelay=audioCtx.createDelay(.05);choDelay.delayTime.value=.009;
+  choLFO=audioCtx.createOscillator();choLFO.frequency.value=.4;
+  choDepthNode=audioCtx.createGain();choDepthNode.gain.value=(P.chorus||0)*.004;
+  choWet=audioCtx.createGain();choWet.gain.value=(P.chorus||0)*.5;
+  choLFO.connect(choDepthNode);choDepthNode.connect(choDelay.delayTime);choLFO.start();
+  masterGain.connect(dryGain);masterGain.connect(convolver);masterGain.connect(choDelay);
+  dryGain.connect(audioCtx.destination);convolver.connect(wetGain);wetGain.connect(audioCtx.destination);
+  choDelay.connect(choWet);choWet.connect(audioCtx.destination);
+  await buildIR(P.bodySize||.45,bodyType);
+  document.getElementById('ledAudio').className='led green';
+}
+
+// ── BODY IR ──────────────────────────────────────────────────────────────
+async function buildIR(size,type){
+  if(!audioCtx)return;
+  const sr=audioCtx.sampleRate;
+  const damp=Math.max(0.01,Math.min(0.99,P.bodyDamp!==undefined?P.bodyDamp:.4));
+
+  // Each body type has its own duration, character, and modal structure
+  // These are the most differentiated IRs possible in synthesis
+  let dur, len, ir;
+
+  if(type==='room'){
+    // Concert hall: 0.8-2.5s, early reflections, smooth diffuse tail
+    dur=0.8+size*1.7;
+    len=Math.floor(sr*dur); ir=audioCtx.createBuffer(2,len,sr);
+    for(let c=0;c<2;c++){
+      const d=ir.getChannelData(c),sg=c===0?1:-1;
+      // Early reflections — discrete, strong
+      const refs=[.012,.019,.028,.038,.052,.071,.093];
+      const amp=[.8,.6,.5,.4,.35,.3,.25];
+      refs.forEach((dt,j)=>{const idx=Math.floor(dt*sr);if(idx<len)d[idx]=sg*amp[j];});
+      // Diffuse tail
+      for(let i=0;i<len;i++){
+        const t=i/sr,env=Math.exp(-t*(1.8+damp*5));
+        d[i]+=((Math.random()*2-1)*0.4)*env;
+      }
+    }
+
+  }else if(type==='spring'){
+    // Spring reverb: metallic flutter, prominent resonant modes, quick onset
+    dur=0.6+size*1.2;
+    len=Math.floor(sr*dur); ir=audioCtx.createBuffer(2,len,sr);
+    for(let c=0;c<2;c++){
+      const d=ir.getChannelData(c);
+      for(let i=0;i<len;i++){
+        const t=i/sr,env=Math.exp(-t*(3+damp*9));
+        // Strong metallic modes — clearly audible resonances
+        const flutter=Math.sin(2*Math.PI*13*t)*Math.exp(-t*2)
+                     +Math.sin(2*Math.PI*31*t)*0.7*Math.exp(-t*1.5)
+                     +Math.sin(2*Math.PI*67*t)*0.5*Math.exp(-t*1.2)
+                     +Math.sin(2*Math.PI*127*t)*0.3;
+        const noise=(Math.random()*2-1)*0.2;
+        d[i]=(flutter*0.8+noise)*env;
+      }
+      // Characteristic spring "boing" at onset
+      const boing=Math.floor(0.004*sr);
+      if(boing<len)d[boing]=(c===0?1:-1)*1.5;
+    }
+
+  }else if(type==='cave'){
+    // Cave: long, dense, very low modal resonances, no early reflections
+    dur=1.5+size*3.5;
+    len=Math.floor(sr*dur); ir=audioCtx.createBuffer(2,len,sr);
+    for(let c=0;c<2;c++){
+      const d=ir.getChannelData(c);
+      for(let i=0;i<len;i++){
+        const t=i/sr,env=Math.exp(-t*(0.4+damp*2));
+        // Very low modal resonances of a large stone space
+        const modal=Math.sin(2*Math.PI*24*t)*0.3
+                   +Math.sin(2*Math.PI*37*t)*0.25
+                   +Math.sin(2*Math.PI*58*t)*0.2
+                   +Math.sin(2*Math.PI*89*t)*0.15;
+        d[i]=((Math.random()*2-1)*0.5+modal*0.5)*env*(c===0?1:0.88);
+      }
+    }
+
+  }else if(type==='plate'){
+    // Plate reverb (EMT 140): very dense, no early reflections, bright, stereo flip
+    dur=1.2+size*1.8;
+    len=Math.floor(sr*dur); ir=audioCtx.createBuffer(2,len,sr);
+    // Build diffusion network — allpass chain approximation
+    for(let c=0;c<2;c++){
+      const d=ir.getChannelData(c);
+      const buf=new Float32Array(len);
+      // Inject impulse
+      buf[0]=1;
+      // Multiple allpass stages simulating plate diffusion
+      const delays=[Math.floor(sr*.0037),Math.floor(sr*.0041),Math.floor(sr*.0089),Math.floor(sr*.0127)];
+      const coefs=[0.75,0.72,0.68,0.65];
+      let cur=buf.slice();
+      delays.forEach((dl,j)=>{
+        const g=coefs[j],tmp=new Float32Array(len);
+        for(let i=0;i<len;i++){
+          const delayed=i>=dl?cur[i-dl]:0;
+          tmp[i]=-g*cur[i]+delayed+g*(i>=dl?tmp[i-dl]:0);
+        }
+        cur=tmp;
+      });
+      // Apply decay and copy
+      for(let i=0;i<len;i++){
+        const env=Math.exp(-i/sr*(1.5+damp*4));
+        d[i]=cur[i]*env*(c===0?1:-0.95);
+      }
+    }
+
+  }else if(type==='nano'){
+    // Nano: tiny resonant box — VERY short, bright, almost no tail
+    dur=0.05+size*0.12;
+    len=Math.floor(sr*dur); ir=audioCtx.createBuffer(2,len,sr);
+    for(let c=0;c<2;c++){
+      const d=ir.getChannelData(c);
+      for(let i=0;i<len;i++){
+        const t=i/sr,env=Math.exp(-t*(25+damp*60));
+        // High frequency modes of a tiny wood box
+        const res=Math.sin(2*Math.PI*1100*t)*0.4
+                 +Math.sin(2*Math.PI*2200*t)*0.25
+                 +Math.sin(2*Math.PI*3300*t)*0.18
+                 +Math.sin(2*Math.PI*4400*t)*0.1
+                 +Math.sin(2*Math.PI*5500*t)*0.06;
+        d[i]=(res*0.85+(Math.random()*2-1)*0.15)*env;
+      }
+    }
+
+  }else if(type==='cathedral'){
+    // Cathedral: 4-12 seconds, very sparse early, enormous diffuse tail, low modes
+    dur=4+size*8;
+    len=Math.floor(sr*dur); ir=audioCtx.createBuffer(2,len,sr);
+    for(let c=0;c<2;c++){
+      const d=ir.getChannelData(c),sg=c===0?1:-1;
+      // Sparse early reflections — stone walls far apart
+      const refs=[.08,.15,.24,.35,.48,.62];
+      const amp=[.5,.4,.35,.3,.25,.2];
+      refs.forEach((dt,j)=>{const idx=Math.floor(dt*sr);if(idx<len)d[idx]=sg*amp[j];});
+      // Very slow-building diffuse tail
+      for(let i=0;i<len;i++){
+        const t=i/sr;
+        const env=Math.exp(-t*(0.15+damp*0.8));
+        const buildUp=Math.min(1,t*0.8); // slow build
+        const modal=Math.sin(2*Math.PI*18*t)*0.12
+                   +Math.sin(2*Math.PI*29*t)*0.09
+                   +Math.sin(2*Math.PI*43*t)*0.07;
+        d[i]+=((Math.random()*2-1)*0.6+modal)*env*buildUp*(c===0?1:0.91);
+      }
+    }
+
+  }else if(type==='titan'){
+    // Titan: 6-15 seconds, infrasonic resonances, building-scale
+    dur=6+size*9;
+    len=Math.floor(sr*dur); ir=audioCtx.createBuffer(2,len,sr);
+    for(let c=0;c<2;c++){
+      const d=ir.getChannelData(c);
+      for(let i=0;i<len;i++){
+        const t=i/sr,env=Math.exp(-t*(0.05+damp*0.4));
+        // Infrasonic structural resonances
+        const infra=Math.sin(2*Math.PI*0.7*t)*0.35
+                   +Math.sin(2*Math.PI*1.4*t)*0.25
+                   +Math.sin(2*Math.PI*2.8*t)*0.18
+                   +Math.sin(2*Math.PI*4.2*t)*0.12
+                   +Math.sin(2*Math.PI*7.0*t)*0.08;
+        d[i]=((Math.random()*2-1)*0.3+infra*0.7)*env*(c===0?1:0.82);
+      }
+    }
+
+  }else if(type==='wood'){
+    // Wood guitar body: warm 120-520Hz resonances, quick decay 0.3-0.8s
+    dur=0.3+size*0.5;
+    len=Math.floor(sr*dur); ir=audioCtx.createBuffer(2,len,sr);
+    for(let c=0;c<2;c++){
+      const d=ir.getChannelData(c);
+      for(let i=0;i<len;i++){
+        const t=i/sr,env=Math.exp(-t*(5+damp*15));
+        const wood=Math.sin(2*Math.PI*98*t)*0.35
+                  +Math.sin(2*Math.PI*196*t)*0.28
+                  +Math.sin(2*Math.PI*294*t)*0.2
+                  +Math.sin(2*Math.PI*392*t)*0.14
+                  +Math.sin(2*Math.PI*588*t)*0.08;
+        d[i]=(wood*0.75+(Math.random()*2-1)*0.25)*env*(c===0?1:0.97);
+      }
+      // Bridge resonance tap
+      [.006,.013,.021].forEach(dt=>{
+        const idx=Math.floor(dt*sr);
+        if(idx<len)d[idx]+=(c===0?0.6:-0.5)*Math.exp(-idx/(sr*0.025));
+      });
+    }
+
+  }else if(type==='metal'){
+    // Metal resonator: steel modes 440-2200Hz, medium decay, metallic ring
+    dur=0.8+size*1.4;
+    len=Math.floor(sr*dur); ir=audioCtx.createBuffer(2,len,sr);
+    for(let c=0;c<2;c++){
+      const d=ir.getChannelData(c);
+      for(let i=0;i<len;i++){
+        const t=i/sr,env=Math.exp(-t*(2+damp*7));
+        const metal=Math.sin(2*Math.PI*440*t)*0.3
+                   +Math.sin(2*Math.PI*880*t)*0.22
+                   +Math.sin(2*Math.PI*1320*t)*0.18
+                   +Math.sin(2*Math.PI*1760*t)*0.13
+                   +Math.sin(2*Math.PI*2640*t)*0.09
+                   +Math.sin(2*Math.PI*3520*t)*0.06;
+        d[i]=(metal*0.8+(Math.random()*2-1)*0.2)*env*(c===0?1:0.93);
+      }
+    }
+
+  }else{
+    // Void: near-infinite, pitch-less, eerie slow swell
+    dur=3+size*7;
+    len=Math.floor(sr*dur); ir=audioCtx.createBuffer(2,len,sr);
+    for(let c=0;c<2;c++){
+      const d=ir.getChannelData(c);
+      for(let i=0;i<len;i++){
+        const t=i/sr,env=Math.exp(-t*(0.2+damp*1.5));
+        const swell=Math.min(1,t*0.3);
+        d[i]=(Math.random()*2-1)*env*swell*(c===0?1:0.95);
+      }
+    }
+  }
+
+  convolver.buffer=ir;
+}
+
+// ── EKS ENGINE ───────────────────────────────────────────────────────────
+function playEKS(midi){
+  if(!audioCtx)return;if(audioCtx.state==='suspended')audioCtx.resume();
+  const sr=audioCtx.sampleRate;
+  const freq0=440*Math.pow(2,(midi-69+(P.detune||0)/100)/12);
+  const freq=Math.max(20,Math.min(sr/2.5,freq0));
+  const N=Math.round(sr/freq);if(N<2)return;
+  const L_bw=300+(P.dynLevel||.7)*9000,R_L=Math.exp(-Math.PI*L_bw/sr);
+  const burstN=Math.min(N-1,Math.max(1,Math.round((P.burstMs/1000)*sr)));
+  const exc=new Float32Array(N);let lpSt=0;
+  for(let i=0;i<burstN;i++){
+    let s=excType==='noise'?Math.random()*2-1:excType==='pluck'?Math.sin(Math.PI*i/burstN)*(Math.random()*.3+.7):Math.sin(2*Math.PI*i*freq/sr);
+    lpSt=(1-R_L)*s+R_L*lpSt;exc[i]=lpSt;
+  }
+  const bN=Math.max(1,Math.min(N-1,Math.round((P.pickPos||.12)*N+.5)));
+  const excC=new Float32Array(N);for(let i=0;i<N;i++)excC[i]=exc[i]-(i>=bN?exc[i-bN]:0);
+  const pD=Math.min(.99,P.pickDir||0);const excP=new Float32Array(N);let pkSt=0;
+  for(let i=0;i<N;i++){pkSt=(1-pD)*excC[i]+pD*pkSt;excP[i]=pkSt;}
+  const delay=new Float32Array(N+2);for(let i=0;i<N;i++)delay[i]=excP[i];
+  const g=Math.min(.9998,P.loopGain||.996),a=Math.max(.05,Math.min(.95,P.material||.5));
+  const ks=Math.min(.15,P.stiffness||0),eta=Math.max(.05,Math.min(.93,P.eta||.5));
+  const vR=P.vibRate||0,vD=P.vibDepth||0;
+  const dur=Math.min(7,.3+Math.pow((g-.98)/(.9998-.98),2)*6.5);
+  const totalN=Math.floor(sr*dur);
+  const outBuf=audioCtx.createBuffer(1,totalN,sr);
+  const data=outBuf.getChannelData(0);
+  const vibMaxSamp=vD>0?N*(Math.pow(2,vD/1200)-1):0;
+  let apE=0,apK=0,dcX=0,dcY=0,vPh=0;const dcR=.995;
+  for(let n=0;n<totalN;n++){
+    if(vR>0&&vD>0)vPh+=2*Math.PI*vR/sr;
+    const vibOffset=vibMaxSamp*Math.sin(vPh);
+    const readPos=n-vibOffset;
+    const i0=((Math.floor(readPos)%N)+N)%N;
+    const i1=(i0+1)%N;
+    const frac=readPos-Math.floor(readPos);
+    let s=g*((1-a)*((1-frac)*delay[i0]+frac*delay[i1])+a*delay[((i0-1+N)%N)]);
+    const aI=s,aO=-eta*aI+apE;apE=aI+eta*aO;s=aO;
+    if(ks>.001){const sI=s,sO=-ks*sI+apK;apK=sI+ks*sO;s=sO;}
+    const dcO=s-dcX+dcR*dcY;dcX=s;dcY=dcO;s=dcO;
+    const fb=s>.95?.95+(s-.95)*.1:s<-.95?-.95+(s+.95)*.1:s;
+    data[n]=s*.8;delay[i0%N]=fb;
+  }
+  // Sympathetic string
+  const sympMix2=P.sympMix||0;
+  if(sympMode!=='off'&&sympMix2>0.01){
+    const sympRatio=sympMode==='fifth'?1.5:sympMode==='octave'?2:Math.pow(2,(P.sympTune||0)/1200);
+    const freqS=Math.max(20,Math.min(sr/2.5,freq*sympRatio));
+    const NS=Math.round(sr/freqS);
+    if(NS>=2){
+      const delayS=new Float32Array(NS+2);
+      for(let i=0;i<Math.min(burstN,NS-1);i++)delayS[i]=excP[Math.min(i,N-1)]*0.5;
+      const gS=Math.min(.9998,P.sympDecay||.994);
+      let apES=0,dcXS=0,dcYS=0;
+      for(let n=0;n<totalN;n++){
+        const idxS=n%NS,prevS=(n===0)?NS-1:(n-1)%NS;
+        let ss=gS*((1-a)*delayS[idxS]+a*delayS[prevS]);
+        const aIS=ss,aOS=-eta*aIS+apES;apES=aIS+eta*aOS;ss=aOS;
+        const dcOS=ss-dcXS+.995*dcYS;dcXS=ss;dcYS=dcOS;ss=dcOS;
+        const fbS=ss>.95?.95+(ss-.95)*.1:ss<-.95?-.95+(ss+.95)*.1:ss;
+        data[n]+=ss*sympMix2*.55;delayS[idxS%NS]=fbS;
+      }
+    }
+  }
+  // POST: saturation → bit crush → decimation
+  const sat=P.saturation||0,crush=P.bitCrush||0,dec=P.decimation||0;
+  if(sat>0||crush>0||dec>0){
+    const d2=outBuf.getChannelData(0);
+    const bits=Math.round(16-crush*13),levels=Math.pow(2,bits);
+    const hold=Math.max(1,Math.round(1+dec*31));
+    const satDrive=1+sat*8;
+    let held=0;
+    for(let i=0;i<d2.length;i++){
+      let v=d2[i];
+      if(sat>0)v=Math.tanh(v*satDrive)/Math.tanh(satDrive);
+      if(crush>0)v=Math.round(v*levels)/levels;
+      if(dec>0){if(i%hold===0)held=v;v=held;}
+      d2[i]=v;
+    }
+  }
+  const src=audioCtx.createBufferSource();src.buffer=outBuf;
+  const vg=audioCtx.createGain();vg.gain.value=.8;
+  src.connect(vg);vg.connect(masterGain);src.start();src.stop(audioCtx.currentTime+dur+.1);
+  document.getElementById('ledPlay').className='led amber';
+  setTimeout(()=>document.getElementById('ledPlay').className='led',200);
+}
+
+function applyParam(p,v){
+  if(!audioCtx)return;
+  if(p==='volume')masterGain.gain.value=v;
+  if(p==='bodyMix'){dryGain.gain.value=1-v;wetGain.gain.value=v;}
+  if(p==='bodySize'||p==='bodyDamp')buildIR(P.bodySize,bodyType);
+  if(p==='chorus'){choDepthNode.gain.value=v*.004;choWet.gain.value=v*.5;}
+}
+
+// ── KNOBS ─────────────────────────────────────────────────────────────────
+let drag=null,dragY0,dragV0;
+document.querySelectorAll('.knob-wrap').forEach(kw=>{
+  kw.addEventListener('mousedown',e=>{
+    e.preventDefault();if(!audioCtx)initAudio();
+    drag=kw;dragY0=e.clientY;dragV0=parseFloat(kw.dataset.v);
+    document.body.style.cursor='ns-resize';
+    document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
+  });
+  kw.addEventListener('dblclick',()=>{
+    const mn=parseFloat(kw.dataset.min),mx=parseFloat(kw.dataset.max),mid=(mn+mx)/2;
+    kw.dataset.v=mid;P[kw.dataset.p]=mid;renderKnob(kw,mid,mn,mx);applyParam(kw.dataset.p,mid);
+  });
+});
+function onMove(e){
+  if(!drag)return;
+  const mn=parseFloat(drag.dataset.min),mx=parseFloat(drag.dataset.max);
+  let v=dragV0+(dragY0-e.clientY)*(mx-mn)/190;
+  v=Math.max(mn,Math.min(mx,v));drag.dataset.v=v;P[drag.dataset.p]=v;
+  renderKnob(drag,v,mn,mx);applyParam(drag.dataset.p,v);
+}
+function onUp(){
+  drag=null;
+  document.body.style.cursor='';
+  document.removeEventListener('mousemove',onMove);
+  document.removeEventListener('mouseup',onUp);
+}
+
+const FMT={
+  dynLevel:x=>Math.round(x*100)+'%',burstMs:x=>x.toFixed(1)+'ms',detune:x=>(x>=0?'+':'')+Math.round(x)+'c',
+  loopGain:x=>'.'+(Math.round(x*10000)+'').slice(1),material:x=>Math.round(x*100)+'%',
+  stiffness:x=>Math.round(x*100)+'%',pickPos:x=>Math.round(x*100)+'%',pickDir:x=>Math.round(x*100)+'%',
+  eta:x=>x.toFixed(2),bodySize:x=>Math.round(x*100)+'%',bodyMix:x=>Math.round(x*100)+'%',
+  bodyDamp:x=>Math.round(x*100)+'%',volume:x=>Math.round(x*100)+'%',
+  vibRate:x=>x.toFixed(1)+'Hz',vibDepth:x=>Math.round(x)+'c',chorus:x=>Math.round(x*100)+'%',
+  saturation:x=>Math.round(x*100)+'%',bitCrush:x=>Math.round(x*100)+'%',decimation:x=>Math.round(x*100)+'%',
+  sympTune:x=>(x>=0?'+':'')+Math.round(x)+'c',sympDecay:x=>'.'+(Math.round(x*10000)+'').slice(1),
+  sympMix:x=>Math.round(x*100)+'%'
+};
+function renderKnob(kw,v,mn,mx){
+  const norm=(v-mn)/(mx-mn),dot=kw.querySelector('.knob-dot');
+  if(dot)dot.style.transform='translateX(-50%) rotate('+((-135+norm*270))+'deg)';
+  const cv=kw.querySelector('.knob-arc');
+  if(cv){const ctx=cv.getContext('2d'),cx=24,cy=24,r=23,s0=135*Math.PI/180;
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,48,48);
+    ctx.lineWidth=2;ctx.lineCap='butt';
+    ctx.beginPath();ctx.arc(cx,cy,r,s0,(135+270)*Math.PI/180);ctx.strokeStyle='#1e2e32';ctx.stroke();
+    if(norm>.001){ctx.beginPath();ctx.arc(cx,cy,r,s0,(135+norm*270)*Math.PI/180);ctx.strokeStyle='#6dcde8';ctx.stroke();}
+  }
+  const p=kw.dataset.p,el=document.getElementById('v-'+p);
+  if(el)el.textContent=FMT[p]?FMT[p](v):Math.round(v*100)+'%';
+}
+document.querySelectorAll('[data-p]').forEach(kw=>{
+  renderKnob(kw,parseFloat(kw.dataset.v),parseFloat(kw.dataset.min),parseFloat(kw.dataset.max));
+});
+
+// ── TOGGLES ───────────────────────────────────────────────────────────────
+function setExc(t,el){excType=t;el.parentElement.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+function setExcDirect(t){
+  excType=t;const L={noise:'NOISE',pluck:'PLUCK',sine:'SINE'};
+  document.querySelectorAll('.toggle-row').forEach(row=>{const btns=[...row.querySelectorAll('.tbtn')];if(btns.some(b=>b.textContent===L[t])){btns.forEach(b=>b.classList.remove('active'));btns.find(b=>b.textContent===L[t])?.classList.add('active');}});
+}
+function setBodyDirect(t){
+  bodyType=t;const sel=document.getElementById('bodySelect');if(sel)sel.value=t;
+  if(audioCtx)buildIR(P.bodySize,t);
+}
+function setBodyFromSelect(sel){bodyType=sel.value;if(audioCtx)buildIR(P.bodySize,bodyType);}
+function setSympMode(m,el){
+  sympMode=m;
+  document.querySelectorAll('#sympRow .tbtn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── KEYBOARD ─────────────────────────────────────────────────────────────
+const NOTE_NAMES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const W_S=[0,2,4,5,7,9,11],B_S=[1,3,-1,6,8,10,-1];
+function buildKB(){
+  const container=document.getElementById('kbContainer');container.innerHTML='';
+  const W=container.offsetWidth||1060,nW=14,wW=Math.floor((W-4)/nW),bW=Math.round(wW*.58),bH=44;
+  const whites=[];
+  for(let o=0;o<2;o++)for(let wi=0;wi<7;wi++){
+    const note=W_S[wi]+o*12,x=(o*7+wi)*wW;
+    const k=document.createElement('div');k.className='wkey';k.dataset.note=note;
+    k.style.cssText='left:'+x+'px;width:'+(wW-2)+'px;top:0;bottom:0;';
+    container.appendChild(k);whites.push({x,w:wW});
+  }
+  for(let o=0;o<2;o++)for(let bi=0;bi<7;bi++){
+    if(B_S[bi]<0)continue;
+    const note=B_S[bi]+o*12,wEl=whites[o*7+bi],x=wEl.x+wEl.w-Math.round(bW/2);
+    const k=document.createElement('div');k.className='bkey';k.dataset.note=note;
+    k.style.cssText='left:'+x+'px;width:'+bW+'px;height:'+bH+'px;';
+    container.appendChild(k);
+  }
+  container.querySelectorAll('.wkey,.bkey').forEach(k=>{
+    k.addEventListener('mousedown',e=>{e.preventDefault();fire(parseInt(k.dataset.note)+currentOct*12);k.classList.add('on');});
+    k.addEventListener('mouseup',()=>k.classList.remove('on'));
+    k.addEventListener('mouseleave',()=>k.classList.remove('on'));
+  });
+}
+window.addEventListener('resize',buildKB);
+function fire(midi){if(!audioCtx){initAudio().then(()=>fireNote(midi));}else fireNote(midi);}
+function fireNote(midi){
+  if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();
+  const name=NOTE_NAMES[midi%12]+Math.floor(midi/12-1),hz=(440*Math.pow(2,(midi-69)/12)).toFixed(1);
+  document.getElementById('noteDisp').textContent=name;document.getElementById('hzDisp').textContent=hz+' Hz';
+  playEKS(midi);
+}
+const QW={a:0,w:1,s:2,e:3,d:4,f:5,t:6,g:7,y:8,h:9,u:10,j:11,k:12,o:13,l:14,p:15};
+document.addEventListener('keydown',e=>{if(e.repeat||e.ctrlKey||e.metaKey)return;const n=QW[e.key.toLowerCase()];if(n!==undefined)fire(n+currentOct*12);});
+function changeOct(d){currentOct=Math.max(0,Math.min(7,currentOct+d));document.getElementById('octDisp').textContent=currentOct;}
+
+// ── ARCHIVE ───────────────────────────────────────────────────────────────
+function openArchive(){document.getElementById('archiveOverlay').classList.add('open');}
+function closeArchive(){document.getElementById('archiveOverlay').classList.remove('open');}
+function closeArchiveOutside(e){if(e.target===document.getElementById('archiveOverlay'))closeArchive();}
+function showTab(id,el){
+  document.querySelectorAll('.archive-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.atab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');el.classList.add('active');
+}
+
+// ── PANIC ─────────────────────────────────────────────────────────────────
+function doPanic(){
+  if(audioCtx){audioCtx.close().then(()=>{audioCtx=null;masterGain=null;convolver=null;dryGain=null;wetGain=null;choLFO=null;choDelay=null;choDepthNode=null;choWet=null;document.getElementById('ledAudio').className='led';document.getElementById('ledPlay').className='led';});}
+}
+
+document.body.addEventListener('click',()=>{if(!audioCtx)initAudio();},{once:true});
+renderPresets();setTimeout(buildKB,120);
+
+</script>
+</body>
+</html>

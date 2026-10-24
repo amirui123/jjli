@@ -56,9 +56,28 @@ interface SoundSettings extends PlayOptions {
   stretch: number;
   noise: boolean;
   autoPreview: boolean;
+  reverbMix: number;
+  stereoPan: number;
+  harmonicBoost: number;
+  euclidPulses: number;
+  euclidSteps: number;
+  bpm: number;
 }
 
-const DEFAULT: SoundSettings = { pitch: 1, gain: 1, cutoff: 1, stretch: 1, noise: false, autoPreview: true };
+const DEFAULT: SoundSettings = {
+  pitch: 1,
+  gain: 1,
+  cutoff: 1,
+  stretch: 1,
+  noise: false,
+  autoPreview: true,
+  reverbMix: 0.28,
+  stereoPan: 0,
+  harmonicBoost: 1,
+  euclidPulses: 5,
+  euclidSteps: 8,
+  bpm: 116,
+};
 
 /* ---------------------------------------------------------------- waveform */
 
@@ -183,6 +202,8 @@ export const SoundStudio: React.FC = () => {
   const selectedId = SOUND_LIBRARY.some((r) => r.id === pick.id) ? pick.id : SOUND_LIBRARY[0]?.id ?? "";
   const [version, setVersion] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [seqPlaying, setSeqPlaying] = useState(false);
+  const [seqStep, setSeqStep] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const playTimer = useRef<number | null>(null);
   const progressTimer = useRef<number | null>(null);
@@ -201,6 +222,56 @@ export const SoundStudio: React.FC = () => {
     () => ({ pitch: s.pitch, gain: s.gain, cutoff: s.cutoff, stretch: s.stretch, noise: s.noise ? true : undefined }),
     [s.pitch, s.gain, s.cutoff, s.stretch, s.noise]
   );
+
+  const customizedDesign = useMemo(() => {
+    const panShift = s.stereoPan ?? 0;
+    const harmScale = s.harmonicBoost ?? 1;
+    const revMix = s.reverbMix ?? 0.28;
+    return {
+      ...selected.design,
+      reverb:
+        revMix > 0
+          ? {
+              decay: selected.design.reverb?.decay ?? 1.2,
+              mix: revMix,
+            }
+          : undefined,
+      layers: selected.design.layers.map((layer, idx) => ({
+        ...layer,
+        pan: Math.max(-1, Math.min(1, (layer.pan ?? 0) + panShift)),
+        gain: idx > 0 ? (layer.gain ?? 0.5) * harmScale : layer.gain,
+      })),
+    };
+  }, [selected.design, s.stereoPan, s.harmonicBoost, s.reverbMix]);
+
+  const euclidPattern = useMemo(() => {
+    const steps = Math.max(4, s.euclidSteps ?? 8);
+    const pulses = Math.max(1, Math.min(steps, s.euclidPulses ?? 5));
+    const arr: boolean[] = [];
+    for (let i = 0; i < steps; i++) {
+      arr.push(((i * pulses) % steps) < pulses);
+    }
+    return arr;
+  }, [s.euclidPulses, s.euclidSteps]);
+
+  useEffect(() => {
+    if (!seqPlaying) return;
+    const intervalMs = Math.max(90, Math.round(60000 / (s.bpm ?? 116) / 2));
+    const id = window.setInterval(() => {
+      setSeqStep((prev) => {
+        const next = (prev + 1) % euclidPattern.length;
+        if (euclidPattern[next]) {
+          soundEngine.playDesign(customizedDesign, {
+            ...options,
+            pitch: (options.pitch ?? 1) * (next === 0 ? 1.2 : 1),
+            force: true,
+          });
+        }
+        return next;
+      });
+    }, intervalMs);
+    return () => window.clearInterval(id);
+  }, [seqPlaying, s.bpm, euclidPattern, customizedDesign, options]);
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
@@ -232,7 +303,8 @@ export const SoundStudio: React.FC = () => {
   const play = (item: SoundItem = selected) => {
     interacted.current = true;
     stopTimers();
-    const ok = soundEngine.playDesign({ ...item.design }, { ...options, force: true });
+    const designToPlay = item.id === selected.id ? customizedDesign : item.design;
+    const ok = soundEngine.playDesign({ ...designToPlay }, { ...options, force: true });
     if (!ok) {
       toast.push("پخش ممکن نشد", {
         desc: "مرورگر اجازه صدا نداد — یک‌بار روی صفحه کلیک کن",
@@ -284,7 +356,7 @@ export const SoundStudio: React.FC = () => {
 
   const downloadWav = async () => {
     try {
-      const blob = await soundEngine.renderDesignWav(selected.design, options);
+      const blob = await soundEngine.renderDesignWav(customizedDesign, options);
       if (blob.size < 100) return false;
       saveBlob(blob, `${selected.id}.wav`);
       return true;
@@ -472,12 +544,77 @@ soundEngine.playDesign(item.design, ${JSON.stringify(options)});`,
 
   const settings = (
     <div className="space-y-3">
-      <Panel title="میکس نهایی" subtitle="روی پخش زنده و خروجی WAV اثر می‌گذارد">
+      <Panel title="میکس و فضاسازی پیشرفته" subtitle="روی پخش زنده و خروجی WAV اثر می‌گذارد">
         <div className="space-y-3">
-          <Slider label="زیر و بمی" value={s.pitch ?? 1} min={0.5} max={2} step={0.01} format={(v) => `${v.toFixed(2)}×`} onChange={(v) => set({ pitch: v })} />
-          <Slider label="بلندی" value={s.gain ?? 1} min={0} max={2} step={0.01} format={(v) => `${v.toFixed(2)}×`} onChange={(v) => set({ gain: v })} />
-          <Slider label="فیلتر (cutoff)" value={s.cutoff ?? 1} min={0.2} max={3} step={0.01} format={(v) => `${v.toFixed(2)}×`} onChange={(v) => set({ cutoff: v })} />
-          <Slider label="کشش زمان" value={s.stretch} min={0.5} max={2.5} step={0.01} format={(v) => `${v.toFixed(2)}×`} onChange={(v) => set({ stretch: v })} hint="صداهای بلند تا ۳۰ ثانیه کشیده می‌شوند" />
+          <Slider label="زیر و بمی (Pitch)" value={s.pitch ?? 1} min={0.5} max={2} step={0.01} format={(v) => `${v.toFixed(2)}×`} onChange={(v) => set({ pitch: v })} />
+          <Slider label="بلندی (Master Gain)" value={s.gain ?? 1} min={0} max={2} step={0.01} format={(v) => `${v.toFixed(2)}×`} onChange={(v) => set({ gain: v })} />
+          <Slider label="فیلتر (Cutoff)" value={s.cutoff ?? 1} min={0.2} max={3} step={0.01} format={(v) => `${v.toFixed(2)}×`} onChange={(v) => set({ cutoff: v })} />
+          <Slider label="کشش زمان (Time Stretch)" value={s.stretch} min={0.5} max={2.5} step={0.01} format={(v) => `${v.toFixed(2)}×`} onChange={(v) => set({ stretch: v })} hint="صداهای بلند تا ۳۰ ثانیه کشیده می‌شوند" />
+          <Slider label="پژواک فضایی (Reverb Mix)" value={s.reverbMix ?? 0.28} min={0} max={0.95} step={0.05} format={(v) => `${Math.round(v * 100)}%`} onChange={(v) => set({ reverbMix: v })} />
+          <Slider label="مکان استریو (Stereo Pan L/R)" value={s.stereoPan ?? 0} min={-1} max={1} step={0.1} format={(v) => v.toFixed(1)} onChange={(v) => set({ stereoPan: v })} />
+          <Slider label="تقویت هارمونیک (Overtone Boost)" value={s.harmonicBoost ?? 1} min={0.2} max={2.2} step={0.1} format={(v) => `${v.toFixed(1)}×`} onChange={(v) => set({ harmonicBoost: v })} />
+        </div>
+      </Panel>
+
+      <Panel
+        title={`سکوئنسر ریتم اقلیدسی E(${s.euclidPulses ?? 5}, ${s.euclidSteps ?? 8})`}
+        subtitle="تست ضرب‌آهنگ تعامل با الگوریتم بیورکلوند"
+      >
+        <div className="space-y-3">
+          <div className="grid grid-cols-8 gap-1">
+            {euclidPattern.map((hit, idx) => (
+              <div
+                key={idx}
+                className={cn(
+                  "flex h-6 items-center justify-center rounded border font-mono text-[9px]",
+                  seqPlaying && seqStep === idx
+                    ? "border-amber-300 bg-amber-400 font-bold text-black"
+                    : hit
+                      ? "border-[color:var(--accent)]/60 bg-[color:var(--accent)]/20 text-[color:var(--accent)]"
+                      : "border-white/10 bg-black/40 text-zinc-600"
+                )}
+              >
+                {hit ? "●" : "·"}
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setSeqPlaying((v) => !v)}
+            className={cn(
+              "w-full rounded-lg py-1.5 text-[11px] font-bold transition-colors",
+              seqPlaying
+                ? "bg-amber-400 text-black"
+                : "border border-[color:var(--accent)]/40 bg-[color:var(--accent)]/15 text-[color:var(--accent)]"
+            )}
+          >
+            {seqPlaying ? "توقف ریتم اقلیدسی" : "اجرای زنده ریتم اقلیدسی"}
+          </button>
+          <Slider
+            label="ضرب‌های فعال (Pulses k)"
+            value={s.euclidPulses ?? 5}
+            min={1}
+            max={s.euclidSteps ?? 8}
+            step={1}
+            onChange={(v) => set({ euclidPulses: v })}
+          />
+          <Slider
+            label="کل گام‌ها (Steps n)"
+            value={s.euclidSteps ?? 8}
+            min={4}
+            max={16}
+            step={1}
+            onChange={(v) => set({ euclidSteps: v, euclidPulses: Math.min(s.euclidPulses ?? 5, v) })}
+          />
+          <Slider
+            label="سرعت ریتم (BPM)"
+            value={s.bpm ?? 116}
+            min={60}
+            max={180}
+            step={2}
+            unit="BPM"
+            onChange={(v) => set({ bpm: v })}
+          />
         </div>
       </Panel>
 

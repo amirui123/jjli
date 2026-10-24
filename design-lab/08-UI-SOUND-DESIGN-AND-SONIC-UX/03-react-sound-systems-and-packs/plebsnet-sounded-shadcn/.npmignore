@@ -1,0 +1,15 @@
+# Ignore dev-only files and folders from being published to NPM
+src/
+tests/
+scripts/
+.vscode/
+.idea/
+*.env
+.env.*
+tsconfig.json
+tsconfig.build.json
+.gitignore
+.npmignore
+README_draft.md
+build/
+coverage/

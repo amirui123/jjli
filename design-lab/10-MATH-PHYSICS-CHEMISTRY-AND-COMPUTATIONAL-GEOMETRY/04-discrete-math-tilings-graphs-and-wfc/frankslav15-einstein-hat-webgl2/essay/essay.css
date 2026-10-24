@@ -1,0 +1,163 @@
+/* Essay mode and probe panels, layered on David Ryan's map.css. */
+:root { --essay-w: min(430px, 42vw); --sheet-h: 46vh; }
+.title .credit { margin: 0.3rem 0 0; font-size: 0.75rem; color: var(--muted); }
+.title .credit a { color: var(--link); }
+.mode-toggle {
+  font: inherit; font-size: 0.82rem; padding: 0.2rem 0.75rem; border-radius: 999px;
+  border: 1px solid var(--link); color: var(--link); background: none; cursor: pointer;
+}
+.mode-toggle[aria-pressed="true"] { background: var(--link); color: var(--panel); }
+
+.essay {
+  position: fixed; top: 0; right: 0; bottom: 0; width: var(--essay-w); z-index: 5;
+  display: flex; flex-direction: column;
+  background: var(--panel); color: var(--text);
+  border-left: 1px solid var(--rule); box-shadow: -6px 0 24px rgba(0,0,0,0.12);
+}
+.essay[hidden] { display: none; }
+.essay-head { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--rule); }
+.essay-kicker { font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.essay-fold { border: none; background: none; font-size: 1rem; cursor: pointer; color: var(--h3); padding: 0 0.2rem; }
+.essay-dots { display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap; justify-content: flex-end; }
+.essay-dots button { width: 9px; height: 9px; border-radius: 50%; border: 1px solid var(--muted); background: none; padding: 0; cursor: pointer; }
+.essay-dots button.on { background: var(--link); border-color: var(--link); }
+.essay-scroll { overflow-y: auto; padding: 0 1.3rem 45vh; flex: 1; }
+.essay-title h2 { font-size: 1.7rem; font-weight: normal; margin: 1.2rem 0 0.2rem; color: var(--h1); font-family: Georgia, 'Times New Roman', serif; }
+.essay-title .byline { margin: 0; font-size: 0.85rem; color: var(--muted); }
+.essay-title .essay-note { font-size: 0.78rem; color: var(--muted); border-left: 3px solid var(--ring); padding-left: 0.6rem; margin: 0.8rem 0 0.4rem; }
+.essay-sec {
+  padding: 0.8rem 0.9rem 0.6rem; margin: 1rem -0.9rem; border-radius: 10px; cursor: pointer;
+  border: 1px solid transparent; opacity: 0.55; transition: opacity 0.3s, background 0.3s, border-color 0.3s;
+}
+.essay-sec:hover { opacity: 0.85; }
+.essay-sec.active { opacity: 1; background: var(--ring); border-color: var(--rule); cursor: default; }
+.essay-sec p { font-family: Georgia, 'Times New Roman', serif; font-size: 1.02rem; line-height: 1.55; margin: 0 0 0.8rem; }
+.sec-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.4rem; }
+.sec-label span { display: inline-block; min-width: 1.3rem; height: 1.3rem; line-height: 1.3rem; text-align: center; border-radius: 50%; background: var(--link); color: var(--panel); margin-right: 0.3rem; font-size: 0.7rem; }
+.essay-fig { margin: 0.4rem 0 0.4rem; }
+.essay-fig img { width: 100%; border-radius: 6px; display: block; }
+.essay-fig.multi img { margin-bottom: 4px; }
+.essay-fig figcaption { font-size: 0.78rem; color: var(--muted); margin-top: 0.25rem; font-style: italic; }
+.essay-fig .src { font-style: normal; opacity: 0.7; }
+.essay-sec:not(.active) .essay-fig img { max-height: 90px; object-fit: cover; }
+.essay-credits { font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--rule); margin-top: 1.5rem; padding-top: 0.6rem; }
+.essay-credits h3 { font-size: 0.85rem; margin: 0 0 0.4rem; color: var(--h3); }
+.essay-credits p { margin: 0 0 0.5rem; }
+
+/* Desktop: the map's own cards make room for the panel. */
+body.essay-on .top { right: calc(var(--essay-w) + 12px); }
+body.essay-on .zoom { right: calc(var(--essay-w) + 12px); }
+body.essay-on .stats, body.essay-on .diff { right: calc(var(--essay-w) + 70px); }
+body.essay-on.essay-folded .top, body.essay-on.essay-folded .zoom { right: max(12px, env(safe-area-inset-right)); }
+.essay.folded { bottom: auto; width: auto; min-width: 12rem; border-radius: 0 0 0 10px; border-bottom: 1px solid var(--rule); }
+.essay.folded .essay-scroll { display: none; }
+
+/* Stats and diffraction cards, bottom right beside the zoom buttons. */
+.stats, .diff { right: 70px; bottom: max(24px, calc(env(safe-area-inset-bottom) + 12px)); padding: 0.55rem 0.75rem; font-size: 0.8rem; max-width: 22rem; }
+.diff { bottom: auto; top: 50%; transform: translateY(-50%); }
+.stats[hidden], .diff[hidden] { display: none; }
+.stats-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 0.3rem; color: var(--h3); }
+.stats .linkish, .diff .linkish { border: none; padding: 0; font-size: 0.78rem; color: var(--link); background: none; cursor: pointer; }
+.stats table { border-collapse: collapse; width: 100%; }
+.stats th { text-align: left; font-weight: normal; color: var(--muted); padding: 0.08rem 0.6rem 0.08rem 0; white-space: nowrap; }
+.stats td { font-variant-numeric: tabular-nums; color: var(--text); }
+.stats tr.hot th, .stats tr.hot td { color: var(--h1); font-weight: 600; }
+.stats .ref { color: var(--muted); font-weight: normal; font-size: 0.72rem; }
+.stats .hint, .diff .hint { font-size: 0.72rem; color: var(--muted); margin: 0 0 0.35rem; line-height: 1.3; }
+#diff-canvas { width: 240px; height: 240px; display: block; image-rendering: auto; border-radius: 4px; background: #000; }
+.diff-row { display: flex; gap: 0.6rem; align-items: center; margin: 0.35rem 0; flex-wrap: wrap; }
+.diff-row label { display: flex; gap: 0.2rem; align-items: center; }
+.probe-section .slider { margin-bottom: 0.2rem; }
+
+/* Narrow screens: the essay becomes a bottom sheet. */
+@media (max-width: 720px) {
+  .essay { top: auto; left: 0; width: auto; height: var(--sheet-h); border-left: none; border-top: 1px solid var(--rule);
+           border-radius: 14px 14px 0 0; box-shadow: 0 -6px 24px rgba(0,0,0,0.15); }
+  .essay.folded { height: auto; left: 0; right: 0; width: auto; border-radius: 14px 14px 0 0; bottom: 0; top: auto; }
+  .essay-scroll { padding: 0 1rem 30vh; }
+  .essay-title h2 { font-size: 1.35rem; margin-top: 0.7rem; }
+  .essay-sec p { font-size: 0.95rem; }
+  body.essay-on .top { right: max(12px, env(safe-area-inset-right)); }
+  body.essay-on .zoom { right: max(12px, env(safe-area-inset-right)); bottom: calc(var(--sheet-h) + 12px); }
+  body.essay-on .legend { bottom: calc(var(--sheet-h) + 12px); }
+  body.essay-on.essay-folded .zoom, body.essay-on.essay-folded .legend { bottom: 64px; }
+  body.essay-on .stats, body.essay-on .diff { display: none; }
+  .stats, .diff { right: 64px; max-width: calc(100vw - 90px); }
+}
+
+/* Phone portrait (phone.js sets body.phone-portrait): a bottom sheet with
+   three heights, one section at a time, prev/next in its head. */
+.essay-grip, .essay-pnav { display: none; }
+body.phone .mode-toggle[aria-pressed="true"] { color: var(--panel); }
+body.phone-portrait .essay {
+  top: auto; left: 0; right: 0; bottom: 0; width: auto; border-left: none; border-top: 1px solid var(--rule);
+  border-radius: 16px 16px 0 0; box-shadow: 0 -6px 24px rgba(0,0,0,0.15);
+  height: 52dvh; transition: height 0.22s ease; padding-bottom: env(safe-area-inset-bottom);
+}
+body.phone-portrait .essay[data-snap="peek"] { height: 32dvh; }
+body.phone-portrait .essay[data-snap="full"] { height: calc(100dvh - var(--top-h, 64px) - 6px); }
+body.phone-portrait .essay-grip { display: block; height: 16px; flex: none; position: relative; touch-action: none; cursor: pointer; }
+body.phone-portrait .essay-grip span { position: absolute; top: 6px; left: 50%; width: 40px; height: 5px; margin-left: -20px; border-radius: 3px; background: var(--rule); }
+body.phone-portrait .essay-head { padding: 0 6px 4px 14px; gap: 4px; touch-action: none; }
+body.phone-portrait .essay-fold, body.phone-portrait .essay-dots, body.phone-portrait .essay-kicker { display: none; }
+body.phone-portrait .essay-pnav { display: flex; align-items: center; gap: 4px; width: 100%; }
+body.phone-portrait .essay-pnav button { width: 44px; height: 44px; flex: none; padding: 0; font-size: 26px; line-height: 1; border-radius: 50%; }
+body.phone-portrait .essay-pnav #essay-snap { font-size: 16px; border: none; color: var(--muted); }
+body.phone-portrait .essay.at-first #essay-prev, body.phone-portrait .essay.at-last #essay-next { opacity: 0.3; pointer-events: none; }
+body.phone-portrait .essay-count { flex: 1; min-width: 0; text-align: center; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body.phone-portrait .essay-scroll { padding: 0 16px 24px; overscroll-behavior: contain; touch-action: pan-y; }
+body.phone-portrait .essay-sec:not(.active) { display: none; }
+body.phone-portrait .essay-sec { margin: 0.4rem -0.4rem; padding: 0.4rem 0.4rem 0.2rem; opacity: 1; background: none !important; border: none; }
+body.phone-portrait .essay-sec .sec-label { display: none; }
+body.phone-portrait .essay-sec p { font-size: 16px; line-height: 1.55; }
+body.phone-portrait .essay:not(.at-first) .essay-title, body.phone-portrait .essay:not(.at-last) .essay-credits { display: none; }
+body.phone-portrait .essay-title h2 { font-size: 1.3rem; margin-top: 0.3rem; }
+body.phone-portrait.essay-on .top { right: max(8px, env(safe-area-inset-right)); }
+/* The colour key rides just above the sheet, as one sideways strip. */
+body.phone.essay-on .legend {
+  display: block; position: fixed; left: 8px; right: 8px; max-width: none; z-index: 4; padding: 4px 0 2px; max-height: none; overflow: visible;
+  bottom: calc(52dvh + 8px); transition: bottom 0.22s ease;
+}
+body.phone.essay-on .legend .legend-head, body.phone.essay-on .legend .sheet-grip, body.phone.essay-on #legend-body > :not(.groups):not(.strip) { display: none; }
+body.phone.essay-on #legend-body { margin: 0; }
+body.phone.essay-on .legend .groups { margin: 0; padding: 0 6px; }
+body.phone.essay-on .legend .group { min-height: 0; }
+body.phone-portrait.essay-on:has(.essay[data-snap="peek"]) .legend { bottom: calc(32dvh + 8px); }
+body.phone-portrait.essay-on:has(.essay[data-snap="full"]) .legend { display: none; }
+body.phone.essay-on .zoom { display: none; }
+/* Landscape phone: the essay stays a side panel; the key sits bottom left. */
+body.phone:not(.phone-portrait).essay-on .legend { bottom: max(8px, env(safe-area-inset-bottom)); right: calc(var(--essay-w) + 8px); }
+body.phone:not(.phone-portrait) .essay-head { min-height: 44px; }
+body.phone:not(.phone-portrait) .essay-dots button { width: 12px; height: 12px; }
+body.phone:not(.phone-portrait) .essay-fold { min-width: 44px; min-height: 44px; }
+
+/* Tablets (601-1279px wide, not body.phone) in essay mode: the map keeps
+   room of its own. The title card drops its one-line description and the
+   Options card folds behind its button (essay.js folds it on entering the
+   essay and restores it on leaving). */
+@media (min-width: 601px) and (max-width: 1279px) {
+  body.essay-on:not(.phone) .title p.hint { display: none; }
+  body.essay-on:not(.phone) .options { width: auto; }
+  body.essay-on:not(.phone) .options:not(.folded) { width: 16.5rem; }
+  body.essay-on:not(.phone) .options .head { display: block; }
+  body.essay-on:not(.phone) .options:not(.folded) .body { margin-top: 0.45rem; }
+  body.essay-on:not(.phone) .options.folded .body { display: none; }
+}
+/* Portrait tablets: a side panel would leave the map a narrow column, so
+   the essay sits along the bottom as on narrow screens, its text in a
+   readable column, and the map gets the full width above it. */
+@media (min-width: 721px) and (max-width: 1100px) and (orientation: portrait) {
+  :root { --sheet-h: 42vh; }
+  body:not(.phone) .essay { top: auto; left: 0; width: auto; height: var(--sheet-h); border-left: none; border-top: 1px solid var(--rule);
+           border-radius: 14px 14px 0 0; box-shadow: 0 -6px 24px rgba(0,0,0,0.15); }
+  body:not(.phone) .essay.folded { height: auto; left: 0; right: 0; width: auto; border-radius: 14px 14px 0 0; bottom: 0; top: auto; }
+  body:not(.phone) .essay-head { padding: 0.5rem max(0.8rem, calc(50vw - 340px)); }
+  body:not(.phone) .essay-scroll { padding: 0 max(1.3rem, calc(50vw - 330px)) 30vh; }
+  body.essay-on:not(.phone) .top { right: max(12px, env(safe-area-inset-right)); }
+  body.essay-on:not(.phone) .options { max-height: calc(100dvh - var(--sheet-h) - 24px); }
+  body.essay-on:not(.phone) .zoom { right: max(12px, env(safe-area-inset-right)); bottom: calc(var(--sheet-h) + 12px); }
+  body.essay-on:not(.phone) .legend { bottom: calc(var(--sheet-h) + 12px); }
+  body.essay-on.essay-folded:not(.phone) .zoom, body.essay-on.essay-folded:not(.phone) .legend { bottom: 64px; }
+  body.essay-on:not(.phone) .stats, body.essay-on:not(.phone) .diff { right: 70px; bottom: calc(var(--sheet-h) + 12px); }
+  body.essay-on:not(.phone) .diff { top: auto; transform: none; }
+}

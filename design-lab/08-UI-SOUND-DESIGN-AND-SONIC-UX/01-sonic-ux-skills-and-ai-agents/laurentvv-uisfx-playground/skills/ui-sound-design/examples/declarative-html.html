@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>UI SFX Declarative Binding Example</title>
+</head>
+<body>
+  <h1>Declarative UI SFX (bindUISFX)</h1>
+
+  <!-- Simple click trigger -->
+  <button data-uisfx="success">Save Settings</button>
+  <button data-uisfx="delete">Delete Item</button>
+
+  <!-- Fine pointer hover trigger -->
+  <button data-uisfx-hover="hover">Hover over me</button>
+
+  <!-- Press and release triggers -->
+  <button data-uisfx-press="press" data-uisfx-release="release">Tactile Button</button>
+
+  <script type="module">
+    import { bindUISFX } from 'uisfx'
+
+    // Automatically binds all data-uisfx attributes across the document
+    const binding = bindUISFX(document, {
+      pack: 'minimal',
+      volume: 0.3
+    })
+
+    // To clean up on teardown / page unload:
+    // binding.unbind()
+    // binding.player.destroy()
+  </script>
+</body>
+</html>

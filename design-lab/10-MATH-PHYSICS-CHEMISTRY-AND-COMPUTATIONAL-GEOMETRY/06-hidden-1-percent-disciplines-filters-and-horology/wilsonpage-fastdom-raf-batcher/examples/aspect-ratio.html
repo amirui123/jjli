@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>FastDom: Aspect Ratio Example</title>
+<style>
+
+  * {
+    box-sizing: border-box;
+  }
+
+  div {
+    float: left;
+    background: silver;
+    border: solid 2px white;
+  }
+
+</style>
+</head>
+<body>
+  <label>Number of elements <input id="input" type="text" value="100" /></label>
+  <button id="withoutFastDom">Run without FastDom</button>
+  <button id="withRequestAnimationFrame">Run with requestAnimationFrame</button>
+  <button id="withFastDom">Run with FastDom</button>
+  <button id="resetbtn">reset</button>
+  <section id="perf"></section>
+  <section id="container"></section>
+  <script src="../fastdom.js"></script>
+  <script>
+    var n;
+    var start;
+    var divs;
+
+    // Setup
+    function reset(done) {
+      n = input.value;
+      divs = [];
+
+      fastdom.measure(function() {
+        var winWidth = window.innerWidth;
+
+        fastdom.mutate(function() {
+          container.innerHTML = '';
+
+          for (var i = 0; i < n; i++) {
+            var div = document.createElement('div');
+            div.style.width = Math.round(Math.random() * winWidth) + 'px';
+            container.appendChild(div);
+            divs.push(div);
+          }
+
+          if (done) done();
+        });
+      });
+    }
+
+    function setAspect(div, i) {
+      var aspect = 9 / 16;
+      var isLast = i === (n - 1);
+      var h = div.clientWidth * aspect;
+
+      div.style.height = h + 'px';
+
+      if (isLast) {
+        displayPerf(performance.now() - start);
+      }
+    }
+
+    function setAspectRequestAnimationFrame(div, i) {
+      var aspect = 9 / 16;
+      var isLast = i === (n - 1);
+
+      // READ
+      requestAnimationFrame(function() {
+        var h = div.clientWidth * aspect;
+
+        // WRITE
+        requestAnimationFrame(function() {
+          div.style.height = h + 'px';
+
+          if (isLast) {
+            displayPerf(performance.now() - start);
+          }
+        });
+      });
+    }
+
+    function setAspectFastDom(div, i) {
+      var aspect = 9 / 16;
+      var isLast = i === (n - 1);
+
+      // READ
+      fastdom.measure(function() {
+        var h = div.clientWidth * aspect;
+
+        // WRITE
+        fastdom.mutate(function() {
+          div.style.height = h + 'px';
+
+          if (isLast) {
+            displayPerf(performance.now() - start);
+          }
+        });
+      });
+    }
+
+    function displayPerf(ms) {
+      perf.textContent = ms + 'ms';
+    }
+
+    withoutFastDom.onclick = function() {
+      reset(function() {
+        start = performance.now();
+        divs.forEach(setAspect);
+      });
+    };
+
+    withFastDom.onclick = function() {
+      reset(function() {
+        start = performance.now();
+        divs.forEach(setAspectFastDom);
+      });
+    };
+
+    withRequestAnimationFrame.onclick = function() {
+      reset(function() {
+        start = performance.now();
+        divs.forEach(setAspectRequestAnimationFrame);
+      });
+    };
+
+    resetbtn.onclick = function() {
+      reset();
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "web-ui-design",
+  "version": "0.4.0",
+  "description": "A process skill that makes coding agents design web UI that looks deliberate, not generated. Distilled from 34 design skills and the public evidence on them.",
+  "author": { "name": "EPISTEX0", "url": "https://github.com/EPISTEX0" },
+  "repository": "https://github.com/EPISTEX0/web-ui-design-skill",
+  "license": "MIT",
+  "keywords": ["design", "frontend", "ui", "ux", "skills", "design-system"],
+  "skills": ["./skills/web-ui-design"]
+}

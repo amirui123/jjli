@@ -1,5 +1,9 @@
 @import "tailwindcss";
 @source not "../toolkit";
+@source not "../design-lab";
+@source not "../public";
+@source not "../share";
+@source not "../docs";
 
 /* ==========================================================================
    گنجینه کامل فونت‌های فارسی (نستعلیق، خوشنویسی، خاص/تایپوگرافی، مدرن و کد)
@@ -616,6 +620,356 @@
   font-display: swap;
 }
 
+/* --------------------------------------------------------------------------
+   ۶. گنجینهٔ تکمیلی فونت‌های فارسی و عربی متن‌باز (OFL 1.1)
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Aref Ruqaa";
+  src: url("/fonts/01-nastaliq-and-calligraphy/ArefRuqaa-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Mirza";
+  src: url("/fonts/01-nastaliq-and-calligraphy/Mirza-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Lateef";
+  src: url("/fonts/01-nastaliq-and-calligraphy/Lateef-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Reem Kufi";
+  src: url("/fonts/02-special-and-display/ReemKufi-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rakkas";
+  src: url("/fonts/02-special-and-display/Rakkas-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Changa";
+  src: url("/fonts/02-special-and-display/Changa-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "El Messiri";
+  src: url("/fonts/02-special-and-display/ElMessiri-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Kufam";
+  src: url("/fonts/02-special-and-display/Kufam-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Qahiri";
+  src: url("/fonts/02-special-and-display/Qahiri-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cairo";
+  src: url("/fonts/03-modern-ui-and-variable/Cairo-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Tajawal";
+  src: url("/fonts/03-modern-ui-and-variable/Tajawal-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Almarai";
+  src: url("/fonts/03-modern-ui-and-variable/Almarai-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Readex Pro";
+  src: url("/fonts/03-modern-ui-and-variable/ReadexPro-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Alexandria";
+  src: url("/fonts/03-modern-ui-and-variable/Alexandria-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fustat";
+  src: url("/fonts/03-modern-ui-and-variable/Fustat-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Zain";
+  src: url("/fonts/03-modern-ui-and-variable/Zain-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans Arabic";
+  src: url("/fonts/03-modern-ui-and-variable/IBMPlexSansArabic-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rubik";
+  src: url("/fonts/03-modern-ui-and-variable/RubikArabic-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nahid FD";
+  src: url("/fonts/05-editorial-and-international/Nahid-FD.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Markazi Text";
+  src: url("/fonts/05-editorial-and-international/MarkaziText-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Harmattan";
+  src: url("/fonts/05-editorial-and-international/Harmattan-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --------------------------------------------------------------------------
+   ۷. فونت‌های انگلیسی هکری/کدنویسی و تایپوگرافی نمایشی (06-english-coding-and-display)
+   -------------------------------------------------------------------------- */
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/06-english-coding-and-display/JetBrainsMono-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fira Code";
+  src: url("/fonts/06-english-coding-and-display/FiraCode-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/06-english-coding-and-display/GeistMono-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cascadia Code";
+  src: url("/fonts/06-english-coding-and-display/CascadiaCode-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Space Mono";
+  src: url("/fonts/06-english-coding-and-display/SpaceMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/06-english-coding-and-display/IBMPlexMono-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Share Tech Mono";
+  src: url("/fonts/06-english-coding-and-display/ShareTechMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "VT323";
+  src: url("/fonts/06-english-coding-and-display/VT323-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Silkscreen";
+  src: url("/fonts/06-english-coding-and-display/Silkscreen-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("/fonts/06-english-coding-and-display/SpaceGrotesk-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Syne";
+  src: url("/fonts/06-english-coding-and-display/Syne-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Orbitron";
+  src: url("/fonts/06-english-coding-and-display/Orbitron-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Chakra Petch";
+  src: url("/fonts/06-english-coding-and-display/ChakraPetch-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rajdhani";
+  src: url("/fonts/06-english-coding-and-display/Rajdhani-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Unbounded";
+  src: url("/fonts/06-english-coding-and-display/Unbounded-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("/fonts/06-english-coding-and-display/BricolageGrotesque-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/fonts/06-english-coding-and-display/PlusJakartaSans-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("/fonts/06-english-coding-and-display/Outfit-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sora";
+  src: url("/fonts/06-english-coding-and-display/Sora-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  src: url("/fonts/06-english-coding-and-display/Fraunces-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/fonts/06-english-coding-and-display/InstrumentSerif-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cinzel";
+  src: url("/fonts/06-english-coding-and-display/Cinzel-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* گارد تایپوگرافی فارسی و نستعلیق */
 [dir="rtl"] {
   letter-spacing: 0;
@@ -707,15 +1061,87 @@ body {
 :root {
   --accent: #e8b33a;
   --accent-glow: 232, 179, 58;
-  --bg: #08080a;
-  --panel: #0d0d10;
-  --line: rgba(255, 255, 255, 0.07);
-  --line-strong: rgba(255, 255, 255, 0.12);
+  --bg: #05060a;
+  --panel: #0b0d14;
+  --panel-elevated: #101420;
+  --line: rgba(255, 255, 255, 0.075);
+  --line-strong: rgba(255, 255, 255, 0.14);
+  --font-scale: 1;
   color-scheme: dark;
 }
 
 html {
   scroll-behavior: smooth;
+  font-size: calc(16px * var(--font-scale, 1));
+}
+
+/* کنتراست بالا برای دسترسی‌پذیری و جلوگیری از هالهٔ آستیگماتیسم */
+html[data-contrast="high"] {
+  --line: rgba(255, 255, 255, 0.22);
+  --line-strong: rgba(255, 255, 255, 0.38);
+  --panel: #090b12;
+}
+html[data-contrast="high"] body {
+  color: #ffffff;
+}
+html[data-contrast="high"] [class*="border-white/"] {
+  border-color: rgba(255, 255, 255, 0.24) !important;
+}
+
+/* تغییر زندهٔ فونت نمایشی کل پلتفرم از داخل منوی دسترسی‌پذیری */
+html[data-display-font="font-nastaliq"] .font-hasti {
+  font-family: "IranNastaliq", "GulzarNastaliq", serif !important;
+  line-height: 1.95 !important;
+}
+html[data-display-font="font-morabba"] .font-hasti {
+  font-family: "Morabba", sans-serif !important;
+}
+html[data-display-font="font-kahroba"] .font-hasti {
+  font-family: "Kahroba FD", sans-serif !important;
+}
+html[data-display-font="font-peyda"] .font-hasti {
+  font-family: "Peyda", sans-serif !important;
+}
+
+/* فویل هولوگرافیک و کارت‌های حساس به مختصات موس بدون کلیک */
+.holographic-foil {
+  background: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(245, 184, 65, 0.09) 28%,
+    rgba(34, 211, 238, 0.12) 48%,
+    rgba(167, 139, 250, 0.09) 68%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  mix-blend-mode: screen;
+}
+
+.glass-bevel {
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.09),
+    0 18px 42px -18px rgba(0, 0, 0, 0.78);
+}
+
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+.spotlight-card::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 260ms ease;
+  background: radial-gradient(
+    420px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    rgba(var(--accent-glow), 0.13),
+    transparent 65%
+  );
+}
+.spotlight-card:hover::before {
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -949,13 +1375,11 @@ html[data-motion="reduced"] *::after {
   filter: blur(70px);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .marquee-track,
-  .float-y,
-  .aurora-blob,
-  .skeleton::after {
-    animation: none !important;
-  }
+html[data-reduced-motion="true"] .marquee-track,
+html[data-reduced-motion="true"] .float-y,
+html[data-reduced-motion="true"] .aurora-blob,
+html[data-reduced-motion="true"] .skeleton::after {
+  animation: none !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -1111,6 +1535,6 @@ label {
   to { transform: scale(1.12) translate3d(-2%, 1.5%, 0); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .aurora-fallback { animation: none; }
+html[data-reduced-motion="true"] .aurora-fallback {
+  animation: none;
 }

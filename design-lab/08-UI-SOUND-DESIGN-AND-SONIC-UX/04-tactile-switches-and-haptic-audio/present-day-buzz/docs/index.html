@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Buzz playground</title>
+    <style>
+      :root {
+        --bg: #0f1218;
+        --surface: #171b24;
+        --border: #2a3040;
+        --text: #e8ebf0;
+        --muted: #8b94a8;
+        --accent: #6ea8ff;
+        --warn-bg: #2d2418;
+        --warn-border: #8a6a2a;
+        --warn-text: #f0d9a0;
+        font-family:
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+        padding: 1rem 1rem 2rem;
+      }
+      .wrap {
+        max-width: 40rem;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem;
+      }
+      .lede {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin: 0 0 1.25rem;
+      }
+      .mobile-warning[hidden] {
+        display: none !important;
+      }
+      .mobile-warning {
+        background: var(--warn-bg);
+        border: 1px solid var(--warn-border);
+        color: var(--warn-text);
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .mobile-warning p {
+        margin: 0;
+        font-size: 0.9rem;
+      }
+      .mobile-warning button {
+        align-self: flex-start;
+        background: transparent;
+        border: 1px solid var(--warn-border);
+        color: var(--warn-text);
+        border-radius: 0.35rem;
+        padding: 0.35rem 0.6rem;
+        font: inherit;
+        cursor: pointer;
+      }
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1.25rem;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem 1.25rem;
+        margin-bottom: 0.5rem;
+      }
+      .row:last-child {
+        margin-bottom: 0;
+      }
+      .label {
+        color: var(--muted);
+        font-size: 0.85rem;
+        min-width: 8rem;
+      }
+      .toggles {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.25rem;
+        align-items: center;
+      }
+      .toggles label {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+        user-select: none;
+      }
+      .toggles input {
+        width: 1rem;
+        height: 1rem;
+        accent-color: var(--accent);
+      }
+      .preset-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .preset-row:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+      }
+      .preset-title {
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+      .preset-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+      }
+      .preset-actions button {
+        background: #252a38;
+        border: 1px solid var(--border);
+        color: var(--text);
+        border-radius: 0.35rem;
+        padding: 0.4rem 0.65rem;
+        font: inherit;
+        font-size: 0.8rem;
+        cursor: pointer;
+      }
+      .preset-actions button:hover {
+        border-color: var(--accent);
+        color: #fff;
+      }
+      .preset-actions button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      #btn-cancel {
+        width: 100%;
+        background: #2a1f1f;
+        border: 1px solid #4a3333;
+        color: #f0b0a8;
+        border-radius: 0.35rem;
+        padding: 0.5rem 0.75rem;
+        font: inherit;
+        cursor: pointer;
+        margin-top: 0.5rem;
+      }
+      #btn-cancel:hover {
+        border-color: #c45;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Buzz playground</h1>
+      <p class="lede">
+        Try haptic and audio feedback presets. “Both” uses the toggles below; “Haptic” and
+        “Sound” force that channel for a quick A/B.
+      </p>
+
+      <div
+        id="mobile-warning"
+        class="mobile-warning"
+        role="status"
+        aria-live="polite"
+        hidden
+      >
+        <p>
+          <strong>Mobile browser.</strong> Vibration and Web Audio in this page are often
+          limited, blocked without a gesture, or behave differently than on desktop. This is
+          only a rough preview—test your app in a real mobile WebView or browser when it matters.
+        </p>
+        <button type="button" id="mobile-warning-dismiss">Dismiss</button>
+      </div>
+
+      <div class="panel">
+        <div class="row">
+          <span class="label">Haptics available</span>
+          <span id="haptic-available">—</span>
+        </div>
+        <div class="row">
+          <span class="label">Default preferences</span>
+          <div class="toggles">
+            <label>
+              <input type="checkbox" id="toggle-haptic" checked />
+              Haptics
+            </label>
+            <label>
+              <input type="checkbox" id="toggle-sound" checked />
+              Sound
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div id="preset-list"></div>
+        <button type="button" id="btn-cancel">Cancel vibration (pattern)</button>
+      </div>
+    </div>
+    <script type="module" src="./playground.js"></script>
+  </body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UI SFX Playground - Test interactif</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔊</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="header-left">
+          <div class="logo-group">
+            <span class="logo-icon">🔊</span>
+            <div>
+              <h1>UI SFX <span class="tag">Studio Playground</span></h1>
+              <p class="subtitle">Testeur sémantique de sound design pour interfaces (936 sons CC0)</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-controls">
+          <div class="control-card">
+            <span class="status-indicator" id="audio-status" title="État AudioContext">
+              <span class="dot"></span>
+              <span id="audio-status-label">En attente d'interaction</span>
+            </span>
+          </div>
+
+          <div class="control-card volume-group">
+            <label for="volume-slider">Volume : <span id="volume-val">70%</span></label>
+            <input type="range" id="volume-slider" min="0" max="100" value="70" />
+          </div>
+
+          <div class="control-card">
+            <button id="toggle-mute" class="btn-secondary" title="Activer / Couper le son">
+              <span id="mute-icon">🔊</span> <span id="mute-label">Son Actif</span>
+            </button>
+          </div>
+
+          <div class="control-card">
+            <button id="btn-stop-all" class="btn-danger-outline" title="Arrêter tous les sons en cours">
+              ⏹️ Stop All
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Layout -->
+      <main class="main-content">
+        <!-- Pack Selector Section -->
+        <section class="pack-section">
+          <div class="section-header">
+            <h2>1. Choisissez votre personnalité sonore</h2>
+            <span class="pack-current-badge" id="current-pack-info">Pack actuel : <strong>minimal</strong></span>
+          </div>
+          <div class="packs-grid" id="packs-container">
+            <!-- Injected dynamically -->
+          </div>
+        </section>
+
+        <!-- Two columns: Realistic Simulation vs Soundboard Explorer -->
+        <div class="dashboard-grid">
+          <!-- Col 1: Realistic Component Simulation -->
+          <section class="simulation-section">
+            <div class="section-header">
+              <h2>2. Simulation de composants réels</h2>
+              <span class="section-badge">Expérience utilisateur en direct</span>
+            </div>
+
+            <div class="simulation-cards">
+              <!-- Actions & Forms -->
+              <div class="sim-card">
+                <h3>Actions de validation & formulaires</h3>
+                <p class="card-desc">Chaque bouton joue l'effet sémantique adéquat.</p>
+                <div class="btn-row">
+                  <button class="btn btn-primary" id="sim-save">Sauvegarder (success)</button>
+                  <button class="btn btn-danger" id="sim-delete">Supprimer (delete)</button>
+                  <button class="btn btn-secondary" id="sim-cancel">Annuler (cancel)</button>
+                  <button class="btn btn-outline" id="sim-copy">Copier le lien (copy)</button>
+                </div>
+              </div>
+
+              <!-- Switches & Selection -->
+              <div class="sim-card">
+                <h3>Interrupteurs & Sélections</h3>
+                <p class="card-desc">Toggles, cases à cocher et navigation par onglets.</p>
+                <div class="sim-interactive-row">
+                  <label class="switch-control">
+                    <input type="checkbox" id="sim-toggle-switch" />
+                    <span class="switch-slider"></span>
+                    <span class="switch-text" id="toggle-label">Mode Sombre (Désactivé)</span>
+                  </label>
+
+                  <label class="checkbox-control">
+                    <input type="checkbox" id="sim-checkbox" />
+                    <span>Notification e-mail (check / uncheck)</span>
+                  </label>
+                </div>
+
+                <div class="tab-strip" id="sim-tabs">
+                  <button class="tab-btn active" data-tab="general">Général</button>
+                  <button class="tab-btn" data-tab="security">Sécurité</button>
+                  <button class="tab-btn" data-tab="billing">Facturation</button>
+                  <button class="tab-btn" data-tab="integrations">API</button>
+                </div>
+              </div>
+
+              <!-- Async Process / Loop Simulation -->
+              <div class="sim-card">
+                <h3>Processus asynchrone & Boucles d'attente</h3>
+                <p class="card-desc">Simule une requête longue avec une boucle sonore continue (processing) qui s'arrête dès que la tâche finit.</p>
+                
+                <div class="async-box">
+                  <div class="async-controls">
+                    <button class="btn btn-accent" id="sim-start-process">
+                      ▶️ Lancer traitement (boucle)
+                    </button>
+                    <button class="btn btn-secondary" id="sim-cancel-process" disabled>
+                      ⏹️ Annuler
+                    </button>
+                    <span class="async-status-text" id="async-status">Prêt</span>
+                  </div>
+                  <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="async-progress-bar"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Gamification & Rewards -->
+              <div class="sim-card">
+                <h3>Gamification & Événements positifs</h3>
+                <p class="card-desc">Milestones, streaks, progression de palier et récompenses.</p>
+                <div class="btn-row">
+                  <button class="btn btn-warning" id="sim-reward">⭐ Récompense (reward)</button>
+                  <button class="btn btn-success" id="sim-levelup">🚀 Level Up (level-up)</button>
+                  <button class="btn btn-purple" id="sim-streak">🔥 Série de 7j (streak)</button>
+                  <button class="btn btn-cyan" id="sim-achievement">🏆 Succès débloqué (achievement)</button>
+                </div>
+              </div>
+
+              <!-- Drag & Drop Zone -->
+              <div class="sim-card">
+                <h3>Glisser-Déposer (Drag & Drop)</h3>
+                <p class="card-desc">Glissez la carte dans la zone cible pour tester drag-start, drop et invalid-drop.</p>
+                <div class="dnd-playground">
+                  <div class="dnd-source" id="dnd-item" draggable="true">
+                    📦 Élément déplaçable
+                  </div>
+                  <div class="dnd-target valid" id="dnd-valid-zone">
+                    Zone valide (drop)
+                  </div>
+                  <div class="dnd-target invalid" id="dnd-invalid-zone">
+                    Zone rejetée (invalid-drop)
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Col 2: Complete Soundboard Explorer -->
+          <section class="explorer-section">
+            <div class="section-header">
+              <h2>3. Explorateur des 78 Cues</h2>
+              <div class="search-box">
+                <input type="text" id="cue-search" placeholder="Filtrer un son (ex: drop, success, open)..." />
+              </div>
+            </div>
+
+            <!-- Categories Tabs -->
+            <div class="categories-filter" id="categories-filter">
+              <button class="cat-pill active" data-category="all">Tous (78)</button>
+              <!-- Injected dynamically -->
+            </div>
+
+            <!-- Cues Grid -->
+            <div class="cues-grid" id="cues-grid">
+              <!-- Injected dynamically -->
+            </div>
+          </section>
+        </div>
+
+        <!-- Documentation / Quick Code Integration -->
+        <section class="code-section">
+          <div class="section-header">
+            <h2>4. Comment intégrer UI SFX dans vos projets</h2>
+          </div>
+          <div class="code-cards-grid">
+            <div class="code-card">
+              <h3>Installation & Init</h3>
+              <pre><code>npm install uisfx
+
+import { createUISFX } from 'uisfx'
+
+// 1. Initialiser le player
+const ui = createUISFX({
+  pack: 'minimal', // ou 'soft', 'arcade', 'glass', etc.
+  volume: 0.7,
+  enabled: true
+})
+
+// 2. Déverrouiller au 1er clic de l'utilisateur
+window.addEventListener('pointerdown', () => {
+  ui.unlock()
+}, { once: true })</code></pre>
+            </div>
+
+            <div class="code-card">
+              <h3>One-Shots & Boucles (Loops)</h3>
+              <pre><code>// Son ponctuel (One-shot)
+ui.play('success')
+ui.play('delete')
+ui.play('toggle-on')
+
+// Boucle continue (State loop)
+const loop = ui.play('processing')
+
+// Arrêt de la boucle quand le state se termine
+loop?.stop()
+
+// Changement de thème sonore instantané
+ui.setPack('arcade')</code></pre>
+            </div>
+
+            <div class="code-card">
+              <h3>Binding déclaratif HTML (bindUISFX)</h3>
+              <pre><code>import { bindUISFX } from 'uisfx'
+
+// Attache les événements automatiquement
+bindUISFX(document, { pack: 'minimal' })
+
+// Dans votre HTML :
+&lt;button data-uisfx="success"&gt;Enregistrer&lt;/button&gt;
+&lt;button data-uisfx="delete"&gt;Supprimer&lt;/button&gt;
+&lt;button data-uisfx-hover="hover"&gt;Survol&lt;/button&gt;</code></pre>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        <p>UI SFX Playground — Code sous licence MIT, Audio CC0 par Romain Simon.</p>
+        <p>Dossier temporaire : <code>scratch/uisfx-demo</code></p>
+      </footer>
+    </div>
+
+    <!-- Active loop floating indicator -->
+    <div id="active-loops-bar" class="active-loops-bar hidden">
+      <div class="loop-status-content">
+        <span class="loop-pulse"></span>
+        <span id="active-loops-label">Boucle en cours : <strong>processing</strong></span>
+      </div>
+      <button id="btn-stop-active-loop" class="btn-sm btn-danger">Arrêter la boucle</button>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

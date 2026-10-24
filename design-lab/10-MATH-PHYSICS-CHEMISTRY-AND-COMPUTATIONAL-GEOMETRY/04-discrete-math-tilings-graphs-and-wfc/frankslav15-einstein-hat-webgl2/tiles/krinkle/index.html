@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Modulo Krinkle tiling – one tile, a fan of wedges</title>
+<meta name="description" content="Explore Miki Imura's Modulo Krinkle tilings. One tile, set by three whole numbers, fills the plane in a fan of wedges that swirl round a centre.">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../../favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://frankslav15.github.io/einstein-hat-explorer/tiles/krinkle/">
+<meta property="og:title" content="Modulo Krinkle tiling – one tile, a fan of wedges">
+<meta property="og:description" content="A spiral monotile by Miki Imura, 2025. Pan, zoom and reshape Modulo Krinkle tilings, whose wedges swirl round a centre.">
+<meta property="og:image" content="https://drbuild.uk/social/krinkle.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Pastel wedges of one tile swirling round a centre, in a Modulo Krinkle tiling">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image:alt" content="Pastel wedges of one tile swirling round a centre, in a Modulo Krinkle tiling">
+<meta name="twitter:creator" content="@davidryan59">
+<script src="../../assets/theme.js"></script>
+<script>Theme.initTheme();</script>
+<link rel="stylesheet" href="../engine/map.css">
+<style>
+  /* Presets: four large buttons, then the rest in rows of three. */
+  .presets { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.3rem; }
+  .presets button { min-width: 0; padding: 0.2rem 0.1rem; font-size: 0.78rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .presets .big { grid-column: span 3; display: flex; flex-direction: column; align-items: center; line-height: 1.2; padding: 0.3rem 0.2rem; font-size: 0.92rem; }
+  .presets .big small { font-size: 0.68rem; color: var(--muted); }
+  .presets .small { grid-column: span 2; }
+  .presets button[aria-pressed="true"] { background: var(--ring); color: var(--h1); border-color: var(--muted); }
+  .presets sup { font-size: 0.62em; color: var(--muted); margin-left: 0.1em; line-height: 0; }
+  .presets .big > span { display: block; }
+
+  /* Steppers for m, k and t, then Offset and the dice. */
+  .steppers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.3rem; }
+  .stepper { display: flex; align-items: center; gap: 0.1rem; font-size: 0.88rem; color: var(--h3); min-width: 0; }
+  .stepper .lab { font-style: italic; width: 0.6rem; text-align: right; color: var(--muted); }
+  .stepper button { width: 1.5rem; height: 1.5rem; padding: 0; line-height: 1; font-size: 1rem; display: grid; place-items: center; flex: none; }
+  .stepper output { min-width: 1rem; text-align: center; font-variant-numeric: tabular-nums; color: var(--h1); }
+  .options button:disabled { opacity: 0.4; cursor: default; }
+  .options button:disabled:hover { border-color: var(--ring); color: var(--h3); }
+  .offset-row { display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; }
+  .offset-actions { display: flex; align-items: center; gap: 0.35rem; }
+  #set-values { font-size: 0.78rem; padding: 0.28rem 0.5rem; }
+  .options .dice { width: 2rem; height: 2rem; }
+  .options label.disabled { opacity: 0.5; cursor: default; }
+  .readout { margin: 0; font-size: 0.8rem; line-height: 1.4; color: var(--text); }
+  .readout .error, .error-note { color: var(--danger); }
+  .options .note { font-size: 0.75rem; color: var(--muted); margin: 0; line-height: 1.35; }
+  /* The card stands left of the zoom buttons, so they never cover it. When
+     it wraps below the title card on a narrow window, its height stops at
+     the bottom of the screen and it scrolls inside. */
+  .options { margin-right: 3.4rem; }
+  @media (max-width: 700px) { .options { max-height: calc(100dvh - 210px); } }
+  /* Two tabs, styled as the tiling switch: the tile, then how it is laid
+     out and drawn. Reset options sits below both. */
+  .options .tabs { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--ring); border-radius: 7px; overflow: hidden; }
+  .options .tabs button { border: none; border-radius: 0; padding: 0.22rem 0.4rem; font-size: 0.85rem; }
+  .options .tabs button + button { border-left: 1px solid var(--ring); }
+  .options .tabs button[aria-selected="true"] { background: var(--ring); color: var(--h1); }
+  .options .col { display: flex; flex-direction: column; gap: 0.4rem; }
+  /* Touch targets: larger steppers, in a card wide enough to hold them. */
+  @media (pointer: coarse) {
+    .stepper button { width: 2rem; height: 2rem; }
+    .stepper .lab { width: 0.7rem; }
+  }
+  @media (pointer: coarse) and (min-width: 641px) and (max-width: 959px) { .options { width: 19.5rem; } }
+  /* The construction control: a play button and the scrubber. */
+  .playback { display: flex; align-items: center; gap: 0.5rem; }
+  .playback button { width: 2rem; height: 2rem; padding: 0; flex: none; display: grid; place-items: center; }
+  .playback button svg { width: 1rem; height: 1rem; }
+  .playback input[type="range"] { flex: 1; min-width: 0; }
+  #play .pause, #play[aria-pressed="true"] .go { display: none; }
+  #play[aria-pressed="true"] .pause { display: block; }
+  #stage { font-size: 0.78rem; color: var(--muted); font-variant-numeric: tabular-nums; margin: 0; line-height: 1.3; }
+  #tile-figure { display: block; width: 100%; height: 6.5rem; }
+  #tile-figure text { fill: var(--muted); font-family: Georgia, serif; }
+  #values-dialog { pointer-events: auto; color: var(--text); background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 1rem; box-shadow: 0 12px 40px #0005; }
+  #values-dialog::backdrop { background: #0007; }
+  #values-dialog h2 { margin: 0 0 0.8rem; color: var(--h1); font-size: 1.05rem; font-weight: normal; }
+  #values-dialog .fields { display: grid; grid-template-columns: repeat(3, 5rem); gap: 0.6rem; }
+  #values-dialog label { display: grid; gap: 0.2rem; color: var(--h3); font-style: italic; }
+  #values-dialog .family { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.7rem; font-style: normal; }
+  #values-dialog input { width: 100%; box-sizing: border-box; padding: 0.35rem; color: var(--text); background: var(--panel); border: 1px solid var(--rule); border-radius: 5px; font: inherit; }
+  #values-dialog .error-note { min-height: 1.2em; max-width: 16rem; margin: 0.6rem 0; font-size: 0.8rem; }
+  #values-dialog .value-note { margin: 0.65rem 0 0; color: var(--h3); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+  #values-dialog .bounds-note { margin: 0.2rem 0 0; max-width: 17rem; color: var(--muted); font-size: 0.75rem; line-height: 1.35; }
+  #values-dialog .ok-note { color: #18763a; }
+  :root[data-theme="dark"] #values-dialog .ok-note { color: #63d68a; }
+  #values-dialog .actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
+</style>
+</head>
+<body>
+
+<canvas id="map" tabindex="0" aria-label="Modulo Krinkle tiling map. Drag to move, scroll or pinch to zoom, arrow keys to move, plus and minus to zoom, shift and the arrow keys to turn."></canvas>
+
+<div class="top">
+<div class="card title">
+  <a class="back" href="https://drbuild.uk/" target="_blank" rel="noopener">← David Ryan's builder page</a>
+  <button type="button" class="about-open" id="about-open">About</button>
+  <h1>Modulo Krinkle tiling</h1>
+  <p class="hint">A spiral monotile by Miki Imura, 2025</p>
+  <div class="row">
+    <nav class="switch" aria-label="Tiling">
+      <a href="../hat/index.html">Hat</a><a href="../spectre/index.html">Spectre</a><a href="../hat-extended/index.html">Hat (extended)</a><a href="../krinkle/index.html" aria-current="page">Krinkle</a>
+    </nav>
+  </div>
+</div>
+
+<div class="card options">
+  <div class="head">
+    <button type="button" class="fold" id="options-fold" aria-expanded="false">Options</button>
+  </div>
+  <div class="body">
+    <div class="tabs" role="tablist" aria-label="Options">
+      <button type="button" role="tab" id="tab-tile" aria-controls="panel-tile" aria-selected="true">Tile</button><button type="button" role="tab" id="tab-arrangement" aria-controls="panel-arrangement" aria-selected="false" tabindex="-1">Arrangement</button>
+    </div>
+    <div class="col" id="panel-tile" role="tabpanel" aria-labelledby="tab-tile">
+    <div class="section">
+      <span class="section-title">Presets (m, k, n)</span>
+      <div class="presets" id="presets"></div>
+      <p class="hint">Mark: o is an offset tiling.</p>
+    </div>
+    <div class="section">
+      <div class="steppers" id="steppers">
+        <div class="stepper" data-param="m"><span class="lab">m</span><button type="button" data-step="-1" aria-label="Lower m">−</button><output>3</output><button type="button" data-step="1" aria-label="Raise m">+</button></div>
+        <div class="stepper" data-param="k"><span class="lab">k</span><button type="button" data-step="-1" aria-label="Lower k">−</button><output>7</output><button type="button" data-step="1" aria-label="Raise k">+</button></div>
+        <div class="stepper" data-param="t"><span class="lab">t</span><button type="button" data-step="-1" aria-label="Lower t">−</button><output>2</output><button type="button" data-step="1" aria-label="Raise t">+</button></div>
+      </div>
+      <div class="offset-row">
+        <div class="offset-actions">
+        <button type="button" id="set-values">Set tile</button>
+        <button type="button" class="dice" id="random-tile" title="Random tiling" aria-label="Random tiling">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/>
+            <g fill="currentColor" stroke="none"><circle cx="8.2" cy="8.2" r="1.35"/><circle cx="15.8" cy="8.2" r="1.35"/><circle cx="12" cy="12" r="1.35"/><circle cx="8.2" cy="15.8" r="1.35"/><circle cx="15.8" cy="15.8" r="1.35"/></g>
+          </svg>
+        </button>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <p class="readout" id="readout" aria-live="polite"></p>
+      <svg id="tile-figure" viewBox="-3 -2 6 4" role="img" aria-label="The tile, with each edge labelled by its direction"></svg>
+    </div>
+    </div>
+    <div class="col" id="panel-arrangement" role="tabpanel" aria-labelledby="tab-arrangement" hidden>
+    <div class="section">
+      <span class="section-title" id="layout-title">Arrangement</span>
+      <div class="inline" id="layout" role="radiogroup" aria-labelledby="layout-title">
+        <label><input type="radio" name="layout" value="fan"> Fan</label>
+        <label><input type="radio" name="layout" value="repeat"> Repeating</label>
+        <label><input type="radio" name="layout" value="boundary"> Grain</label>
+      </div>
+    </div>
+    <div class="section">
+      <label class="section-title" for="shape">Edge shape</label>
+      <select id="shape"></select>
+      <div class="inline" id="edge-arrangement" role="radiogroup" aria-label="Edge arrangement">
+        <label id="single-label"><input type="radio" name="edge-arrangement" value="alt"> Single</label>
+        <label><input type="radio" name="edge-arrangement" value="S"> Double</label>
+      </div>
+      <p class="note" id="offset-note" hidden>With offset the central edge is walked from both sides in opposite directions, so only Double fits.</p>
+      <div class="slider" id="bend-box">
+        <span>Height</span><output id="bend-out"></output>
+        <input type="range" id="bend" min="-0.75" max="0.75" step="0.005" data-stops="0" aria-label="Height">
+        <div class="limits" id="limits"></div>
+        <div class="ticks zero"><button type="button" id="bend-zero" title="Straight edges">0</button></div>
+        <div class="limit-note" id="limit-note"></div>
+      </div>
+      <div class="slider" data-param="waves">
+        <span>Waves</span><output></output>
+        <input type="range" min="1" max="3" step="1" aria-label="Waves">
+      </div>
+      <div class="slider" data-param="peak">
+        <span>Peak position</span><output></output>
+        <input type="range" min="0" max="1" step="0.01" data-stops="0,0.5,1" aria-label="Peak position">
+      </div>
+      <div class="slider" data-param="rise">
+        <span>Rising side</span><output></output>
+        <input type="range" min="0" max="1" step="0.01" data-stops="0,0.5" aria-label="Rising side">
+      </div>
+      <div class="slider" data-param="fall">
+        <span>Falling side</span><output></output>
+        <input type="range" min="0" max="1" step="0.01" data-stops="0,0.5" aria-label="Falling side">
+      </div>
+      <div class="slider" data-param="neck">
+        <span>Neck width</span><output></output>
+        <input type="range" min="0" max="1" step="0.01" aria-label="Neck width">
+      </div>
+    </div>
+    <div class="section">
+      <label id="outlines-label"><input type="checkbox" id="outlines"> Wedge outlines</label>
+    </div>
+    <div class="section" id="playback-section">
+      <label class="section-title" for="scrub">Construction</label>
+      <div class="playback">
+        <button type="button" id="play" aria-pressed="false" title="Play the construction" aria-label="Play the construction">
+          <svg class="go" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12-7.5z"/></svg>
+          <svg class="pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.5 4.5h4v15h-4zM13.5 4.5h4v15h-4z"/></svg>
+        </button>
+        <input type="range" id="scrub" min="0" max="1000" step="1" value="1000" aria-label="Construction position" aria-valuetext="Whole tiling">
+      </div>
+      <p id="stage" aria-live="off">Whole tiling</p>
+    </div>
+    </div>
+    <div class="section">
+      <div><button type="button" class="linkish" id="reset-options" title="Tile, arrangement, edges and wedge outlines back to how the page opens">Reset options</button></div>
+    </div>
+  </div>
+</div>
+
+<dialog id="values-dialog" aria-labelledby="values-title">
+  <form id="values-form" novalidate>
+    <h2 id="values-title">Set tile</h2>
+    <div class="fields">
+      <label>m<input id="value-m" type="number" inputmode="numeric" step="1" required></label>
+      <label>k<input id="value-k" type="number" inputmode="numeric" step="1" min="1" max="120" required></label>
+      <label>t<input id="value-t" type="number" inputmode="numeric" step="1" min="2" required></label>
+    </div>
+    <label class="family"><input id="offset" type="checkbox"> Two-fold family</label>
+    <p class="bounds-note">Joins two half-fans. This changes the tile and gives the tiling 2-fold symmetry.</p>
+    <p class="value-note" id="values-n"></p>
+    <p class="bounds-note" id="values-bounds"></p>
+    <p class="error-note" id="values-error" aria-live="polite"></p>
+    <div class="actions">
+      <button type="button" id="values-cancel">Cancel</button>
+      <button type="submit">Apply</button>
+    </div>
+  </form>
+</dialog>
+</div>
+
+<div class="card zoom" role="group" aria-label="Zoom and turn">
+  <button type="button" id="compass" class="compass" title="Turn back to north" aria-label="Turn back to north" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 3 8.5 12h7z" fill="#d11a35"/><path d="M12 21 8.5 12h7z" fill="currentColor" opacity="0.55"/>
+    </svg>
+  </button>
+  <button type="button" id="zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
+  <button type="button" id="zoom-out" title="Zoom out" aria-label="Zoom out">−</button>
+  <button type="button" id="turn-left" title="Turn left 5°" aria-label="Turn left 5 degrees">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M5.5 12a6.5 6.5 0 1 0 2-4.7"/><path d="M7.5 3.5v4h4"/>
+    </svg>
+  </button>
+  <button type="button" id="turn-right" title="Turn right 5°" aria-label="Turn right 5 degrees">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M18.5 12a6.5 6.5 0 1 1-2-4.7"/><path d="M16.5 3.5v4h-4"/>
+    </svg>
+  </button>
+  <button type="button" id="home" title="Back to the start" aria-label="Back to the start">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/>
+      <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/>
+    </svg>
+  </button>
+</div>
+
+<div class="card legend" id="legend">
+  <div class="legend-head">
+    <select id="scheme" aria-label="Colours"></select>
+    <button type="button" class="dice" id="random-colours" title="Random colours" aria-label="Random colours">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/>
+        <g fill="currentColor" stroke="none"><circle cx="8.2" cy="8.2" r="1.35"/><circle cx="15.8" cy="8.2" r="1.35"/><circle cx="12" cy="12" r="1.35"/><circle cx="8.2" cy="15.8" r="1.35"/><circle cx="15.8" cy="15.8" r="1.35"/></g>
+      </svg>
+    </button>
+    <button class="theme-toggle" type="button" hidden>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.1"/>
+        <path d="M12 2.7v2.1M12 19.2v2.1M21.3 12h-2.1M4.8 12H2.7M18.6 5.4 17.1 6.9M6.9 17.1l-1.5 1.5M18.6 18.6l-1.5-1.5M6.9 6.9 5.4 5.4"/>
+      </svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20.4 14.5A8.6 8.6 0 0 1 9.5 3.6a8.6 8.6 0 1 0 10.9 10.9z"/>
+      </svg>
+    </button>
+    <button type="button" class="linkish" id="legend-toggle" aria-expanded="true">Hide</button>
+  </div>
+  <div id="legend-body" aria-live="polite"></div>
+</div>
+
+<div class="card status" id="status" hidden>Building tiles…</div>
+
+<div class="card about" id="about" role="dialog" aria-modal="false" aria-labelledby="about-title" hidden>
+  <button type="button" class="close" id="about-close" aria-label="Close">×</button>
+  <h2 id="about-title">Modulo Krinkle tilings</h2>
+  <p>
+    A Modulo Krinkle tiling uses one tile. Its edges all have the same
+    length, and its shape comes from three whole numbers, <em>m</em>,
+    <em>k</em> and <em>t</em>, and an <em>Offset</em> switch. Miki Imura found
+    the family in 2025. Copies of the tile fill the plane in a fan of
+    congruent wedges that swirl round a centre. The page names a tiling by the
+    triple (m, k, n), where n counts the directions that the edges take.
+  </p>
+  <p>
+    <em>The tile.</em> Draw two routes of unit steps between the same two
+    points. Each route has k + 1 steps, and the routes bound the tile, which
+    so has 2k + 2 edges. The directions run 0 to n − 1, 360° ÷ n apart. The
+    lower route steps in directions 0, m, 2m and so on, counting in jumps of
+    m on a clock with k hours, and ends with a step in direction k. The
+    upper route takes the same steps with its first and last swapped. The tile
+    figure in the options shows each edge's direction when k is 12 or less.
+  </p>
+  <p>
+    <em>The wedge.</em> Slide the tile along two fixed steps and the copies
+    stack into a wedge, with one tile in its first row, two in its second, and
+    so on. The staircase along each side of a wedge repeats the tile's lower
+    route or its upper route. The wedge opens at exactly 360° ÷ n.
+  </p>
+  <p>
+    <em>The fan.</em> Turn the wedge by 360° ÷ n, over and over, and each
+    new wedge slots against the last, because the staircase on one side of a
+    wedge is the staircase on the other side of the next. Without offset, k
+    wedges close up to the centre of a fan, and t copies of that fan turn
+    to fill the circle, so the tiling has t-fold symmetry. With offset, half
+    of the n wedges follow the same rule and the other half are those wedges
+    given a half turn about the middle of one edge. The tiling then has
+    2-fold symmetry. The offset also changes n, so it changes the tile.
+  </p>
+  <p>
+    <em>Grain boundary.</em> A third arrangement extends one staircase between
+    two neighbouring wedge directions in both directions. A half-plane of
+    each lattice fills either side. The boundary repeats along its length,
+    while the two sides use tile orientations one step apart.
+  </p>
+  <p>
+    <em>Periodic too.</em> The same tile also tiles the plane periodically.
+    Choose <em>Repeating</em> to see it. That makes these tilings non-periodic
+    rather than aperiodic, which is the difference from the Hat and the
+    Spectre, whose tiles admit no periodic tiling at all.
+  </p>
+  <p>
+    <em>Edges.</em> Every edge is a step of one direction, and the two tiles
+    that share it hold it as the same step. <em>Single</em> puts one bump on
+    each edge, and <em>Double</em> puts an S-shaped pair. With offset, only
+    Double fits. <em>Height</em> sets how far each edge swings, and the
+    red stripes show where tiles collide. <em>Wedge outlines</em> draws the
+    wedge boundaries, and thicker lines mark the seams between fans.
+  </p>
+  <p>
+    <em>Construction.</em> Play builds the fan wedge by wedge: the first
+    wedge grows row by row, then each next wedge, and last the other copies
+    of the fan together. Drag the slider to stop at any point. It needs the
+    Fan arrangement.
+  </p>
+  <p>
+    Drag to move. Scroll, pinch or double-click to zoom. Turn with the turn
+    buttons, a two-finger twist, a right-drag, Ctrl and drag, or Shift and
+    the arrow keys. The address bar keeps your place, tile, colours and edges,
+    so you can share a view.
+  </p>
+  <ul>
+    <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2506.07638">A family of non-periodic tilings</a> – Imura's paper on arXiv, with the construction and its proof</li>
+    <li><a target="_blank" rel="noopener" href="https://archive.bridgesmathart.org/2026/bridges2026-77.html">Spiral tilings derived from modular arithmetic</a> – Imura's Bridges 2026 paper, with more presets and the spiral arm counts</li>
+    <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2609.01270">Farey structure in Modulo Krinkle tilings</a> – Fujiwara's paper on arXiv</li>
+    <li><a target="_blank" rel="noopener" href="https://mk.tiling.jp/playground">Modulo Krinkle Playground</a> – Imura's own generator</li>
+    <li><a target="_blank" rel="noopener" href="https://github.com/davidryan59/davidryan59.github.io/tree/main/app/tiles">Code on GitHub</a> – WebGL, no libraries</li>
+  </ul>
+</div>
+
+<div class="card fail" id="fail" hidden>
+  <p>This page needs WebGL 2, which this browser does not offer.</p>
+</div>
+
+<script src="tiling.js"></script>
+<script src="../engine/edges.js"></script>
+<script src="../engine/map.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var TM = TilingMap, SS = EdgeShapes, K = KrinkleTiling;
+  var oklch = TM.oklch, hex = TM.hex;
+
+  /* ------------------------------------------------------------- state */
+
+  // The tile (m, k, t, offset), the arrangement, and the edges. The tile
+  // and arrangement build a new tiling, so a change waits for the workers.
+  // The edges only reshape the tiles already loaded.
+  function defaults() {
+    return { m: 3, k: 7, t: 2, offset: 1, layout: 'fan',
+             shape: 'line', bend: 0.15, params: Object.assign({}, SS.DEFAULTS), edgeArr: 'alt' };
+  }
+  var st = defaults();
+  // The construction clock, 0 to w + 1, or null for the whole tiling. A full
+  // play takes this many seconds, whatever w is.
+  var pb = null, playing = false, PLAY_SECONDS = 20;
+
+  function gcd(a, b) { while (b) { var r = a % b; a = b; b = r; } return a; }
+  // The m that suit k: no common factor with k, and n within its cap at
+  // t = 2. With offset, n = 2(2k − m), so above k = 60 a small m is out.
+  function validMs(k, offset) {
+    if (k === 1) return [1];
+    var out = [];
+    for (var m = 1; m < k; m++) if (gcd(m, k) === 1 && K.directions(m, k, 2, offset) <= K.MAX_N) out.push(m);
+    return out;
+  }
+  // The valid m nearest to m, the lower one on a tie.
+  function nearestM(m, k, offset) {
+    var best = 1, gap = Infinity;
+    validMs(k, offset).forEach(function (v) { if (Math.abs(v - m) < gap) { gap = Math.abs(v - m); best = v; } });
+    return best;
+  }
+  // The smallest and largest t: n at least 3, and at most 240.
+  function tRange(m, k, offset) {
+    var lo = k === 1 ? 3 : 2, hi = lo;
+    while (K.directions(m, k, hi + 1, offset) <= K.MAX_N) hi++;
+    return [lo, hi];
+  }
+  function clampT() {
+    var r = tRange(st.m, st.k, st.offset);
+    st.t = Math.max(r[0], Math.min(r[1], st.t));
+  }
+  function options() { return { m: st.m, k: st.k, t: st.t, offset: st.offset, arrangement: st.layout }; }
+  function optionsKey() { var o = options(); return [o.m, o.k, o.t, o.offset, o.arrangement].join(','); }
+
+  // The tile for the options, built here as well as in the workers, so the
+  // controls and the tile figure answer at once.
+  var buildKey = '', buildInfo = null;
+  function uiInfo() {
+    var key = optionsKey();
+    if (key !== buildKey) { buildInfo = K.build(options()).info; buildKey = key; }
+    return buildInfo;
+  }
+
+  /* The edge shape and arrangement. With offset only Double fits: see the
+     edge rule in docs/krinkle.md. */
+  function effArr() { return st.offset ? 'S' : st.edgeArr; }
+  function straight() { return st.shape === 'line' || Math.abs(st.bend) < 1e-9; }
+  function edgeState() { return { shape: st.shape, bend: st.bend, params: st.params, arrangement: effArr() }; }
+  function clampBend(b) { return Math.max(-0.75, Math.min(0.75, b)); }
+  function setShape(id) {
+    var old = SS.OLD[id];
+    if (old) {
+      st.shape = old.shape;
+      if (old.params) Object.assign(st.params, old.params);
+      return true;
+    }
+    if (SS.BY_ID[id]) { st.shape = id; return true; }
+    return false;
+  }
+
+  /* ------------------------------------------------------- address bar */
+
+  function parseHash() {
+    var q = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (kv) {
+      var i = kv.indexOf('=');
+      if (i <= 0) return;
+      try { q[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1)); } catch (e) {}
+    });
+    return q;
+  }
+  // Keys: mk=m,k  t  o  a=fan|grain|rep  e (edge shape)  b (height)
+  // ea=alt|S (edge arrangement)  p (shape settings). An old-style a=alt or
+  // a=S sets the edge arrangement.
+  function applyKeys(q) {
+    if (q.mk) {
+      var p = q.mk.split(',').map(Number);
+      if (p.length === 2 && p.every(isFinite)) { st.m = p[0]; st.k = p[1]; }
+    }
+    if (q.t !== undefined && isFinite(+q.t)) st.t = +q.t;
+    if (q.o !== undefined) st.offset = q.o === '1' ? 1 : 0;
+    // A tile the link names wrongly falls back to the opening one.
+    if (K.validate(options())) {
+      var d = defaults();
+      st.m = d.m; st.k = d.k; st.t = d.t; st.offset = d.offset;
+    }
+    if (q.a === 'fan' || q.a === 'grain' || q.a === 'rep') st.layout = q.a === 'rep' ? 'repeat' : (q.a === 'grain' ? 'boundary' : 'fan');
+    else if (q.a === 'alt' || q.a === 'S') st.edgeArr = q.a;
+    if (q.ea === 'alt' || q.ea === 'S') st.edgeArr = q.ea;
+    if (q.p) q.p.split(';').forEach(function (kv) {
+      var s = kv.split(':');
+      if (SS.DEFAULTS[s[0]] !== undefined && !isNaN(parseFloat(s[1]))) st.params[s[0]] = parseFloat(s[1]);
+    });
+    if (q.e) setShape(q.e);
+    if (q.b !== undefined && !isNaN(parseFloat(q.b))) st.bend = clampBend(parseFloat(q.b));
+    // A link with no pb shows the whole tiling. Past the last stage is whole too.
+    var t = q.pb === undefined ? NaN : parseFloat(q.pb);
+    pb = null;
+    playing = false;
+    if (isFinite(t) && t >= 0 && st.layout === 'fan' && t < uiInfo().w + 1) pb = t;
+  }
+  var startKeys = parseHash();
+  applyKeys(startKeys);
+
+  /* --------------------------------------------------------- the shape */
+
+  // Corners relative to the tile's reference point Q/2, which is the centre
+  // the tile record holds.
+  function cornersOf(inf) {
+    if (!inf._rel) {
+      var qx = inf.Q[0] / 2, qy = inf.Q[1] / 2;
+      inf._rel = inf.outline.map(function (p) { return [p[0] - qx, p[1] - qy]; });
+    }
+    return inf._rel;
+  }
+  // Single: lower edges take 0 and upper edges a half turn. Double: all 0.
+  function outlineFor(inf, res) {
+    var p = res < 0 || straight() ? null : SS.fitted(edgeState(), res);
+    var single = effArr() === 'alt';
+    return SS.outlineWith(cornersOf(inf), function () { return p; }, function (e) { return K.edgeSymmetry(inf.k, e, single); });
+  }
+
+  // The tiling the engine is showing. The controls may already ask for
+  // another one while the workers build it.
+  var built = uiInfo();
+  var shapeKey = '';
+  var outlineMemo = {};
+  var shape = {
+    signature: function () {
+      return [built.m, built.k, built.t, built.offset].join(',') + '|' +
+        (straight() ? 'line' : JSON.stringify([st.shape, st.bend, st.params, effArr()]));
+    },
+    lodKey: function (res) {
+      var smooth = st.shape === 'curve' || st.shape === 'jigsaw';
+      return res < 0 ? 'straight' : smooth ? 'r' + res : 'poly';
+    },
+    // Curves under a device pixel high draw straight. A high-k tiling zoomed
+    // out would otherwise trace thousands of curves it cannot show.
+    lod: function (k) {
+      if (straight() || Math.abs(st.bend) * k < 1) return -1;
+      return k < 6 ? 0 : k < 20 ? 1 : k < 60 ? 2 : 3;
+    },
+    // A curved fill costs a triangle per profile point, many of them under
+    // a pixel when the tiles are small. Below 2 device pixels of height the
+    // fill stays straight. Each neighbour strokes its own side of the same
+    // curve, so the line stays whole, and only a sliver of fill under 2
+    // pixels takes the other tile's colour.
+    meshLod: function (k) { return Math.abs(st.bend) * k < 2 ? -1 : shape.lod(k); },
+    corners: function () { return cornersOf(built); },
+    // The key asks for one outline per class, so keep the last few.
+    outline: function (res) {
+      var sig = shape.signature();
+      if (sig !== shapeKey) { shapeKey = sig; outlineMemo = {}; }
+      return outlineMemo[res] || (outlineMemo[res] = outlineFor(built, res));
+    },
+    profile: function (res) {
+      if (res < 0) return null;
+      var p = SS.fitted(edgeState(), res), single = effArr() === 'alt', k = built.k;
+      return p ? { pts: p, symAt: function (i) { return K.edgeSymmetry(k, i, single); }, selAt: function () { return 0; } } : null;
+    }
+  };
+
+  /* ----------------------------------------------------------- colours */
+
+  // Every class is its own group, so a grouping is a list of classes and
+  // `of` is the identity. The counts follow the tiling being shown.
+  function ring(n, L, C, h0) {
+    var out = [];
+    for (var i = 0; i < n; i++) out.push(oklch(L, C, h0 + i * 360 / n));
+    return out;
+  }
+  function copies() { return built.offset ? 2 : built.t; }
+  function classesOf(n, turn, caption) {
+    var out = [];
+    for (var i = 0; i < n; i++) out.push({ turn: turn(i), flip: 0, caption: caption(i) });
+    return out;
+  }
+  function parity(i) { return i ? 'odd' : 'even'; }
+  var identity = function (k) { return k; };
+  var narrow = function () { return window.innerWidth <= 640; };
+
+  var classCache = { key: '', list: null };
+  function cached(id, n, make) {
+    var key = id + ':' + n + ':' + built.w;
+    if (classCache.key !== key) classCache = { key: key, list: make() };
+    return classCache.list;
+  }
+  var groupings = [
+    { id: 'fan', name: 'Wedges, one colour each', mode: 0, of: identity,
+      get n() { return built.n; },
+      get cols() { return Math.min(built.n, narrow() ? 5 : 8); },
+      classes: function () { return cached('fan', built.n, function () { return classesOf(built.n, identity, identity); }); } },
+    { id: 'alt', name: 'Alternate wedges', mode: 2, of: identity, n: 2, cols: 2,
+      classes: function () { return classesOf(2, identity, parity); } },
+    { id: 'copies', name: 'Copies of the fan', mode: 3, of: identity,
+      get n() { return copies(); },
+      get cols() { return Math.min(copies(), 4); },
+      classes: function () { return classesOf(copies(), function (q) { return q * built.w; }, function (q) { return 'copy ' + (q + 1); }); } },
+    { id: 'rings', name: 'Rings', mode: 4, of: identity, n: 2, cols: 2,
+      classes: function () { return classesOf(2, function () { return 0; }, parity); } },
+    { id: 'columns', name: 'Columns', mode: 5, of: identity, n: 2, cols: 2,
+      classes: function () { return classesOf(2, function () { return 0; }, parity); } },
+    { id: 'lattice', name: 'Lattice, for Repeating', mode: 7, of: identity, n: 4, cols: 2,
+      classes: function () {
+        return classesOf(4, function () { return 0; }, function (i) { return (i & 1) + ',' + (i >> 1); });
+      } },
+    { id: 'one', name: '1 colour', mode: 6, of: identity, n: 1, cols: 1,
+      classes: function () { return classesOf(1, function () { return 0; }, function () { return ''; }); } }
+  ];
+  var groupingOf = {};
+  groupings.forEach(function (g) { groupingOf[g.id] = g; });
+
+  /* Pastel and Lattice set some tiles in a stronger accent, as the Hat and
+     Spectre do for their rare tiles. In Pastel about one wedge in three
+     takes it. The accent wedges spread evenly through each copy of the fan,
+     so every copy matches. A copy is k wedges, or n/2 with offset; below
+     three wedges the accents spread round the whole circle. */
+  function accent(hue) { return oklch(0.64, 0.14, hue); }
+  function accentWedges(n, every) {
+    var per = built.w >= 3 ? built.w : n, a = Math.max(1, Math.round(per / every)), on = [], i, j, p;
+    for (i = 0; i < n; i++) on.push(false);
+    for (j = 0; j < a; j++) for (p = Math.floor((j + 0.5) * per / a); p < n; p += per) on[p] = true;
+    return on;
+  }
+  // Run evenly spaced hue tracks round the circle together. One track gives
+  // consecutive hues; two jump 180 degrees plus a small advance; then the
+  // jumps are 120, 90, 72 and 60 degrees. Each fan copy repeats the sequence.
+  function trackedPastels(n, tracks, darkEvery) {
+    var per = wedgesPerCopy(n), steps = Math.ceil(per / tracks), out = [];
+    for (var i = 0; i < n; i++) {
+      var j = i % per, track = j % tracks;
+      var hue = 25 + track * 360 / tracks + Math.floor(j / tracks) * 360 / steps;
+      var dark = j % darkEvery === darkEvery - 1;
+      out.push(oklch(dark ? 0.64 : 0.86, dark ? 0.14 : 0.09, hue));
+    }
+    return out;
+  }
+  // The lattice class that takes the accent in Lattice, one tile in four:
+  // the teal class, which reads clearest against the pastels.
+  var LATTICE_ACCENT = 2;
+
+  // The coloured schemes look the same in light and dark mode. The tiles
+  // fill the screen, and a darker Pastel turned murky. Each tile takes
+  // whichever ink contrasts with it, so dark mode changes only the panels.
+  // Plain keeps a dark version, since its colour stands in for the
+  // background.
+  var presets = [
+    { id: 'pastel', name: 'Pastel 1', grouping: 'fan', colours: function () {
+      return trackedPastels(built.n, 1, 2);
+    } },
+    { id: 'opposites', name: 'Pastel 2', grouping: 'fan', colours: function () {
+      return trackedPastels(built.n, 2, 3);
+    } },
+    { id: 'opposites3', name: 'Pastel 3', grouping: 'fan', colours: function () {
+      return trackedPastels(built.n, 3, 4);
+    } },
+    { id: 'opposites4', name: 'Pastel 4', grouping: 'fan', colours: function () {
+      return trackedPastels(built.n, 4, 3);
+    } },
+    { id: 'pastel5', name: 'Pastel 5', grouping: 'fan', colours: function () {
+      return trackedPastels(built.n, 5, 4);
+    } },
+    { id: 'pastel6', name: 'Pastel 6', grouping: 'fan', colours: function () {
+      return trackedPastels(built.n, 6, 3);
+    } },
+    { id: 'rainbow', name: 'Rainbow', grouping: 'fan', colours: function () {
+      return ring(built.n, 0.78, 0.13, 25);
+    } },
+    { id: 'grey', name: 'Greyscale', grouping: 'fan', colours: function () {
+      var out = [];
+      for (var i = 0; i < built.n; i++) out.push(oklch(built.n > 1 ? i / (built.n - 1) : 0.5, 0, 0));
+      return out;
+    } },
+    { id: 'two', name: 'Two tones', grouping: 'alt', colours: function () {
+      return [oklch(0.86, 0.08, 250), oklch(0.86, 0.08, 40)];
+    } },
+    { id: 'copies', name: 'Copies', grouping: 'copies', colours: function () {
+      return ring(copies(), 0.82, 0.1, 25);
+    } },
+    { id: 'rings', name: 'Rings', grouping: 'rings', colours: function () {
+      return [oklch(0.88, 0.07, 200), oklch(0.88, 0.07, 20)];
+    } },
+    { id: 'columns', name: 'Columns', grouping: 'columns', colours: function () {
+      return [oklch(0.88, 0.07, 300), oklch(0.88, 0.07, 110)];
+    } },
+    { id: 'lattice', name: 'Lattice', grouping: 'lattice', colours: function () {
+      return ring(4, 0.86, 0.09, 25).map(function (c, i) { return i === LATTICE_ACCENT ? accent(25 + i * 90) : c; });
+    } },
+    { id: 'plain', name: 'Plain', grouping: 'one', colours: function (dark) { return [dark ? hex('#2a2a30') : hex('#fdfcf8')]; } }
+  ];
+
+  /* Random colours that keep the wedges in order round the circle. The
+     dice in the colour panel takes one of these half the time when the key
+     shows one colour per wedge. Each runs through every copy of the fan
+     alike, or, for a hue ring, may run once round the whole circle. */
+  function rand(a, b) { return a + Math.random() * (b - a); }
+  function wedgesPerCopy(n) { return built.w >= 2 ? built.w : n; }
+  // Chroma that suits a lightness: strong in the middle, gentle near white.
+  function chromaFor(L) { return 0.09 + 0.25 * (0.9 - L); }
+  var rolls = [
+    // A hue ring, with a random start, direction and lightness band.
+    function (n) {
+      var h0 = rand(0, 360), dir = Math.random() < 0.5 ? 1 : -1, L = rand(0.62, 0.9), C = chromaFor(L);
+      var turns = Math.random() < 0.5 ? 1 : n / wedgesPerCopy(n), out = [];
+      for (var i = 0; i < n; i++) out.push(oklch(L, C, h0 + dir * i * 360 * turns / n));
+      return out;
+    },
+    // A gradient between two hues, out and back through each copy, so the
+    // circle closes with no seam. It blends in OKLab, a, b being the
+    // chroma's two components.
+    function (n) {
+      var per = wedgesPerCopy(n), ends = [0, 1].map(function () {
+        var L = rand(0.6, 0.9);
+        return { L: L, C: chromaFor(L) };
+      });
+      ends[0].h = rand(0, 360);
+      ends[1].h = ends[0].h + rand(90, 270);
+      var ab = ends.map(function (e) { return [e.C * Math.cos(e.h * Math.PI / 180), e.C * Math.sin(e.h * Math.PI / 180)]; });
+      var out = [];
+      for (var i = 0; i < n; i++) {
+        var f = 1 - Math.abs(2 * (i % per) / per - 1);
+        var a = ab[0][0] + f * (ab[1][0] - ab[0][0]), b = ab[0][1] + f * (ab[1][1] - ab[0][1]);
+        out.push(oklch(ends[0].L + f * (ends[1].L - ends[0].L), Math.hypot(a, b), Math.atan2(b, a) * 180 / Math.PI));
+      }
+      return out;
+    },
+    // An accented Pastel, with a random first hue and one accent in two,
+    // three or four wedges.
+    function (n) {
+      var h0 = rand(0, 360), on = accentWedges(n, 2 + Math.floor(Math.random() * 3)), Lb = rand(0.84, 0.9), La = rand(0.56, 0.7);
+      var out = [];
+      for (var i = 0; i < n; i++) out.push(oklch(on[i] ? La : Lb, chromaFor(on[i] ? La : Lb), h0 + i * 360 / n));
+      return out;
+    }
+  ];
+  groupingOf.fan.roll = function () { return rolls[Math.floor(Math.random() * rolls.length)](built.n); };
+
+  // Repeating has one orientation, so the wedge colourings show one colour.
+  // Moving between the arrangements swaps to the colouring that shows
+  // something, unless the colours were chosen to suit already.
+  function fitColours() {
+    var id = map.scheme(), gid = id.indexOf('custom:') === 0 ? id.slice(7) : presets.filter(function (p) { return p.id === id; })[0].grouping;
+    if (st.layout === 'repeat' && (gid === 'fan' || gid === 'alt' || gid === 'copies')) map.scheme('lattice');
+    else if (st.layout !== 'repeat' && gid === 'lattice') map.scheme('pastel');
+  }
+
+  /* ------------------------------------------------------------ engine */
+
+  var map = null;
+  var pendingHome = null;
+
+  function onReady(info) {
+    built = info;
+    classCache.key = '';
+    shapeKey = '';
+    // The clock is for the tiling now shown, so it waits for the workers.
+    if (pb !== null && pb >= info.w + 1) pb = null;
+    syncControls();
+    scheduleLimits();
+    pushPlayback();
+    if (pendingHome && map) { var h = pendingHome; pendingHome = null; map.home(h.scale, h.immediate); }
+  }
+
+  map = TM.start({
+    name: 'krinkle',
+    worker: 'tiling.js',
+    handler: K.createHandler,
+    record: 'krinkle',
+    maxCorners: 2 * K.MAX_K + 2,
+    grid: false,
+    options: options(),
+    // About eight tile lengths (|Q|) across the shorter side of the window.
+    // At high k that leaves the tile a sliver, so the tile's mean thickness,
+    // its area over |Q|, also spans at least a sixtieth of that side. The
+    // thin rhombi of k = 1 keep the length rule, as their papers draw them.
+    startScale: function (info, W, H) {
+      var side = Math.min(W, H), s = side / (8 * info.Qlen);
+      return info.k > 1 ? Math.max(s, side / 60 / (Math.abs(info.area) / info.Qlen)) : s;
+    },
+    classMode: 0,
+    classes: function (g) { return g.classes(); },
+    groupings: groupings,
+    presets: presets,
+    defaultScheme: 'pastel',
+    shape: shape,
+    tileRadius: function () { return built.circumradius + (straight() ? 0 : Math.abs(st.bend)) + 0.5; },
+    onReady: onReady,
+    onError: function (message) { showError(message); },
+    onReset: function () {
+      st = defaults();
+      syncControls();
+      fitColours();
+      rebuild(null);
+    },
+    hashGet: function () {
+      var h = { mk: st.m + ',' + st.k, t: st.t, o: st.offset, a: st.layout === 'repeat' ? 'rep' : (st.layout === 'boundary' ? 'grain' : 'fan') };
+      if (map && map.outlines()) h.wo = 1;
+      if (pb !== null) h.pb = +pb.toFixed(3);
+      if (st.shape !== 'line') {
+        h.e = st.shape;
+        h.b = st.bend.toFixed(3).replace(/\.?0+$/, '');
+        h.ea = st.edgeArr;
+        var extra = (SS.BY_ID[st.shape].params || []).map(function (k) { return k + ':' + (+st.params[k].toFixed(3)); });
+        if (extra.length) h.p = extra.join(';');
+      }
+      return h;
+    },
+    hashSet: function (q) {
+      var before = optionsKey();
+      applyKeys(q);
+      if (map && (q.mk !== undefined || q.wo !== undefined)) map.outlines(q.wo === '1');
+      // A link with no colours of its own still shows something in Repeating.
+      if (map && !q.c) fitColours();
+      syncControls();
+      if (optionsKey() !== before) rebuild(null, true);
+      else pushPlayback();
+    }
+  });
+  if (!map) return;
+
+  // A new tiling from the options. The map keeps its view, unless the
+  // caller asks for home, and the engine waits 250 ms so a run of clicks
+  // builds once.
+  function rebuild(home, keepClock) {
+    hideError();
+    if (home) pendingHome = home;
+    if (!keepClock) { pb = null; playing = false; pushPlayback(); syncPlayback(); }
+    map.rebuild(options(), 250);
+  }
+
+  /* -------------------------------------------------------- construction */
+
+  // The clock runs from 0 to w + 1 at a pace that finishes in PLAY_SECONDS.
+  var lastFrame = 0;
+  function pushPlayback() { if (map) map.setPlayback(st.layout === 'fan' ? pb : null); }
+  function stage(inf) {
+    if (pb === null) return 'Whole tiling';
+    if (pb < inf.w) return 'Wedge ' + (Math.floor(pb) + 1) + ' of ' + inf.w;
+    return inf.offset ? 'The second half' : 'The other ' + (inf.t - 1 === 1 ? 'copy' : 'copies') + ' of the fan';
+  }
+  function playTick(now) {
+    if (!playing) return;
+    var inf = uiInfo(), dt = Math.min(0.1, (now - lastFrame) / 1000);
+    lastFrame = now;
+    pb = (pb === null ? 0 : pb) + dt * (inf.w + 1) / PLAY_SECONDS;
+    if (pb >= inf.w + 1) { pb = null; playing = false; }
+    pushPlayback();
+    syncPlayback();
+    if (playing) requestAnimationFrame(playTick);
+  }
+  function setPlaying(on) {
+    if (on === playing) return;
+    playing = on;
+    if (on) {
+      // Play from the whole tiling starts again from nothing.
+      if (pb === null) pb = 0;
+      lastFrame = performance.now();
+      requestAnimationFrame(playTick);
+    }
+    pushPlayback();
+    syncPlayback();
+  }
+  var playEl = document.getElementById('play'), scrubEl = document.getElementById('scrub');
+  var stageEl = document.getElementById('stage'), playSection = document.getElementById('playback-section');
+  function syncPlayback() {
+    var inf = uiInfo(), disabled = st.layout !== 'fan';
+    var reason = st.layout === 'boundary' ? 'The grain boundary has no finite construction order' : 'The repeating arrangement has no construction order';
+    playEl.disabled = scrubEl.disabled = disabled;
+    playSection.title = disabled ? reason : '';
+    playEl.setAttribute('aria-pressed', playing ? 'true' : 'false');
+    playEl.title = playing ? 'Pause' : 'Play the construction';
+    playEl.setAttribute('aria-label', playEl.title);
+    var v = pb === null ? 1000 : Math.round(1000 * pb / (inf.w + 1));
+    if (document.activeElement !== scrubEl || playing) scrubEl.value = String(v);
+    stageEl.textContent = disabled ? reason + '.' : stage(inf);
+    scrubEl.setAttribute('aria-valuetext', stageEl.textContent);
+  }
+  playEl.addEventListener('click', function () { setPlaying(!playing); });
+  scrubEl.addEventListener('input', function () {
+    var inf = uiInfo(), v = +scrubEl.value;
+    playing = false;
+    pb = v >= 1000 ? null : v / 1000 * (inf.w + 1);
+    pushPlayback();
+    syncPlayback();
+  });
+
+  /* Scripting hook, for the video tools and tests. It sets the tile in one
+     call, as {m, k, t, offset, arrangement, pb}, and queues the build. It
+     returns null, or the message for a set that is not valid and was not
+     applied. map.busy() says when the new tiling is ready. The address bar
+     takes the same settings: mk, t, o, a and pb. */
+  map.setParams = function (o) {
+    o = o || {};
+    var next = {
+      m: o.m === undefined ? st.m : o.m, k: o.k === undefined ? st.k : o.k,
+      t: o.t === undefined ? st.t : o.t, offset: o.offset === undefined ? st.offset : +!!o.offset,
+      arrangement: o.arrangement === undefined ? options().arrangement : o.arrangement
+    };
+    var err = K.validate(next);
+    if (err) return err;
+    st.m = next.m; st.k = next.k; st.t = next.t; st.offset = next.offset;
+    st.layout = next.arrangement;
+    var keep = typeof o.pb === 'number' && isFinite(o.pb);
+    fitColours();
+    syncControls();
+    scheduleLimits();
+    map.shapeChanged();
+    rebuild(null, keep);
+    if (keep) {
+      // The engine takes the clock once the new workers are ready.
+      pb = st.layout === 'fan' && o.pb >= 0 && o.pb < uiInfo().w + 1 ? o.pb : null;
+      syncPlayback();
+    }
+    return null;
+  };
+
+  /* ---------------------------------------------------------- controls */
+
+  var stepperEls = {};
+  Array.prototype.forEach.call(document.querySelectorAll('.stepper'), function (el) {
+    var btns = el.querySelectorAll('button');
+    stepperEls[el.dataset.param] = { out: el.querySelector('output'), minus: btns[0], plus: btns[1] };
+  });
+  var offsetEl = document.getElementById('offset');
+  var readoutEl = document.getElementById('readout');
+  var figureEl = document.getElementById('tile-figure');
+  var layoutEls = document.querySelectorAll('input[name="layout"]');
+  var outlinesBox = document.getElementById('outlines');
+  var outlinesLabel = document.getElementById('outlines-label');
+  var presetsEl = document.getElementById('presets');
+  var shapeEl = document.getElementById('shape');
+  shapeEl.innerHTML = SS.SHAPES.map(function (s) { return '<option value="' + s.id + '">' + s.name + '</option>'; }).join('');
+  var bendEl = document.getElementById('bend'), bendOut = document.getElementById('bend-out');
+  var zeroEl = document.getElementById('bend-zero'), bendBox = document.getElementById('bend-box');
+  var limitsEl = document.getElementById('limits'), limitNote = document.getElementById('limit-note');
+  var arrEls = document.querySelectorAll('input[name="edge-arrangement"]');
+  var edgeArrBox = document.getElementById('edge-arrangement');
+  var singleLabel = document.getElementById('single-label');
+  var offsetNote = document.getElementById('offset-note');
+  var sliders = {};
+  Array.prototype.forEach.call(document.querySelectorAll('[data-param]:not(.stepper)'), function (el) {
+    sliders[el.dataset.param] = { box: el, input: el.querySelector('input'), out: el.querySelector('output') };
+  });
+
+  /* The two option tabs, Tile and Arrangement. The page opens on Tile. The
+     arrow keys move between the tabs, and stop there rather than pan the
+     map. */
+  var tabEls = [document.getElementById('tab-tile'), document.getElementById('tab-arrangement')];
+  function showTab(i, focus) {
+    tabEls.forEach(function (t, j) {
+      t.setAttribute('aria-selected', i === j ? 'true' : 'false');
+      t.tabIndex = i === j ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = i !== j;
+    });
+    if (focus) tabEls[i].focus();
+  }
+  tabEls.forEach(function (t, i) {
+    t.addEventListener('click', function () { showTab(i); });
+    t.addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault();
+      e.stopPropagation();
+      showTab(1 - i, true);
+    });
+  });
+
+  /* Presets, from the worker file's list. */
+  var presetEls = [];
+  K.PRESETS.forEach(function (p, i) {
+    var o = { m: p.m, k: p.k, t: p.t, offset: p.offset };
+    var n = K.directions(p.m, p.k, p.t, p.offset);
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = i < 4 ? 'big' : 'small';
+    var marks = p.offset ? '<sup>o</sup>' : '';
+    var triple = p.m + ', ' + p.k + ', ' + n;
+    b.innerHTML = i < 4 ? '<span>' + triple + marks + '</span><small>t = ' + p.t + (p.offset ? ', offset' : '') + '</small>' : triple + marks;
+    b.title = '(' + triple + '), t = ' + p.t + (p.offset ? ', offset' : '') + '. ' + p.source;
+    b.addEventListener('click', function () { applyPreset(p, o); });
+    presetsEl.appendChild(b);
+    presetEls.push({ el: b, p: p });
+  });
+
+  function applyPreset(p, o) {
+    st.m = o.m; st.k = o.k; st.t = o.t; st.offset = o.offset;
+    // Presets are landmarks, so centre them exactly. An animated home could
+    // be interrupted by another control before it reached the fan centre.
+    var home = { scale: undefined, immediate: true };
+    // Every preset has straight edges. Curves are an advanced option.
+    var d = defaults();
+    st.shape = d.shape; st.bend = d.bend; st.edgeArr = d.edgeArr; st.params = d.params;
+    syncControls();
+    scheduleLimits();
+    map.shapeChanged();
+    rebuild(home);
+  }
+
+  // The dice reaches every k but favours the smaller ones, whose swirl
+  // reads best: half its rolls land at k = 18 or less.
+  var DICE_MAX_T = 4;
+  document.getElementById('random-tile').addEventListener('click', function () {
+    var k = 1 + Math.floor(K.MAX_K * Math.pow(Math.random(), 2));
+    var off = Math.random() < 0.5 ? 1 : 0;
+    var ms = validMs(k, off), m = ms[Math.floor(Math.random() * ms.length)], r = tRange(m, k, off);
+    var t = r[0] + Math.floor(Math.random() * (Math.min(DICE_MAX_T, r[1]) - r[0] + 1));
+    st.m = m; st.k = k; st.t = t; st.offset = off;
+    syncControls();
+    scheduleLimits();
+    rebuild({});
+  });
+
+  /* Direct entry avoids up to 113 presses of the k stepper. The worker's
+     validator remains the one source of truth, including the current Offset
+     setting and the n cap. An invalid Apply leaves the dialog open. */
+  var valuesDialog = document.getElementById('values-dialog');
+  var valuesForm = document.getElementById('values-form');
+  var valuesError = document.getElementById('values-error');
+  var valuesN = document.getElementById('values-n');
+  var valuesBounds = document.getElementById('values-bounds');
+  var valueEls = {
+    m: document.getElementById('value-m'),
+    k: document.getElementById('value-k'),
+    t: document.getElementById('value-t')
+  };
+  function dialogValues() {
+    return {
+      m: valueEls.m.valueAsNumber,
+      k: valueEls.k.valueAsNumber,
+      t: valueEls.t.valueAsNumber,
+      offset: offsetEl.checked ? 1 : 0,
+      arrangement: st.layout
+    };
+  }
+  function updateValuePreview() {
+    var next = dialogValues();
+    var finite = isFinite(next.m) && isFinite(next.k) && isFinite(next.t);
+    valuesN.textContent = 'n = ' + (finite ? K.directions(next.m, next.k, next.t, next.offset) : '—') +
+      ' · Two-fold family ' + (next.offset ? 'on' : 'off');
+    valuesBounds.textContent = 'Bounds: k 1–120; m 1–k−1 and coprime to k (m = 1 when k = 1); ' +
+      't ≥ 2 (t ≥ 3 when k = 1); n 3–240.';
+    var error = K.validate(next);
+    valuesError.textContent = error || 'OK';
+    valuesError.classList.toggle('ok-note', !error);
+    return error;
+  }
+  document.getElementById('set-values').addEventListener('click', function () {
+    valueEls.m.value = st.m;
+    valueEls.k.value = st.k;
+    valueEls.t.value = st.t;
+    offsetEl.checked = !!st.offset;
+    updateValuePreview();
+    valuesDialog.showModal();
+    valueEls.m.select();
+  });
+  Object.keys(valueEls).forEach(function (key) { valueEls[key].addEventListener('input', updateValuePreview); });
+  offsetEl.addEventListener('change', updateValuePreview);
+  document.getElementById('values-cancel').addEventListener('click', function () { valuesDialog.close(); });
+  valuesForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var next = dialogValues();
+    if (updateValuePreview()) return;
+    st.m = next.m;
+    st.k = next.k;
+    st.t = next.t;
+    st.offset = next.offset;
+    valuesDialog.close();
+    syncControls();
+    scheduleLimits();
+    rebuild({});
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.stepper button'), function (b) {
+    b.addEventListener('click', function () {
+      var param = b.parentNode.dataset.param, d = +b.dataset.step;
+      if (param === 'm') {
+        var ms = validMs(st.k, st.offset), i = ms.indexOf(st.m) + d;
+        if (i < 0 || i >= ms.length) return;
+        st.m = ms[i];
+      } else if (param === 'k') {
+        var nk = st.k + d;
+        if (nk < 1 || nk > K.MAX_K) return;
+        if (!validMs(nk, st.offset).length) return;
+        st.k = nk;
+        st.m = nearestM(st.m, nk, st.offset);
+      } else {
+        st.t += d;
+      }
+      clampT();
+      syncControls();
+      scheduleLimits();
+      rebuild(null);
+    });
+  });
+  Array.prototype.forEach.call(layoutEls, function (r) {
+    r.addEventListener('change', function () {
+      if (!r.checked) return;
+      st.layout = r.value;
+      fitColours();
+      syncControls();
+      rebuild(null);
+    });
+  });
+
+  // Sticky stops: a slider near one of its data-stops snaps to it.
+  function snap(input, v) {
+    var stops = (input.dataset.stops || '').split(',').filter(Boolean).map(parseFloat);
+    var reach = 0.04 * (parseFloat(input.max) - parseFloat(input.min));
+    stops.forEach(function (x) { if (Math.abs(v - x) < reach) v = x; });
+    return v;
+  }
+  function signed(x) { return (x > 0 ? '+' : x < 0 ? '−' : '') + Math.abs(x).toFixed(2); }
+  function describe(k) {
+    var v = st.params[k];
+    if (k === 'waves') return String(v);
+    if (k === 'peak') return (effArr() === 'alt' ? v : v / 2).toFixed(2) + ' of the edge';
+    if (k === 'rise' || k === 'fall') return v.toFixed(2) + ' of the hump';
+    return v.toFixed(2);
+  }
+
+  /* The tile figure: the tile as the map draws it, in the colour of the
+     first wedge, each edge labelled by its direction when k is 12 or less. */
+  function drawFigure(inf) {
+    // Turned so that Q, the far end of the tile, lies along the x axis.
+    var turn = -Math.atan2(inf.Q[1], inf.Q[0]), co = Math.cos(turn), si = Math.sin(turn);
+    function spin(p) { return [co * p[0] - si * p[1], si * p[0] + co * p[1]]; }
+    var rel = cornersOf(inf).map(spin), pts = outlineFor(inf, 2).map(spin), N = rel.length;
+    var x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    pts.forEach(function (p) { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); });
+    var pad = 0.8, w = Math.max(x1 - x0 + 2 * pad, 6), h = Math.max(y1 - y0 + 2 * pad, 3);
+    var cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    figureEl.setAttribute('viewBox', [cx - w / 2, -(cy + h / 2), w, h].map(function (v) { return +v.toFixed(3); }).join(' '));
+    var dark = document.documentElement.dataset.theme === 'dark';
+    var fill = TM.toHex(presets[0].colours(dark)[0]);
+    var html = '<path d="M' + pts.map(function (p) { return p[0].toFixed(3) + ' ' + (-p[1]).toFixed(3); }).join('L') +
+      'Z" fill="' + fill + '" stroke="currentColor" stroke-width="0.06" stroke-linejoin="round"/>';
+    if (inf.k <= 12) {
+      var lift = 0.34 + (straight() ? 0 : 0.5 * Math.abs(st.bend));
+      for (var e = 0; e < N; e++) {
+        var a = rel[e], b = rel[(e + 1) % N], dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
+        // An anticlockwise outline has its outside on the right of each edge.
+        var x = (a[0] + b[0]) / 2 + lift * dy / len, y = (a[1] + b[1]) / 2 - lift * dx / len;
+        html += '<text x="' + x.toFixed(3) + '" y="' + (-y).toFixed(3) + '" font-size="0.4" text-anchor="middle" dominant-baseline="central">' +
+          inf.edgeHour[e] + '</text>';
+      }
+    }
+    figureEl.innerHTML = html;
+  }
+
+  function showError(message) {
+    var p = readoutEl.querySelector('.error');
+    if (!p) { p = document.createElement('span'); p.className = 'error'; readoutEl.appendChild(p); }
+    p.textContent = ' ' + message;
+  }
+  function hideError() { var p = readoutEl.querySelector('.error'); if (p) p.remove(); }
+
+  function syncControls() {
+    var inf = uiInfo(), def = SS.BY_ID[st.shape], r = tRange(st.m, st.k, st.offset), ms = validMs(st.k, st.offset);
+    // Steppers
+    stepperEls.m.out.textContent = st.m;
+    stepperEls.k.out.textContent = st.k;
+    stepperEls.t.out.textContent = st.t;
+    stepperEls.m.minus.disabled = ms.indexOf(st.m) <= 0;
+    stepperEls.m.plus.disabled = ms.indexOf(st.m) >= ms.length - 1;
+    stepperEls.k.minus.disabled = st.k <= 1;
+    stepperEls.k.plus.disabled = st.k >= K.MAX_K || !validMs(st.k + 1, st.offset).length;
+    stepperEls.t.minus.disabled = st.t <= r[0];
+    stepperEls.t.plus.disabled = st.t >= r[1];
+    offsetEl.checked = !!st.offset;
+    presetEls.forEach(function (x) {
+      var p = x.p, on = p.m === st.m && p.k === st.k && p.t === st.t && p.offset === st.offset && st.shape === 'line';
+      x.el.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    // Read-out
+    var text = 'n = ' + inf.n + ': ' + inf.n + ' directions · tile with ' + inf.edgeCount + ' edges. ';
+    if (st.layout === 'repeat') text += 'Repeating: the tile repeats along two directions, with no turn.';
+    else if (st.layout === 'boundary') text += 'Grain boundary: two half-plane lattices meet, one tile turn apart.';
+    else {
+      text = 'n = ' + inf.n + ': ' + inf.n + ' directions, ' + inf.n + ' wedges · tile with ' + inf.edgeCount + ' edges. ';
+      text += inf.offset ? '2-fold' : inf.t + '-fold';
+      text += ' rotational symmetry.';
+      if (inf.arms) text += ' ' + inf.arms.ccw + ' spiral arms turn anticlockwise and ' + inf.arms.cw + ' clockwise.';
+    }
+    var err = readoutEl.querySelector('.error');
+    readoutEl.textContent = text;
+    if (err) readoutEl.appendChild(err);
+    drawFigure(inf);
+    // Arrangement
+    Array.prototype.forEach.call(layoutEls, function (x) { x.checked = x.value === st.layout; });
+    outlinesBox.disabled = st.layout !== 'fan';
+    outlinesLabel.classList.toggle('disabled', st.layout !== 'fan');
+    outlinesLabel.title = st.layout === 'fan' ? '' : 'This arrangement has no wedges';
+    // Edges: Line has no height and no arrangement to set.
+    shapeEl.value = st.shape;
+    bendBox.hidden = edgeArrBox.hidden = st.shape === 'line';
+    offsetNote.hidden = st.shape === 'line' || !st.offset;
+    bendEl.value = String(st.bend);
+    bendOut.textContent = signed(st.bend);
+    zeroEl.classList.toggle('on', straight());
+    Object.keys(sliders).forEach(function (k) {
+      var on = def.params.indexOf(k) >= 0;
+      sliders[k].box.hidden = !on;
+      if (on) { sliders[k].input.value = String(st.params[k]); sliders[k].out.textContent = describe(k); }
+    });
+    Array.prototype.forEach.call(arrEls, function (x) {
+      x.checked = x.value === effArr();
+      if (x.value === 'alt') x.disabled = !!st.offset;
+    });
+    singleLabel.classList.toggle('disabled', !!st.offset);
+    syncPlayback();
+  }
+
+  // Where tiles start to overlap, shown under the height slider. Worked out
+  // shortly after the shape, its settings or the tile change.
+  var limitTimer = 0, limitSig = '';
+  function scheduleLimits() {
+    if (st.shape === 'line') return;
+    clearTimeout(limitTimer);
+    limitTimer = setTimeout(function () {
+      var sig = shape.signature() + '|' + st.shape + effArr() + JSON.stringify(st.params);
+      if (sig === limitSig) return;
+      limitSig = sig;
+      var corners = cornersOf(built), single = effArr() === 'alt', k = built.k;
+      var L = SS.limitsBy(function (b) {
+        var p = SS.fitted({ shape: st.shape, bend: b, params: st.params, arrangement: effArr() }, 2);
+        var poly = SS.outlineWith(corners, function () { return p; }, function (e) { return K.edgeSymmetry(k, e, single); });
+        return TM.crossings(poly, true).length > 0;
+      });
+      var pct = function (x) { return ((x + 0.75) / 1.5 * 100).toFixed(1) + '%'; };
+      var red = 'var(--danger)', ok = 'var(--ring)';
+      var lo = L[1] === null ? -0.75 : L[1], hi = L[0] === null ? 0.75 : L[0];
+      limitsEl.style.background = 'linear-gradient(to right, ' + red + ' 0, ' + red + ' ' + pct(lo) + ', ' + ok + ' ' +
+        pct(lo) + ', ' + ok + ' ' + pct(hi) + ', ' + red + ' ' + pct(hi) + ', ' + red + ' 100%)';
+      limitNote.hidden = L[0] === null && L[1] === null;
+      limitNote.textContent = limitNote.hidden ? ''
+        : 'Tiles collide beyond ' + (L[0] !== null ? signed(L[0]) : 'none') + ' and ' + (L[1] !== null ? signed(L[1]) : 'none') + '.';
+    }, 150);
+  }
+
+  function edgesChanged() {
+    syncControls();
+    scheduleLimits();
+    map.shapeChanged();
+  }
+  // At the opening zoom a height of 0.15 moves an edge about a pixel, so the
+  // first curved edge zooms in far enough to see it.
+  var zoomedForCurves = false;
+  function zoomForCurves() {
+    if (!zoomedForCurves && map.scale() < 14) { zoomedForCurves = true; map.zoomTo(20); }
+  }
+  function setBend(v, final) {
+    st.bend = v;
+    bendOut.textContent = signed(v);
+    zeroEl.classList.toggle('on', straight());
+    map.shapeChanged();
+    if (final) { bendEl.value = String(v); scheduleLimits(); map.changed(); }
+  }
+
+  shapeEl.addEventListener('change', function () {
+    var def = SS.BY_ID[shapeEl.value];
+    st.shape = def.id;
+    if (def.set) Object.keys(def.set).forEach(function (k) { st.params[k] = def.set[k]; });
+    if (st.shape !== 'line') {
+      // A new shape at zero height would look the same, so it gets a height.
+      if (straight()) st.bend = 0.15;
+      zoomForCurves();
+    }
+    edgesChanged();
+  });
+  bendEl.addEventListener('input', function () {
+    var v = snap(bendEl, parseFloat(bendEl.value));
+    if (v !== 0) zoomForCurves();
+    setBend(v, false);
+  });
+  bendEl.addEventListener('change', function () { setBend(st.bend, true); });
+  zeroEl.addEventListener('click', function () { setBend(0, true); });
+  bendEl.addEventListener('dblclick', function () { setBend(0, true); });
+  Object.keys(sliders).forEach(function (k) {
+    sliders[k].input.addEventListener('input', function () {
+      st.params[k] = snap(sliders[k].input, parseFloat(sliders[k].input.value));
+      // The trapezium's two sloping sides must fit inside one hump.
+      if (k === 'rise' && st.params.rise + st.params.fall > 1) st.params.fall = +(1 - st.params.rise).toFixed(2);
+      if (k === 'fall' && st.params.rise + st.params.fall > 1) st.params.rise = +(1 - st.params.fall).toFixed(2);
+      edgesChanged();
+    });
+  });
+  Array.prototype.forEach.call(arrEls, function (r) {
+    r.addEventListener('change', function () { if (r.checked && !st.offset) { st.edgeArr = r.value; edgesChanged(); } });
+  });
+
+  // The tile figure follows the theme.
+  new MutationObserver(function () { drawFigure(uiInfo()); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  // The first link may carry wedge outlines.
+  if (startKeys.mk !== undefined || startKeys.wo !== undefined) map.outlines(startKeys.wo === '1');
+  syncControls();
+  scheduleLimits();
+})();
+</script>
+<script src="../engine/phone.js"></script>
+</body>
+</html>

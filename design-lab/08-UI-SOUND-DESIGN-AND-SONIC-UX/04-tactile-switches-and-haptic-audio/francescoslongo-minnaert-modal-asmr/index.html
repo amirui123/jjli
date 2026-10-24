@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#1C2A33">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>Hush · procedural ASMR</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap">
+  <section class="stage">
+    <div class="top">
+      <h1>Hush</h1>
+      <button class="help-btn" id="helpBtn" type="button" aria-label="How to use Hush" aria-haspopup="dialog" title="How to use Hush">?</button>
+    </div>
+    <canvas id="map" width="720" height="720" aria-label="Top-down view of your head and where each sound is. Drag a dot to move that sound."></canvas>
+    <div class="transport">
+      <button class="play" id="play" aria-pressed="false">Start listening</button>
+      <span class="pair"><button class="btn" id="surprise" type="button">Surprise me</button><button class="btn" id="chaosBtn" type="button" aria-pressed="false">Chaos mode</button></span>
+    </div>
+    <label class="master">Volume <input type="range" id="master" min="0" max="1" step="0.01" value="0.8"></label>
+    <div class="tools">
+      <label class="ctrl">Room <select id="room"></select></label>
+      <label class="ctrl">Sleep timer
+        <select id="sleep"><option value="0">Off</option><option value="15">15 min</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">1 hour</option><option value="90">1 h 30</option></select>
+        <span class="sleep-left" id="sleepLeft"></span></label>
+      <label class="ctrl">Chaos changes
+        <select id="chaos"><option value="5">Every 5 s</option><option value="10">Every 10 s</option><option value="15" selected>Every 15 s</option><option value="30">Every 30 s</option><option value="60">Every minute</option><option value="120">Every 2 min</option><option value="300">Every 5 min</option></select></label>
+      <div class="acts"><button class="btn" id="recBtn" type="button">Record</button><button class="btn" id="installBtn" type="button" hidden>Install app</button></div>
+    </div>
+  </section>
+  <section class="sources" id="sources"></section>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<dialog class="help" id="help" aria-labelledby="helpTitle">
+  <div class="help-head">
+    <h2 id="helpTitle">How to use Hush</h2>
+    <button class="btn" id="helpClose" type="button">Close</button>
+  </div>
+  <div class="help-body">
+    <p class="help-intro">Put on headphones: sounds are placed around your head, and that only works when each ear gets its own channel.</p>
+    <details open><summary>Getting started</summary><div>
+      <p>Press <b>Start listening</b>. Pink noise plays by default. The same button then pauses and resumes everything.</p>
+      <p>Use the <b>Section</b> menu above the list to move between groups of sounds. A green dot marks sections where something is playing. Switch a sound on with the toggle next to its name.</p>
+      <p>The <b>Volume</b> slider under the map sets the overall level.</p>
+    </div></details>
+    <details><summary>Scenes and Surprise me</summary><div>
+      <p>In <b>Scenes</b>, press <b>Play</b> on a ready-made mix, or build your own and press <b>Save current mix</b>. A scene keeps which sounds are on, all their settings, the room, the key and the patterns.</p>
+      <p><b>Copy link</b> puts the mix in a web link: anyone who opens it gets the same mix. Your own files (Your sounds) aren't part of scenes, since they never leave your device.</p>
+      <p><b>Surprise me</b>, next to Start listening, puts together a random, balanced mix: a background layer and a few sounds spread around you.</p>
+      <p><b>Chaos mode</b>, next to Surprise me, does a new Surprise mix over and over; <b>Chaos changes</b>, under the volume, sets how often, from every 5 seconds to every 5 minutes. Each change fades out and back in. Press Chaos mode again to stop and keep the current mix.</p>
+    </div></details>
+    <details><summary>Room, sleep timer and recording</summary><div>
+      <ul>
+        <li><b>Room</b> puts all sounds in a space: a small room, a bathroom, a concert hall or outdoors. Each sound's <b>Reverb</b> slider sets how much of it reaches the room.</li>
+        <li><b>Sleep timer</b> fades everything out slowly over the last few minutes and then pauses. It counts listening time, so pausing pauses it too.</li>
+        <li><b>Record</b> saves what you hear to an audio file; press again to stop and download it.</li>
+      </ul>
+    </div></details>
+    <details><summary>On your phone</summary><div>
+      <p>Play and pause also appear on the lock screen and in the notification area, and sounds keep playing with the screen off in most browsers.</p>
+      <p>When Hush is opened from a website, you can install it: use <b>Install app</b> if it appears, or "Add to Home Screen" in the browser's menu. Once installed it also opens without a connection.</p>
+    </div></details>
+    <details><summary>Now playing</summary><div>
+      <p>Lists every sound that is on, with its own volume and an <b>Off</b> button. Click a sound's name to jump to its settings.</p>
+      <p>Patterns moving that sound appear under it, with their curve, current value and speed. <b>Turn everything off</b> and <b>Stop all patterns</b> are at the bottom.</p>
+    </div></details>
+    <details><summary>Settings of a sound</summary><div>
+      <p>Open <b>Settings</b> under a sound's name. Every sound has:</p>
+      <ul>
+        <li><b>Volume</b>: how loud it is in the mix.</li>
+        <li><b>Movement</b>: still, circling around you, sweeping from ear to ear, or drifting.</li>
+        <li><b>Direction</b> and <b>Distance</b>: where it is. Closer sounds get louder, warmer and more clearly on one side.</li>
+        <li><b>Movement speed</b>: how fast it moves when it isn't still.</li>
+        <li><b>Reverb</b>: how much of it you hear reflected by the room.</li>
+      </ul>
+      <p>Most sounds also have their own controls, such as rate, material or size.</p>
+    </div></details>
+    <details><summary>The map</summary><div>
+      <p>The circle is a view from above: your head is in the middle, facing up. Each coloured dot is a sound, and the rings mark 25 cm, 50 cm, 1 m and 2.5 m.</p>
+      <p><b>Drag a dot</b> to move that sound; its Direction and Distance update as you go. A moving sound becomes still when you grab it. Sounds set to "All around" are drawn as a ring and can't be dragged.</p>
+    </div></details>
+    <details><summary>Filter</summary><div>
+      <p>Inside a sound's settings, <b>Filter</b> works like the filters used in electronics:</p>
+      <ul>
+        <li><b>High-pass</b> removes the low end (rumble, boominess).</li>
+        <li><b>Low-pass</b> removes the high end (hiss, sharpness).</li>
+        <li>Both together keep only a band in between.</li>
+        <li><b>Slope</b> sets how steeply it cuts: 12 or 24 dB per octave.</li>
+        <li><b>Resonance</b> adds a peak at the cut-off.</li>
+      </ul>
+      <p>The plot shows what the filter does to each frequency.</p>
+    </div></details>
+    <details><summary>Instruments</summary><div>
+      <p>All instruments play in the <b>Key</b> and <b>Scale</b> chosen at the top of the Instruments section, so any combination sounds good together. Changing them retunes held notes smoothly.</p>
+    </div></details>
+    <details><summary>Patterns</summary><div>
+      <p>A pattern makes a setting move by itself, over and over.</p>
+      <ul>
+        <li><b>Record</b>: press Record, move the slider, press Stop.</li>
+        <li><b>Generate</b>: pick a shape (sine, triangle, ramps, square, pulse, breathing, or a random one), its length, and the lowest and highest values.</li>
+        <li><b>Use a pattern</b>: choose the pattern, the sound, the setting to move and a speed, then press Apply.</li>
+      </ul>
+      <p>Moving a sound's direction with a pattern is a nice way to make it travel around you. Patterns are saved in this browser.</p>
+    </div></details>
+    <details><summary>Your sounds</summary><div>
+      <p>Load an audio or video file into one of the three slots. It is analysed on the spot: the report shows how many separate sounds it found, their rhythm, how quickly they fade, their brightness and the pitches they ring at.</p>
+      <ul>
+        <li><b>Play</b>: "The recording" uses sounds cut from your file. "Synthesised copy" rebuilds the sound from the measurements only, without any of the recording.</li>
+        <li><b>Treat as</b>: separate sounds, or a continuous texture that loops.</li>
+        <li><b>Timing</b>, <b>Tempo</b>, <b>Pitch</b> and <b>Variation</b> change how it plays back.</li>
+      </ul>
+      <p>Files never leave your device and are gone after a reload. If a video won't load, export its audio as .wav or .mp3.</p>
+    </div></details>
+  </div>
+</dialog>
+
+<script src="js/engine.js"></script>
+<script src="js/analysis.js"></script>
+<script src="js/sounds.js"></script>
+<script src="js/sources.js"></script>
+<script src="js/map.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/patterns.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

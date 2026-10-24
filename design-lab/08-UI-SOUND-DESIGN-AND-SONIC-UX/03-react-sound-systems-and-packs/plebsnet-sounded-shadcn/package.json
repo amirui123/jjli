@@ -1,0 +1,46 @@
+{
+  "name": "@plebs/sounded",
+  "version": "0.1.2",
+  "description": "Theme-aware, globally configurable UI sound system for React and Next.js apps.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "react",
+    "sound",
+    "audio",
+    "hover",
+    "click",
+    "ui",
+    "theme",
+    "muted",
+    "feedback",
+    "nextjs"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/plebsnet/sounded"
+  },
+  "homepage": "https://github.com/plebsnet/sounded#readme",
+  "bugs": {
+    "url": "https://github.com/plebsnet/sounded/issues"
+  },
+  "author": "plebs",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^18.0.0"
+  },
+  "engines": {
+    "node": ">=16",
+    "npm": ">=7"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.4",
+    "typescript": "^5.8.3"
+  }
+}

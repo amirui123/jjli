@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generative Art Pack — Claude Code agents &amp; skills for creative coding</title>
+  <meta name="description" content="A Claude Code pack of 6 agents and 4 skills for generative art & creative coding — p5.js, GLSL shaders, flow fields, packing, attractors, palettes, and hash-seeded series." />
+  <meta name="theme-color" content="#0b0a0f" />
+  <meta property="og:title" content="Generative Art Pack — agents &amp; skills for creative coding" />
+  <meta property="og:description" content="6 agents + 4 skills for Claude Code. Make flow fields, packings, attractors, shaders and mint-ready series." />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+</head>
+<body>
+  <header class="nav" id="nav">
+    <a href="#top" class="nav__brand"><span class="nav__logo">❋</span> Generative&nbsp;Art&nbsp;Pack</a>
+    <nav class="nav__links">
+      <a href="#gallery">Gallery</a>
+      <a href="#agents">Agents</a>
+      <a href="#skills">Skills</a>
+      <a href="#stack">Stack</a>
+      <a class="nav__cta" href="https://github.com/skinnye/generative-art-pack" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero" id="hero">
+      <canvas id="hero-canvas"></canvas>
+      <div class="hero__inner">
+        <p class="hero__eyebrow reveal">Claude Code · 6 agents · 4 skills</p>
+        <h1 class="hero__title">
+          <span class="reveal-line">Code that</span>
+          <span class="reveal-line"><em>makes art.</em></span>
+        </h1>
+        <p class="hero__sub reveal">
+          A pack of specialized agents and skills for generative art &amp; creative coding —
+          flow fields, packing, attractors, reaction-diffusion, GLSL shaders, perceptual
+          palettes and hash-seeded series. From sketch to print, loop, or mint.
+        </p>
+        <div class="hero__actions reveal">
+          <a class="btn btn--primary" href="#install">Get the pack</a>
+          <a class="btn btn--ghost" href="#gallery">See the gallery</a>
+        </div>
+        <div class="hero__scroll reveal" aria-hidden="true"><span></span> the hero is a live flow field — scroll</div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="stats">
+      <div class="stats__grid">
+        <div class="stat reveal"><span class="stat__num" data-count="6">0</span><span class="stat__label">Agents</span></div>
+        <div class="stat reveal"><span class="stat__num" data-count="4">0</span><span class="stat__label">Skills</span></div>
+        <div class="stat reveal"><span class="stat__num" data-count="10">0</span><span class="stat__label">Live techniques</span></div>
+        <div class="stat reveal"><span class="stat__num" data-count="1">0</span><span class="stat__label">Seed = reproducible</span></div>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section class="section" id="gallery">
+      <div class="section__head reveal">
+        <span class="kicker">Live gallery</span>
+        <h2>Every tile is generated in your browser.</h2>
+        <p class="lead">Real algorithms, drawn on a canvas right now — hit <strong>↻</strong> to roll a new seed. This is the kind of output the pack helps you build.</p>
+      </div>
+      <div class="gallery">
+        <article class="piece reveal" data-gen="flow">
+          <canvas></canvas>
+          <div class="piece__bar"><span>Flow field</span><span class="piece__seed" data-seed>#······</span><button data-regen aria-label="Regenerate">↻</button></div>
+        </article>
+        <article class="piece reveal" data-gen="packing">
+          <canvas></canvas>
+          <div class="piece__bar"><span>Circle packing</span><span class="piece__seed" data-seed>#······</span><button data-regen aria-label="Regenerate">↻</button></div>
+        </article>
+        <article class="piece reveal" data-gen="noise">
+          <canvas></canvas>
+          <div class="piece__bar"><span>Noise field</span><span class="piece__seed" data-seed>#······</span><button data-regen aria-label="Regenerate">↻</button></div>
+        </article>
+        <article class="piece reveal" data-gen="truchet">
+          <canvas></canvas>
+          <div class="piece__bar"><span>Truchet tiles</span><span class="piece__seed" data-seed>#······</span><button data-regen aria-label="Regenerate">↻</button></div>
+        </article>
+        <article class="piece reveal" data-gen="attractor">
+          <canvas></canvas>
+          <div class="piece__bar"><span>de Jong attractor</span><span class="piece__seed" data-seed>#······</span><button data-regen aria-label="Regenerate">↻</button></div>
+        </article>
+        <article class="piece reveal" data-gen="subdivision">
+          <canvas></canvas>
+          <div class="piece__bar"><span>Subdivision</span><span class="piece__seed" data-seed>#······</span><button data-regen aria-label="Regenerate">↻</button></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- IN MOTION -->
+    <section class="section" id="motion">
+      <div class="section__head reveal">
+        <span class="kicker">In motion</span>
+        <h2>And these ones are alive.</h2>
+        <p class="lead">Real-time generative systems running on canvas — they only animate while on screen, and pause when you scroll away. Hit <strong>↻</strong> to re-seed.</p>
+      </div>
+      <div class="gallery">
+        <article class="piece reveal" data-anim="swarm">
+          <canvas></canvas>
+          <div class="piece__bar"><span>Particle swarm</span><button data-regen aria-label="Re-seed">↻</button></div>
+        </article>
+        <article class="piece reveal" data-anim="life">
+          <canvas></canvas>
+          <div class="piece__bar"><span>Game of Life</span><button data-regen aria-label="Re-seed">↻</button></div>
+        </article>
+        <article class="piece reveal" data-anim="plasma">
+          <canvas></canvas>
+          <div class="piece__bar"><span>Plasma field</span><button data-regen aria-label="Re-seed">↻</button></div>
+        </article>
+        <article class="piece reveal" data-anim="harmonograph">
+          <canvas></canvas>
+          <div class="piece__bar"><span>Harmonograph</span><button data-regen aria-label="Re-seed">↻</button></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="section intro" id="about">
+      <div class="section__head reveal">
+        <span class="kicker">What is this</span>
+        <h2>A creative-coding studio, wired into Claude&nbsp;Code.</h2>
+        <p class="lead">
+          Six agents and four skills that turn an idea into a finished generative piece — one owns
+          the concept &amp; composition, others the p5.js sketch, the algorithms, the GLSL shaders,
+          the color, and the export to print, video or a mint-ready series. You explore the space;
+          the agents handle the craft.
+        </p>
+      </div>
+    </section>
+
+    <!-- AGENTS -->
+    <section class="section" id="agents">
+      <div class="section__head reveal"><span class="kicker">06 — Agents</span><h2>Six hands on the canvas.</h2></div>
+      <div class="cards cards--agents">
+        <article class="card reveal" style="--c:#ff6b5c"><span class="card__icon">◳</span><h3>generative-art-director</h3><p>Plans the technique, composition, palette strategy, medium and seed plan — the creative brief.</p></article>
+        <article class="card reveal" style="--c:#ffb347"><span class="card__icon">✎</span><h3>p5-sketch-engine</h3><p>Implements p5.js / canvas sketches — instance mode, seeded, re-rollable, smooth.</p></article>
+        <article class="card reveal" style="--c:#e85aff"><span class="card__icon">∿</span><h3>generative-systems</h3><p>The algorithms — flow fields, packing, automata, reaction-diffusion, attractors, WFC.</p></article>
+        <article class="card reveal" style="--c:#7c5cff"><span class="card__icon">✦</span><h3>shader-artist</h3><p>GLSL &amp; TSL shaders — noise, domain warping, raymarching. Shared with the 3D Web Pack.</p></article>
+        <article class="card reveal" style="--c:#3ad6c5"><span class="card__icon">◐</span><h3>color-composition</h3><p>Palettes &amp; composition — OKLCH ramps, palette-from-image, grain, focal balance.</p></article>
+        <article class="card reveal" style="--c:#5b8cff"><span class="card__icon">⤢</span><h3>art-export-engineer</h3><p>High-res print, video/GIF loops, and hash-seeded series (fxhash / Art Blocks).</p></article>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section class="section" id="skills">
+      <div class="section__head reveal"><span class="kicker">04 — Skills</span><h2>One command, one workflow.</h2></div>
+      <div class="cards cards--skills">
+        <article class="card card--skill reveal"><code>/scaffold-sketch</code><p>Spin up a clean, seeded p5.js or vanilla-canvas sketch.</p></article>
+        <article class="card card--skill reveal"><code>/flow-field</code><p>The signature technique — noise-driven particles into flowing forms.</p></article>
+        <article class="card card--skill reveal"><code>/export-art</code><p>Print-ready stills &amp; perfect video/GIF loops (ffmpeg / WebCodecs).</p></article>
+        <article class="card card--skill reveal"><code>/generative-series</code><p>Deterministic, hash-seeded editions with traits &amp; rarity.</p></article>
+      </div>
+    </section>
+
+    <!-- STACK -->
+    <section class="section" id="stack">
+      <div class="section__head reveal"><span class="kicker">Toolkit</span><h2>What the pack reaches for.</h2></div>
+      <div class="stack__groups">
+        <div class="stack__group reveal"><h4>Author</h4><ul><li>p5.js</li><li>HTML5 canvas</li><li>GLSL / shaders</li><li>three.js (3D)</li></ul></div>
+        <div class="stack__group reveal"><h4>Systems</h4><ul><li>Perlin / simplex / curl noise</li><li>flow fields · packing</li><li>reaction-diffusion · CA</li><li>attractors · WFC</li></ul></div>
+        <div class="stack__group reveal"><h4>Color</h4><ul><li>OKLCH / OKLab ramps</li><li>culori</li><li>palette-from-image</li><li>dither · grain</li></ul></div>
+        <div class="stack__group reveal"><h4>Export</h4><ul><li>high-res PNG / SVG</li><li>CCapture · WebCodecs</li><li>ffmpeg loops · GIF</li><li>fxhash · Art Blocks</li></ul></div>
+      </div>
+    </section>
+
+    <!-- INSTALL -->
+    <section class="section install" id="install">
+      <div class="section__head reveal"><span class="kicker">Install</span><h2>Drop it into Claude&nbsp;Code.</h2>
+        <p class="lead">Clone and copy the agents &amp; skills into your global <code>~/.claude</code> — they work in every project.</p></div>
+      <div class="code-block reveal">
+<pre><code><span class="c-comment"># 1. clone</span>
+git clone https://github.com/skinnye/generative-art-pack.git
+
+<span class="c-comment"># 2. install agents + skills globally</span>
+cp -r generative-art-pack/agents/* ~/.claude/agents/
+cp -r generative-art-pack/skills/* ~/.claude/skills/
+
+<span class="c-comment"># 3. make something</span>
+<span class="c-str">"Art-direct a calm flow-field piece in teal"</span>   <span class="c-comment">→ generative-art-director</span>
+<span class="c-str">"/flow-field"</span>                                  <span class="c-comment">→ instant signature piece</span>
+<span class="c-str">"Turn it into a mint-ready series on fxhash"</span>    <span class="c-comment">→ /generative-series</span></code></pre>
+      </div>
+    </section>
+
+    <!-- RELATED -->
+    <section class="section related">
+      <div class="related__card reveal">
+        <div>
+          <span class="kicker">Part of a set</span>
+          <h3>Also building 3D for the web?</h3>
+          <p>The sibling <strong>3D Web Pack</strong> covers Three.js, React Three Fiber, WebGPU, scroll-motion and asset pipelines. <code>shader-artist</code> is shared between both.</p>
+        </div>
+        <a class="btn btn--ghost" href="https://github.com/skinnye/3d-web-pack" target="_blank" rel="noopener">3D Web Pack →</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner reveal">
+      <span class="footer__brand">❋ Generative Art Pack</span>
+      <p>Live gallery rendered with the pack's own techniques. MIT licensed.</p>
+      <a class="btn btn--ghost" href="https://github.com/skinnye/generative-art-pack" target="_blank" rel="noopener">View on GitHub →</a>
+    </div>
+  </footer>
+
+  <script type="module" src="assets/art.js"></script>
+  <script type="module" src="assets/app.js"></script>
+</body>
+</html>

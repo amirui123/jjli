@@ -1,0 +1,593 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import sonics, { play, presets, encode, decode, armAutoUnlock, type Sound } from "sonics";
+import { cuelume } from "sonics/presets";
+import { Knob } from "./components/Knob.js";
+import { Fader } from "./components/Fader.js";
+import { Scope } from "./components/Scope.js";
+import { PRIMARY, SECONDARY, valueOf, fmt, newTick, shuffleSpec, type Param } from "./params.js";
+
+const PRESET_NAMES = Object.keys(presets) as Array<keyof typeof presets>;
+// The cuelume palette (MIT © Daniel Belyi) — loaded as ordinary specs, so
+// every one of them is editable here like anything else.
+const KIT: Record<string, Sound> = { ...presets, ...cuelume };
+const CUELUME_NAMES = Object.keys(cuelume);
+const MAX_HISTORY = 60;
+
+const reveal = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } };
+const sectionMotion = {
+  variants: reveal,
+  initial: "hidden" as const,
+  whileInView: "show" as const,
+  viewport: { once: true, amount: 0.15 },
+  transition: { duration: 0.45, ease: [0.22, 0.61, 0.36, 1] as const },
+};
+
+type HistEntry = { spec: Sound; label: string };
+type History = { entries: HistEntry[]; i: number };
+
+function loadFromHash(): Sound | null {
+  if (!location.hash.startsWith("#s=")) return null;
+  try {
+    return decode(location.hash.slice(3));
+  } catch {
+    return null;
+  }
+}
+
+export function App() {
+  const initial = useMemo(() => loadFromHash() ?? structuredClone(presets.click), []);
+  const [spec, setSpec] = useState<Sound>(initial);
+  const [active, setActive] = useState(0);
+  const [mode, setMode] = useState<"wave" | "spec">("wave");
+  const [altHeld, setAltHeld] = useState(false);
+  const [altLatch, setAltLatch] = useState(false);
+  const [preset, setPreset] = useState<string | null>("click");
+  const [pulse, setPulse] = useState(0);
+  const [toast, setToast] = useState<{ id: number; msg: string } | null>(null);
+  const [hist, setHist] = useState<History>(() => ({
+    entries: [{ spec: structuredClone(initial), label: "start" }],
+    i: 0,
+  }));
+
+  const alt = altHeld || altLatch;
+  const supported = sonics.isSupported();
+
+  const specRef = useRef(spec);
+  specRef.current = spec;
+  const activeRef = useRef(0);
+  activeRef.current = Math.min(active, spec.ticks.length - 1);
+  const histRef = useRef(hist);
+  histRef.current = hist;
+
+  useEffect(() => {
+    armAutoUnlock();
+  }, []);
+
+  const say = useCallback((msg: string) => setToast({ id: Date.now(), msg }), []);
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 1500);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  // ---- history ----
+  const record = useCallback((s: Sound, label: string, coalesce = false) => {
+    setHist((h) => {
+      const cur = h.entries[h.i];
+      if (cur && JSON.stringify(cur.spec) === JSON.stringify(s)) return h;
+      // fold a run of same-label edits (one knob drag session) into one step
+      if (coalesce && cur && cur.label === label && h.i === h.entries.length - 1) {
+        const entries = h.entries.slice();
+        entries[h.i] = { spec: structuredClone(s), label };
+        return { entries, i: h.i };
+      }
+      let entries = [...h.entries.slice(0, h.i + 1), { spec: structuredClone(s), label }];
+      if (entries.length > MAX_HISTORY) entries = entries.slice(entries.length - MAX_HISTORY);
+      return { entries, i: entries.length - 1 };
+    });
+  }, []);
+
+  const goTo = useCallback((i: number) => {
+    const h = histRef.current;
+    if (i < 0 || i >= h.entries.length || i === h.i) return;
+    const s = structuredClone(h.entries[i].spec);
+    setSpec(s);
+    setActive(0);
+    setPreset(null);
+    setHist({ ...h, i });
+    play(s);
+    setPulse((p) => p + 1);
+  }, []);
+  const undo = useCallback(() => goTo(histRef.current.i - 1), [goTo]);
+  const redo = useCallback(() => goTo(histRef.current.i + 1), [goTo]);
+
+  // ---- actions ----
+  const doPlay = useCallback(() => {
+    play(specRef.current);
+    setPulse((p) => p + 1);
+  }, []);
+
+  const doShuffle = useCallback(() => {
+    const s = shuffleSpec();
+    setSpec(s);
+    setActive(0);
+    setPreset(null);
+    record(s, "shuffle");
+    play(s);
+    setPulse((p) => p + 1);
+  }, [record]);
+
+  const loadPreset = useCallback(
+    (name: string) => {
+      const s = structuredClone(KIT[name]);
+      setSpec(s);
+      setActive(0);
+      setPreset(name);
+      record(s, `preset: ${name}`);
+      play(s);
+      setPulse((p) => p + 1);
+    },
+    [record]
+  );
+
+  const setParam = useCallback((key: Param["key"], value: number) => {
+    setSpec((s) => ({
+      ...s,
+      ticks: s.ticks.map((t, i) => (i === activeRef.current ? { ...t, [key]: value } : t)),
+    }));
+    setPreset(null);
+  }, []);
+
+  const setVolume = useCallback((v: number) => setSpec((s) => ({ ...s, volume: v })), []);
+
+  // play + record once a drag settles (rAF ensures state has committed)
+  const commit = useCallback(
+    (label: string, coalesce = false) => {
+      requestAnimationFrame(() => {
+        play(specRef.current);
+        record(specRef.current, label, coalesce);
+      });
+    },
+    [record]
+  );
+
+  const addTick = useCallback(() => {
+    const s = specRef.current;
+    const last = s.ticks[s.ticks.length - 1];
+    const ns: Sound = {
+      ...s,
+      ticks: [...s.ticks, newTick((last?.at ?? 0) + 0.03, last?.freq ?? 3120)],
+    };
+    setSpec(ns);
+    setActive(ns.ticks.length - 1);
+    setPreset(null);
+    record(ns, "add tick");
+  }, [record]);
+
+  const removeTick = useCallback(
+    (i: number) => {
+      const s = specRef.current;
+      if (s.ticks.length <= 1) return;
+      const ns: Sound = { ...s, ticks: s.ticks.filter((_, k) => k !== i) };
+      setSpec(ns);
+      setActive((a) => Math.max(0, a - (i <= a ? 1 : 0)));
+      setPreset(null);
+      record(ns, "remove tick");
+    },
+    [record]
+  );
+
+  // ---- keyboard ----
+  useEffect(() => {
+    const sync = (e: KeyboardEvent) => setAltHeld(e.altKey || e.shiftKey);
+    const onKeyDown = (e: KeyboardEvent) => {
+      sync(e);
+      const meta = e.metaKey || e.ctrlKey;
+      if (meta && (e.key === "z" || e.key === "Z")) {
+        e.preventDefault();
+        e.shiftKey ? redo() : undo();
+        return;
+      }
+      if (meta && (e.key === "y" || e.key === "Y")) {
+        e.preventDefault();
+        redo();
+        return;
+      }
+      const t = e.target as HTMLElement | null;
+      const tag = t?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || t?.isContentEditable) return;
+      if ((e.key === "s" || e.key === "S") && !meta) {
+        e.preventDefault();
+        doShuffle();
+      } else if (e.code === "Space" || e.key === " ") {
+        if (tag === "BUTTON") return;
+        e.preventDefault();
+        doPlay();
+      }
+    };
+    const onBlur = () => setAltHeld(false);
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", sync);
+    window.addEventListener("blur", onBlur);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", sync);
+      window.removeEventListener("blur", onBlur);
+    };
+  }, [doPlay, doShuffle, undo, redo]);
+
+  const copy = useCallback(
+    async (text: string, msg: string) => {
+      try {
+        await navigator.clipboard.writeText(text);
+        say(msg);
+      } catch {
+        say("copy failed");
+      }
+    },
+    [say]
+  );
+
+  const jsSnippet = `import { play } from "sonics";\n\nplay(${JSON.stringify(spec, null, 2)});`;
+  const tick = spec.ticks[activeRef.current] ?? spec.ticks[0];
+
+  const downloadWav = useCallback(async () => {
+    const blob = await sonics.toWav(specRef.current);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "sonics.wav";
+    a.click();
+    URL.revokeObjectURL(url);
+    say("wav downloaded");
+  }, [say]);
+
+  const permalink = useCallback(() => {
+    const hash = `#s=${encode(specRef.current)}`;
+    history.replaceState(null, "", hash);
+    copy(`${location.origin}${location.pathname}${hash}`, "permalink copied");
+  }, [copy]);
+
+  const canUndo = hist.i > 0;
+  const canRedo = hist.i < hist.entries.length - 1;
+
+  return (
+    <main className="sheet">
+      <header className="topbar">
+        <span className="wordmark">
+          sonics<sup>®</sup>
+        </span>
+        <span className="model">web audio ui sound synthesiser</span>
+        <span className="spacer" />
+        <span className="ver">js–01 · mit</span>
+      </header>
+
+      <motion.div
+        className="hero"
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.22, 0.61, 0.36, 1] }}
+      >
+        <h1>
+          ui sounds you can <b>feel</b>
+        </h1>
+        <p className="lead">
+          tasteful microinteraction sounds, synthesised live in the browser — no audio files, no
+          dependencies. design one below, export the spec, drop it in.
+        </p>
+        <p className="kbd">
+          <kbd>space</kbd> play · <kbd>s</kbd> shuffle · <kbd>⌘Z</kbd> undo · hold <kbd>alt</kbd> to
+          flip the knobs
+        </p>
+      </motion.div>
+
+      <div className="specs">
+        <div>
+          <span className="k">type</span>
+          <span className="v">synthesised</span>
+        </div>
+        <div>
+          <span className="k">dependencies</span>
+          <span className="v">0</span>
+        </div>
+        <div>
+          <span className="k">size</span>
+          <span className="v">~2.7&nbsp;kb gz</span>
+        </div>
+        <div>
+          <span className="k">install</span>
+          <span className="v">
+            npm i sonics
+            <button className="mini" onClick={() => copy("npm i sonics", "copied")}>
+              copy
+            </button>
+          </span>
+        </div>
+      </div>
+
+      {/* sticky instrument: play · scope · volume */}
+      <div className="instrument">
+        <div className="play-col">
+          <button className="knob play" onClick={doPlay} aria-label="Play sound">
+            <span className="play-glyph">play</span>
+            <AnimatePresence>
+              <motion.span
+                key={pulse}
+                className="pulse"
+                initial={{ opacity: 0.7, scale: 1 }}
+                animate={{ opacity: 0, scale: 1.35 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+              />
+            </AnimatePresence>
+          </button>
+          <button className="btn key" onClick={doShuffle} aria-label="Shuffle (s)">
+            shuffle
+          </button>
+        </div>
+        <div className="scope-col">
+          <div className="scope-head">
+            <span className="lcd-label">{mode === "wave" ? "waveform" : "spectrum · db"}</span>
+            <div className="tabs" role="group" aria-label="Visualisation">
+              {(["wave", "spec"] as const).map((m) => (
+                <button
+                  key={m}
+                  aria-pressed={mode === m}
+                  onClick={() => setMode(m)}
+                  className="tab"
+                >
+                  {mode === m && <motion.span layoutId="tabsel" className="tabsel" />}
+                  <span className="tablabel">{m === "wave" ? "wave" : "spectrum"}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          {supported ? (
+            <Scope spec={spec} mode={mode} />
+          ) : (
+            <div className="scope noaudio">web audio not available</div>
+          )}
+        </div>
+        <Fader
+          value={spec.volume ?? 0.9}
+          onChange={setVolume}
+          onCommit={() => commit("volume", true)}
+        />
+      </div>
+
+      <motion.section {...sectionMotion}>
+        <div className="shead">
+          <span className="idx">01</span>
+          <h2>presets</h2>
+          <span className="note">tap to load &amp; hear</span>
+        </div>
+        <div className="presets">
+          {PRESET_NAMES.map((name) => (
+            <button
+              key={name}
+              className={preset === name ? "on" : ""}
+              onClick={() => loadPreset(name)}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+        <div className="shead sub">
+          <h2>cuelume</h2>
+          <span className="note">
+            17 sounds by{" "}
+            <a href="https://github.com/Danilaa1/cuelume" target="_blank" rel="noreferrer">
+              Daniel Belyi
+            </a>{" "}
+            · MIT · ported to specs
+          </span>
+        </div>
+        <div className="presets">
+          {CUELUME_NAMES.map((name) => (
+            <button
+              key={name}
+              className={preset === name ? "on" : ""}
+              onClick={() => loadPreset(name)}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+      </motion.section>
+      <hr className="rule" />
+
+      <motion.section {...sectionMotion}>
+        <div className="shead">
+          <span className="idx">02</span>
+          <h2>ticks</h2>
+          <span className="note">
+            one impulse each · {alt ? "alt function" : "hold alt to flip"}
+          </span>
+        </div>
+
+        <div className="tickbar">
+          {spec.ticks.map((_, i) => (
+            <button
+              key={i}
+              className={`tickchip ${i === activeRef.current ? "on" : ""}`}
+              onClick={() => setActive(i)}
+            >
+              {i === activeRef.current && <motion.span layoutId="ticksel" className="chipsel" />}
+              <span className="chiplabel">τ{i + 1}</span>
+            </button>
+          ))}
+          <button className="tickchip add" onClick={addTick} aria-label="Add tick">
+            +
+          </button>
+          {spec.ticks.length > 1 && (
+            <button
+              className="tickchip del"
+              onClick={() => removeTick(activeRef.current)}
+              aria-label="Remove current tick"
+            >
+              remove τ{activeRef.current + 1}
+            </button>
+          )}
+        </div>
+
+        <div className="knobrow">
+          {PRIMARY.map((p, i) => {
+            const s = SECONDARY[i];
+            const activeParam = alt ? s : p;
+            const value = valueOf(tick, activeParam.key);
+            return (
+              <div className="knobcell" key={i}>
+                <Knob
+                  value={value}
+                  min={activeParam.min}
+                  max={activeParam.max}
+                  step={activeParam.step}
+                  accent={alt}
+                  onChange={(v) => setParam(activeParam.key, v)}
+                  onCommit={() => commit(activeParam.label, true)}
+                  ariaLabel={activeParam.label}
+                />
+                <div className="knob-labels">
+                  <span className={`pl ${!alt ? "active" : ""}`}>{p.label}</span>
+                  <span className={`sl ${alt ? "active" : ""}`}>{s.label}</span>
+                  <span className="val">{fmt(activeParam, value)}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="altbar">
+          <button
+            className={`altbtn ${alt ? "on" : ""}`}
+            aria-pressed={alt}
+            onClick={() => setAltLatch((x) => !x)}
+          >
+            alt
+          </button>
+          <span className="note">click to latch, or hold alt / shift</span>
+        </div>
+      </motion.section>
+      <hr className="rule" />
+
+      <motion.section className="export" {...sectionMotion}>
+        <div className="shead">
+          <span className="idx">03</span>
+          <h2>export</h2>
+          <span className="note">copy the code, share a link, or bake a wav</span>
+        </div>
+        <div className="explabel">javascript</div>
+        <pre className="codeblock">{jsSnippet}</pre>
+        <div className="exportbtns">
+          <button className="btn" onClick={() => copy(jsSnippet, "js copied")}>
+            copy js
+          </button>
+          <button className="btn" onClick={permalink}>
+            copy permalink
+          </button>
+          <button className="btn solid" onClick={downloadWav}>
+            download wav
+          </button>
+        </div>
+      </motion.section>
+      <hr className="rule" />
+
+      <motion.section className="usage" {...sectionMotion}>
+        <div className="shead">
+          <span className="idx">04</span>
+          <h2>drop it in</h2>
+        </div>
+        <div className="cols">
+          <div>
+            <div className="explabel">vanilla</div>
+            <pre>{`import sonics, { armAutoUnlock } from "sonics";
+
+armAutoUnlock();
+document.querySelector("button")
+  .addEventListener("click", () => sonics("click"));`}</pre>
+          </div>
+          <div>
+            <div className="explabel">react</div>
+            <pre>{`import { useSound } from "sonics/react";
+
+function Save() {
+  const click = useSound("click");
+  return <button onClick={click}>Save</button>;
+}`}</pre>
+          </div>
+        </div>
+      </motion.section>
+      <hr className="rule" />
+
+      <motion.section className="credits" {...sectionMotion}>
+        <div className="shead">
+          <span className="idx">05</span>
+          <h2>standing on shoulders</h2>
+        </div>
+        <p>
+          everyone who <em>synthesises</em> sound in the browser aimed at retro game sfx; everyone
+          aiming at tasteful ui shipped audio <em>files</em>. sonics sits in the empty cell — tiny,
+          synth-based, tasteful, with a designer. inspirations:{" "}
+          <a href="https://github.com/KilledByAPixel/ZzFX">zzfx</a> (frank force) for the
+          sub-1&nbsp;kb synth + designer pattern, and{" "}
+          <a href="https://haptics.lochie.me/">web-haptics</a> (lochie axon) for the design→export
+          loop this mirrors. also <a href="https://www.drpetter.se/project_sfxr.html">sfxr</a>,{" "}
+          <a href="https://github.com/chr15m/jsfxr">jsfxr</a>,{" "}
+          <a href="https://jfxr.frozenfractal.com/">jfxr</a>, <a href="https://snd.dev/">snd-lib</a>
+          , and <a href="https://github.com/joshwcomeau/use-sound">use-sound</a>. the default{" "}
+          <code>click</code> was reverse-engineered from the elevenlabs onboarding sound.
+        </p>
+      </motion.section>
+      <hr className="rule" />
+
+      <motion.section className="history" {...sectionMotion}>
+        <div className="shead">
+          <span className="idx">06</span>
+          <h2>history</h2>
+          <span className="note">every change is saved · ⌘z / ctrl+z</span>
+        </div>
+        <div className="histbar">
+          <button className="btn" onClick={undo} disabled={!canUndo}>
+            ↩ undo
+          </button>
+          <button className="btn" onClick={redo} disabled={!canRedo}>
+            redo ↪
+          </button>
+          <div className="histstrip">
+            {hist.entries.map((e, i) => (
+              <button
+                key={i}
+                className={`histchip ${i === hist.i ? "on" : ""}`}
+                onClick={() => goTo(i)}
+                title={e.label}
+              >
+                <span className="hn">{i + 1}</span>
+                <span className="hl">{e.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
+      <footer>
+        <span>sonics — web audio ui sound synthesiser</span>
+        <span>zero dependencies · mit</span>
+      </footer>
+
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            key={toast.id}
+            className="toast"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ duration: 0.2 }}
+          >
+            {toast.msg}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </main>
+  );
+}
