@@ -1,6 +1,6 @@
 /**
  * Auto-generated Complete Design-Lab Vault Manifest
- * Total Files: 4037 across 11 Pillars
+ * Total Files: 4049 across 11 Pillars
  */
 
 export interface DesignLabSubcategory {
@@ -23,8 +23,8 @@ export interface DesignLabPillar {
   subcategories: DesignLabSubcategory[];
 }
 
-export const DESIGN_LAB_TOTAL_FILES = 4037;
-export const DESIGN_LAB_TOTAL_BYTES = 31292616;
+export const DESIGN_LAB_TOTAL_FILES = 4049;
+export const DESIGN_LAB_TOTAL_BYTES = 31364819;
 
 export const DESIGN_LAB_PILLARS: DesignLabPillar[] = [
   {
@@ -1859,15 +1859,19 @@ export const DESIGN_LAB_PILLARS: DesignLabPillar[] = [
     "titleFa": "موشن گرافیک وب، GSAP و ۶۰ فریم",
     "descFa": "اسکیل‌های انیمیشن Emil Kowalski، GSAP، Framer Motion، Remotion، Lenis و Lottie",
     "accent": "#22D3EE",
-    "totalFiles": 375,
-    "totalBytes": 2709881,
+    "totalFiles": 376,
+    "totalBytes": 2711993,
     "subcategories": [
       {
         "id": "heygen-hyperframes-gsap",
         "titleFa": "موتور تایم‌لاین و موشن گرافیک GSAP (۸۰ فایل)",
         "packCount": 5,
-        "totalFiles": 80,
+        "totalFiles": 81,
         "files": [
+          [
+            "bilingual-persian-english-font-encyclopedia.md",
+            2112
+          ],
           [
             "figma/SKILL.md",
             6167
@@ -6280,9 +6284,61 @@ export const DESIGN_LAB_PILLARS: DesignLabPillar[] = [
     "titleFa": "شیدرهای GLSL، WebGL و Three.js",
     "descFa": "شیدرهای Lygia، توابع نویز و SDF، افکت‌های پس‌پردازش، سیالات GPU و صحنه‌های سه‌بعدی",
     "accent": "#60A5FA",
-    "totalFiles": 582,
-    "totalBytes": 3187148,
+    "totalFiles": 593,
+    "totalBytes": 3257239,
     "subcategories": [
+      {
+        "id": "hacker-persian-glyph-shaders",
+        "titleFa": "شیدرهای هکری، ماتریکس و اطلس حروف فارسی (WebGL)",
+        "packCount": 1,
+        "totalFiles": 11,
+        "files": [
+          [
+            "hacker-persian-glyph-shaders/README-PERSIAN-HACKER-SHADERS.md",
+            3236
+          ],
+          [
+            "hacker-persian-glyph-shaders/bettercrt.glsl",
+            1256
+          ],
+          [
+            "hacker-persian-glyph-shaders/crt-green.glsl",
+            2048
+          ],
+          [
+            "hacker-persian-glyph-shaders/crt-phosphor-bloom.glsl",
+            6543
+          ],
+          [
+            "hacker-persian-glyph-shaders/glitchy.glsl",
+            3646
+          ],
+          [
+            "hacker-persian-glyph-shaders/inside-the-matrix.glsl",
+            16060
+          ],
+          [
+            "hacker-persian-glyph-shaders/matrix-hallway.glsl",
+            1252
+          ],
+          [
+            "hacker-persian-glyph-shaders/matrixdemo1-post.frag",
+            3237
+          ],
+          [
+            "hacker-persian-glyph-shaders/matrixdemo1-shader.frag",
+            20961
+          ],
+          [
+            "hacker-persian-glyph-shaders/orz-matrix-rain.glsl",
+            5420
+          ],
+          [
+            "hacker-persian-glyph-shaders/raindrop-neo2.glsl",
+            6432
+          ]
+        ]
+      },
       {
         "id": "01-webgl-and-glsl-shaders",
         "titleFa": "کتابخانهٔ جامع شیدرهای WebGL و GLSL (۳۴۷ فایل)",

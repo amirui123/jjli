@@ -91,15 +91,17 @@ const CATEGORIES: { id: Category; label: string }[] = [
   { id: "nastaliq-calligraphy", label: "نستعلیق" },
   { id: "special-display", label: "هنری" },
   { id: "modern-ui", label: "مدرن" },
-  { id: "code", label: "کد" },
+  { id: "code", label: "کد و هکری" },
+  { id: "english-display", label: "لاتین" },
 ];
 
 const SAMPLES = [
   { label: "شعر", text: "دوش دیدم که ملائک در میخانه زدند" },
-  { label: "برند", text: "آزمایشگاه موشن فارسی" },
+  { label: "برند", text: "آزمایشگاه موشن فارسی — RTL Motion Lab" },
+  { label: "کد هکری", text: "const cipher = (x: u32) => x !== 0x9E3779B9 ? x >>= 4 : 0;" },
   { label: "عدد", text: "۱٬۲۵۰٬۰۰۰ تومان — ۱۲۳۴۵۶۷۸۹۰" },
   { label: "تمام‌نویسی", text: "ابجد هوز حطی کلمن سعفص قرشت ثخذ ضظغ" },
-  { label: "ترکیبی", text: "طراحی RTL با Tailwind v4 و Motion" },
+  { label: "انگلیسی", text: "QUANTUM KINETIC TYPOGRAPHY — 60FPS WEBGL SHADERS" },
 ];
 
 const pad = (n: number) => n.toFixed(2).replace(/\.00$/, "");
@@ -556,22 +558,48 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
         </div>
       </Panel>
 
-      <Panel title="نمونه کامل حروف" subtitle={`ابجد، ارقام فارسی و لاتین در ${font.nameFa}`}>
+      <Panel title="نمونه کامل حروف (فارسی، انگلیسی و لیگچرهای هکری)" subtitle={`ابجد، الفبای لاتین، ارقام و لیگچرهای کد در ${font.nameFa} (${font.nameEn})`}>
         <div className="space-y-3">
-          <div style={{ fontFamily: font.family, fontWeight: s.weight }} className="text-[clamp(18px,3vw,30px)] leading-[2] text-zinc-200">
+          <div style={{ fontFamily: font.family, fontWeight: s.weight }} className="text-[clamp(18px,3vw,28px)] leading-[2] text-zinc-200">
             ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی
           </div>
-          <div style={{ fontFamily: font.family }} className="text-[17px] leading-[2] text-zinc-400">
-            ۰۱۲۳۴۵۶۷۸۹ — 0123456789 — «گفتا که…» (۱۲٪)
+          <div
+            dir="ltr"
+            style={{
+              fontFamily: font.family,
+              fontWeight: s.weight,
+              fontFeatureSettings: `"liga" ${s.ligatures ? 1 : 0}, "calt" ${s.ligatures ? 1 : 0}`,
+            }}
+            className="text-[clamp(15px,2.2vw,22px)] leading-[1.65] text-emerald-300/90"
+          >
+            ABCDEFGHIJKLMNOPQRSTUVWXYZ · abcdefghijklmnopqrstuvwxyz
+          </div>
+          <div style={{ fontFamily: font.family }} className="text-[16px] leading-[2] text-zinc-400">
+            ۰۱۲۳۴۵۶۷۸۹ — 0123456789 — «گفتا که…» (۱۲٪) · 0x9E3779B9
           </div>
           <div className="grid grid-cols-5 gap-2 sm:grid-cols-9">
             {["۱۲۳", "۴۵۶", "۷۸۹", "۰", "٬", "٫", "،", "؛", "؟"].map((g) => (
               <div
                 key={g}
-                className="flex h-11 items-center justify-center rounded-lg border border-white/[0.06] bg-white/[0.02] text-[17px] text-zinc-300"
+                className="flex h-10 items-center justify-center rounded-lg border border-white/[0.06] bg-white/[0.02] text-[16px] text-zinc-300"
                 style={{ fontFamily: font.family }}
               >
                 {g}
+              </div>
+            ))}
+          </div>
+          <div dir="ltr" className="grid grid-cols-3 gap-2 pt-1 sm:grid-cols-9">
+            {["=>", "!==", "===", "<=", ">=", "|>", "::", ">>=", "/**/"].map((lig) => (
+              <div
+                key={lig}
+                className="flex h-10 items-center justify-center rounded-lg border border-emerald-500/20 bg-emerald-500/[0.04] font-mono text-[14px] text-emerald-300"
+                style={{
+                  fontFamily: font.family,
+                  fontFeatureSettings: `"liga" ${s.ligatures ? 1 : 0}, "calt" ${s.ligatures ? 1 : 0}`,
+                }}
+                title="تست لیگچر کدنویسی (Coding Ligature)"
+              >
+                {lig}
               </div>
             ))}
           </div>

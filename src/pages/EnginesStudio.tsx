@@ -37,6 +37,8 @@ interface ShaderSettings {
   vignette: number;
   glassOverlay: boolean;
   overlayText: string;
+  glyphText: string;
+  glyphFont: string;
   paused: boolean;
   interactive: boolean;
   mode: "shader" | "rtl";
@@ -54,6 +56,8 @@ const DEFAULT: ShaderSettings = {
   vignette: 30,
   glassOverlay: true,
   overlayText: "در امتدادِ نور، هر خط جان می‌گیرد",
+  glyphText: "نور خط جان کد رمز هکر ۰ ۱ ۲ ۳ ۴ ۵ ۶ ۷ ۸ ۹",
+  glyphFont: '"Vazirmatn", "Hasti", sans-serif',
   paused: false,
   interactive: true,
   mode: "shader",
@@ -306,7 +310,7 @@ uniforms:
           <div className="sticky top-0 z-10 -m-1.5 mb-1.5 space-y-2 bg-[#0D0D10]/95 p-1.5 backdrop-blur">
             <SearchField value={q} onChange={setQ} placeholder="نام شیدر…" />
             <div className="flex flex-wrap gap-1">
-              {(["all", "gradient", "noise", "geometric", "liquid", "retro"] as const).map((c) => (
+              {(["all", "hacker", "gradient", "noise", "geometric", "liquid", "retro"] as const).map((c) => (
                 <button
                   key={c}
                   onClick={() => setCat(c)}
@@ -366,6 +370,8 @@ uniforms:
             grain={s.grain}
             paused={s.paused}
             interactive={s.interactive}
+            glyphText={s.glyphText}
+            glyphFont={s.glyphFont}
             className="absolute inset-0"
           />
           {(s.vignette ?? 30) > 0 && (
@@ -568,6 +574,45 @@ uniforms:
           <Slider label="چرخش رنگ" value={s.hue} min={0} max={1} step={0.01} format={(v) => `${Math.round(v * 360)}°`} onChange={(v) => set({ hue: v })} />
           <Slider label="اعوجاج" value={s.warp} min={0} max={3} step={0.01} format={(v) => v.toFixed(2)} onChange={(v) => set({ warp: v })} />
           <Slider label="دانه" value={s.grain} min={0} max={1.5} step={0.01} format={(v) => v.toFixed(2)} onChange={(v) => set({ grain: v })} />
+        </div>
+      </Panel>
+
+      <Panel title="اطلس حروف فارسی و شیدرهای هکری (WebGL Glyph Atlas)" subtitle="حروف و واژه‌هایی که داخل باران ماتریکس و شیدرهای هکری می‌بارند">
+        <div className="space-y-2.5">
+          <input
+            value={s.glyphText ?? "نور خط جان کد رمز هکر ۰ ۱ ۲ ۳ ۴ ۵ ۶ ۷ ۸ ۹"}
+            onChange={(e) => set({ glyphText: e.target.value })}
+            dir="rtl"
+            placeholder="حروف یا واژه‌های فارسی دلخواه برای رندر در شیدر…"
+            className="w-full rounded-lg border border-white/[0.08] bg-black/40 px-2.5 py-1.5 text-[11.5px] text-zinc-200 outline-none focus:border-[color:var(--accent)]/50"
+          />
+          <div className="flex flex-wrap gap-1">
+            {[
+              { label: "الفبا + ارقام", text: "" },
+              { label: "نور و خط", text: "نور خط جان حق هو لا موج روح" },
+              { label: "ترمینال هکری", text: "کد رمز هکر صفر یک شبکه نود ۰ ۱" },
+              { label: "باینری ۰ و ۱", text: "۰ ۱ ۰ ۱ کد رمز ۰ ۱" },
+            ].map((p) => (
+              <button
+                key={p.label}
+                onClick={() => set({ glyphText: p.text })}
+                className="rounded-md border border-white/[0.08] bg-white/[0.02] px-2 py-1 text-[9.5px] text-zinc-300 hover:border-[color:var(--accent)]/40 hover:text-white"
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+          <Segmented
+            size="sm"
+            value={s.glyphFont ?? '"Vazirmatn", "Hasti", sans-serif'}
+            onChange={(v) => set({ glyphFont: v })}
+            options={[
+              { value: '"Vazirmatn", "Hasti", sans-serif', label: "وزیرمتن" },
+              { value: '"IranNastaliq", serif', label: "نستعلیق" },
+              { value: '"Morabba", sans-serif', label: "مربع" },
+              { value: '"Vazir Code", monospace', label: "وزیر کد" },
+            ]}
+          />
         </div>
       </Panel>
 
