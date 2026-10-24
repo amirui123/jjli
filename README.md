@@ -11,7 +11,7 @@
 ### *"Motion is the native language of the interface."*
 
 A **100% free, open-source, zero-backend browser workbench** for designing and engineering world-class Right-to-Left (RTL) interfaces:<br />
-**4,037** Design-Lab Vault Files (`11` Pillars) · **50** Persian Font Families · **4,199** Component Sources · **285** Synthesized Sounds · **179** Engineering Skill Docs · **84** Brand Design Systems · **18** Live WebGL Shaders
+**4,049** Design-Lab Vault Files (`11` Pillars) · **93** Persian, Arabic &amp; English Font Families · **4,199** Component Sources · **285** Synthesized Sounds · **179** Engineering Skill Docs · **84** Brand Design Systems · **26** Live WebGL Shaders (with 64-Cell Persian Glyph Atlas)
 
 <p>
   <a href="https://amirui123.github.io/jjli/">
@@ -52,7 +52,7 @@ Every studio is a self-contained, **zero-page-scroll desktop workbench** built a
   <tr>
     <td width="33%" valign="top">
       <h3>🟡 Font Studio</h3>
-      <p><strong>50 Persian font families</strong> (Nastaliq, calligraphic, display, variable, editorial, and monospace) with 8 live typographic axes, direct <code>woff2/woff/ttf</code> downloads, and copy-ready outputs for CSS <code>@font-face</code>, Tailwind v4, and <code>next/font</code>.</p>
+      <p><strong>93 Persian, Arabic &amp; English font families</strong> (Nastaliq, calligraphic, display, variable, editorial, coding ligature monospace, and English display) with 8 live typographic axes, direct <code>woff2/woff/ttf</code> downloads, and copy-ready outputs for CSS <code>@font-face</code>, Tailwind v4, and <code>next/font</code>.</p>
       <p><code>#/studio/fonts</code></p>
     </td>
     <td width="33%" valign="top">
@@ -74,12 +74,12 @@ Every studio is a self-contained, **zero-page-scroll desktop workbench** built a
     </td>
     <td width="33%" valign="top">
       <h3>🟣 Skills &amp; Vault Studio</h3>
-      <p><strong>4,037 categorized Design-Lab vault files</strong> across <strong>11 Pillars &amp; 49 subcategories</strong>, plus <strong>179 curated skill docs (<code>SKILL.md</code>)</strong> and <strong>84 brand design systems (<code>DESIGN.md</code>)</strong> with a decluttered Pillar ribbon, full markdown/code reader, and an AI Prompt Compiler.</p>
+      <p><strong>4,049 categorized Design-Lab vault files</strong> across <strong>11 Pillars &amp; 50 subcategories</strong>, plus <strong>179 curated skill docs (<code>SKILL.md</code>)</strong> and <strong>84 brand design systems (<code>DESIGN.md</code>)</strong> with a decluttered Pillar ribbon, full markdown/code reader, and an AI Prompt Compiler.</p>
       <p><code>#/studio/skills</code></p>
     </td>
     <td width="33%" valign="top">
       <h3>💠 Shader &amp; Engines Lab</h3>
-      <p><strong>18 live GLSL fragment shaders</strong> with real-time uniform sliders and source downloads, paired with a <strong>20-rule automated RTL code auditor</strong>, 18 Iranian bank BIN/Sheba validators, National ID checksum verifier, and Persian ZWNJ (<code>نیم‌فاصله</code>) normalizer.</p>
+      <p><strong>26 live GLSL fragment shaders</strong> (including 8 Hacker, Matrix Rain, 3D Cyber Hallway &amp; CRT shaders rendering real Persian letters via a 64-cell WebGL Glyph Atlas) paired with a <strong>20-rule automated RTL code auditor</strong> and Iranian validation engines.</p>
       <p><code>#/studio/engines</code></p>
     </td>
   </tr>
@@ -143,14 +143,14 @@ Not a single counter in the UI or in this document is hand-typed decoration; eve
 
 | Asset / Platform Module | Exact Measured Count | Technical Implementation Details |
 | :--- | :--- | :--- |
-| **11-Pillar Design-Lab Vault** | **4,037 Files (`29.84 MB`)** | Organized across **11 Pillars** (`00` to `10`) and **49 subcategories** in `/design-lab/`, self-indexed in `src/data/designLabManifest.ts` |
-| **Persian Font Families** | **50 Families** | **89 physical font files** (`woff2` / `woff` / `ttf`) mapped across `src/data/fontFiles.ts` with `font-display: swap` |
+| **11-Pillar Design-Lab Vault** | **4,049 Files (`29.91 MB`)** | Organized across **11 Pillars** (`00` to `10`) and **50 subcategories** in `/design-lab/`, self-indexed in `src/data/designLabManifest.ts` |
+| **Persian, Arabic &amp; English Fonts** | **93 Families** | **132 physical font files** (`woff2` / `woff` / `ttf`) mapped across `src/data/fontFiles.ts` with `font-display: swap` and coding ligatures |
 | **Component Source Code** | **4,199 Component Sources** | **4,888 total files** (including `4,068` `.tsx` files) partitioned into lazy-loaded JSON chunks inside `public/regcode/chunks/` |
 | **Open-Source Registries** | **12 Registries** | Smooth UI (`1,175`) · Effect UI (`1,081`) · Persian Blocks (`1,030`) · Animate UI (`540`) · Tailark (`243`) · React Bits (`218`) · Fancy (`149`) · Cult UI (`141`) · Kokonut UI (`102`) · Eldora UI (`97`) · Magic UI (`79`) · Motion Primitives (`33`) |
 | **Curated Skill Blueprints (`SKILL.md`)** | **179 Documents** | `21` Motion &amp; Awwwards · `39` 3D &amp; WebGL · `108` Art Direction &amp; Taste · `10` UI Systems · `1` Comprehensive Persian &amp; RTL Spec |
 | **Brand Design Systems (`DESIGN.md`)** | **84 Brand Systems** | Includes Linear, Vercel, Claude, Apple, Stripe, Raycast, Framer, Figma, Supabase, Cursor, and 74 additional global engineering brands |
 | **Procedural Sound Recipes** | **285 Audio Recipes** | `85` multi-layer DSL sound designs (`soundLibrary.ts`) + `200` procedural synth effects (`soundsManifest.ts`) with 16-bit PCM `.wav` export |
-| **Live Graphics Shaders** | **18 GLSL Shaders** | Real-time WebGL fragment rendering, interactive uniform sliders, off-screen `IntersectionObserver` pause, and full GPU buffer/shader cleanup |
+| **Live Graphics Shaders** | **26 GLSL Shaders** | Includes 8 Persian-Glyph Hacker/Matrix/CRT shaders (`u_glyphTex` 8×8 Canvas Atlas), uniform sliders, `IntersectionObserver` pause, and full GPU disposal |
 | **Native Iranian Engines** | **18 Banks + 20 RTL Rules** | BIN/Sheba (IBAN mod-97) detection, Luhn card validation, National ID checksum verification, number-to-Persian-words, and 20-rule RTL static auditor |
 | **AI Fine-Tuning Dataset** | **40 Instruction Pairs** | Real component-derived JSONL training pairs, system prompt compiler, interactive pipeline graph, and QLoRA config export in `public/ai/` |
 
