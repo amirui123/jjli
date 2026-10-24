@@ -1,0 +1,58 @@
+{
+  "name": "@foleyjs/core",
+  "version": "2.9.0",
+  "description": "Sound effects for the interface, performed live. 28 interaction cues synthesized with Web Audio — zero dependencies, zero audio files.",
+  "type": "module",
+  "main": "./src/foley.js",
+  "module": "./src/foley.js",
+  "types": "./src/foley.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/foley.d.ts",
+      "import": "./src/foley.js"
+    }
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "test": "node --test",
+    "build": "node scripts/build-standalone.mjs",
+    "demo": "npx serve .",
+    "docs": "node scripts/build-docs.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eakbulut/foley.git"
+  },
+  "homepage": "https://usefoley.dev/",
+  "bugs": {
+    "url": "https://github.com/eakbulut/foley/issues"
+  },
+  "keywords": [
+    "ui sounds",
+    "sound effects",
+    "web audio",
+    "interaction sounds",
+    "audio feedback",
+    "sound design",
+    "microinteractions",
+    "haptics",
+    "ui sound library",
+    "sound set"
+  ],
+  "author": "eakbulut",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@foleyjs/core": "file:.",
+    "marked": "^18.0.7",
+    "react": "^18.3.0",
+    "typescript": "^5.6.0"
+  }
+}

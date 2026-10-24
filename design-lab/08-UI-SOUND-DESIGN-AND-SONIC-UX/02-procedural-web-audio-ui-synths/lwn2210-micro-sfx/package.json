@@ -1,0 +1,41 @@
+{
+  "name": "micro-sfx",
+  "version": "0.1.0",
+  "description": "Zero-asset, zero-dependency procedural sound synthesis library for Web, Mobile, and Games.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "node tests/test.js"
+  },
+  "keywords": [
+    "audio",
+    "sfx",
+    "procedural-audio",
+    "webaudio",
+    "sound-effects",
+    "game-audio",
+    "retro-audio",
+    "8bit",
+    "react-native",
+    "unity"
+  ],
+  "author": "lwn2210",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lwn2210/micro-sfx.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lwn2210/micro-sfx/issues"
+  },
+  "homepage": "https://github.com/lwn2210/micro-sfx#readme",
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "typescript": "^7.0.2"
+  },
+  "bin": {
+    "micro-sfx": "./dist/bin/cli.js"
+  }
+}

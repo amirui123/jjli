@@ -1,0 +1,112 @@
+{
+  "name": "@0xsharon/click-clack",
+  "version": "1.2.4",
+  "description": "Satisfying, procedurally synthesized mechanical keyboard audio feedback for web apps. Zero audio files, under 2KB minified.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.mjs",
+      "require": "./dist/react.js"
+    },
+    "./vue": {
+      "types": "./dist/vue.d.ts",
+      "import": "./dist/vue.mjs",
+      "require": "./dist/vue.js"
+    },
+    "./svelte": {
+      "types": "./dist/svelte.d.ts",
+      "import": "./dist/svelte.mjs",
+      "require": "./dist/svelte.js"
+    },
+    "./auto": {
+      "types": "./dist/auto.d.ts",
+      "import": "./dist/auto.mjs",
+      "require": "./dist/auto.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md",
+    "assets"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build && npm run test"
+  },
+  "keywords": [
+    "mechanical-keyboard",
+    "audio",
+    "web-audio-api",
+    "sound-effects",
+    "sound",
+    "clicks",
+    "thock",
+    "haptics",
+    "ui-feedback",
+    "micro-interactions",
+    "synthesizer",
+    "react-hook",
+    "vue-directive",
+    "svelte-action"
+  ],
+  "author": {
+    "name": "0xSHARON",
+    "email": "sharonbabu80@gmail.com",
+    "url": "https://github.com/0xSHARON"
+  },
+  "maintainers": [
+    {
+      "name": "0xSHARON",
+      "email": "sharonbabu80@gmail.com",
+      "url": "https://github.com/0xSHARON"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "0xSHARON",
+      "email": "sharonbabu80@gmail.com",
+      "url": "https://github.com/0xSHARON"
+    }
+  ],
+  "license": "MIT",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/0xSHARON"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/0xSHARON/click-clack.git"
+  },
+  "bugs": {
+    "url": "https://github.com/0xSHARON/click-clack/issues"
+  },
+  "homepage": "https://github.com/0xSHARON/click-clack#readme",
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.2",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

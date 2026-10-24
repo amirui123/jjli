@@ -80,9 +80,11 @@ export const ShaderSurface: React.FC<Props> = ({
     };
 
     let program: WebGLProgram | null = null;
+    let vs: WebGLShader | null = null;
+    let fs: WebGLShader | null = null;
     try {
-      const vs = compile(gl.VERTEX_SHADER, VERTEX_SHADER);
-      const fs = compile(gl.FRAGMENT_SHADER, `${SHADER_PRELUDE}\n${def.scene}\n${FRAGMENT_MAIN}`);
+      vs = compile(gl.VERTEX_SHADER, VERTEX_SHADER);
+      fs = compile(gl.FRAGMENT_SHADER, `${SHADER_PRELUDE}\n${def.scene}\n${FRAGMENT_MAIN}`);
       if (!vs || !fs) throw new Error("shader allocation failed");
       program = gl.createProgram();
       if (!program) throw new Error("program allocation failed");
@@ -93,6 +95,9 @@ export const ShaderSurface: React.FC<Props> = ({
         throw new Error(gl.getProgramInfoLog(program) ?? "link error");
       }
     } catch (error) {
+      if (vs) gl.deleteShader(vs);
+      if (fs) gl.deleteShader(fs);
+      if (program) gl.deleteProgram(program);
       const message = error instanceof Error ? error.message : String(error);
       setFailed(message);
       onError?.(message);
@@ -179,8 +184,12 @@ export const ShaderSurface: React.FC<Props> = ({
       ro?.disconnect();
       io?.disconnect();
       canvas.removeEventListener("pointermove", onMove);
+      gl.bindBuffer(gl.ARRAY_BUFFER, null);
+      if (buffer) gl.deleteBuffer(buffer);
       gl.useProgram(null);
       if (program) gl.deleteProgram(program);
+      if (vs) gl.deleteShader(vs);
+      if (fs) gl.deleteShader(fs);
     };
   }, [def.id, def.scene, interactive, onError]);
 

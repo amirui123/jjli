@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>click-clack ⌨️ Mechanical Keyboard Audio Engine</title>
+  <meta name="description" content="Procedurally synthesized mechanical keyboard acoustics for web apps. Zero audio files, under 2KB minified." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #09090b;
+      --surface: #111114;
+      --surface-elevated: #18181c;
+      --surface-hover: #1f1f24;
+      --border: #222227;
+      --border-subtle: #1a1a1f;
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --text-subtle: #63636e;
+      --accent: #ffffff;
+      --accent-glow: rgba(255, 255, 255, 0.12);
+      
+      /* Keycap Theme */
+      --key-alpha-bg: #18181d;
+      --key-alpha-border: #26262e;
+      --key-mod-bg: #131317;
+      --key-mod-border: #202026;
+      --key-text: #f4f4f6;
+      --key-mod-text: #92929e;
+      --key-shadow: #0a0a0d;
+      --key-active-bg: #2d2d36;
+      --key-active-border: #4a4a58;
+      
+      --green: #22c55e;
+      --cyan: #06b6d4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(120, 119, 198, 0.08) 0%, transparent 60%),
+        radial-gradient(circle at 80% 80%, rgba(56, 189, 248, 0.03) 0%, transparent 50%);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.25rem 1.25rem 1.5rem;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .app {
+      max-width: 940px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* Minimalist Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      color: var(--text);
+    }
+
+    .version-tag {
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      font-weight: 400;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .wpm-card {
+      display: flex;
+      align-items: baseline;
+      gap: 0.35rem;
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text-subtle);
+    }
+
+    .wpm-val {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .wpm-pulse {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      display: inline-block;
+      margin-right: 0.1rem;
+      box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+      transition: transform 0.2s;
+    }
+
+    .copy-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.4rem 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .copy-pill:hover {
+      border-color: #383842;
+      color: var(--text);
+      background: var(--surface-elevated);
+    }
+
+    .copy-pill svg {
+      width: 13px;
+      height: 13px;
+      stroke: currentColor;
+    }
+
+    .mute-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .mute-btn:hover {
+      border-color: #383842;
+      color: var(--text);
+    }
+
+    .mute-btn.is-muted {
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.3);
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    /* Minimalist Profile & Acoustics Control Bar */
+    .controls-strip {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+    }
+
+    .controls-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .segmented-control {
+      display: flex;
+      background: var(--bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 2px;
+      flex-wrap: wrap;
+    }
+
+    .profile-pill {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 0.35rem 0.85rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .profile-pill:hover {
+      color: var(--text);
+    }
+
+    .profile-pill.active {
+      background: var(--surface-elevated);
+      color: var(--text);
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .controls-bottom-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding-top: 0.65rem;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .toggles-group {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .toggle-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.15s;
+    }
+
+    .toggle-chip:hover {
+      color: var(--text);
+    }
+
+    .toggle-chip input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--bg);
+      cursor: pointer;
+      position: relative;
+      transition: all 0.15s;
+      outline: none;
+    }
+
+    .toggle-chip input[type="checkbox"]:checked {
+      background: #ffffff;
+      border-color: #ffffff;
+    }
+
+    .toggle-chip input[type="checkbox"]:checked::after {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 1px;
+      width: 3px;
+      height: 7px;
+      border: solid #09090b;
+      border-width: 0 1.5px 1.5px 0;
+      transform: rotate(45deg);
+    }
+
+    .select-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .custom-select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-family: inherit;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .custom-select:hover, .custom-select:focus {
+      border-color: #3b3b44;
+      color: var(--text);
+    }
+
+    .volume-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .volume-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 76px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ffffff;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+
+    /* Minimalist Typing Area */
+    .editor-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .editor-container {
+      position: relative;
+    }
+
+    textarea {
+      width: 100%;
+      height: 85px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      padding: 0.85rem 1.1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      resize: vertical;
+      outline: none;
+      transition: all 0.15s ease;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    textarea:focus {
+      border-color: #3b3b45;
+      box-shadow: 0 0 0 1px #3b3b45, inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    textarea::placeholder {
+      color: var(--text-subtle);
+    }
+
+    /* Live Keystroke Status HUD */
+    .keystroke-hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.2rem 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.74rem;
+      color: var(--text-subtle);
+    }
+
+    .hud-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .hud-tag {
+      color: var(--text-muted);
+      background: var(--surface);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .hud-meter {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .meter-bar {
+      width: 3px;
+      height: 10px;
+      background: var(--border);
+      border-radius: 2px;
+      transition: height 0.08s ease, background-color 0.08s ease;
+    }
+
+    .meter-bar.active {
+      background: #ffffff;
+      height: 14px;
+      box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+    }
+
+    /* Complete 60% Mechanical Keyboard Layout */
+    .keyboard-wrapper {
+      position: relative;
+    }
+
+    .keyboard-chassis {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0.95rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.38rem;
+      box-shadow: 
+        0 12px 32px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .kb-row {
+      display: flex;
+      gap: 0.38rem;
+      width: 100%;
+    }
+
+    .key {
+      flex: 1;
+      height: 42px;
+      background: var(--key-alpha-bg);
+      border: 1px solid var(--key-alpha-border);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--key-text);
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      user-select: none;
+      cursor: pointer;
+      box-shadow: 0 2px 0 var(--key-shadow);
+      transition: all 0.05s ease;
+    }
+
+    .key:hover {
+      border-color: #3b3b45;
+      color: #ffffff;
+      background: #1f1f26;
+    }
+
+    .key:active, .key.pressed {
+      transform: translateY(2px);
+      box-shadow: 0 0 0 transparent;
+      background: var(--key-active-bg);
+      border-color: var(--key-active-border);
+      color: #ffffff;
+    }
+
+    /* Modifier Keys styling */
+    .key.mod {
+      background: var(--key-mod-bg);
+      border-color: var(--key-mod-border);
+      color: var(--key-mod-text);
+      font-size: 0.74rem;
+      font-weight: 500;
+    }
+
+    .key.mod:hover {
+      color: var(--text);
+      border-color: #33333d;
+      background: #19191e;
+    }
+
+    /* Key Width Proportions (Standard ANSI 60% Layout) */
+    .k-wide-125 { flex: 1.25; }
+    .k-wide-150 { flex: 1.5; }
+    .k-wide-175 { flex: 1.75; }
+    .k-wide-200 { flex: 2.0; }
+    .k-wide-225 { flex: 2.25; }
+    .k-space { 
+      flex: 6.25; 
+      font-size: 0.72rem; 
+      color: var(--text-subtle);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    /* Footer */
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-subtle);
+      font-size: 0.8rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    footer a:hover {
+      color: var(--text);
+    }
+
+    .cmd-badge {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--surface);
+      padding: 0.2rem 0.5rem;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #18181b;
+      border: 1px solid #27272a;
+      color: #fafafa;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    @media (max-width: 640px) {
+      .app { gap: 1rem; }
+      .key { height: 38px; font-size: 0.75rem; }
+      .key.mod { font-size: 0.65rem; }
+      .controls-strip { padding: 0.6rem 0.75rem; }
+      .controls-bottom-row { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <div class="logo-row">
+          <div class="logo-icon">⌨️</div>
+          <h1>click-clack</h1>
+          <span class="version-tag">v1.2.0</span>
+        </div>
+        <p class="subtitle">Procedurally synthesized mechanical switch acoustics for the web. Zero audio files.</p>
+      </div>
+
+      <div class="header-actions">
+        <div class="wpm-card" title="Typing speed tracker">
+          <span class="wpm-pulse" id="wpm-dot"></span>
+          <span class="wpm-val" id="wpm-val">0</span>
+          <span>WPM</span>
+        </div>
+        
+        <div class="copy-pill" id="copy-install" title="Copy install command">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <span id="copy-text">npm i @0xsharon/click-clack</span>
+        </div>
+
+        <button class="mute-btn" id="mute-toggle" title="Toggle audio mute (Ctrl+Alt+M)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Controls Strip -->
+    <div class="controls-strip">
+      <div class="controls-top-row">
+        <div class="segmented-control" role="tablist">
+          <button class="profile-pill active" data-profile="thock">Thock</button>
+          <button class="profile-pill" data-profile="creamy">Creamy</button>
+          <button class="profile-pill" data-profile="clicky">Clicky</button>
+          <button class="profile-pill" data-profile="typewriter">Typewriter</button>
+          <button class="profile-pill" data-profile="cyberpunk">Cyberpunk</button>
+          <button class="profile-pill" data-profile="bubble">Bubble</button>
+        </div>
+
+        <div class="volume-group">
+          <span style="font-size: 0.74rem; color: var(--text-subtle);">VOL</span>
+          <input type="range" class="volume-slider" id="vol-range" min="0" max="1" step="0.05" value="0.8" title="Master volume" />
+        </div>
+      </div>
+
+      <div class="controls-bottom-row">
+        <div class="toggles-group">
+          <label class="toggle-chip" title="Pan audio ear-to-ear based on key position">
+            <input type="checkbox" id="stereo-check" checked />
+            <span>3D Stereo</span>
+          </label>
+          <label class="toggle-chip" title="Dynamically tighten decay and pitch above 60 WPM">
+            <input type="checkbox" id="wpm-check" checked />
+            <span>WPM Flow Dynamics</span>
+          </label>
+          <label class="toggle-chip" title="Play vintage carriage return bell on Enter">
+            <input type="checkbox" id="bell-check" checked />
+            <span>Carriage Bell</span>
+          </label>
+        </div>
+
+        <div class="select-wrap">
+          <span style="font-size: 0.75rem; color: var(--text-subtle);">Acoustics:</span>
+          <select id="deskmat-check" class="custom-select" title="Deskmat material resonance">
+            <option value="none">Bare Desk (Neutral)</option>
+            <option value="felt">Felt Mat (Damped)</option>
+            <option value="wood">Wood Table (Warm)</option>
+            <option value="metal">Metal Plate (Bright)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Textarea Sandbox -->
+    <div class="editor-section">
+      <div class="editor-container">
+        <textarea id="typing-input" autofocus placeholder="Start typing here to test switch acoustics... or click keys below"></textarea>
+      </div>
+
+      <div class="keystroke-hud">
+        <div class="hud-left">
+          <span>ACTIVE:</span>
+          <span class="hud-tag" id="hud-key">Ready</span>
+          <span id="hud-detail">Plug in headphones for 3D stereo panning</span>
+        </div>
+        <div class="hud-meter" id="hud-meter">
+          <div class="meter-bar"></div>
+          <div class="meter-bar"></div>
+          <div class="meter-bar"></div>
+          <div class="meter-bar"></div>
+          <div class="meter-bar"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Complete 60% Mechanical Keyboard Layout -->
+    <div class="keyboard-wrapper">
+      <div class="keyboard-chassis" id="keyboard">
+        <!-- Number Row -->
+        <div class="kb-row">
+          <div class="key" data-key="`">`</div>
+          <div class="key" data-key="1">1</div>
+          <div class="key" data-key="2">2</div>
+          <div class="key" data-key="3">3</div>
+          <div class="key" data-key="4">4</div>
+          <div class="key" data-key="5">5</div>
+          <div class="key" data-key="6">6</div>
+          <div class="key" data-key="7">7</div>
+          <div class="key" data-key="8">8</div>
+          <div class="key" data-key="9">9</div>
+          <div class="key" data-key="0">0</div>
+          <div class="key" data-key="-">-</div>
+          <div class="key" data-key="=">=</div>
+          <div class="key mod k-wide-200" data-key="Backspace">Backspace</div>
+        </div>
+
+        <!-- QWERTY Row -->
+        <div class="kb-row">
+          <div class="key mod k-wide-150" data-key="Tab">Tab</div>
+          <div class="key" data-key="q">Q</div>
+          <div class="key" data-key="w">W</div>
+          <div class="key" data-key="e">E</div>
+          <div class="key" data-key="r">R</div>
+          <div class="key" data-key="t">T</div>
+          <div class="key" data-key="y">Y</div>
+          <div class="key" data-key="u">U</div>
+          <div class="key" data-key="i">I</div>
+          <div class="key" data-key="o">O</div>
+          <div class="key" data-key="p">P</div>
+          <div class="key" data-key="[">[</div>
+          <div class="key" data-key="]">]</div>
+          <div class="key mod k-wide-150" data-key="\">\</div>
+        </div>
+
+        <!-- Home Row -->
+        <div class="kb-row">
+          <div class="key mod k-wide-175" data-key="CapsLock">Caps</div>
+          <div class="key" data-key="a">A</div>
+          <div class="key" data-key="s">S</div>
+          <div class="key" data-key="d">D</div>
+          <div class="key" data-key="f">F</div>
+          <div class="key" data-key="g">G</div>
+          <div class="key" data-key="h">H</div>
+          <div class="key" data-key="j">J</div>
+          <div class="key" data-key="k">K</div>
+          <div class="key" data-key="l">L</div>
+          <div class="key" data-key=";">;</div>
+          <div class="key" data-key="'">'</div>
+          <div class="key mod k-wide-225" data-key="Enter">Enter ↵</div>
+        </div>
+
+        <!-- Bottom Alphabet Row -->
+        <div class="kb-row">
+          <div class="key mod k-wide-225" data-key="Shift">Shift</div>
+          <div class="key" data-key="z">Z</div>
+          <div class="key" data-key="x">X</div>
+          <div class="key" data-key="c">C</div>
+          <div class="key" data-key="v">V</div>
+          <div class="key" data-key="b">B</div>
+          <div class="key" data-key="n">N</div>
+          <div class="key" data-key="m">M</div>
+          <div class="key" data-key=",">,</div>
+          <div class="key" data-key=".">.</div>
+          <div class="key" data-key="/">/</div>
+          <div class="key mod k-wide-225" data-key="Shift">Shift</div>
+        </div>
+
+        <!-- Spacebar Row -->
+        <div class="kb-row">
+          <div class="key mod k-wide-125" data-key="Control">Ctrl</div>
+          <div class="key mod k-wide-125" data-key="Meta">⌘</div>
+          <div class="key mod k-wide-125" data-key="Alt">Alt</div>
+          <div class="key k-space" data-key=" ">Space (Lubed Wire Stabilizer)</div>
+          <div class="key mod k-wide-125" data-key="Alt">Alt</div>
+          <div class="key mod k-wide-125" data-key="Fn">Fn</div>
+          <div class="key mod k-wide-125" data-key="Control">Ctrl</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div>Shortcut: <span class="cmd-badge">Ctrl + Alt + M</span> toggles global audio</div>
+      <div>
+        <a href="https://github.com/0xSHARON/click-clack" target="_blank" rel="noopener">GitHub</a> &bull;
+        <a href="https://www.npmjs.com/package/@0xsharon/click-clack" target="_blank" rel="noopener">npm</a> &bull;
+        MIT © <a href="https://github.com/0xSHARON" target="_blank" rel="noopener">0xSHARON</a>
+      </div>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast">Copied to clipboard</div>
+
+  <script type="module">
+    /**
+     * click-clack procedural mechanical audio engine
+     * Synthesized entirely with Web Audio API nodes.
+     */
+    let audioCtx = null;
+    let noiseBuffer = null;
+    let isGloballyMuted = false;
+    let currentProfile = 'thock';
+    let masterVolume = 0.8;
+    let stereoEnabled = true;
+    let wpmDynamicsEnabled = true;
+    let bellEnabled = true;
+    let deskmatMaterial = 'none';
+    let keyTimestamps = [];
+
+    // Pre-calculate Paul Kellet pink noise buffer (1 second, 44.1/48kHz)
+    // Avoids GC pauses and CPU overhead on fast typing bursts
+    function getAudioCtx() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const bufSize = audioCtx.sampleRate;
+        noiseBuffer = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+        const data = noiseBuffer.getChannelData(0);
+        let b0 = 0, b1 = 0, b2 = 0;
+        for (let i = 0; i < bufSize; i++) {
+          const white = Math.random() * 2 - 1;
+          b0 = 0.99886 * b0 + white * 0.0555179;
+          b1 = 0.99332 * b1 + white * 0.0750759;
+          b2 = 0.96900 * b2 + white * 0.1538520;
+          data[i] = (b0 + b1 + b2 + white * 0.5362) * 0.11;
+        }
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    // Ear-to-ear 3D panning calculation based on horizontal physical key position
+    function calculatePan(key) {
+      if (!stereoEnabled || !key) return 0;
+      const k = key.toLowerCase();
+      if (['`', '1', '2', 'q', 'a', 'z', 'tab', 'capslock', 'shift'].includes(k)) return -0.42;
+      if (['3', '4', 'w', 'e', 's', 'd', 'x', 'c'].includes(k)) return -0.22;
+      if (['5', '6', 'r', 't', 'f', 'g', 'v', 'b', ' '].includes(k)) return 0;
+      if (['7', '8', 'y', 'u', 'h', 'j', 'n', 'm'].includes(k)) return 0.22;
+      if (['9', '0', '-', '=', 'i', 'o', 'p', 'k', 'l', 'enter', 'backspace'].includes(k)) return 0.42;
+      return 0;
+    }
+
+    // Rolling typing speed tracking
+    function updateWpm() {
+      const now = Date.now();
+      keyTimestamps.push(now);
+      keyTimestamps = keyTimestamps.filter(t => now - t < 3000);
+      const wpm = Math.round(keyTimestamps.length * 4);
+      
+      const wpmEl = document.getElementById('wpm-val');
+      const wpmDot = document.getElementById('wpm-dot');
+      if (wpmEl) wpmEl.innerText = wpm;
+      if (wpmDot && wpm > 0) {
+        wpmDot.style.transform = 'scale(1.4)';
+        setTimeout(() => { if (wpmDot) wpmDot.style.transform = 'scale(1)'; }, 100);
+      }
+      return wpm;
+    }
+
+    setInterval(() => {
+      const now = Date.now();
+      keyTimestamps = keyTimestamps.filter(t => now - t < 3000);
+      const wpm = Math.round(keyTimestamps.length * 4);
+      const wpmEl = document.getElementById('wpm-val');
+      if (wpmEl) wpmEl.innerText = wpm;
+    }, 1000);
+
+    // Vintage typewriter carriage return bell synthesized with dual harmonics
+    function playBell() {
+      if (isGloballyMuted) return;
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const bellGain = ctx.createGain();
+
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(1860, now);
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(3720, now);
+
+      bellGain.gain.setValueAtTime(0.35, now);
+      bellGain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+
+      osc1.connect(bellGain);
+      osc2.connect(bellGain);
+      bellGain.connect(ctx.destination);
+
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 0.55);
+      osc2.stop(now + 0.55);
+    }
+
+    // Main procedural switch synthesis pipeline
+    function playSwitchSound(key = 'a', isRelease = false) {
+      if (isGloballyMuted) return;
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+      const isSpace = key === ' ' || key === 'space';
+      const isEnter = key === 'Enter' || key === 'enter';
+      
+      // Organic pitch jitter: ±4% variance per physical keystroke
+      const jitter = 0.96 + Math.random() * 0.08;
+
+      if (bellEnabled && isEnter && !isRelease) {
+        playBell();
+      }
+
+      // WPM pitch ramp for rewarding flow state
+      let speedMultiplier = 1.0;
+      if (wpmDynamicsEnabled && !isRelease) {
+        const wpm = updateWpm();
+        if (wpm > 60) speedMultiplier = 1 + Math.min(0.18, (wpm - 60) * 0.0025);
+      }
+
+      const pitchMult = jitter * speedMultiplier;
+
+      // Master Key Gain Node
+      const keyGain = ctx.createGain();
+      keyGain.gain.setValueAtTime(isRelease ? masterVolume * 0.35 : masterVolume, now);
+
+      // Deskmat Acoustic Resonance Filter
+      const deskmatNode = ctx.createGain();
+      if (deskmatMaterial === 'felt') {
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(950, now);
+        keyGain.connect(filter);
+        filter.connect(deskmatNode);
+      } else if (deskmatMaterial === 'wood') {
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'peaking';
+        filter.frequency.setValueAtTime(280, now);
+        filter.gain.setValueAtTime(5, now);
+        keyGain.connect(filter);
+        filter.connect(deskmatNode);
+      } else if (deskmatMaterial === 'metal') {
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'peaking';
+        filter.frequency.setValueAtTime(3200, now);
+        filter.gain.setValueAtTime(4, now);
+        keyGain.connect(filter);
+        filter.connect(deskmatNode);
+      } else {
+        keyGain.connect(deskmatNode);
+      }
+
+      // 3D Spatial Stereo Panning
+      if (stereoEnabled && ctx.createStereoPanner) {
+        const panner = ctx.createStereoPanner();
+        panner.pan.setValueAtTime(calculatePan(key), now);
+        deskmatNode.connect(panner);
+        panner.connect(ctx.destination);
+      } else {
+        deskmatNode.connect(ctx.destination);
+      }
+
+      // Update HUD & Meter UI
+      animateMeter(calculatePan(key), key);
+
+      // Procedural Synthesis profiles
+      const decayScale = isRelease ? 0.6 : 1.0;
+
+      if (currentProfile === 'thock') {
+        // Bottom-out sub sine
+        const osc = ctx.createOscillator();
+        const oscGain = ctx.createGain();
+        osc.type = 'sine';
+        const startFreq = (isSpace ? 95 : 130) * pitchMult;
+        const endFreq = (isSpace ? 45 : 65) * pitchMult;
+        osc.frequency.setValueAtTime(startFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, now + 0.05 * decayScale);
+
+        oscGain.gain.setValueAtTime(isSpace ? 0.85 : 0.65, now);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, now + (isSpace ? 0.09 : 0.07) * decayScale);
+
+        osc.connect(oscGain);
+        oscGain.connect(keyGain);
+        osc.start(now);
+        osc.stop(now + 0.1);
+
+        // Pink noise transient
+        const noise = ctx.createBufferSource();
+        noise.buffer = noiseBuffer;
+        const noiseFilter = ctx.createBiquadFilter();
+        noiseFilter.type = 'lowpass';
+        noiseFilter.frequency.setValueAtTime((isSpace ? 1200 : 1800) * pitchMult, now);
+
+        const noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.4, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.035 * decayScale);
+
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(keyGain);
+        noise.start(now);
+        noise.stop(now + 0.04);
+
+      } else if (currentProfile === 'creamy') {
+        // High-pitch marbly poppy switch
+        const osc = ctx.createOscillator();
+        const oscGain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(380 * pitchMult, now);
+        osc.frequency.exponentialRampToValueAtTime(160 * pitchMult, now + 0.04 * decayScale);
+
+        oscGain.gain.setValueAtTime(0.55, now);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05 * decayScale);
+
+        osc.connect(oscGain);
+        oscGain.connect(keyGain);
+        osc.start(now);
+        osc.stop(now + 0.06);
+
+        // Silky high bandpass noise
+        const noise = ctx.createBufferSource();
+        noise.buffer = noiseBuffer;
+        const noiseFilter = ctx.createBiquadFilter();
+        noiseFilter.type = 'bandpass';
+        noiseFilter.frequency.setValueAtTime(3800 * pitchMult, now);
+        noiseFilter.Q.setValueAtTime(4.5, now);
+
+        const noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.35, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.025 * decayScale);
+
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(keyGain);
+        noise.start(now);
+        noise.stop(now + 0.03);
+
+      } else if (currentProfile === 'clicky') {
+        // Crisp click-leaf transient
+        const noise = ctx.createBufferSource();
+        noise.buffer = noiseBuffer;
+        const noiseFilter = ctx.createBiquadFilter();
+        noiseFilter.type = 'bandpass';
+        noiseFilter.frequency.setValueAtTime(3200 * pitchMult, now);
+        noiseFilter.Q.setValueAtTime(3.5, now);
+
+        const noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.85, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.015 * decayScale);
+
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(keyGain);
+        noise.start(now);
+        noise.stop(now + 0.02);
+
+        // Metallic spring ring ping
+        const ping = ctx.createOscillator();
+        const pingGain = ctx.createGain();
+        ping.type = 'triangle';
+        ping.frequency.setValueAtTime(1100 * pitchMult, now);
+        pingGain.gain.setValueAtTime(0.18, now);
+        pingGain.gain.exponentialRampToValueAtTime(0.001, now + 0.06 * decayScale);
+
+        ping.connect(pingGain);
+        pingGain.connect(keyGain);
+        ping.start(now);
+        ping.stop(now + 0.07);
+
+        // Bottom-out
+        const osc = ctx.createOscillator();
+        const oscGain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(180 * pitchMult, now);
+        osc.frequency.exponentialRampToValueAtTime(90 * pitchMult, now + 0.04);
+        oscGain.gain.setValueAtTime(0.3, now);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+        osc.connect(oscGain);
+        oscGain.connect(keyGain);
+        osc.start(now);
+        osc.stop(now + 0.05);
+
+      } else if (currentProfile === 'typewriter') {
+        // Heavy steel strike
+        const noise = ctx.createBufferSource();
+        noise.buffer = noiseBuffer;
+        const noiseFilter = ctx.createBiquadFilter();
+        noiseFilter.type = 'bandpass';
+        noiseFilter.frequency.setValueAtTime(2600 * pitchMult, now);
+        noiseFilter.Q.setValueAtTime(2.0, now);
+
+        const noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.9, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04 * decayScale);
+
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(keyGain);
+        noise.start(now);
+        noise.stop(now + 0.05);
+
+        // Body clunk
+        const clunk = ctx.createOscillator();
+        const clunkGain = ctx.createGain();
+        clunk.type = 'sawtooth';
+        clunk.frequency.setValueAtTime(140 * pitchMult, now);
+        clunkGain.gain.setValueAtTime(0.25, now);
+        clunkGain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+
+        clunk.connect(clunkGain);
+        clunkGain.connect(keyGain);
+        clunk.start(now);
+        clunk.stop(now + 0.07);
+
+      } else if (currentProfile === 'cyberpunk') {
+        // 80s terminal synthetic blip
+        const osc = ctx.createOscillator();
+        const oscGain = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(440 * pitchMult, now);
+        osc.frequency.exponentialRampToValueAtTime(220 * pitchMult, now + 0.05 * decayScale);
+
+        oscGain.gain.setValueAtTime(0.2, now);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05 * decayScale);
+
+        osc.connect(oscGain);
+        oscGain.connect(keyGain);
+        osc.start(now);
+        osc.stop(now + 0.06);
+
+      } else if (currentProfile === 'bubble') {
+        // Water pop
+        const osc = ctx.createOscillator();
+        const oscGain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(280 * pitchMult, now);
+        osc.frequency.exponentialRampToValueAtTime(620 * pitchMult, now + 0.035 * decayScale);
+
+        oscGain.gain.setValueAtTime(0.45, now);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.045 * decayScale);
+
+        osc.connect(oscGain);
+        oscGain.connect(keyGain);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      }
+    }
+
+    // UI Feedback Helpers
+    function animateMeter(pan, key) {
+      const bars = document.querySelectorAll('.meter-bar');
+      const activeCount = Math.floor(Math.random() * 3) + 2;
+      bars.forEach((b, i) => {
+        if (i < activeCount) {
+          b.classList.add('active');
+          setTimeout(() => b.classList.remove('active'), 100);
+        }
+      });
+
+      const hudKey = document.getElementById('hud-key');
+      const hudDetail = document.getElementById('hud-detail');
+      if (hudKey) hudKey.innerText = key === ' ' ? 'Spacebar' : key.toUpperCase();
+      if (hudDetail) {
+        const panStr = pan < 0 ? `Left (${pan.toFixed(2)})` : pan > 0 ? `Right (+${pan.toFixed(2)})` : 'Center (0.0)';
+        hudDetail.innerText = `${currentProfile.toUpperCase()} • Pan: ${panStr}`;
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    // Profile Pill Switches
+    document.querySelectorAll('.profile-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.profile-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentProfile = btn.getAttribute('data-profile');
+        playSwitchSound('a');
+      });
+    });
+
+    // Options Toggles
+    const stereoCheck = document.getElementById('stereo-check');
+    const wpmCheck = document.getElementById('wpm-check');
+    const bellCheck = document.getElementById('bell-check');
+    const deskmatSelect = document.getElementById('deskmat-check');
+    const volRange = document.getElementById('vol-range');
+
+    if (stereoCheck) stereoCheck.addEventListener('change', (e) => stereoEnabled = e.target.checked);
+    if (wpmCheck) wpmCheck.addEventListener('change', (e) => wpmDynamicsEnabled = e.target.checked);
+    if (bellCheck) bellCheck.addEventListener('change', (e) => bellEnabled = e.target.checked);
+    if (deskmatSelect) deskmatSelect.addEventListener('change', (e) => deskmatMaterial = e.target.value);
+    if (volRange) volRange.addEventListener('input', (e) => masterVolume = parseFloat(e.target.value));
+
+    // Mute Button & Shortcut
+    const muteBtn = document.getElementById('mute-toggle');
+    function toggleMute() {
+      isGloballyMuted = !isGloballyMuted;
+      if (muteBtn) {
+        muteBtn.classList.toggle('is-muted', isGloballyMuted);
+      }
+      showToast(isGloballyMuted ? 'Audio Muted' : 'Audio Enabled');
+    }
+    if (muteBtn) muteBtn.addEventListener('click', toggleMute);
+
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.altKey && e.key.toLowerCase() === 'm') {
+        e.preventDefault();
+        toggleMute();
+      }
+    });
+
+    // Copy Install Command
+    const copyPill = document.getElementById('copy-install');
+    if (copyPill) {
+      copyPill.addEventListener('click', () => {
+        navigator.clipboard.writeText('npm i @0xsharon/click-clack');
+        showToast('Copied: npm i @0xsharon/click-clack');
+      });
+    }
+
+    // Physical Keyboard Binding
+    const textarea = document.getElementById('typing-input');
+    const activeKeys = new Set();
+
+    function highlightKey(keyChar, isPressed) {
+      const escaped = CSS.escape(keyChar);
+      const lowerEscaped = CSS.escape(keyChar.toLowerCase());
+      let el = document.querySelector(`.key[data-key="${escaped}"]`) ||
+               document.querySelector(`.key[data-key="${lowerEscaped}"]`);
+      if (el) {
+        if (isPressed) el.classList.add('pressed');
+        else el.classList.remove('pressed');
+      }
+    }
+
+    textarea.addEventListener('keydown', (e) => {
+      if (e.repeat) return;
+      activeKeys.add(e.key);
+      highlightKey(e.key, true);
+      playSwitchSound(e.key, false);
+    });
+
+    textarea.addEventListener('keyup', (e) => {
+      activeKeys.delete(e.key);
+      highlightKey(e.key, false);
+      playSwitchSound(e.key, true);
+    });
+
+    // Virtual On-Screen Keycap Interaction
+    document.querySelectorAll('.key').forEach(keyEl => {
+      const keyVal = keyEl.getAttribute('data-key');
+      keyEl.addEventListener('mousedown', () => {
+        keyEl.classList.add('pressed');
+        playSwitchSound(keyVal, false);
+      });
+      keyEl.addEventListener('mouseup', () => {
+        keyEl.classList.remove('pressed');
+        playSwitchSound(keyVal, true);
+      });
+      keyEl.addEventListener('mouseleave', () => {
+        keyEl.classList.remove('pressed');
+      });
+    });
+
+    // Automatically sleep AudioContext when user leaves tab to save battery
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden' && audioCtx && audioCtx.state === 'running') {
+        audioCtx.suspend();
+      }
+    });
+  </script>
+</body>
+</html>

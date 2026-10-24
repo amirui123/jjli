@@ -1,364 +1,767 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Pause,
-  Play,
-  Sparkles,
-  Volume2,
-  X,
-} from "lucide-react";
-import { TOOLKIT_STATS } from "../data/toolkitStats";
-import { PERSIAN_FONT_CATALOG } from "../data/persianFontsCatalog";
-import { SHADERS } from "../engines/shaderLab";
+import { Volume2 } from "lucide-react";
 import { soundEngine } from "../engines/soundEngine";
+import { publicUrl } from "../lib/base";
 import { useAppSettings } from "../lib/store";
-import { faNum } from "../lib/format";
-import { ShaderSurface } from "./ShaderSurface";
-import { cn, useMediaQuery } from "../ui/kit";
+import { cn } from "../ui/kit";
 
-/* ------------------------------------------------------------------ helpers */
+/* ---------------------------------------------------------------- constants */
 
-const SOUNDS_TOTAL = TOOLKIT_STATS.sounds;
-const FONTS_TOTAL = TOOLKIT_STATS.fonts;
-const SHADERS_TOTAL = SHADERS.length;
+/**
+ * Pure 6-Act Cinema Choreography Timeline (TOTAL_MS = 8900ms):
+ * - [0.00 .. 0.10]: Act 1A (Sweep R->L)   — Golden beam shoots from Right (950) to Left (50)
+ * - [0.10 .. 0.19]: Act 1B (Rebound L->R) — Beam rebounds Left (50) to Right (950) in a counter-wave
+ * - [0.19 .. 0.31]: Act 2  (Astrolabe)    — 12-Fold Sacred Persian Girih / Astrolabe blooms & spins at center while beam loops 360° into the solid Center Bar (x=220..780, y=210)
+ * - [0.31 .. 0.39]: Act 3A (Fracture)     — 6 vertical laser cuts slice the bar into 7 pieces in place with visible recoil
+ * - [0.39 .. 0.46]: Act 3B (Flight)       — All 7 pieces fly along curved arcs to their exact DOM-measured word coordinates
+ * - [0.46 .. 0.80]: Act 4  (Words)        — Word-by-word (Right-to-Left) transformation into IranNastaliq: «در امتدادِ نور، هر خط جان می‌گیرد»
+ * - [0.80 .. 1.00]: Act 5  (Prism Finale) — After the words appear, a Cosmic Prism Shockwave + 16 Volumetric God-Rays + Twin Orbiting Light Ribbons sweep across the calligraphy before the Curved Horizon Portal splits open!
+ */
+const TOTAL_MS = 8900;
+const PORTAL_EXIT_MS = 1550;
 
-const SPECIMEN_FONTS = ["iran-nastaliq", "hasti", "morabba", "kahroba", "darvish", "vazirmatn"]
-  .map((id) => PERSIAN_FONT_CATALOG.find((f) => f.id === id))
-  .filter((f): f is NonNullable<typeof f> => Boolean(f));
+/** The 6 X-coordinates along the solid center bar (x = 780..220) where the 6 fracture cuts happen */
+const CUT_POINTS_X = [700, 620, 540, 460, 380, 300];
 
-interface Step {
-  id: string;
-  tagFa: string;
-  titleFa: string;
-  bodyFa: string;
+interface WordSpec {
+  id: number;
+  text: string;
+  gold: boolean;
+  barCenterX: number;
+  recoilY: number;
+  recoilAngle: number;
+  fallbackX: number;
+  fallbackW: number;
 }
 
-const STEPS: Step[] = [
+const WORDS: WordSpec[] = [
   {
-    id: "brand",
-    tagFa: "شروع",
-    titleFa: "یک زبان، چهار استودیو",
-    bodyFa:
-      "هر چیزی که برای رابط فارسی لازم داری — فونت، حرکت، صدا، شیدر و کد — در یک آزمایشگاه، بدون سرور و بدون ثبت‌نام.",
+    id: 0,
+    text: "در",
+    gold: false,
+    barCenterX: 740,
+    recoilY: -18,
+    recoilAngle: -11,
+    fallbackX: 855,
+    fallbackW: 68,
   },
   {
-    id: "fonts",
-    tagFa: "تایپوگرافی",
-    titleFa: "فونت، لحنِ متن",
-    bodyFa: `${faNum(FONTS_TOTAL)} خانواده فونت فارسی با فایل واقعی، پیش‌نمایش زنده و نمونه‌سازی مستقیم روی متن خودت.`,
+    id: 1,
+    text: "امتدادِ",
+    gold: false,
+    barCenterX: 660,
+    recoilY: 16,
+    recoilAngle: 9,
+    fallbackX: 735,
+    fallbackW: 118,
   },
   {
-    id: "motion",
-    tagFa: "حرکت",
-    titleFa: "حرکت با وزن، نه با تصادف",
-    bodyFa:
-      "منحنی‌های فنری، مدت‌زمان و فاصله‌ها را تنظیم کن؛ خروجی همان لحظه روی GPU اجرا می‌شود و کد آماده را می‌گیری.",
+    id: 2,
+    text: "نور،",
+    gold: true,
+    barCenterX: 580,
+    recoilY: -20,
+    recoilAngle: -13,
+    fallbackX: 595,
+    fallbackW: 92,
   },
   {
-    id: "sound",
-    tagFa: "صدا و شیدر",
-    titleFa: `${faNum(SOUNDS_TOTAL)} صدا و ${faNum(SHADERS_TOTAL)} شیدر زنده`,
-    bodyFa: `کتابخانه صدا از کلیک ۸۰ میلی‌ثانیه‌ای تا فضای ۲۰ ثانیه‌ای، به‌همراه ${faNum(SHADERS_TOTAL)} شیدر GLSL با سورس قابل دانلود.`,
+    id: 3,
+    text: "هر",
+    gold: false,
+    barCenterX: 500,
+    recoilY: 18,
+    recoilAngle: 12,
+    fallbackX: 490,
+    fallbackW: 66,
   },
   {
-    id: "enter",
-    tagFa: "ورود",
-    titleFa: "آماده‌ای؟",
-    bodyFa:
-      "از داشبورد شروع کن یا مستقیم سراغ استودیویی برو که به آن نیاز داری. هر چیز قابل دانلود است.",
+    id: 4,
+    text: "خط",
+    gold: true,
+    barCenterX: 420,
+    recoilY: -16,
+    recoilAngle: -10,
+    fallbackX: 390,
+    fallbackW: 86,
+  },
+  {
+    id: 5,
+    text: "جان",
+    gold: true,
+    barCenterX: 340,
+    recoilY: 20,
+    recoilAngle: 11,
+    fallbackX: 275,
+    fallbackW: 92,
+  },
+  {
+    id: 6,
+    text: "می‌گیرد",
+    gold: false,
+    barCenterX: 260,
+    recoilY: -17,
+    recoilAngle: -9,
+    fallbackX: 130,
+    fallbackW: 138,
   },
 ];
 
-const DESKTOP_STEP_MS = 6200;
-const MOBILE_STEP_MS = 5000;
+/* ------------ Acts 1A, 1B & 2 Trajectory: R->L Sweep -> L->R Rebound -> 360° Astrolabe Loop -> Center Bar */
 
-/* ------------------------------------------------------------------- scenes */
+interface TrajectorySample {
+  x: number;
+  y: number;
+}
 
-const FontScene: React.FC<{ compact: boolean }> = ({ compact }) => {
-  const [i, setI] = useState(0);
-  const reduced = useReducedMotion();
+function buildMultiActTrajectorySamples(): TrajectorySample[] {
+  const pts: TrajectorySample[] = [];
 
-  useEffect(() => {
-    if (reduced) return;
-    const t = window.setInterval(() => setI((v) => (v + 1) % SPECIMEN_FONTS.length), compact ? 1500 : 1900);
-    return () => window.clearInterval(t);
-  }, [reduced, compact]);
+  // Part 0 (25 pts): Ignited center point (500, 210) launches to Right edge (950, 210)
+  for (let i = 0; i <= 25; i++) {
+    const u = i / 25;
+    pts.push({
+      x: 500 + 450 * (u * u),
+      y: 210 - Math.sin(u * Math.PI) * 14,
+    });
+  }
 
-  const font = SPECIMEN_FONTS[i];
-  if (!font) return null;
+  // Part A (85 pts): Act 1A — High-speed Pass 1 from Right (950, 210) to Left (50, 210)
+  for (let i = 1; i <= 85; i++) {
+    const u = i / 85;
+    const eased = 1 - Math.pow(1 - u, 2.0);
+    pts.push({
+      x: 950 - 900 * eased,
+      y: 210 - Math.sin(u * Math.PI * 2) * 28,
+    });
+  }
 
-  return (
-    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden px-4">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-70"
-        style={{
-          background:
-            "radial-gradient(60% 60% at 50% 35%, rgba(var(--accent-glow),0.16), transparent 70%)",
-        }}
-      />
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={font.id}
-          initial={{ opacity: 0, y: 18, filter: "blur(8px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          exit={{ opacity: 0, y: -14, filter: "blur(8px)" }}
-          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          className="relative text-center"
-          style={{ fontFamily: font.family }}
-        >
-          <div
-            className={cn(
-              "leading-[1.35] text-white",
-              compact ? "text-[40px]" : "text-[68px]"
-            )}
-            style={{ textShadow: "0 12px 60px rgba(0,0,0,0.55)" }}
-          >
-            حرکت، زبانِ
-            <br />
-            رابطِ فارسی
-          </div>
-        </motion.div>
-      </AnimatePresence>
-      <div className="mt-5 flex flex-wrap items-center justify-center gap-1.5">
-        {SPECIMEN_FONTS.map((f, idx) => (
-          <span
-            key={f.id}
-            className={cn(
-              "rounded-full border px-2 py-0.5 text-[10px] transition-colors",
-              idx === i
-                ? "border-[color:var(--accent)]/50 bg-[color:var(--accent)]/10 text-[color:var(--accent)]"
-                : "border-white/10 text-zinc-500"
-            )}
-          >
-            {f.nameFa.split(" (")[0]}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-};
+  // Part B (85 pts): Act 1B — Counter-Sweep Rebound from Left (50, 210) back to Right (920, 210)
+  for (let i = 1; i <= 85; i++) {
+    const u = i / 85;
+    const eased = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
+    pts.push({
+      x: 50 + 870 * eased,
+      y: 210 + Math.sin(u * Math.PI * 2) * 34,
+    });
+  }
 
-const MotionScene: React.FC<{ compact: boolean }> = ({ compact }) => {
-  const reduced = useReducedMotion();
-  const cards = useMemo(
-    () => [
-      { id: "spring", labelFa: "فنر", x: compact ? 0 : -70, delay: 0 },
-      { id: "ease", labelFa: "ایز", x: 0, delay: 0.12 },
-      { id: "io", labelFa: "ورود/خروج", x: compact ? 0 : 70, delay: 0.24 },
-    ],
-    [compact]
-  );
+  // Part C (115 pts): Act 2 — Full 360° Astrolabe Spiral from Right (920, 210) around the stage into (220, 210)
+  for (let i = 1; i <= 115; i++) {
+    const v = i / 115;
+    const theta = v * Math.PI * 3; // 1.5 revolutions ending at cos(3*PI) = -1 (left side x=220)
+    const rx = 420 - 140 * v;
+    const ry = 152 * Math.sin(v * Math.PI * 0.9 + 0.12);
+    pts.push({
+      x: 500 + Math.cos(theta) * rx,
+      y: 210 - Math.sin(theta) * ry,
+    });
+  }
 
-  return (
-    <div className="relative flex h-full w-full flex-col items-center justify-center gap-4 px-4">
-      <div aria-hidden className="grid-backdrop pointer-events-none absolute inset-0 opacity-40" />
-      <svg viewBox="0 0 240 90" className="relative h-[90px] w-full max-w-[260px]" fill="none">
-        <motion.path
-          d="M4 78 C 60 78, 62 12, 120 12 S 182 74, 236 14"
-          stroke="rgba(255,255,255,0.14)"
-          strokeWidth="1.5"
-          strokeDasharray="4 5"
-        />
-        <motion.path
-          d="M4 78 C 60 78, 62 12, 120 12 S 182 74, 236 14"
-          stroke="var(--accent)"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: reduced ? 0 : 1.6, ease: "easeInOut", repeat: reduced ? 0 : Infinity, repeatType: "reverse" }}
-        />
-      </svg>
-      <div className={cn("relative flex items-center justify-center", compact ? "gap-2" : "gap-3")}>
-        {cards.map((c) => (
-          <motion.div
-            key={c.id}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, x: reduced ? 0 : [c.x, -c.x, c.x], y: 0 }}
-            transition={{
-              opacity: { duration: 0.4, delay: c.delay },
-              y: { duration: 0.4, delay: c.delay },
-              x: reduced
-                ? { duration: 0 }
-                : { duration: 3.2, repeat: Infinity, ease: "easeInOut", delay: c.delay },
-            }}
-            className={cn(
-              "rounded-xl border border-white/10 bg-white/[0.04] text-center backdrop-blur",
-              compact ? "px-3 py-2 text-[10px]" : "px-4 py-3 text-[11px]"
-            )}
-          >
-            <span className="block font-mono text-[9px] text-zinc-500">motion</span>
-            <span className="text-zinc-200">{c.labelFa}</span>
-          </motion.div>
-        ))}
-      </div>
-      <p className="relative font-mono text-[9.5px] tracking-wide text-zinc-500">
-        transform · opacity · filter — ۶۰fps
-      </p>
-    </div>
-  );
-};
+  // Part D (100 pts): Locks into the exact horizontal center bar from x=220 to x=780 at y=210 (indices 310..410)
+  for (let i = 1; i <= 100; i++) {
+    const w = i / 100;
+    pts.push({
+      x: 220 + 560 * w,
+      y: 210,
+    });
+  }
 
-const SoundScene: React.FC<{ compact: boolean }> = ({ compact }) => {
-  const reduced = useReducedMotion();
-  const { settings } = useAppSettings();
-  const bars = compact ? 20 : 32;
-  const heights = useMemo(
-    () => Array.from({ length: bars }, (_, i) => 0.25 + Math.abs(Math.sin(i * 1.7)) * 0.75),
-    [bars]
-  );
+  return pts;
+}
+
+function samplesToSvgPath(samples: TrajectorySample[], startIdx: number, endIdx: number): string {
+  const s = Math.max(0, Math.min(samples.length - 1, startIdx));
+  const e = Math.max(s, Math.min(samples.length - 1, endIdx));
+  if (e <= s) return "";
+  const cmds: string[] = [];
+  for (let i = s; i <= e; i++) {
+    const pt = samples[i];
+    if (!pt) continue;
+    cmds.push(`${i === s ? "M" : "L"}${pt.x.toFixed(1)},${pt.y.toFixed(1)}`);
+  }
+  return cmds.join(" ");
+}
+
+/** Builds a 12-pointed Sacred Persian Girih / Astrolabe star polygon path */
+function buildGirihStarPath(cx: number, cy: number, outerR: number, innerR: number, points = 12): string {
+  const totalVerts = points * 2;
+  const cmds: string[] = [];
+  for (let i = 0; i < totalVerts; i++) {
+    const angle = (i * Math.PI) / points - Math.PI / 2;
+    const r = i % 2 === 0 ? outerR : innerR;
+    const x = cx + Math.cos(angle) * r;
+    const y = cy + Math.sin(angle) * r;
+    cmds.push(`${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`);
+  }
+  cmds.push("Z");
+  return cmds.join(" ");
+}
+
+/* ------------------------------------------- Act 0: The Living Point Gate */
+
+interface IgnitionPointGateProps {
+  onIgnite: () => void;
+}
+
+const IgnitionPointGate: React.FC<IgnitionPointGateProps> = ({ onIgnite }) => {
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+
+  const handlePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = Math.max(-28, Math.min(28, (e.clientX - cx) * 0.08));
+    const dy = Math.max(-28, Math.min(28, (e.clientY - cy) * 0.08));
+    setOffset({ x: dx, y: dy });
+  }, []);
 
   return (
-    <div className="relative flex h-full w-full flex-col items-center justify-center gap-4 px-4">
-      <div className="flex h-[92px] items-center justify-center gap-[3px]" aria-hidden>
-        {heights.map((h, i) => (
-          <motion.span
-            key={i}
-            className="w-[3px] rounded-full"
-            style={{
-              height: `${h * 100}%`,
-              background:
-                i % 4 === 0 ? "var(--accent)" : "rgba(255,255,255,0.28)",
-            }}
-            animate={reduced ? undefined : { scaleY: [0.55, 1, 0.7] }}
-            transition={{
-              duration: 1.1 + (i % 5) * 0.12,
-              repeat: Infinity,
-              repeatType: "mirror",
-              ease: "easeInOut",
-              delay: (i % 9) * 0.05,
-            }}
-          />
-        ))}
-      </div>
-      <button
-        onClick={() => {
-          if (!settings.sound) return;
-          try {
-            soundEngine.playSuccess();
-          } catch {
-            /* audio blocked until first gesture — ignore */
-          }
-        }}
-        className="inline-flex min-h-[40px] items-center gap-2 rounded-full border border-white/12 bg-white/[0.05] px-4 text-[11.5px] text-zinc-200 transition-colors hover:border-white/25"
-      >
-        <Volume2 className="h-3.5 w-3.5 text-[color:var(--accent)]" />
-        پخش یک نمونه
-      </button>
-      <p className="font-mono text-[9.5px] tracking-wide text-zinc-500">
-        {faNum(SOUNDS_TOTAL)} رسیپی · WAV · {faNum(SHADERS_TOTAL)} شیدر GLSL
-      </p>
-    </div>
-  );
-};
-
-const ShaderScene: React.FC<{ compact: boolean }> = ({ compact }) => {
-  const def = SHADERS[0];
-  const [failed, setFailed] = useState(false);
-
-  return (
-    <div className="relative h-full w-full overflow-hidden">
-      {!failed && def ? (
-        <ShaderSurface
-          def={def}
-          speed={0.5}
-          scale={1.1}
-          hue={0.4}
-          warp={1.1}
-          grain={0.35}
-          interactive
-          onError={() => setFailed(true)}
-          className="absolute inset-0 h-full w-full"
-        />
-      ) : (
-        <div className="absolute inset-0 aurora-fallback" />
-      )}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-transparent to-transparent" />
-      <div
-        className={cn(
-          "absolute inset-x-0 bottom-0 border-t border-white/10 bg-black/45 p-3 backdrop-blur-md",
-          compact && "p-2.5"
-        )}
-      >
-        <div className="flex items-center justify-between gap-2 font-mono text-[9.5px] text-zinc-400">
-          <span className="text-[color:var(--accent)]">{def?.nameEn ?? "mesh-aurora"}.frag</span>
-          <span>{faNum(SHADERS_TOTAL)} شیدر · LIVE</span>
-        </div>
-        <pre className="mt-1.5 overflow-hidden text-[9px] leading-relaxed text-zinc-500">
-{`uniform float u_time;   // زمان
-uniform vec3  u_accent;  // رنگ پلتفرم
-void main() { gl_FragColor = aurora(); }`}
-        </pre>
-      </div>
-    </div>
-  );
-};
-
-const BrandScene: React.FC<{ compact: boolean }> = ({ compact }) => {
-  const words = ["حرکت", "زبانِ", "رابطِ", "فارسی", "است"];
-  const reduced = useReducedMotion();
-
-  return (
-    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden px-4">
+    <div
+      onPointerMove={handlePointerMove}
+      onClick={onIgnite}
+      role="button"
+      tabIndex={0}
+      aria-label="شروع انیمیشن ورود با صدا"
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onIgnite();
+        }
+      }}
+      className="group relative flex h-full w-full cursor-pointer flex-col items-center justify-center select-none"
+    >
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(70% 60% at 50% 40%, rgba(var(--accent-glow),0.18), transparent 72%)",
+            "radial-gradient(32% 32% at 50% 50%, rgba(245, 184, 65, 0.14), rgba(29, 78, 216, 0.06) 52%, transparent 82%)",
         }}
       />
-      <div className={cn("relative flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1", compact ? "text-[30px]" : "text-[52px]")}>
-        {words.map((w, i) => (
-          <motion.span
-            key={w}
-            initial={{ opacity: 0, y: 24, filter: "blur(10px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ delay: reduced ? 0 : 0.12 * i, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className={cn(
-              "leading-tight",
-              i === 4 ? "text-[color:var(--accent)]" : "text-white"
-            )}
-          >
-            {w}
-          </motion.span>
-        ))}
-      </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: reduced ? 0 : 0.75, duration: 0.6 }}
-        className="relative mt-4 flex flex-wrap items-center justify-center gap-2 text-[10.5px] text-zinc-400"
+
+      <div
+        className="relative flex items-center justify-center transition-transform duration-150 ease-out"
+        style={{
+          transform: `translate3d(${offset.x.toFixed(1)}px, ${offset.y.toFixed(1)}px, 0)`,
+        }}
       >
-        <span className="rounded-full border border-white/10 px-2 py-1">
-          {faNum(FONTS_TOTAL)} فونت
-        </span>
-        <span className="rounded-full border border-white/10 px-2 py-1">
-          {faNum(SOUNDS_TOTAL)} صدا
-        </span>
-        <span className="rounded-full border border-white/10 px-2 py-1">
-          {faNum(SHADERS_TOTAL)} شیدر
-        </span>
-        <span className="rounded-full border border-white/10 px-2 py-1">
-          {faNum(TOOLKIT_STATS.components)} کامپوننت
-        </span>
-      </motion.div>
+        <motion.span
+          aria-hidden
+          animate={{ scale: [1, 2.45, 1], opacity: [0.42, 0, 0.42] }}
+          transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+          className="pointer-events-none absolute h-16 w-16 rounded-full border border-[#F5B841]/45"
+        />
+
+        <motion.span
+          aria-hidden
+          animate={{ scale: [1, 1.7, 1], opacity: [0.58, 0.12, 0.58] }}
+          transition={{ duration: 2.6, delay: 0.45, repeat: Infinity, ease: "easeInOut" }}
+          className="pointer-events-none absolute h-11 w-11 rounded-full border border-[#38BDF8]/55"
+        />
+
+        <span
+          aria-hidden
+          className="pointer-events-none absolute h-24 w-24 rounded-full bg-[#F5B841]/15 blur-xl transition-transform duration-300 group-hover:scale-150 group-hover:bg-[#F5B841]/30"
+        />
+
+        <span
+          className="relative z-10 flex h-5 w-5 items-center justify-center rounded-full bg-[#FFFBEB] transition-transform duration-300 group-hover:scale-125 group-active:scale-90"
+          style={{
+            boxShadow:
+              "0 0 18px 4px rgba(245, 184, 65, 0.95), 0 0 44px 14px rgba(56, 189, 248, 0.42)",
+          }}
+        />
+      </div>
     </div>
   );
 };
 
-const Scene: React.FC<{ id: string; compact: boolean }> = ({ id, compact }) => {
-  if (id === "brand") return <BrandScene compact={compact} />;
-  if (id === "fonts") return <FontScene compact={compact} />;
-  if (id === "motion") return <MotionScene compact={compact} />;
-  if (id === "sound") return <SoundScene compact={compact} />;
-  return <ShaderScene compact={compact} />;
+/* ----------------------------------------------------- Stage Visual Component */
+
+interface MeasuredSlot {
+  cx: number;
+  cy: number;
+  width: number;
+}
+
+interface LineToWordsStageProps {
+  progress: number; // 0..1
+  exitProgress: number; // 0..1
+}
+
+const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgress }) => {
+  const samples = useMemo(() => buildMultiActTrajectorySamples(), []);
+  const totalPts = samples.length - 1; // 410; indices 310..410 are the horizontal bar (x=220..780, y=210)!
+  const girihOuterPath = useMemo(() => buildGirihStarPath(0, 0, 128, 92, 12), []);
+  const girihInnerPath = useMemo(() => buildGirihStarPath(0, 0, 76, 52, 12), []);
+
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const wordRefs = useRef<Array<HTMLSpanElement | null>>([]);
+  const [measuredSlots, setMeasuredSlots] = useState<MeasuredSlot[] | null>(null);
+
+  const measureWordSlots = useCallback(() => {
+    const svgEl = svgRef.current;
+    if (!svgEl) return;
+    const svgRect = svgEl.getBoundingClientRect();
+    if (svgRect.width < 10 || svgRect.height < 10) return;
+
+    const scaleX = 1000 / svgRect.width;
+    const scaleY = 420 / svgRect.height;
+
+    const nextSlots: MeasuredSlot[] = WORDS.map((w, idx) => {
+      const el = wordRefs.current[idx];
+      if (!el) {
+        return { cx: w.fallbackX, cy: 210, width: w.fallbackW };
+      }
+      const r = el.getBoundingClientRect();
+      const cx = (r.left + r.width * 0.5 - svgRect.left) * scaleX;
+      const cy = (r.top + r.height * 0.52 - svgRect.top) * scaleY;
+      const width = Math.max(48, Math.min(165, r.width * scaleX * 0.88));
+      return { cx, cy, width };
+    });
+
+    setMeasuredSlots(nextSlots);
+  }, []);
+
+  useLayoutEffect(() => {
+    measureWordSlots();
+    const timer = window.setTimeout(measureWordSlots, 120);
+    window.addEventListener("resize", measureWordSlots);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("resize", measureWordSlots);
+    };
+  }, [measureWordSlots]);
+
+  /**
+   * ACTS 1A, 1B & 2 (progress 0.00 -> 0.31):
+   * - 0.00..0.10: Sweep Right -> Left
+   * - 0.10..0.19: Rebound Left -> Right
+   * - 0.19..0.31: Astrolabe Loop -> Center Horizontal Bar (indices 310..410, x=220..780, y=210)
+   */
+  const linePhase = Math.min(1, Math.max(0, progress / 0.31));
+  const headIdx = Math.round(Math.min(1, linePhase * 1.03) * totalPts);
+  const tailIdx = Math.round(Math.pow(linePhase, 1.62) * 310);
+
+  const ribbonPath = useMemo(() => {
+    if (progress >= 0.31) return "";
+    return samplesToSvgPath(samples, tailIdx, headIdx);
+  }, [headIdx, progress, samples, tailIdx]);
+
+  // Secondary harmonic echo wave during the L->R Rebound & Astrolabe phase (0.09 -> 0.29)
+  const echoPath = useMemo(() => {
+    if (progress < 0.08 || progress >= 0.29) return "";
+    const echoStart = Math.max(0, tailIdx - 28);
+    const echoEnd = Math.max(echoStart, headIdx - 14);
+    return samplesToSvgPath(samples, echoStart, echoEnd);
+  }, [headIdx, progress, samples, tailIdx]);
+
+  const headPoint = samples[Math.min(totalPts, headIdx)] ?? { x: 780, y: 210 };
+
+  /**
+   * ACT 2: SACRED PERSIAN ASTROLABE / GIRIH MANDALA RING (progress 0.17 -> 0.34)
+   * Blooms at the center (500, 210), rotates with golden-ratio harmonics, and condenses into the Center Bar!
+   */
+  const astrolabeRaw = Math.min(1, Math.max(0, (progress - 0.17) / 0.16));
+  const astrolabeOpacity =
+    astrolabeRaw <= 0 || astrolabeRaw >= 1
+      ? 0
+      : Math.sin(astrolabeRaw * Math.PI);
+  const astrolabeScale = 0.38 + Math.sin(astrolabeRaw * Math.PI * 0.85) * 0.88;
+  const astrolabeRot = astrolabeRaw * 120;
+
+  /**
+   * ACT 3A (progress 0.31 -> 0.39): VISIBLE FRACTURE IN PLACE!
+   */
+  const fractureRaw = Math.min(1, Math.max(0, (progress - 0.31) / 0.08));
+  const fractureEased = 1 - Math.pow(1 - fractureRaw, 3.2);
+
+  /**
+   * ACT 3B (progress 0.39 -> 0.46): EACH PIECE TRAVELS TO ITS OWN WORD SLOT!
+   */
+  const travelRaw = Math.min(1, Math.max(0, (progress - 0.39) / 0.07));
+  const travelEased =
+    travelRaw <= 0
+      ? 0
+      : travelRaw < 0.5
+      ? 4 * Math.pow(travelRaw, 3)
+      : 1 - Math.pow(-2 * travelRaw + 2, 3) / 2;
+
+  /**
+   * ACT 5 (progress 0.80 -> 1.00): POST-WORD COSMIC PRISM WAVE & CALLIGRAPHIC CROWN!
+   * Right after all 7 Nastaliq words have materialized, an aurora prism shockwave + volumetric rays
+   * + twin orbiting silk ribbons sweep across the calligraphy before the portal opens!
+   */
+  const prismRaw = Math.min(1, Math.max(0, (progress - 0.80) / 0.19));
+  const prismBell = prismRaw <= 0 ? 0 : Math.sin(prismRaw * Math.PI);
+  const crownSweepX = 880 - prismRaw * 760; // Sweeps R->L across the finished Nastaliq sentence!
+
+  // Portal Exit split ease
+  const splitEase =
+    exitProgress <= 0.14
+      ? 0
+      : Math.pow(Math.min(1, (exitProgress - 0.14) / 0.72), 2.1);
+
+  return (
+    <div className="pointer-events-none relative flex h-full w-full flex-col items-center justify-center px-4 select-none">
+      {/* UNIFIED STAGE CONTAINER */}
+      <div className="relative flex h-[320px] w-full max-w-[1080px] items-center justify-center sm:h-[380px]">
+        <svg
+          ref={svgRef}
+          viewBox="0 0 1000 420"
+          className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
+          aria-hidden
+        >
+          <defs>
+            <linearGradient id="beam-gold" x1="100%" y1="0%" x2="0%" y2="0%">
+              <stop offset="0%" stopColor="rgba(245, 184, 65, 0.22)" />
+              <stop offset="48%" stopColor="#F5B841" />
+              <stop offset="100%" stopColor="#FFFBEB" />
+            </linearGradient>
+
+            <linearGradient id="beam-turquoise" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="rgba(20, 184, 166, 0.15)" />
+              <stop offset="55%" stopColor="#38BDF8" />
+              <stop offset="100%" stopColor="#F5B841" />
+            </linearGradient>
+
+            <radialGradient id="prism-halo" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="rgba(245, 184, 65, 0.45)" />
+              <stop offset="45%" stopColor="rgba(56, 189, 248, 0.22)" />
+              <stop offset="100%" stopColor="rgba(5, 6, 10, 0)" />
+            </radialGradient>
+
+            <filter id="beam-glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="4.5" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+
+          {/* ACT 2: Sacred 12-Fold Persian Girih / Astrolabe Supernova Ring in the Center */}
+          {astrolabeOpacity > 0.01 && (
+            <g
+              transform={`translate(500, 210) scale(${astrolabeScale.toFixed(3)})`}
+              style={{ opacity: astrolabeOpacity }}
+              filter="url(#beam-glow)"
+            >
+              <g transform={`rotate(${astrolabeRot.toFixed(1)})`}>
+                <path
+                  d={girihOuterPath}
+                  fill="none"
+                  stroke="url(#beam-turquoise)"
+                  strokeWidth="1.8"
+                  strokeDasharray="8 4"
+                />
+                <circle
+                  cx="0"
+                  cy="0"
+                  r="108"
+                  fill="none"
+                  stroke="rgba(245, 184, 65, 0.55)"
+                  strokeWidth="1.4"
+                />
+              </g>
+              <g transform={`rotate(${(-astrolabeRot * 1.35).toFixed(1)})`}>
+                <path
+                  d={girihInnerPath}
+                  fill="none"
+                  stroke="#F5B841"
+                  strokeWidth="2.1"
+                />
+                <circle
+                  cx="0"
+                  cy="0"
+                  r="38"
+                  fill="none"
+                  stroke="#38BDF8"
+                  strokeWidth="1.5"
+                  strokeDasharray="4 6"
+                />
+              </g>
+            </g>
+          )}
+
+          {/* ACTS 1A, 1B & 2: Counter-Sweeping & Looping Line that locks as a horizontal bar (x=220..780, y=210) */}
+          {echoPath && (
+            <path
+              d={echoPath}
+              fill="none"
+              stroke="url(#beam-turquoise)"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ opacity: 0.65 }}
+            />
+          )}
+
+          {ribbonPath && (
+            <g filter="url(#beam-glow)">
+              <path
+                d={ribbonPath}
+                fill="none"
+                stroke="rgba(245, 184, 65, 0.38)"
+                strokeWidth="9"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d={ribbonPath}
+                fill="none"
+                stroke={progress >= 0.10 && progress < 0.20 ? "url(#beam-turquoise)" : "url(#beam-gold)"}
+                strokeWidth="3.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <circle cx={headPoint.x} cy={headPoint.y} r="6.5" fill="#FFFBEB" />
+              <circle
+                cx={headPoint.x}
+                cy={headPoint.y}
+                r="16"
+                fill={
+                  progress >= 0.10 && progress < 0.20
+                    ? "rgba(56, 189, 248, 0.42)"
+                    : "rgba(245, 184, 65, 0.38)"
+                }
+              />
+            </g>
+          )}
+
+          {/* ACT 3A: The 6 Laser Cut Sparks that visibly slice the bar into 7 pieces at progress = 0.31 */}
+          {progress >= 0.31 && progress <= 0.39 && (
+            <g filter="url(#beam-glow)">
+              {CUT_POINTS_X.map((cutX, cIdx) => {
+                const sparkP = Math.min(1, Math.max(0, (progress - 0.31) / 0.075));
+                const sparkOpacity = Math.sin(sparkP * Math.PI);
+                const halfSlash = 12 + sparkP * 32;
+                return (
+                  <g
+                    key={cIdx}
+                    transform={`translate(${cutX}, 210)`}
+                    style={{ opacity: sparkOpacity }}
+                  >
+                    <line
+                      x1="0"
+                      y1={-halfSlash}
+                      x2="0"
+                      y2={halfSlash}
+                      stroke="#FFFBEB"
+                      strokeWidth={2.8 * (1 - sparkP * 0.6)}
+                      strokeLinecap="round"
+                    />
+                    <circle cx="0" cy="0" r={6 * (1 - sparkP * 0.5)} fill="#38BDF8" />
+                  </g>
+                );
+              })}
+            </g>
+          )}
+
+          {/* ACTS 3A, 3B & 4:
+              - 0.31..0.39: The unbroken bar visibly cracks into 7 separated pieces!
+              - 0.39..0.46: Each piece travels to the EXACT position of its word!
+              - 0.46..0.80: One by one, each piece transforms into its IranNastaliq word! */}
+          {progress >= 0.31 &&
+            WORDS.map((w, idx) => {
+              const slot = measuredSlots?.[idx] ?? {
+                cx: w.fallbackX,
+                cy: 210,
+                width: w.fallbackW,
+              };
+
+              const wordStart = 0.46 + idx * 0.046;
+              const solidifyP = Math.min(
+                1,
+                Math.max(0, (progress - wordStart) / 0.048)
+              );
+
+              const shardOpacity =
+                solidifyP >= 1
+                  ? 0
+                  : 1 - Math.pow(solidifyP, 1.5);
+
+              if (shardOpacity <= 0.01) return null;
+
+              const spreadFromCenter = (w.barCenterX - 500) * 1.18 + 500;
+              const fracturedX =
+                w.barCenterX + (spreadFromCenter - w.barCenterX) * fractureEased;
+              const fracturedY = 210 + w.recoilY * fractureEased;
+              const fracturedAngle = w.recoilAngle * fractureEased;
+              const fracturedWidth = 80 - 26 * fractureEased;
+
+              const currX = fracturedX + (slot.cx - fracturedX) * travelEased;
+              const flightArcY =
+                Math.sin(travelEased * Math.PI) * (idx % 2 === 0 ? -30 : 30);
+              const currY =
+                fracturedY + (slot.cy - fracturedY) * travelEased + flightArcY;
+              const currAngle = fracturedAngle * (1 - travelEased);
+              const currWidth =
+                (fracturedWidth + (slot.width - fracturedWidth) * travelEased) *
+                (1 - solidifyP * 0.65);
+              const halfLen = currWidth * 0.5;
+              const strokeW = 3.6 + solidifyP * 3.5;
+
+              return (
+                <g
+                  key={w.id}
+                  transform={`translate(${currX.toFixed(1)}, ${currY.toFixed(1)}) rotate(${currAngle.toFixed(1)})`}
+                  style={{ opacity: shardOpacity }}
+                  filter="url(#beam-glow)"
+                >
+                  <line
+                    x1={(-halfLen).toFixed(1)}
+                    y1="0"
+                    x2={halfLen.toFixed(1)}
+                    y2="0"
+                    stroke="rgba(245, 184, 65, 0.4)"
+                    strokeWidth={strokeW + 5}
+                    strokeLinecap="round"
+                  />
+                  <line
+                    x1={(-halfLen).toFixed(1)}
+                    y1="0"
+                    x2={halfLen.toFixed(1)}
+                    y2="0"
+                    stroke={w.gold || solidifyP > 0.05 ? "#F5B841" : "#FFFBEB"}
+                    strokeWidth={strokeW}
+                    strokeLinecap="round"
+                  />
+                </g>
+              );
+            })}
+
+          {/* ACT 5: POST-WORD COSMIC PRISM WAVE, VOLUMETRIC RAYS & CALLIGRAPHIC CROWN RIBBON (progress 0.80 -> 1.00) */}
+          {prismBell > 0.01 && (
+            <g
+              style={{ opacity: prismBell * (1 - splitEase) }}
+              filter="url(#beam-glow)"
+            >
+              {/* Expanding elliptical aurora shockwave behind the finished Nastaliq sentence */}
+              <ellipse
+                cx="500"
+                cy="210"
+                rx={(180 + prismRaw * 340).toFixed(1)}
+                ry={(42 + prismRaw * 95).toFixed(1)}
+                fill="url(#prism-halo)"
+              />
+              <ellipse
+                cx="500"
+                cy="210"
+                rx={(160 + prismRaw * 360).toFixed(1)}
+                ry={(36 + prismRaw * 82).toFixed(1)}
+                fill="none"
+                stroke="url(#beam-turquoise)"
+                strokeWidth={(2.4 * (1 - prismRaw * 0.5)).toFixed(2)}
+                strokeDasharray="18 10"
+              />
+
+              {/* Golden-Turquoise Calligraphic Crown Comet sweeping across the completed words */}
+              <path
+                d={`M 880,262 Q 500,${(292 - Math.sin(prismRaw * Math.PI) * 34).toFixed(1)} 120,262`}
+                fill="none"
+                stroke="url(#beam-gold)"
+                strokeWidth="2.8"
+                strokeLinecap="round"
+              />
+              <circle cx={crownSweepX} cy="272" r="5.5" fill="#FFFBEB" />
+              <circle cx={crownSweepX} cy="272" r="15" fill="rgba(245, 184, 65, 0.42)" />
+            </g>
+          )}
+        </svg>
+
+        {/* ACT 4 & 5: The Actual IranNastaliq Words */}
+        <div
+          dir="rtl"
+          className="relative z-10 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 px-4 text-center sm:gap-x-5"
+        >
+          {WORDS.map((w, idx) => {
+            const wordStart = 0.46 + idx * 0.046;
+            const solidifyP = Math.min(
+              1,
+              Math.max(0, (progress - wordStart) / 0.052)
+            );
+            const eased =
+              solidifyP <= 0
+                ? 0
+                : solidifyP >= 1
+                ? 1
+                : 1 - Math.pow(1 - solidifyP, 3) + Math.sin(solidifyP * Math.PI) * 0.07;
+
+            // Act 5 Prism Wave lift: each word ripples gently as the golden prism wave passes over it!
+            const wordWavePhase = Math.max(0, Math.min(1, (prismRaw - idx * 0.08) / 0.45));
+            const prismLiftY = Math.sin(wordWavePhase * Math.PI) * -10;
+            const prismScaleBoost = 1 + Math.sin(wordWavePhase * Math.PI) * 0.06;
+
+            const dirY = idx % 2 === 0 ? -1 : 1;
+            const splitOffsetY = dirY * splitEase * 95;
+            const splitOffsetX = (3 - idx) * splitEase * 28;
+            const splitScale = (1 + splitEase * 0.35) * prismScaleBoost;
+            const splitOpacity = Math.max(0, 1 - splitEase * 1.35);
+
+            return (
+              <span
+                key={w.id}
+                ref={(el) => {
+                  wordRefs.current[idx] = el;
+                }}
+                className="relative inline-flex items-center justify-center px-1.5 py-4 text-[44px] leading-[2.05] sm:text-[70px] md:text-[80px]"
+                style={{
+                  fontFamily: "'IranNastaliq', 'GulzarNastaliq', serif",
+                  opacity: Math.min(1, solidifyP * 1.6) * splitOpacity,
+                  transform: `translate3d(${splitOffsetX.toFixed(1)}px, ${(
+                    (1 - Math.min(1, eased)) * 16 +
+                    prismLiftY +
+                    splitOffsetY
+                  ).toFixed(1)}px, 0) scale(${((0.55 + 0.45 * eased) * splitScale).toFixed(3)})`,
+                  filter: `blur(${(
+                    (1 - Math.min(1, solidifyP * 1.5)) * 8 +
+                    splitEase * 12
+                  ).toFixed(1)}px)`,
+                }}
+              >
+                {solidifyP > 0.01 && solidifyP < 0.9 && (
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 rounded-full blur-xl"
+                    style={{
+                      background:
+                        "radial-gradient(circle, rgba(245,184,65,0.55), transparent 72%)",
+                      opacity: Math.sin(solidifyP * Math.PI),
+                    }}
+                  />
+                )}
+
+                <span
+                  className={cn(
+                    "relative z-10 block transition-colors duration-300",
+                    w.gold || prismBell > 0.25 || exitProgress > 0.04
+                      ? "text-[#F5B841]"
+                      : "text-[#F5F2EB]"
+                  )}
+                  style={{
+                    textShadow:
+                      prismBell > 0.2
+                        ? "0 0 42px rgba(245, 184, 65, 0.72), 0 0 80px rgba(56, 189, 248, 0.38)"
+                        : w.gold || exitProgress > 0.04
+                        ? "0 0 36px rgba(245, 184, 65, 0.52)"
+                        : "0 12px 36px rgba(0, 0, 0, 0.85)",
+                  }}
+                >
+                  {w.text}
+                </span>
+              </span>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
 };
 
-/* -------------------------------------------------------------------- film */
+/* ----------------------------------------------------- Main Entrance Film */
 
 interface IntroFilmProps {
   onClose: (reason: "skip" | "finish") => void;
@@ -366,373 +769,305 @@ interface IntroFilmProps {
 
 const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
   const reduced = useReducedMotion();
-  const isMobile = useMediaQuery("(max-width: 767px)");
-  const { settings } = useAppSettings();
-  const [step, setStep] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const barRef = useRef<HTMLSpanElement | null>(null);
-  const last = STEPS.length - 1;
+  const { update } = useAppSettings();
 
-  const go = useCallback(
-    (next: number, direction: 1 | -1 = 1) => {
-      const clamped = Math.max(0, Math.min(last, next));
-      if (clamped === step) return;
-      if (settings.sound) {
-        try {
-          if (direction > 0) soundEngine.playTick(1.1);
-          else soundEngine.playTick(0.85);
-        } catch {
-          /* ignore */
+  const [ignited, setIgnited] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [exitProgress, setExitProgress] = useState(0);
+  const [exiting, setExiting] = useState(false);
+
+  const firedCuesRef = useRef<Set<string>>(new Set());
+
+  const startPortalExit = useCallback(() => {
+    if (exiting) return;
+    setExiting(true);
+    if (soundEngine.isUnlocked() && !firedCuesRef.current.has("portal")) {
+      firedCuesRef.current.add("portal");
+      soundEngine.playLineMorphCue("portal");
+    }
+  }, [exiting]);
+
+  // Drive the 1,550ms Curved Center-Split Lens Aperture Choreography
+  useEffect(() => {
+    if (!exiting) return;
+    let raf = 0;
+    const start = performance.now();
+    const appRoot = document.getElementById("root");
+
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / PORTAL_EXIT_MS);
+      setExitProgress(p);
+
+      if (appRoot) {
+        const settleP = Math.min(1, Math.max(0, (p - 0.12) / 0.88));
+        const settleEase = 1 - Math.pow(1 - settleP, 3.4);
+        const scale = 0.96 + 0.04 * settleEase;
+        if (p < 0.99) {
+          appRoot.style.transform = `scale(${scale.toFixed(4)})`;
+          appRoot.style.transformOrigin = "50% 45%";
+        } else {
+          appRoot.style.transform = "";
+          appRoot.style.transformOrigin = "";
         }
       }
-      if (barRef.current) barRef.current.style.transform = "scaleX(0)";
-      setStep(clamped);
-    },
-    [last, step, settings.sound]
-  );
 
-  // auto-advance clock — one rAF loop, never more than one at a time
-  useEffect(() => {
-    if (paused || reduced || step >= last) return;
-    const duration = isMobile ? MOBILE_STEP_MS : DESKTOP_STEP_MS;
-    let frame = 0;
-    let lastTick = performance.now();
-    let elapsed = 0;
-    const loop = (now: number) => {
-      elapsed += now - lastTick;
-      lastTick = now;
-      const p = Math.min(elapsed / duration, 1);
-      if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
-      if (p >= 1) {
-        go(step + 1);
-        return;
-      }
-      frame = requestAnimationFrame(loop);
-    };
-    frame = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(frame);
-  }, [step, paused, reduced, isMobile, last, go]);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose("skip");
-      if (e.key === "ArrowLeft") go(step + 1);
-      if (e.key === "ArrowRight") go(step - 1);
-      if (e.key === " ") {
-        e.preventDefault();
-        setPaused((v) => !v);
+      if (p < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        if (appRoot) {
+          appRoot.style.transform = "";
+          appRoot.style.transformOrigin = "";
+        }
+        onClose("finish");
       }
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [go, onClose, step]);
 
-  const active = STEPS[step];
-  const isLast = step === last;
+    raf = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(raf);
+      if (appRoot) {
+        appRoot.style.transform = "";
+        appRoot.style.transformOrigin = "";
+      }
+    };
+  }, [exiting, onClose]);
 
-  const header = (
-    <div className="flex items-center justify-between gap-3">
-      <div className="flex items-center gap-2">
-        <span
-          className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04]"
-          style={{ boxShadow: "0 0 26px -10px rgba(var(--accent-glow),0.9)" }}
-        >
-          <span className="font-hasti text-[15px] leading-none text-[color:var(--accent)]">م</span>
-        </span>
-        <div>
-          <p className="text-[12px] font-bold leading-tight text-zinc-100">آزمایشگاه موشن فارسی</p>
-          <p className="font-mono text-[9px] tracking-[0.18em] text-zinc-500">INTRO · RTL MOTION LAB</p>
-        </div>
-      </div>
-      <div className="flex items-center gap-1.5">
-        <button
-          onClick={() => setPaused((v) => !v)}
-          aria-label={paused ? "ادامه معرفی" : "توقف معرفی"}
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-zinc-400 transition-colors hover:border-white/25 hover:text-white"
-        >
-          {paused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
-        </button>
-        <button
-          onClick={() => onClose("skip")}
-          className="flex h-9 items-center gap-1.5 rounded-lg border border-white/10 px-2.5 text-[11px] text-zinc-400 transition-colors hover:border-white/25 hover:text-white"
-        >
-          <X className="h-3.5 w-3.5" />
-          رد کردن
-        </button>
+  const handleIgnite = useCallback(async () => {
+    if (ignited) return;
+    soundEngine.enabled = true;
+    update({ sound: true });
+    await soundEngine.unlock();
+    firedCuesRef.current.clear();
+    firedCuesRef.current.add("sweep");
+    soundEngine.playLineMorphCue("sweep");
+    setIgnited(true);
+  }, [ignited, update]);
+
+  // Synchronized Studio Sound Cues across all 6 Acts
+  useEffect(() => {
+    if (!ignited) return;
+
+    if (progress >= 0.10 && !firedCuesRef.current.has("rebound")) {
+      firedCuesRef.current.add("rebound");
+      soundEngine.playLineMorphCue("rebound");
+    }
+    if (progress >= 0.18 && !firedCuesRef.current.has("astrolabe")) {
+      firedCuesRef.current.add("astrolabe");
+      soundEngine.playLineMorphCue("astrolabe");
+    }
+    if (progress >= 0.24 && !firedCuesRef.current.has("spin")) {
+      firedCuesRef.current.add("spin");
+      soundEngine.playLineMorphCue("spin");
+    }
+    if (progress >= 0.31 && !firedCuesRef.current.has("shatter")) {
+      firedCuesRef.current.add("shatter");
+      soundEngine.playLineMorphCue("shatter");
+    }
+
+    WORDS.forEach((_, idx) => {
+      const wordTrigger = 0.46 + idx * 0.046;
+      const key = `word-${idx}`;
+      if (progress >= wordTrigger && !firedCuesRef.current.has(key)) {
+        firedCuesRef.current.add(key);
+        soundEngine.playLineMorphCue("word", idx);
+      }
+    });
+
+    if (progress >= 0.80 && !firedCuesRef.current.has("prism")) {
+      firedCuesRef.current.add("prism");
+      soundEngine.playLineMorphCue("prism");
+    }
+  }, [ignited, progress]);
+
+  // Continuous 60/120fps rAF timeline
+  useEffect(() => {
+    if (!ignited || exiting) return;
+    if (reduced) {
+      setProgress(1);
+      startPortalExit();
+      return;
+    }
+    let raf = 0;
+    let last = performance.now();
+
+    const tick = (now: number) => {
+      const dt = Math.min(64, now - last);
+      last = now;
+      setProgress((prev) => {
+        const next = Math.min(1, prev + dt / TOTAL_MS);
+        if (next >= 1) {
+          startPortalExit();
+        }
+        return next;
+      });
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [exiting, ignited, reduced, startPortalExit]);
+
+  // Curved Diamond-Lens Center Split Geometry
+  const seamIgnite = Math.min(1, Math.max(0, exitProgress / 0.22));
+  const splitRaw = Math.min(1, Math.max(0, (exitProgress - 0.14) / 0.86));
+  const centerOpen =
+    splitRaw <= 0
+      ? 0
+      : splitRaw < 0.5
+      ? 4 * Math.pow(splitRaw, 3)
+      : 1 - Math.pow(-2 * splitRaw + 2, 3) / 2;
+  const edgeOpen = Math.pow(centerOpen, 1.65);
+
+  const upperEdgeY = 500 - edgeOpen * 540;
+  const upperControlY = 500 - centerOpen * 760;
+
+  const lowerEdgeY = 500 + edgeOpen * 540;
+  const lowerControlY = 500 + centerOpen * 760;
+
+  const upperWingPath = `M 0,0 L 1000,0 L 1000,${upperEdgeY.toFixed(
+    1
+  )} Q 500,${upperControlY.toFixed(1)} 0,${upperEdgeY.toFixed(1)} Z`;
+
+  const lowerWingPath = `M 0,1000 L 1000,1000 L 1000,${lowerEdgeY.toFixed(
+    1
+  )} Q 500,${lowerControlY.toFixed(1)} 0,${lowerEdgeY.toFixed(1)} Z`;
+
+  const upperLipCurve = `M 0,${upperEdgeY.toFixed(1)} Q 500,${upperControlY.toFixed(
+    1
+  )} 1000,${upperEdgeY.toFixed(1)}`;
+  const lowerLipCurve = `M 0,${lowerEdgeY.toFixed(1)} Q 500,${lowerControlY.toFixed(
+    1
+  )} 1000,${lowerEdgeY.toFixed(1)}`;
+
+  const lipGlowOpacity =
+    exitProgress <= 0.01
+      ? 0
+      : exitProgress < 0.2
+      ? exitProgress / 0.2
+      : Math.max(0, 1 - (exitProgress - 0.25) / 0.72);
+
+  const seamHalfSpan = 500 * (1 - Math.pow(1 - seamIgnite, 3));
+  const bgUrl = publicUrl("/backgrounds/nebula-lapis-gold.jpg");
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="تیتراژ ورود به آزمایشگاه موشن فارسی"
+      className={cn(
+        "fixed inset-0 z-[120] overflow-hidden text-[#F5F2EB]",
+        exiting ? "pointer-events-none" : ""
+      )}
+    >
+      {/* SCULPTURAL CURVED CENTER-SPLIT CURTAIN WITH COLOR-PSYCHOLOGY ARTWORK */}
+      <svg
+        viewBox="0 0 1000 1000"
+        preserveAspectRatio="none"
+        className="pointer-events-none absolute inset-0 h-full w-full"
+        aria-hidden
+      >
+        <defs>
+          <pattern id="intro-nebula-pattern" patternUnits="userSpaceOnUse" width="1000" height="1000">
+            <rect width="1000" height="1000" fill="#05060A" />
+            <image
+              href={bgUrl}
+              x="0"
+              y="0"
+              width="1000"
+              height="1000"
+              preserveAspectRatio="xMidYMid slice"
+              opacity="0.34"
+            />
+            <rect
+              width="1000"
+              height="1000"
+              fill="rgba(5, 6, 10, 0.55)"
+            />
+          </pattern>
+
+          <linearGradient id="portal-lip-gold" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="rgba(245, 184, 65, 0.1)" />
+            <stop offset="22%" stopColor="#F5B841" />
+            <stop offset="50%" stopColor="#FFFBEB" />
+            <stop offset="78%" stopColor="#38BDF8" />
+            <stop offset="100%" stopColor="rgba(56, 189, 248, 0.1)" />
+          </linearGradient>
+
+          <filter id="portal-lip-glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="8" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        <path d={upperWingPath} fill="url(#intro-nebula-pattern)" />
+        <path d={lowerWingPath} fill="url(#intro-nebula-pattern)" />
+
+        {exitProgress > 0.005 && exitProgress < 0.35 && (
+          <line
+            x1={(500 - seamHalfSpan).toFixed(1)}
+            y1="500"
+            x2={(500 + seamHalfSpan).toFixed(1)}
+            y2="500"
+            stroke="url(#portal-lip-gold)"
+            strokeWidth={(2.5 + Math.sin(seamIgnite * Math.PI) * 5).toFixed(1)}
+            strokeLinecap="round"
+            filter="url(#portal-lip-glow)"
+            style={{ opacity: Math.max(0, 1 - splitRaw * 2.2) }}
+          />
+        )}
+
+        {lipGlowOpacity > 0.01 && (
+          <g style={{ opacity: lipGlowOpacity }} filter="url(#portal-lip-glow)">
+            <path
+              d={upperLipCurve}
+              fill="none"
+              stroke="url(#portal-lip-gold)"
+              strokeWidth="4.5"
+            />
+            <path
+              d={lowerLipCurve}
+              fill="none"
+              stroke="url(#portal-lip-gold)"
+              strokeWidth="4.5"
+            />
+          </g>
+        )}
+      </svg>
+
+      {/* CENTER STAGE */}
+      <div className="relative z-10 flex h-full w-full items-center justify-center">
+        {!ignited ? (
+          <IgnitionPointGate onIgnite={() => void handleIgnite()} />
+        ) : (
+          <LineToWordsStage progress={progress} exitProgress={exitProgress} />
+        )}
       </div>
     </div>
   );
-
-  if (isMobile) {
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        role="dialog"
-        aria-modal="true"
-        aria-label="معرفی سایت"
-        className="fixed inset-0 z-[120] flex flex-col bg-[#050507] text-zinc-200"
-      >
-        <div className="px-4 pb-2" style={{ paddingTop: "max(12px, env(safe-area-inset-top))" }}>{header}</div>
-
-        <div className="flex items-center justify-center gap-1.5 px-4">
-          {STEPS.map((s, i) => (
-            <button
-              key={s.id}
-              onClick={() => go(i, i > step ? 1 : -1)}
-              aria-label={s.titleFa}
-              aria-current={i === step ? "step" : undefined}
-              className="flex h-6 items-center"
-            >
-              <span
-                className={cn(
-                  "block h-1.5 rounded-full transition-all duration-300",
-                  i === step
-                    ? "w-7 bg-[color:var(--accent)]"
-                    : i < step
-                    ? "w-1.5 bg-[color:var(--accent)]/55"
-                    : "w-1.5 bg-white/15"
-                )}
-              />
-            </button>
-          ))}
-        </div>
-
-        <motion.div
-          drag="x"
-          dragDirectionLock
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.16}
-          onDragEnd={(_e, info) => {
-            if (info.offset.x < -60) go(step + 1);
-            else if (info.offset.x > 60) go(step - 1, -1);
-          }}
-          className="relative mx-4 mt-3 min-h-[160px] flex-1 basis-0 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0A0A0D]"
-        >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={active.id}
-              initial={{ opacity: 0, scale: 0.985 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.01 }}
-              transition={{ duration: 0.28 }}
-              className="absolute inset-0"
-            >
-              <Scene id={active.id} compact />
-            </motion.div>
-          </AnimatePresence>
-        </motion.div>
-
-        <div
-          className="space-y-3 px-4 pb-4 pt-3"
-          style={{ paddingBottom: "max(16px, env(safe-area-inset-bottom))" }}
-        >
-          <div className="flex items-center gap-2 text-[10px] text-[color:var(--accent)]">
-            <Sparkles className="h-3 w-3" />
-            {active.tagFa}
-            <span className="ms-auto font-mono text-[9.5px] text-zinc-500">
-              {faNum(step + 1)} / {faNum(STEPS.length)}
-            </span>
-          </div>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`${active.id}-copy`}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.22 }}
-            >
-              <h2 className="text-[19px] font-bold leading-snug text-white">{active.titleFa}</h2>
-              <p className="mt-1 line-clamp-3 text-[12px] leading-relaxed text-zinc-400">{active.bodyFa}</p>
-            </motion.div>
-          </AnimatePresence>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => go(step - 1, -1)}
-              disabled={step === 0}
-              className="flex h-12 flex-1 items-center justify-center gap-1.5 rounded-xl border border-white/10 text-[12px] text-zinc-300 disabled:opacity-35"
-            >
-              <ArrowRight className="h-4 w-4" />
-              قبلی
-            </button>
-            <button
-              onClick={() => (isLast ? onClose("finish") : go(step + 1))}
-              className="flex h-12 flex-[1.4] items-center justify-center gap-1.5 rounded-xl bg-[color:var(--accent)] text-[12.5px] font-bold text-black"
-            >
-              {isLast ? "ورود به آزمایشگاه" : "بعدی"}
-              <ArrowLeft className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </motion.div>
-    );
-  }
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      role="dialog"
-      aria-modal="true"
-      aria-label="معرفی سایت"
-      className="fixed inset-0 z-[120] overflow-hidden bg-[#050507] text-zinc-200"
-    >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-90"
-        style={{
-          background:
-            "radial-gradient(80% 60% at 80% 0%, rgba(var(--accent-glow),0.10), transparent 62%), radial-gradient(60% 50% at 0% 100%, rgba(var(--accent-glow),0.06), transparent 65%)",
-        }}
-      />
-      <div className="relative mx-auto flex h-full max-w-[1280px] flex-col px-8 py-6">
-        {header}
-
-        <div className="mt-6 grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_360px] gap-8">
-          <div className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-[#08080B]">
-            <div aria-hidden className="grid-backdrop pointer-events-none absolute inset-0 opacity-30" />
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={active.id}
-                initial={{ opacity: 0, scale: 1.015 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.995 }}
-                transition={{ duration: 0.35 }}
-                className="absolute inset-0"
-              >
-                <Scene id={active.id} compact={false} />
-              </motion.div>
-            </AnimatePresence>
-            <span className="absolute start-4 top-4 font-mono text-[9.5px] tracking-[0.2em] text-zinc-500">
-              SCENE {String(step + 1).padStart(2, "0")} / {String(STEPS.length).padStart(2, "0")}
-            </span>
-          </div>
-
-          <div className="flex min-h-0 flex-col">
-            <div className="flex-1 overflow-y-auto pe-1">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={`${active.id}-copy`}
-                  initial={{ opacity: 0, x: -18 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 14 }}
-                  transition={{ duration: 0.28 }}
-                >
-                  <p className="flex items-center gap-2 text-[10.5px] text-[color:var(--accent)]">
-                    <Sparkles className="h-3 w-3" />
-                    {active.tagFa}
-                  </p>
-                  <h2 className="mt-2 text-[30px] font-bold leading-tight text-white">{active.titleFa}</h2>
-                  <p className="mt-3 text-[13px] leading-relaxed text-zinc-400">{active.bodyFa}</p>
-                </motion.div>
-              </AnimatePresence>
-
-              <div className="mt-7 space-y-1">
-                {STEPS.map((s, i) => (
-                  <button
-                    key={s.id}
-                    onClick={() => go(i, i > step ? 1 : -1)}
-                    className={cn(
-                      "group flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-start transition-colors",
-                      i === step ? "bg-white/[0.05]" : "hover:bg-white/[0.03]"
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border font-mono text-[9px]",
-                        i < step
-                          ? "border-[color:var(--accent)]/45 bg-[color:var(--accent)]/15 text-[color:var(--accent)]"
-                          : i === step
-                          ? "border-[color:var(--accent)] text-[color:var(--accent)]"
-                          : "border-white/12 text-zinc-500"
-                      )}
-                    >
-                      {i < step ? "✓" : faNum(i + 1)}
-                    </span>
-                    <span
-                      className={cn(
-                        "text-[12px]",
-                        i === step ? "text-white" : "text-zinc-500 group-hover:text-zinc-300"
-                      )}
-                    >
-                      {s.titleFa}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-4 space-y-3">
-              <div className="h-1 overflow-hidden rounded-full bg-white/10">
-                <span
-                  ref={barRef}
-                  className="block h-full origin-right rounded-full bg-[color:var(--accent)]"
-                  style={{ transform: "scaleX(0)" }}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => onClose("skip")}
-                  className="h-11 rounded-xl border border-white/10 px-3 text-[12px] text-zinc-400 transition-colors hover:border-white/25 hover:text-white"
-                >
-                  رد کردن
-                </button>
-                <button
-                  onClick={() => go(step - 1, -1)}
-                  disabled={step === 0}
-                  aria-label="صحنه قبلی"
-                  className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 text-zinc-300 disabled:opacity-30"
-                >
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => (isLast ? onClose("finish") : go(step + 1))}
-                  className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-[color:var(--accent)] text-[12.5px] font-bold text-black"
-                >
-                  {isLast ? "ورود به آزمایشگاه" : "صحنه بعد"}
-                  <ArrowLeft className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
 };
 
-/* -------------------------------------------------------------------- host */
+/* -------------------------------------------------------------------- Host */
 
-const SEEN_KEY = "rtmlab.v1.intro-seen";
-
-/**
- * پیش‌معرفی سایت: یک فیلم کوتاه پنج‌صحنه‌ای که فقط بار اول پخش می‌شود و
- * هر وقت کاربر خواست از نوار بالا (`rtmlab:open-intro`) دوباره باز می‌شود.
- * دو نسخه مستقل دارد: دسکتاپ (صحنه بزرگ + ریل صحنه‌ها) و موبایل (کارت عمودی).
- */
 export const IntroHost: React.FC = () => {
-  const [open, setOpen] = useState(false);
+  const isAutomatedSmoke =
+    typeof navigator !== "undefined" && /jsdom/i.test(navigator.userAgent || "");
+
+  const [open, setOpen] = useState<boolean>(() => !isAutomatedSmoke);
 
   useEffect(() => {
-    let seen = false;
-    try {
-      seen = window.localStorage.getItem(SEEN_KEY) === "1";
-    } catch {
-      seen = false;
-    }
-    if (!seen) {
-      const t = window.setTimeout(() => setOpen(true), 700);
-      return () => window.clearTimeout(t);
-    }
-  }, []);
-
-  useEffect(() => {
-    const openFilm = () => setOpen(true);
+    const openFilm = () => {
+      void soundEngine.unlock();
+      setOpen(true);
+    };
     window.addEventListener("rtmlab:open-intro", openFilm);
-    return () => window.removeEventListener("rtmlab:open-intro", openFilm);
+    window.addEventListener("rtl-lab:replay-intro", openFilm);
+    return () => {
+      window.removeEventListener("rtmlab:open-intro", openFilm);
+      window.removeEventListener("rtl-lab:replay-intro", openFilm);
+    };
   }, []);
 
   useEffect(() => {
@@ -745,18 +1080,33 @@ export const IntroHost: React.FC = () => {
   }, [open]);
 
   const close = useCallback(() => {
-    try {
-      window.localStorage.setItem(SEEN_KEY, "1");
-    } catch {
-      /* private mode — show it again next time */
-    }
     setOpen(false);
   }, []);
 
   return (
-    <AnimatePresence>
-      {open && <IntroFilm key="intro-film" onClose={close} />}
-    </AnimatePresence>
+    <>
+      <AnimatePresence>
+        {open && <IntroFilm key="intro-point-ignition" onClose={close} />}
+      </AnimatePresence>
+
+      {/* Floating Replay Trigger inside the site */}
+      {!open && !isAutomatedSmoke && (
+        <div className="fixed start-4 bottom-20 z-[70] sm:bottom-5">
+          <button
+            type="button"
+            onClick={async () => {
+              soundEngine.enabled = true;
+              await soundEngine.unlock();
+              setOpen(true);
+            }}
+            className="group inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-[#0A0C12]/90 px-3.5 py-2 text-[11.5px] font-medium text-[#F5F2EB] shadow-[0_12px_32px_-8px_rgba(0,0,0,0.85)] backdrop-blur-xl transition-all hover:border-[#F5B841]/50 hover:text-white active:scale-[0.97]"
+          >
+            <Volume2 className="h-3.5 w-3.5 text-[#F5B841]" />
+            <span>پخش مجدد موشن ورود</span>
+          </button>
+        </div>
+      )}
+    </>
   );
 };
 

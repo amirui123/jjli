@@ -1,0 +1,200 @@
+import { DEFAULT_DPR_FACTOR, IS_BROWSER, LOTTIE_JSON_MANDATORY_FIELDS, ZIP_SIGNATURE } from './constants';
+
+/**
+ * Validates if a string is a valid hex color in #RRGGBB or #RRGGBBAA format.
+ * @param color - Color string to validate
+ * @returns True if valid hex color format, false otherwise
+ */
+export function isHexColor(color: string): boolean {
+  return /^#([\da-f]{6}|[\da-f]{8})$/iu.test(color);
+}
+
+/**
+ * Converts a hex color string to an RGBA integer for WASM consumption.
+ * Adds full opacity (alpha = 255, 0xFF in hex) if alpha channel is not specified.
+ * @param colorHex - Hex color string (e.g., '#FFFFFF' or '#FFFFFFFF')
+ * @returns RGBA value as a 32-bit integer, or 0 if invalid hex color
+ */
+export function hexStringToRGBAInt(colorHex: string): number {
+  if (!isHexColor(colorHex)) {
+    return 0;
+  }
+
+  let hex = colorHex.replace('#', '');
+
+  // Add alpha if it's not included
+  hex = hex.length === 6 ? `${hex}ff` : hex;
+
+  return parseInt(hex, 16);
+}
+
+/**
+ * Converts a hex color string to RGBA float components in [0, 1].
+ * @param colorHex - Hex color string (e.g., '#FFFFFF' or '#RRGGBBAA')
+ * @returns Tuple of [r, g, b, a] as floats in [0, 1], or [0, 0, 0, 0] if invalid
+ */
+export function hexStringToRGBAFloats(colorHex: string): [number, number, number, number] {
+  if (!isHexColor(colorHex)) {
+    return [0, 0, 0, 0];
+  }
+
+  let hex = colorHex.replace('#', '');
+
+  hex = hex.length === 6 ? `${hex}ff` : hex;
+
+  const r = parseInt(hex.slice(0, 2), 16) / 255;
+  const g = parseInt(hex.slice(2, 4), 16) / 255;
+  const b = parseInt(hex.slice(4, 6), 16) / 255;
+  const a = parseInt(hex.slice(6, 8), 16) / 255;
+
+  return [r, g, b, a];
+}
+
+/**
+ * Detects if file data is a .lottie file by checking for ZIP signature.
+ * dotLottie files are ZIP archives containing Lottie JSON and metadata.
+ * @param fileData - Raw file data as ArrayBuffer
+ * @returns True if data starts with ZIP signature, false otherwise
+ */
+export function isDotLottie(fileData: ArrayBuffer): boolean {
+  if (fileData.byteLength < 4) {
+    return false;
+  }
+
+  const fileSignature = new Uint8Array(fileData.slice(0, ZIP_SIGNATURE.byteLength));
+
+  for (let i = 0; i < ZIP_SIGNATURE.length; i += 1) {
+    if (ZIP_SIGNATURE[i] !== fileSignature[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Returns whether the given object looks like a valid Lottie JSON structure.
+ */
+export function isLottieJSON(json: Record<string, unknown>): boolean {
+  return LOTTIE_JSON_MANDATORY_FIELDS.every((field) => Object.hasOwn(json, field));
+}
+
+/**
+ * Detects if data is likely a Lottie animation. Strings are only checked for JSON-object shape;
+ * full parsing and validation is left to the core.
+ * @param fileData - Lottie data as JSON string or parsed object
+ * @returns True if data looks like Lottie JSON, false otherwise
+ */
+export function isLottie(fileData: string | Record<string, unknown>): boolean {
+  if (typeof fileData === 'string') {
+    return /^\s*\{/u.test(fileData) && /\}\s*$/u.test(fileData);
+  }
+
+  return isLottieJSON(fileData);
+}
+
+/**
+ * Calculates the default device pixel ratio with a scaling factor.
+ * Applies a factor to balance quality and performance on high-DPI displays.
+ * @returns Adjusted device pixel ratio value
+ */
+export function getDefaultDPR(): number {
+  const dpr = IS_BROWSER ? window.devicePixelRatio : 1;
+
+  return 1 + (dpr - 1) * DEFAULT_DPR_FACTOR;
+}
+
+/**
+ * Checks if an HTML element is currently visible within the browser viewport.
+ * Used to determine when to freeze/unfreeze rendering for performance optimization.
+ * @param element - HTMLElement to check visibility for
+ * @returns True if element is at least partially visible in viewport, false otherwise
+ */
+export function isElementInViewport(element: HTMLElement): boolean {
+  const rect = element.getBoundingClientRect();
+  const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+  const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+
+  return !(rect.bottom < 0 || rect.top > viewportHeight || rect.right < 0 || rect.left > viewportWidth);
+}
+
+/**
+ * Calculate pointer position relative to the canvas coordinate system
+ * @param event - The mouse or pointer event (target should be the canvas element)
+ * @returns The calculated position or null if calculation fails or target is not a valid canvas
+ */
+export function getPointerPosition(event: MouseEvent | PointerEvent): { x: number; y: number } | null {
+  const canvas = event.target;
+
+  if (canvas instanceof HTMLCanvasElement) {
+    const rect = canvas.getBoundingClientRect();
+
+    if (rect.width === 0 || rect.height === 0 || canvas.width === 0 || canvas.height === 0) {
+      return null;
+    }
+
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    const x = (event.clientX - rect.left) * scaleX;
+    const y = (event.clientY - rect.top) * scaleY;
+
+    if (!Number.isFinite(x) || !Number.isFinite(y) || Number.isNaN(x) || Number.isNaN(y)) {
+      return null;
+    }
+
+    return { x, y };
+  }
+
+  // Return null if target is not an HTMLCanvasElement or calculation fails
+  return null;
+}
+
+function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onerror = (): void => reject(reader.error ?? new Error('Failed to read image slot source'));
+    reader.onload = (): void => resolve(reader.result as string);
+    reader.readAsDataURL(blob);
+  });
+}
+
+/**
+ * Resolve an image-slot source for the WASM renderer, which can only decode embedded images.
+ * `http(s)://` URLs are fetched here and converted to a `data:` URI; `data:` URIs and
+ * package-relative file names are passed through unchanged for the core to resolve.
+ */
+export async function resolveImageSlotSrc(src: string): Promise<string> {
+  if (!/^https?:\/\//i.test(src)) {
+    return src;
+  }
+
+  const response = await fetch(src);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image slot source from URL: ${src}. ${response.status}: ${response.statusText}`);
+  }
+
+  return blobToDataUrl(await response.blob());
+}
+
+export function handleOpenUrl(message: string): void {
+  const content = message.replace('OpenUrl: ', '');
+
+  const targetSeparatorIndex = content.indexOf(' | Target: ');
+  let urlToOpen: string;
+  let target: string;
+
+  if (targetSeparatorIndex === -1) {
+    // Format: "OpenUrl: {url}"
+    urlToOpen = content;
+    target = '_blank';
+  } else {
+    // Format: "OpenUrl: {url} | Target: {target}"
+    urlToOpen = content.substring(0, targetSeparatorIndex);
+    target = content.substring(targetSeparatorIndex + ' | Target: '.length);
+  }
+
+  window.open(urlToOpen, target);
+}

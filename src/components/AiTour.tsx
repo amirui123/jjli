@@ -67,7 +67,11 @@ export const AiTour: React.FC = () => {
     let tries = 0;
     let timer = 0;
     const attempt = () => {
-      const introOpen = Boolean(document.querySelector('[aria-label="معرفی سایت"]'));
+      const introOpen = Boolean(
+        document.querySelector(
+          '[aria-label="معرفی سایت"], [aria-label="تیتراژ ورود به آزمایشگاه موشن فارسی"]'
+        )
+      );
       if (introOpen && tries < 12) {
         tries += 1;
         timer = window.setTimeout(attempt, 900);

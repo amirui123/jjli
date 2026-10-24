@@ -112,6 +112,8 @@ export interface AppSettings {
   motionLevel: 1 | 2 | 3; // ۱ = کم، ۲ = معمول، ۳ = کامل
   reduceMotion: boolean;
   displayFont: string; // css class used for display typography
+  fontScale: 1 | 1.08 | 1.15;
+  highContrast: boolean;
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -121,6 +123,8 @@ const DEFAULT_SETTINGS: AppSettings = {
   motionLevel: 3,
   reduceMotion: false,
   displayFont: "font-hasti",
+  fontScale: 1,
+  highContrast: false,
 };
 
 interface Ctx {
@@ -158,9 +162,20 @@ export function AppSettingsProvider({ children }: { children: React.ReactNode })
     const root = document.documentElement;
     root.style.setProperty("--accent", accent.hex);
     root.style.setProperty("--accent-glow", accent.glow);
-    root.dataset.motion = settings.reduceMotion ? "reduced" : "full";
+    root.style.setProperty("--font-scale", String(settings.fontScale ?? 1));
+    root.dataset.motion = settings.reduceMotion || settings.motionLevel === 1 ? "reduced" : "full";
+    root.dataset.contrast = settings.highContrast ? "high" : "normal";
+    root.dataset.displayFont = settings.displayFont || "font-hasti";
     soundEngine.enabled = settings.sound;
-  }, [accent, settings.reduceMotion, settings.sound]);
+  }, [
+    accent,
+    settings.displayFont,
+    settings.fontScale,
+    settings.highContrast,
+    settings.motionLevel,
+    settings.reduceMotion,
+    settings.sound,
+  ]);
 
   const value = useMemo<Ctx>(
     () => ({ settings, update, reset, accent, motionScale }),

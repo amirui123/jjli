@@ -1,0 +1,14 @@
+{
+  "name": "web-ui-design",
+  "owner": { "name": "EPISTEX0", "url": "https://github.com/EPISTEX0" },
+  "description": "Web UI design skill for coding agents.",
+  "plugins": [
+    {
+      "name": "web-ui-design",
+      "source": "./",
+      "description": "Design web UI that looks deliberate, not generated: brief, references, direction, tokens, render loop, DESIGN.md.",
+      "category": "design",
+      "keywords": ["design", "frontend", "ui"]
+    }
+  ]
+}

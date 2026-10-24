@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Physarum</title>
+  <meta name="description" content="A slime mould in raw WebGL2: 262 144 agents growing a transport network, fed by your pointer.">
+  <meta name="theme-color" content="#050505">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23050505'/><path d='M6 26 Q12 14 16 16 T26 6 M16 16 L8 8 M16 16 L26 24' fill='none' stroke='%23ff2bd9' stroke-width='2' stroke-linecap='round'/></svg>">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; background: #050505; color: #fff; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow: hidden; }
+    canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 1200ms ease; touch-action: none; }
+    html.gl canvas { opacity: 1; }
+    .ui { position: fixed; left: 24px; right: 24px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; display: flex; justify-content: space-between; gap: 16px; pointer-events: none; }
+    .ui.top { top: 20px; }
+    .ui.bottom { bottom: 20px; opacity: .6; }
+    .ui span + span { opacity: .6; }
+    a { color: #ff2bd9; text-decoration: none; pointer-events: auto; }
+    a:hover { text-decoration: underline; }
+    .no-gl .ui.bottom::before { content: "This page needs WebGL2 with float textures. "; }
+    @media (prefers-reduced-motion: reduce) { canvas { transition: none; } }
+    @media (max-width: 600px) { .ui.bottom .keys { display: none; } }
+  </style>
+</head>
+<body>
+  <canvas id="gl" aria-label="A slime mould growing a glowing network" role="img"></canvas>
+  <p class="ui top"><span>Physarum <span id="kind"></span> <span id="count"></span></span><a href="https://ronancamus.com" rel="noopener">ronancamus.com</a></p>
+  <p class="ui bottom"><span>Move to feed it. Hold for a feast.<span class="keys"> Keys 1 to 4: temperament. H: hue. Space: pause. R: start over.</span></span><a href="https://github.com/RonanCamus/physarum" rel="noopener">source</a></p>
+  <script src="physarum.js" defer></script>
+</body>
+</html>

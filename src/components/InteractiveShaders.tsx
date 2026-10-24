@@ -52,8 +52,52 @@ export const InteractiveCobeGlobe: React.FC<{
 
     let animId = 0;
     let tick = 0;
+    let visible = true;
+
+    const io =
+      typeof IntersectionObserver !== "undefined"
+        ? new IntersectionObserver(
+            ([entry]) => {
+              visible = Boolean(entry?.isIntersecting);
+            },
+            { threshold: 0.02 }
+          )
+        : null;
+    io?.observe(canvas);
+
+    const cx = size / 2;
+    const cy = size / 2;
+    const radius = size * 0.39;
+
+    // Pre-allocated gradients outside 60fps loop to avoid per-frame GC pressure
+    const glow = ctx.createRadialGradient(
+      cx,
+      cy,
+      radius * 0.65,
+      cx,
+      cy,
+      radius * 1.22
+    );
+    glow.addColorStop(0, "rgba(99, 102, 241, 0.08)");
+    glow.addColorStop(0.6, "rgba(6, 182, 212, 0.14)");
+    glow.addColorStop(1, "rgba(9, 9, 11, 0)");
+
+    const sphereGrad = ctx.createRadialGradient(
+      cx - radius * 0.3,
+      cy - radius * 0.3,
+      radius * 0.1,
+      cx,
+      cy,
+      radius
+    );
+    sphereGrad.addColorStop(0, "#1E1E28");
+    sphereGrad.addColorStop(0.75, "#0B0B10");
+    sphereGrad.addColorStop(1, "#060609");
 
     const render = () => {
+      animId = requestAnimationFrame(render);
+      if (!visible || document.hidden) return;
+
       tick += 0.03;
       if (!isDragging.current) {
         rotationY.current += velocityY.current;
@@ -61,39 +105,14 @@ export const InteractiveCobeGlobe: React.FC<{
       }
 
       ctx.clearRect(0, 0, size, size);
-      const cx = size / 2;
-      const cy = size / 2;
-      const radius = size * 0.39;
 
       // Outer atmospheric glow
-      const glow = ctx.createRadialGradient(
-        cx,
-        cy,
-        radius * 0.65,
-        cx,
-        cy,
-        radius * 1.22
-      );
-      glow.addColorStop(0, "rgba(99, 102, 241, 0.08)");
-      glow.addColorStop(0.6, "rgba(6, 182, 212, 0.14)");
-      glow.addColorStop(1, "rgba(9, 9, 11, 0)");
       ctx.fillStyle = glow;
       ctx.beginPath();
       ctx.arc(cx, cy, radius * 1.22, 0, Math.PI * 2);
       ctx.fill();
 
       // Core dark sphere body
-      const sphereGrad = ctx.createRadialGradient(
-        cx - radius * 0.3,
-        cy - radius * 0.3,
-        radius * 0.1,
-        cx,
-        cy,
-        radius
-      );
-      sphereGrad.addColorStop(0, "#1E1E28");
-      sphereGrad.addColorStop(0.75, "#0B0B10");
-      sphereGrad.addColorStop(1, "#060609");
       ctx.fillStyle = sphereGrad;
       ctx.beginPath();
       ctx.arc(cx, cy, radius, 0, Math.PI * 2);
@@ -175,7 +194,10 @@ export const InteractiveCobeGlobe: React.FC<{
     };
 
     animId = requestAnimationFrame(render);
-    return () => cancelAnimationFrame(animId);
+    return () => {
+      cancelAnimationFrame(animId);
+      io?.disconnect();
+    };
   }, [accentHex, size]);
 
   return (

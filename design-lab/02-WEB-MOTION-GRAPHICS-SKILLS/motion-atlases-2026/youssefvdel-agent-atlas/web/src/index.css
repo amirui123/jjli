@@ -1,0 +1,221 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   agent-atlas — design tokens
+
+   The palette is the anchor repo's own: lucasmarkes/hairline
+   exposes five public theme properties, and the site takes its
+   colours from them. One bright mark means "the answer"; here
+   it means "the one thing worth your attention".
+
+   hairline LIGHT: plate #ffffff  hi #232327  edge #a4a4ac
+                   mid  #c3c3c9  lo  #e0e0e4
+   hairline DARK : plate #08090a  hi #d0d6e0  edge #5b5d64
+                   mid  #3e3e44  lo  #29292d
+   ───────────────────────────────────────────────────────────── */
+
+@theme {
+  --color-plate: #ffffff;
+  --color-ink: #232327;
+  --color-ink-soft: #4a4a52;
+  --color-edge: #a4a4ac;
+  --color-mid: #c3c3c9;
+  --color-lo: #e0e0e4;
+  --color-wash: #f5f5f7;
+
+  /* the one accent. hairline allows a single bright stroke. */
+  --color-signal: #0b5cff;
+  --color-signal-soft: #e8efff;
+
+  --font-display: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-text: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --radius-sharp: 2px;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-hairline: cubic-bezier(0.5, 0, 0.1, 1);
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+    /* hairline's own easing, reused for every transition here */
+    --ease: var(--ease-hairline);
+  }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --hairline-stroke: 1.35;
+    --color-plate: #08090a;
+    --color-ink: #d0d6e0;
+    --color-ink-soft: #b3b9c6;
+    --color-edge: #6e7079;
+    --color-mid: #46464e;
+    --color-lo: #29292d;
+    --color-wash: #101114;
+    --color-signal: #5b8cff;
+    --color-signal-soft: #101a3a;
+  }
+
+  * {
+    border-color: var(--color-lo);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-plate);
+    color: var(--color-ink);
+    font-family: var(--font-text);
+    font-feature-settings: "ss01" 1, "cv01" 1;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Browser surfaces carry the design too. This is the cheapest
+     signal that a page was built rather than assembled. */
+  ::selection {
+    background: var(--color-signal);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 1.5px solid var(--color-signal);
+    outline-offset: 2px;
+    border-radius: 1px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-plate);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-mid);
+    border: 2px solid var(--color-plate);
+    border-radius: 6px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-edge);
+  }
+
+  /* tabular figures wherever numbers align */
+  table,
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* The whole page is a measuring instrument. A "rule" is a real
+     hairline between regions — it carries structure, not decoration. */
+  .rule {
+    background: var(--color-lo);
+    height: 1px;
+    width: 100%;
+  }
+
+  .label {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    color: var(--color-ink-soft);
+    text-transform: none;
+  }
+
+  /* Display type. Tracking is tight but never so tight that two words
+     collide — at -0.035em "Most starred" rendered as "Moststarred". */
+  .display {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.022em;
+    line-height: 0.98;
+    word-spacing: 0.06em;
+  }
+
+  /* The big headline runs even tighter than section headings, but a
+     space still has to exist. */
+  .display-xl {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.032em;
+    line-height: 0.94;
+    word-spacing: 0.12em;
+  }
+
+  /* the read-out, borrowed from hairline: a name in a few characters,
+     in the corner, outside the drawing */
+  .readout {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-ink-soft);
+  }
+
+  /* hairline draws in pale grey by default. On a white ground that
+     reads as washed out, so the figure's strokes are darkened a step
+     and the plate is given the page's own ground. */
+  [data-hairline] {
+    /* a hairline is a hairline, but on a dark ground a 1px stroke
+       aliases badly. the figure gets a little more weight there. */
+    --hairline-stroke: 1.1;
+    --hairline-plate: var(--color-plate);
+    --hairline-edge: var(--color-ink-soft);
+    --hairline-mid: var(--color-edge);
+    --hairline-lo: var(--color-mid);
+    --hairline-hi: var(--color-ink);
+  }
+}
+
+@layer utilities {
+  .stagger > * {
+    animation: rise 620ms var(--ease-out-expo) both;
+  }
+  .stagger > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger > *:nth-child(2) { animation-delay: 70ms; }
+  .stagger > *:nth-child(3) { animation-delay: 140ms; }
+  .stagger > *:nth-child(4) { animation-delay: 210ms; }
+  .stagger > *:nth-child(5) { animation-delay: 280ms; }
+  .stagger > *:nth-child(6) { animation-delay: 350ms; }
+  .stagger > *:nth-child(7) { animation-delay: 420ms; }
+  .stagger > *:nth-child(8) { animation-delay: 490ms; }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 18px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* the signature move: a horizontal sweep, like a pointer crossing
+     a figure. Used once, on the hero, not everywhere. */
+  @keyframes sweep {
+    from { transform: translate3d(-100%, 0, 0); }
+    to   { transform: translate3d(100%, 0, 0); }
+  }
+
+  @keyframes pulse-mark {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

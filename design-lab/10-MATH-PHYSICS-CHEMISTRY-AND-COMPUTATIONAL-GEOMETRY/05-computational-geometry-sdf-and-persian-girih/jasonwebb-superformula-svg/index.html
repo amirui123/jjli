@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WNFY73WCVJ"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-WNFY73WCVJ');
+    </script>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>SuperformulaSVG for web</title>
+
+    <link rel="icon" type="image/png" href="http://jasonwebb.io/wp-content/themes/minimal-for-jasonwebbio/images/favicon.png" sizes="32x32">
+    <meta name="description" content="">
+    <meta name="author" content="Jason Webb">
+
+    <!-- OpenGraph for FB and G+ -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="SuperformulaSVG for web">
+    <meta property="og:description" content="A generative line art web app using the 2D superformula, with support for SVG and raster exporting.">
+    <meta property="og:url" content="https://jasonwebb.github.io/SuperformulaSVG-for-web/">
+    <meta property="og:site_name" content="Jason Webb on Github">
+    <meta property="og:image" content="https://jasonwebb.github.io/SuperformulaSVG-for-web/social-media-image.jpg">
+
+    <!-- Twitter card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:description" content="A generative line art web app using the 2D superformula, with support for SVG and raster exporting.">
+    <meta name="twitter:title" content="SuperformulaSVG for web">
+    <meta name="twitter:site" content="@jasonwebb">
+    <meta name="twitter:creator" content="@jasonwebb">
+    <meta name="twitter:image" content="https://jasonwebb.github.io/SuperformulaSVG-for-web/social-media-image.jpg">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <header class="logo">
+        <h1><a href="https://jasonwebb.github.io/SuperformulaSVG-for-web">SuperformulaSVG</a></h1>
+
+        <button class="help-icon-link icon-link hide" title="About this app">
+            <i class="fa fa-question-circle"></i>
+            <span class="sr-only">About this app</span>
+        </button>
+
+        <a href="https://github.com/jasonwebb/SuperformulaSVG-for-web" class="github-icon-link icon-link hide" title="See source code on Github">
+            <i class="fab fa-github" aria-hidden="true"></i>
+            <span class="sr-only">See source code on Github</span>
+        </a>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="row">
+                <button class="tune-block block">Tune <div>Dial in a <strong>specific</strong> shape</div></button>
+                <button class="range-block block">Discover <div>Create <strong>randomized</strong> shapes</div></button>
+            </div>
+
+            <div class="row">
+                <button class="help-link">What is this?</button>
+            </div>
+
+            <div class="row">
+                <a href="https://github.com/jasonwebb/SuperformulaSVG-for-web" class="github-link" title="See the source code on Github" aria-label="See the source code on Github"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+
+        <button class="back-link icon-link hide">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+            <span class="sr-only">Back</span>
+        </button>
+    </main>
+
+    <div class="help-modal modal hide" role="dialog" aria-modal="true" aria-label="instructions" tabindex="-1">
+        <div class="modal-content">
+            <p><strong>SuperformulaSVG</strong> is a generative art web app that lets you create funky shapes using the <a href="https://en.wikipedia.org/wiki/Superformula" target="_blank">2D superformula</a> and save them to your computer as either SVG or PNG images for use with plotters, laser cutters, and more.</p>
+            <p>You can use this app in two ways - to generate a specific shape by <u>tuning</u> the parameters, or to generate lots of shapes with parameters that are <u>randomized</u> within ranges.</u></p>
+
+            <div class="column">
+                <h2>Parameters</h2>
+                <ul>
+                    <li><span class="parameter">a</span> and <span class="parameter">b</span> affect X/Y stretching (sort of)</li>
+                    <li><span class="parameter">m</span> is degree of rotational symmetry (number of peaks)</li>
+                    <li><span class="parameter">n1</span> <span class="parameter">n2</span> <span class="parameter">n3</span> affect concavity/convexity of edges</li>
+                    <li><span class="parameter">iterations</span> is how many concentric shapes get drawn</li>
+                    <li><span class="parameter">decay</span> is subtracted from parameters each iteration</li>
+                    <li><strong>Only allow closed paths</strong> forces even values of <strong>m</strong></li>
+                </ul>
+            </div>
+
+            <div class="column">
+                <h2>Keyboard controls</h2>
+                <ul>
+                    <li><span class="key">Space</span> - generate new shapes</li>
+                    <li><span class="key">r</span> - randomize all parameters</li>
+                    <li><span class="key">i</span> - invert colors</li>
+                    <li><span class="key">s</span> - export SVG</li>
+                    <li><span class="key">p</span> - export image</li>
+                </ul>
+            </div>
+
+            <p class="credits">
+                Code and docs can be found at: <a href="https://github.com/jasonwebb/SuperformulaSVG-for-web">https://github.com/jasonwebb/SuperformulaSVG-for-web</a><br>
+                Created by <a href="https://jasonwebb.io">Jason Webb</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- PaperJS canvas -->
+    <canvas id="superformula-canvas" data-paper-resize="true"></canvas>
+
+    <!-- Third-party packages -->
+    <script defer src="https://use.fontawesome.com/releases/v5.0.4/js/all.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.5/dat.gui.min.js"></script>
+    <script type="text/javascript" src="js/vendor/paper-full.min.js" canvas="superformula-canvas"></script>
+    <script type="text/javascript" src="js/vendor/FileSaver.js"></script>
+
+    <!-- Custom packages -->
+    <script type="text/javascript" src="dist/superformulasvg.min.js"></script>
+
+</body>
+</html>

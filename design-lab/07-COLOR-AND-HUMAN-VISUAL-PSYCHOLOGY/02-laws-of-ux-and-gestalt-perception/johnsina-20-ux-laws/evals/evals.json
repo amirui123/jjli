@@ -1,0 +1,98 @@
+{
+  "skill_name": "ux-laws",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Audit the UX of this newsletter sign-up card (surface: marketing page, mobile-first). You only have the HTML source in the attached file; you can't open a browser. Use the ux-laws report template.",
+      "expected_output": "A complete 20-row audit from source only. The stretched archive-link overlay that captures the input and the button is a Fail under Jakob's Law and caps the band at Needs Work. Evidence-limited laws are Not assessed. The score is recomputed from the rows.",
+      "files": [
+        "evals/fixtures/newsletter-card.html"
+      ],
+      "expectations": [
+        "Grades the stretched .archive-link::after overlay (position absolute, inset 0, over a position:relative section) as a Fail under Jakob's Law, saying it captures clicks on the email input and the Subscribe button",
+        "Labels the hit-area measurement a 'static estimate' because no live page was available",
+        "Applies the blocking rule: the band is Needs Work even if the percentage would fall in Good",
+        "Does NOT fail Postel's Law for whitespace in the email field (type=email already strips surrounding whitespace); server-side handling is Not assessed or unflagged",
+        "Marks Doherty, Peak-End and Pareto as Not assessed and names the missing evidence for each",
+        "Contains exactly one row for each of the 20 laws, and the stated score and counts match the rows (denominator = Pass + Warning + Fail)",
+        "Includes the scope note that this is not a WCAG/accessibility conformance result, and records the bare link text 'Learn more' as a conformance note, not a score item",
+        "Does not read or reproduce examples/sample-audit.md or evals/expected/"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Audit this pricing card (marketing page, touch-first). Source is attached. The page also loads this script, quoted as text: `document.getElementById('plan-details').addEventListener('click', () => openCheckout('pro'))`. You can't run it. Report your findings in the ux-laws template.",
+      "expected_output": "An audit that finds no stretched-overlay defect, grades the primary button as meeting the touch goal and the small adjacent secondary link as a Fitts warning, treats the delegated click handler on a plain div as unconfirmed and as an inert-looking interactive element graded once, and does not count the details panel as part of the button's hit area.",
+      "files": [
+        "evals/fixtures/pricing-card.html"
+      ],
+      "expectations": [
+        "Does not report a stretched-link interception defect (there is no overlay in this fixture)",
+        "Does not count #plan-details as part of the 'Choose Pro' hit area, and states that activation by the delegated handler is unconfirmed (page JavaScript cannot prove it) and needs a manual or DevTools check",
+        "Flags the clickable but non-semantic, non-pointer div as a role mismatch (interactive element styled as inert text): under Similarity (law 13), where the rubric's 'or the reverse' Fail condition applies, or as an affordance issue under Jakob's Law, graded once and not as a Pass, and noted as an accessibility concern",
+        "Grades the small 'Compare plans' link under Fitts's Law as a Warning on a touch-first surface (below the 44x44 goal), not a Fail on size alone",
+        "If it mentions WCAG 2.5.8 for 'Compare plans', it applies the spacing test and exceptions before calling it a possible failure, and keeps it out of the score",
+        "Notes that the primary button is visually distinct (Von Restorff) only if justified from the source (blue fill, white text)",
+        "Marks Peak-End as Not assessed because the checkout result is not in the evidence, and Postel as N/A because there is no input field",
+        "Contains one row for each of the 20 laws with a score consistent with the rows"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I can't share any code or screenshots. Here is a description: a SaaS dashboard home page with a left navigation of nine items, a top search box, three summary cards, a table of the latest 20 invoices with a 'Create invoice' button at the top right, and a settings link at the bottom of the nav. Users say it 'feels slow sometimes'. Audit it with ux-laws.",
+      "expected_output": "An audit that grades only what a description can show, marks laws that need measurement or usage data as Not assessed with the evidence needed, and never invents sizes, timings or usage statistics.",
+      "files": [],
+      "expectations": [
+        "Does not state or imply measured target sizes, response times or usage frequencies that the description doesn't give",
+        "Marks Doherty as Not assessed (or Warning only with the user's 'feels slow' report cited as the sole evidence) and names the timing evidence needed",
+        "Marks Pareto as Not assessed and asks for usage analytics rather than guessing which nav items are popular",
+        "Marks Fitts's Law size as Not assessed and does not use the 44x44 goal as a Fail",
+        "Treats the nine-item navigation under Hick's Law as a prompt to look closer (grouping, defaults), not as an automatic Fail from the count alone, and does not cap navigation at 7+-2 using Miller's Law",
+        "Uses Not assessed (not N/A) for any Contextual law whose trigger it cannot confirm from the description",
+        "Reports 'No score' or a score computed only over assessed laws, and says why"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Is my website WCAG 2.2 AA compliant? Here is the page: https://example.com/signup. Give me a pass/fail.",
+      "expected_output": "A clear statement that ux-laws is not a WCAG conformance audit, no compliance verdict, a pointer to an accessibility review, and at most an offer to run the usability audit instead.",
+      "files": [],
+      "expectations": [
+        "States that this skill grades usability heuristics and does not certify WCAG conformance",
+        "Does not issue a WCAG pass or fail verdict",
+        "Recommends an accessibility-focused review or tooling for conformance",
+        "May offer a UX-laws usability audit as a separate, clearly labelled deliverable"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Audit the UX of this profile form from its source only (no browser, no usage data).\n\n<form class=\"profile\"><h2>Profile</h2><label>Name <input name=\"n\"></label><label>Email <input name=\"e\"></label><button>Save</button><button>Cancel</button></form>",
+      "expected_output": "A source-code audit that names the untyped Cancel button as a law 3 finding, marks usage- and render-dependent laws Not assessed with the evidence needed, and does not call the form accessible or compliant.",
+      "files": [],
+      "expectations": [
+        "Flags the Cancel button, which has no explicit type and would submit the form, as a law 3 finding and says what to change (type=\"button\")",
+        "Names source code as the evidence and marks usage-based and rendering-dependent laws Not assessed with the evidence needed",
+        "Does not claim the form is accessible or WCAG-conformant"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Audit the UX of this marketing page at phone (375px) and desktop (1440px) widths. It is served at http://127.0.0.1:4180/site-sections.html and you can open it in a browser; the source is attached too. Use the ux-laws report template.",
+      "expected_output": "A live, two-viewport audit that measures with the page probe before grading, keeps document overflow authoritative, treats the stretched card as a hit-test prompt rather than a small target, records the coverage, and does not turn line length into a grade.",
+      "files": [
+        "evals/fixtures/site-sections.html"
+      ],
+      "expectations": [
+        "Runs the references/page-probe.md snippet at both viewports and records a coverage line naming exactly the page and the two viewports measured",
+        "Reports document overflow as 0 at both widths and sets the wide decoration aside only because it is clipped (clipped: true) and the page does not scroll",
+        "Takes 'Read the case' from the probe's needsHitTest list and hit-tests the stretched card (or labels the overlay size a static estimate) before grading law 2; it neither drops it unverified nor grades its 90x16 own box as the hit area",
+        "Keeps the inline 'method note' link in the usability results while excluding it from the 2.5.8 conformance candidates, and treats the standalone 'Explore this product', 'Edit' and 'Delete' links as targets, not inline exceptions",
+        "Grades the #proximity bands under law 4 (Proximity) with spacing evidence (the 160px gap between each heading and its own body against the 4px gap between bands, which leaves the alt band's right-hand heading nearer the next band), not on heading placement alone; and grades the heading link plus the duplicate 'Explore this product' link to the same page under law 19 (Occam) or law 13, citing the viewport of the evidence",
+        "Takes the empty 'Open the price index' anchor from needsHitTest and does not ignore it because its own box is 0x0, and does not grade the collapsed panel's hidden button or text as visible",
+        "Does not grade any law on line length alone; at 1440px the padded and line-height:normal paragraphs are each one line of about 92-93 characters and are at most an unscored readability note",
+        "Contains exactly one row for each of the 20 laws with counts that match, and the scope note that this is not a WCAG conformance result",
+        "Does not read or reproduce examples/sample-audit.md or evals/expected/"
+      ]
+    }
+  ]
+}

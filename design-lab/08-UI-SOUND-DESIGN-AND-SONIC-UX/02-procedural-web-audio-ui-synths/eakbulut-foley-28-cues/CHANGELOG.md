@@ -1,0 +1,94 @@
+# Changelog
+
+## 2.9.0
+- **`observe()`**: sound elements that appear, leave, or change state — `data-foley-enter`, `data-foley-exit`, `data-foley-change`. A toast mounting, a dialog unmounting, a drawer flipping `aria-expanded` all used to need a lifecycle hook or an effect; now they need an attribute. One `MutationObserver` per root.
+- Opt-in rather than started by `bind()`, because it watches for the life of the page: the usual `bind` + `play` + `set` bundle is byte-identical before and after this release (5.9 kB), since `observe` tree-shakes out when unused.
+- `-change` watches state attributes only — `aria-expanded`, `aria-selected`, `aria-checked`, `aria-pressed`, `open`, `data-state` — never `class`, which churns on every hover. It fires the same cue in both directions; `data-foley-toggle` remains the directional one.
+- Only changes *after* the call fire, so the initial render is silent. Exits play centered, since a removed element has no position left to read. A hundred rows appearing fire one cue, not a hundred — the existing 60ms cooldown already handles the storm.
+- Demo: the notification toasts now sound because they mounted. The page's `toast()` no longer calls `play()` at all.
+
+
+## 2.8.1
+- **Types: interface members are properties, not methods.** `const { play } = useFoley()` and `const { stop } = play(...)` are the patterns the docs recommend, but method-shorthand signatures tell TypeScript the member might depend on `this`, so typescript-eslint's `unbound-method` rule fired on documented usage. Reported and fixed for `@foleyjs/react` by [@DerTimonius](https://github.com/DerTimonius) in [#6](https://github.com/eakbulut/foley/pull/6); `PlayHandle.stop` in the core had the same problem and got the same fix. No runtime change.
+- The published types are now compiled in CI against a `tsc --strict` fixture whose `@ts-expect-error` lines must keep erroring, so a type widened to `any` fails the build. Until now every type guard only checked that declarations existed, never that they were right — which is why this had to be reported from outside.
+- Docs: the README's `mySound[2].f = 880` example doesn't typecheck, since `Spec` is a union and cluster layers carry `fMin`/`fMax`. Added the narrowing pattern.
+
+
+## 2.8.0
+- **`bind()` now delegates**, so markup rendered after the call — modals, route changes, list items — makes sound without re-binding. One call at startup is genuinely enough; the React package no longer has to tell you otherwise. Six per-element listener loops and the `_fy*` flags Foley used to write onto your DOM nodes are gone.
+- **`data-foley-hover` fires on keyboard focus too.** Mouse users heard a cue on hover and keyboard users heard nothing; now tabbing through an interface sounds like moving through it. Gated by the same `hover` setting.
+- **Looping cues fall silent in a hidden tab** and resume when it comes back — a forgotten `play("loading", { loop: true })` can't tick at someone from a tab they've left. One-shots still fire, because a `ping` for an incoming message is the point of a `ping`. No `visibilitychange` listener needed on your side.
+- Removed the retired `recipes/` folder, superseded by `@foleyjs/react` and `@foleyjs/vue` since 2.3.1. It was never published, and its copy of `useFoley` had started contradicting the real one.
+- Docs: the `pos` example was 3.6 units out and rendered ~11 dB down, which taught that 3D placement sounds broken. It's now `[1, 0, -0.5]`, with the inverse-distance falloff written down.
+
+
+## 2.7.0
+- **Spatial audio**: `play()` and `playSpec()` take `pan` (-1..1, stereo) or `pos` ([x, y, z], HRTF with inverse distance) — `pos` wins if both are given. Placement is fixed at the trigger and lives on the performance bus, so a looping cue's repetitions inherit it. The reverb send stays center: rooms don't pan, sources do.
+- **`set({ localize: 0.6 })`**: every `data-foley-*` cue pans to where its element sits on screen, so a toolbar on the right clicks on the right. `panFor(el)` exposes the same derivation for hand-written `play()` calls. Default 0 (centered, unchanged).
+- Deliberately not built, since cues are ~200ms one-shots that are over before anything could move them: listener position/orientation, sound cones, distance attributes, and repositioning through the handle. Offline renders (`toWav`, `toBuffer`, `toSprite`) stay deterministic and centered — position is a property of the performance, not of the sound, the same line humanization draws. A WebXR listener API would be issue-driven, not speculative.
+- The `complete` shimmer now stays in key — thanks to launch feedback. Its four grains were random across 2–4.5 kHz and clashed with the C major arpeggio underneath; they are now the same chord two octaves up (C7 E7 G7 C8), which also makes the cue fully deterministic instead of seeded-random.
+- Demo: a "Localize cues to their elements" toggle in the inspector, persisted like the other settings.
+
+
+## 2.6.1
+- npm package keywords for discoverability.
+- Site: analytics, SEO metadata (canonical, structured data, sitemap), tightened copy, quote-card polish, contributor docs.
+
+
+## 2.6.0
+- **Sound sets**: a portable sonic identity — `{ name, transform, cues }` — loaded with `set({ theme: soundSet })`. A global transform reshapes every cue; per-cue specs replace the ones that matter. `getSet()` snapshots the active identity, JSON-safe and lossless through `set()`. Assigning any named theme clears the whole identity.
+- `getSpec(name)` now returns the *effective* spec (the active set's override, or the built-in) — so the designer, WAV export, board envelopes, and sprite all honor the set.
+- Demo: the designer grew a set workflow — design a cue, "Use site-wide", export the set as JSON, import one, or copy a `#set=` link that carries the entire identity.
+
+
+## 2.5.0
+- `play()` and `playSpec()` return a handle with `stop()` — each performance runs on its own bus and fades out in ~20ms without touching other sounds.
+- Looping: `play("loading", { loop: true })` repeats until stopped (spacing defaults to the sound's own duration; override with `every`).
+- Ducking: `set({ duck: 0.3 })` attenuates everything temporarily — for videos, calls, or focus modes.
+- Custom themes: `set({ theme: { pitch, decay, ... } })` accepts a transform object, not just a named theme.
+- `toSprite()`: render all 28 cues into one WAV plus a JSON offset map — the classic audio-sprite format for games and low-latency apps. Sprite download button on the demo.
+- Demo: designer preset gallery (marimba, coin, woodblock, raindrop, laser), per-dial randomize, Space-to-replay, "Copy code" (a paste-ready `playSpec()` call), a favicon — and WebMIDI: plug in a keyboard and play any cue chromatically, velocity and all (Chrome/Edge/Firefox). npm releases now publish from CI with provenance on version tags.
+
+
+## 2.4.0
+- **Cues are now data.** Every built-in cue is defined as a spec — an array of tone / noise / cluster layers — interpreted by the engine. Sound is unchanged; the four cues with random grains now use seeded scatter, so exports are fully deterministic.
+- **Cue Designer** on the demo: start from any cue, edit layers with live audition and an envelope preview, export as .wav or .json, import designs, and share them as URL links.
+- New core API: `getSpec(name)`, `playSpec(spec, {id, pitch, volume})`, `toBufferSpec(spec)`, `toWavSpec(spec)`, and `normalizeSpec(spec)` (validates and clamps untrusted specs — imports and URL payloads go through it).
+
+
+## 2.3.1 (packages)
+- New packages: `@foleyjs/react` (`useFoley` hook) and `@foleyjs/vue` (`v-foley` directive + `FoleyPlugin`), replacing the copy-paste `recipes/` folder. Both re-export the core and pin it as a peer dependency.
+
+## 2.3.0
+- New `toBuffer(name)` export: offline-render any cue to an AudioBuffer for envelopes, meters, or custom encoding.
+- Demo: real per-cue envelope drawings on every chip, computed from offline renders and redrawn on theme change.
+- Demo: waveform/spectrum toggle on the oscilloscope (96-bar FFT view).
+- Demo: settings persistence (volume, transpose, space, theme, hover) via localStorage; the single-file build falls back to in-memory.
+- Demo: touch devices hide keyboard hints and get touch-appropriate copy.
+- Framework recipes: `recipes/react.js` (`useFoley` hook), `recipes/vue.js` (`v-foley` directive), and `agents.md` for AI coding assistants.
+- Tooling: `scripts/build-standalone.mjs`, a `node --test` suite, CI, and GitHub Pages deployment.
+
+## 2.2.0
+- Four sound themes — `default`, `soft`, `mechanical`, `glass` — applied as engine-level transforms so every cue (and every WAV export) inherits them. `set({ theme })`.
+- Themed export filenames (`foley-glass-chime.wav`, `foley-cues-mechanical.zip`).
+
+## 2.1.0
+- Master limiter (brick-wall DynamicsCompressor) so overlapping cues never clip; also applied to offline exports for tonal parity.
+- 60ms per-cue cooldown so event storms stay musical.
+- Humanization: ±30 cents pitch and ±8% level per performance, whole-cue coherent. Exports remain deterministic.
+- Demo: picture-in-picture mini scope; main scope relocated into the cue board and made sticky.
+
+## 2.0.0
+- **Breaking:** renamed from `tactone` to **Foley**. All attributes changed from `data-tactone-*` to `data-foley-*`.
+- New tagline and identity: "Sound effects for the interface, performed live."
+
+## 1.1.0
+- WAV export: per-cue offline rendering to 16-bit 44.1 kHz stereo, trimmed and peak-normalized; zip export of the full set.
+- Corrected the cue count: 28 cues in 7 families (the copy previously claimed 24 in 6).
+
+## 1.0.1
+- Tour now plays all cues in board order and scrolls each into view before it fires.
+- Removed experimental vibration/haptics support: unreliable across platforms (no iOS web API, blocked in sandboxed embeds).
+
+## 1.0.0
+- Initial release (as `tactone`): 28 synthesized interaction cues, declarative `data-*` binding, live oscilloscope demo, inspector with volume/transpose/reverb.

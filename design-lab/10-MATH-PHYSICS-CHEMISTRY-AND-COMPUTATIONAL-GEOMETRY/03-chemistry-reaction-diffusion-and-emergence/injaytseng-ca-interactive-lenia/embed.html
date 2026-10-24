@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>&lt;ca-background&gt; — embed a living background</title>
+<meta name="description" content="One script tag puts any of the six cellular-automata backgrounds from ca.davidyc.com behind your own page. Attributes, examples, and a live demo.">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Crect width='8' height='8' fill='%23070b10'/%3E%3Cg fill='%2335e0a0'%3E%3Crect x='3' y='1' width='2' height='2'/%3E%3Crect x='5' y='3' width='2' height='2'/%3E%3Crect x='1' y='5' width='2' height='2'/%3E%3Crect x='3' y='5' width='2' height='2'/%3E%3Crect x='5' y='5' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+  /* This page deliberately uses none of the site's CSS or fonts: it is what an
+     embedder's page looks like, with its own type, its own scroll, its own colours. */
+  :root { color-scheme: dark light; }
+  body { margin: 0; font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #e6edf0; background: #0b1016; }
+  @media (prefers-color-scheme: light) { body { color: #14212a; background: #f2f6f5; } }
+  /* the recipe: fixed, full-viewport, behind everything */
+  ca-background.page { position: fixed; inset: 0; z-index: -1; }
+  main { max-width: 42rem; margin: 0 auto; padding: 8vh 1.25rem 20vh; position: relative; }
+  h1 { font-size: 2rem; line-height: 1.15; margin: 0 0 .25rem; }
+  h1 code { font-size: .9em; }
+  h2 { font-size: 1.1rem; margin: 3rem 0 .5rem; }
+  p.lede { font-size: 1.15rem; opacity: .85; }
+  pre, code { font-family: ui-monospace, SF Mono, Menlo, Consolas, monospace; font-size: .92em; }
+  pre { padding: .9rem 1rem; border-radius: 6px; overflow: auto; background: rgba(127,127,127,.12); border: 1px solid rgba(127,127,127,.25); }
+  table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+  th, td { text-align: left; padding: .45rem .5rem; border-bottom: 1px solid rgba(127,127,127,.25); vertical-align: top; }
+  th { opacity: .7; font-weight: 500; }
+  .row { display: flex; flex-wrap: wrap; gap: .4rem; margin: .6rem 0 0; }
+  button { font: inherit; font-size: .9rem; padding: .35rem .7rem; border-radius: 999px; border: 1px solid rgba(127,127,127,.4); background: rgba(127,127,127,.12); color: inherit; cursor: pointer; }
+  button[aria-pressed="true"] { border-color: #35e0a0; color: #35e0a0; }
+  a { color: inherit; }
+  .boxed { width: 100%; height: 220px; border-radius: 8px; border: 1px solid rgba(127,127,127,.35); overflow: hidden; margin: .6rem 0; }
+  .note { font-size: .92rem; opacity: .8; }
+  footer { margin-top: 5rem; font-size: .9rem; opacity: .7; }
+</style>
+</head>
+<body>
+  <!-- the background behind this whole page -->
+  <ca-background class="page" id="page-bg" sim="boids"></ca-background>
+
+  <main>
+    <h1><code>&lt;ca-background&gt;</code></h1>
+    <p class="lede">Six families of cellular automata as a living background for any page. One script tag, one element, no build step, no dependencies. The flock behind this text is it.</p>
+
+    <pre><code>&lt;script type="module" src="https://ca.davidyc.com/element.js"&gt;&lt;/script&gt;
+&lt;ca-background sim="boids"&gt;&lt;/ca-background&gt;
+
+&lt;style&gt;
+  ca-background { position: fixed; inset: 0; z-index: -1; }
+&lt;/style&gt;</code></pre>
+
+    <p class="note">Sizing is your page's job: the element is <code>display: block</code> and fills whatever box you give it. The CSS above is the full-page recipe. The element sets <code>pointer-events: none</code>, so everything on top of it stays clickable while the animation still follows the cursor.</p>
+
+    <h2>Try it on this page</h2>
+    <div class="row" id="pick"></div>
+    <div class="row">
+      <button id="pause">pause</button>
+      <button id="reseed">reseed</button>
+      <button id="theme">theme: auto</button>
+      <button id="interactive" aria-pressed="true">follows the pointer</button>
+    </div>
+    <p class="note">Move the pointer, then click any of these: the page underneath the background is still yours.</p>
+
+    <h2>Attributes</h2>
+    <table>
+      <tr><th>attribute</th><th>values</th><th>default</th><th></th></tr>
+      <tr><td><code>sim</code></td><td><code>rule1d</code> <code>life</code> <code>cyclic</code> <code>boids</code> <code>lenia</code> <code>nca</code></td><td><code>boids</code></td><td>which specimen runs</td></tr>
+      <tr><td><code>theme</code></td><td><code>dark</code> <code>light</code> <code>auto</code></td><td><code>auto</code></td><td><code>auto</code> follows <code>prefers-color-scheme</code> and updates live</td></tr>
+      <tr><td><code>speed</code></td><td>number, up to 4</td><td><code>1</code></td><td>simulation steps per frame, relative</td></tr>
+      <tr><td><code>paused</code></td><td>boolean attribute</td><td>absent</td><td>present stops the loop</td></tr>
+      <tr><td><code>interactive</code></td><td><code>true</code> <code>false</code></td><td><code>true</code></td><td><code>false</code> ignores the pointer entirely</td></tr>
+      <tr><td><code>options</code></td><td><code>key=value,key=value</code></td><td>sim defaults</td><td>the same choices the site's chips offer, see below</td></tr>
+      <tr><td><code>fallback</code></td><td>a sim id</td><td><code>boids</code></td><td>used when <code>sim</code> cannot run here</td></tr>
+    </table>
+    <p class="note">Every attribute is live and mirrored as a property (<code>el.sim = 'lenia'</code>). One method: <code>el.reseed()</code>. One read-only property: <code>el.current</code>, the id of the sim actually running.</p>
+
+    <h2>Options per sim</h2>
+    <table>
+      <tr><th>sim</th><th>key</th><th>values</th></tr>
+      <tr><td><code>rule1d</code></td><td><code>rule</code></td><td><code>30</code> <code>90</code> <code>110</code> <code>184</code> <code>54</code> <code>73</code></td></tr>
+      <tr><td><code>life</code></td><td><code>rule</code></td><td><code>life</code> <code>highlife</code> <code>daynight</code></td></tr>
+      <tr><td><code>cyclic</code></td><td><code>preset</code></td><td><code>spirals</code> <code>cca</code> <code>turbulent</code> <code>r313</code></td></tr>
+      <tr><td><code>boids</code></td><td><code>mood</code></td><td><code>repel</code> <code>attract</code></td></tr>
+      <tr><td><code>lenia</code></td><td><code>density</code></td><td><code>solo</code> <code>few</code> <code>many</code></td></tr>
+      <tr><td><code>nca</code></td><td><code>brush</code></td><td><code>erase</code> <code>off</code></td></tr>
+    </table>
+    <pre><code>&lt;ca-background sim="rule1d" options="rule=90" theme="light"&gt;&lt;/ca-background&gt;</code></pre>
+
+    <h2>Not only full-page</h2>
+    <p class="note">Any box works, and the pointer is translated into it: hover over this one.</p>
+    <ca-background class="boxed" sim="cyclic" options="preset=turbulent"></ca-background>
+
+    <h2>What it costs, what can fail</h2>
+    <ul class="note">
+      <li>Tabs 01–04 (<code>rule1d</code>, <code>life</code>, <code>cyclic</code>, <code>boids</code>) are Canvas 2D and run everywhere. <code>lenia</code> and <code>nca</code> need WebGL2; <code>nca</code> also needs float render targets and fetches 85 KB of weights the first time it is shown.</li>
+      <li>When a sim cannot run, the element warns on the console and mounts <code>fallback</code>. If that fails too, it renders nothing and your own background shows through. It never throws into your page.</li>
+      <li>The loop stops while the tab is hidden and while the element is scrolled out of view.</li>
+      <li>Every module is served with <code>Cache-Control: must-revalidate</code>, so a page always gets a consistent set of files, and with <code>Access-Control-Allow-Origin: *</code>, so it works from any origin.</li>
+    </ul>
+
+    <footer>
+      MIT. Source and the six concept cards: <a href="https://ca.davidyc.com/">ca.davidyc.com</a> · <a href="https://github.com/InjayTseng/ca-interactive">github.com/InjayTseng/ca-interactive</a>
+    </footer>
+  </main>
+
+  <script type="module">
+    // The element normally comes from this same origin (./element.js). `?origin=` lets
+    // this page be served from somewhere else and still load the element from here —
+    // that is how the cross-origin (CORS) path is verified before a deploy.
+    const origin = new URLSearchParams(location.search).get('origin') ?? '.';
+    await import(`${origin}/element.js`);
+
+    const bg = document.getElementById('page-bg');
+    const pick = document.getElementById('pick');
+    const ids = ['rule1d', 'life', 'cyclic', 'boids', 'lenia', 'nca'];
+    for (const id of ids) {
+      const b = document.createElement('button'); b.textContent = id; b.setAttribute('aria-pressed', String(id === bg.sim));
+      b.onclick = () => { bg.sim = id; pick.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); };
+      pick.append(b);
+    }
+    const pause = document.getElementById('pause');
+    pause.onclick = () => { bg.paused = !bg.paused; pause.textContent = bg.paused ? 'play' : 'pause'; pause.setAttribute('aria-pressed', String(bg.paused)); };
+    document.getElementById('reseed').onclick = () => bg.reseed();
+    const theme = document.getElementById('theme');
+    theme.onclick = () => { bg.theme = { auto: 'dark', dark: 'light', light: 'auto' }[bg.theme]; theme.textContent = `theme: ${bg.theme}`; };
+    const inter = document.getElementById('interactive');
+    inter.onclick = () => { bg.interactive = !bg.interactive; inter.setAttribute('aria-pressed', String(bg.interactive)); inter.textContent = bg.interactive ? 'follows the pointer' : 'ignores the pointer'; };
+  </script>
+</body>
+</html>

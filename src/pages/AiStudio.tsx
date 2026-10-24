@@ -12,6 +12,7 @@ import {
   Segmented,
   Slider,
   Spinner,
+  Toggle,
   cn,
 } from "../ui/kit";
 import { StudioShell, StudioList } from "../ui/StudioShell";
@@ -46,6 +47,7 @@ interface TuningSettings {
   seqLen: number;
   dropout: number;
   batch: number;
+  quantMode: "4bit-nf4" | "8bit-int8" | "bf16";
 }
 
 type Tab = "prompt" | "dataset" | "tuning";
@@ -59,6 +61,7 @@ const DEFAULT_TUNING: TuningSettings = {
   seqLen: 2048,
   dropout: 0.05,
   batch: 2,
+  quantMode: "4bit-nf4",
 };
 
 const MODELS = [
@@ -88,6 +91,12 @@ export const AiStudio: React.FC = () => {
   const [promptKind, setPromptKind] = useState("kinetic");
   const [promptFont, setPromptFont] = useState("hasti");
   const [promptDetail, setPromptDetail] = useState(3);
+  const [targetIde, setTargetIde] = useState("Claude 3.7 / 4 Sonnet");
+  const [aestheticPersona, setAestheticPersona] = useState("Obsidian Luxury + Persian Nastaliq");
+  const [customTask, setCustomTask] = useState("");
+  const [enforceIranFintech, setEnforceIranFintech] = useState(true);
+  const [enforceZeroCls, setEnforceZeroCls] = useState(true);
+  const [enforceOledSafe, setEnforceOledSafe] = useState(true);
 
   useEffect(() => {
     if (dataset) return;
@@ -115,12 +124,26 @@ export const AiStudio: React.FC = () => {
 
   const prompt = useMemo(() => {
     const skill = ALL_SKILLS_MANIFEST.find((s) => s.slug.includes("motion")) ?? ALL_SKILLS_MANIFEST[0];
-    return `# نقش
-تو یک مهندس ارشد رابط کاربری فارسی (RTL-first) و متخصص موشن ۶۰ فریم هستی.
-خروجی فقط کد TypeScript + React 18 + Tailwind v4 + framer-motion باشد.
+    const extraRules: string[] = [];
+    if (enforceIranFintech) {
+      extraRules.push("- پشتیبانی بومی از کارت شتاب (Luhn)، شبا (ISO-7064 Mod-97-10) و تقویم جلالی.");
+    }
+    if (enforceZeroCls) {
+      extraRules.push(
+        "- کالیبراسیون بدون پرش (@font-face size-adjust: 98%; ascent-override: 90%) و محور نوری GRAD در هاور."
+      );
+    }
+    if (enforceOledSafe) {
+      extraRules.push("- کنتراست نوری OKLCH و پس‌زمینه #05060A (منع #000000 برای جلوگیری از OLED Smearing).");
+    }
+
+    return `# نقش (${targetIde})
+تو یک مهندس ارشد رابط کاربری فارسی (RTL-first) و متخصص موشن ۱۲۰ فریم هستی.
+پرسونای بصری: ${aestheticPersona}
+خروجی فقط کد TypeScript + React 19 + Tailwind v4 + framer-motion باشد.
 
 # درخواست
-${kind.label} — ${kind.hint}
+${kind.label} — ${kind.hint}${customTask.trim() ? `\nهدف اختصاصی پروژه: ${customTask.trim()}` : ""}
 
 # قیدهای تایپوگرافی
 - فونت: ${font.nameFa} (${font.nameEn}) — line-height ${font.recommendedLineHeight ?? 1.8}
@@ -128,11 +151,11 @@ ${kind.label} — ${kind.hint}
 - اعداد و مبالغ با ارقام فارسی و ویژگی "ss01".
 - شکستن واژه‌ها فقط با split(/\\s+/)؛ split("") هرگز.
 
-# قیدهای موشن
+# قیدهای موشن و معماری
 - فیزیک فنر: stiffness 260، damping 22، mass 0.9
 - انیمیشن‌های پیوسته با useMotionValue/useSpring خارج از چرخه رندر.
 - محور x را با جهت صفحه قرینه کن (RTL mirror).
-- بدون transition-all روی motion.* .
+${extraRules.join("\n")}
 
 # قیدهای دسترس‌پذیری
 - احترام به prefers-reduced-motion.
@@ -143,7 +166,17 @@ ${skill?.title ?? "—"} — ${(skill?.summary ?? "").slice(0, 140)}
 
 # سطح جزئیات: ${["حداقلی", "متوسط", "کامل", "استاندارد تولید"][promptDetail - 1]}
 ${promptDetail >= 3 ? "- شامل تست‌های واحد، حالت‌های خطا و بارگذاری تنبل." : ""}`;
-  }, [kind, font, promptDetail]);
+  }, [
+    kind,
+    font,
+    promptDetail,
+    targetIde,
+    aestheticPersona,
+    customTask,
+    enforceIranFintech,
+    enforceZeroCls,
+    enforceOledSafe,
+  ]);
 
   const pythonSnippet = `from datasets import load_dataset
 from peft import LoraConfig, get_peft_model
@@ -151,9 +184,11 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 import torch
 
 BASE = "${tuning.baseModel}"
+QUANT_MODE = "${tuning.quantMode ?? "4bit-nf4"}"
 
 bnb = BitsAndBytesConfig(
-    load_in_4bit=True,
+    load_in_4bit=${(tuning.quantMode ?? "4bit-nf4") === "4bit-nf4" ? "True" : "False"},
+    load_in_8bit=${tuning.quantMode === "8bit-int8" ? "True" : "False"},
     bnb_4bit_quant_type="nf4",
     bnb_4bit_compute_dtype=torch.bfloat16,
     bnb_4bit_use_double_quant=True,
@@ -534,7 +569,7 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
   const settings = (
     <div className="space-y-4">
       {tab === "prompt" && (
-        <Panel title="سازنده پرامپت">
+        <Panel title="سازنده و شخصی‌سازی پرامپت">
           <div className="space-y-3">
             <div>
               <span className="mb-1 block text-[10.5px] text-zinc-400">نوع کامپوننت</span>
@@ -556,6 +591,32 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
               </div>
             </div>
             <div>
+              <span className="mb-1 block text-[10.5px] text-zinc-400">مدل یا محیط هدف (Target IDE/LLM)</span>
+              <select
+                value={targetIde}
+                onChange={(e) => setTargetIde(e.target.value)}
+                className="w-full rounded-lg border border-white/[0.08] bg-black/50 px-2 py-1.5 text-[11px] text-zinc-200 outline-none"
+              >
+                <option value="Claude 3.7 / 4 Sonnet" className="bg-[#111]">Claude 3.7 / 4 Sonnet</option>
+                <option value="Cursor IDE (.cursorrules)" className="bg-[#111]">Cursor IDE (.cursorrules)</option>
+                <option value="GPT-4o / o3" className="bg-[#111]">GPT-4o / o3</option>
+                <option value="Qwen-2.5-Coder / DeepSeek-R1" className="bg-[#111]">Qwen-2.5-Coder / DeepSeek-R1</option>
+              </select>
+            </div>
+            <div>
+              <span className="mb-1 block text-[10.5px] text-zinc-400">پرسونای زیبایی‌شناسی</span>
+              <select
+                value={aestheticPersona}
+                onChange={(e) => setAestheticPersona(e.target.value)}
+                className="w-full rounded-lg border border-white/[0.08] bg-black/50 px-2 py-1.5 text-[11px] text-zinc-200 outline-none"
+              >
+                <option value="Obsidian Luxury + Persian Nastaliq" className="bg-[#111]">اشرافی ابسیدین + نستعلیق</option>
+                <option value="Apple Liquid Glass & Fresnel" className="bg-[#111]">شیشه مایع اپل (Liquid Glass)</option>
+                <option value="SpaceX Dark Cockpit" className="bg-[#111]">کابین تاریک مهندسی (Dark Cockpit)</option>
+                <option value="Swiss High Data-Ink" className="bg-[#111]">گرید سوئیسی تافتی (High Data-Ink)</option>
+              </select>
+            </div>
+            <div>
               <span className="mb-1 block text-[10.5px] text-zinc-400">فونت</span>
               <select
                 value={promptFont}
@@ -569,6 +630,16 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
                 ))}
               </select>
             </div>
+            <div>
+              <span className="mb-1 block text-[10.5px] text-zinc-400">شرح اختصاصی پروژه شما</span>
+              <textarea
+                rows={2}
+                value={customTask}
+                onChange={(e) => setCustomTask(e.target.value)}
+                placeholder="مثلاً: کارت بانکی شتاب با انیمیشن برگشت…"
+                className="w-full rounded-lg border border-white/[0.08] bg-black/50 p-2 text-[11px] text-zinc-200 outline-none"
+              />
+            </div>
             <Slider
               label="سطح جزئیات"
               value={promptDetail}
@@ -577,6 +648,23 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
               onChange={setPromptDetail}
               format={(v) => ["حداقلی", "متوسط", "کامل", "تولیدی"][v - 1]}
             />
+            <div className="space-y-1.5 border-t border-white/[0.06] pt-2">
+              <Toggle
+                label="قوانین فین‌تک ایران (شتاب، شبا، جلالی)"
+                checked={enforceIranFintech}
+                onChange={setEnforceIranFintech}
+              />
+              <Toggle
+                label="کالیبراسیون Zero-CLS و محور GRAD"
+                checked={enforceZeroCls}
+                onChange={setEnforceZeroCls}
+              />
+              <Toggle
+                label="کنتراست OKLCH و منع OLED Smearing"
+                checked={enforceOledSafe}
+                onChange={setEnforceOledSafe}
+              />
+            </div>
             <button
               onClick={copyExport}
               className="w-full rounded-lg border border-white/10 py-1.5 text-[10.5px] text-zinc-400 hover:text-white"
@@ -604,6 +692,20 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
                   </option>
                 ))}
               </select>
+            </div>
+            <div>
+              <span className="mb-1 block text-[10.5px] text-zinc-400">دقت کوانتیزاسیون (Quantization)</span>
+              <Segmented
+                className="w-full"
+                size="sm"
+                value={tuning.quantMode ?? "4bit-nf4"}
+                onChange={(v) => setTuning({ quantMode: v })}
+                options={[
+                  { value: "4bit-nf4", label: "4-Bit NF4" },
+                  { value: "8bit-int8", label: "8-Bit Int8" },
+                  { value: "bf16", label: "BF16" },
+                ]}
+              />
             </div>
             <Slider label="رتبه LoRA (r)" value={tuning.rank} min={4} max={64} step={4} onChange={(v) => setTuning({ rank: v })} />
             <Slider label="آلفا" value={tuning.alpha} min={8} max={128} step={8} onChange={(v) => setTuning({ alpha: v })} />

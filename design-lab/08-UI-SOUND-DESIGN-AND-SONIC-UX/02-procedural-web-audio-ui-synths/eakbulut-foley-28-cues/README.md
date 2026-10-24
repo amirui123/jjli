@@ -1,0 +1,272 @@
+# foley
+
+[![npm](https://img.shields.io/npm/v/%40foleyjs%2Fcore)](https://www.npmjs.com/package/@foleyjs/core)
+[![CI](https://github.com/eakbulut/foley/actions/workflows/ci.yml/badge.svg)](https://github.com/eakbulut/foley/actions/workflows/ci.yml)
+[![license](https://img.shields.io/badge/license-MIT-1B9E57)](./LICENSE)
+
+**Sound effects for the interface, performed live.** [Play the demo →](https://usefoley.dev/)
+
+Foley is a tiny, dependency-free library of **28 interaction sounds**, named for the film artists who perform footsteps and door-latches in sync with the picture. It does the same for your interface: every cue is synthesized with Web Audio at the instant of the action. No audio files, no network requests, no build step.
+
+Sibling to [Dolly](https://usedolly.dev) ([repo](https://github.com/eakbulut/dolly)), which does scroll-driven motion the same way — one attribute, no JavaScript.
+
+- **28 cues in 7 families** — pointer, press, toggle, feedback, notify, motion, state
+- **4 themes** — default, soft, mechanical, glass — or your own transform, or a full [sound set](#sound-sets)
+- **Cues are data** — edit any cue's layers with `getSpec()`/`playSpec()`, or visually in the [Cue Designer](https://usefoley.dev/#designer)
+- **7.6 kB** minified + gzipped for the whole API — 5.9 kB for the usual `bind` + `play` + `set`, since it tree-shakes; zero dependencies, one ES module
+- **Placed in space** — `pan` or 3D `pos` per play, or `set({ localize })` to pan every bound cue to where its element sits on screen
+- **Markup, not wiring** — `data-foley-*` attributes on the elements you already have; one `bind()` covers the whole page, including markup rendered later and keyboard focus, and `observe()` sounds elements that appear or change state on their own
+- **Defensive by design** — master limiter, 60ms per-cue cooldown, ±30-cent humanization; loops go quiet in background tabs; `stop()` handles, looping, and ducking built in
+- **WAV export** — any cue, any custom design, or all 28 as an audio sprite with an offset map
+
+## Install
+
+```sh
+npm install @foleyjs/core
+```
+
+> Published under the [foleyjs org](https://www.npmjs.com/org/foleyjs) — the bare name `foley` is blocked by npm's package-name similarity rules. Framework bindings will join as `@foleyjs/react` and friends.
+
+Or skip the install entirely and vendor the single file: copy `src/foley.js` into your project.
+
+## Quickstart
+
+Mark up anything that should make a sound, then bind once at startup.
+
+```html
+<button data-foley-press data-foley-release>Save</button>
+<a data-foley-hover="tick">Docs</a>
+<button data-foley-toggle aria-pressed="false">Dark mode</button>
+<input data-foley-type="thock">
+```
+
+```js
+import { bind, play, set } from "@foleyjs/core";
+
+bind();                          // wires every data-foley-* attribute
+set({ volume: 0.7, theme: "default" });
+
+play("success");                 // programmatic cues for things the user didn't click
+play("tick", { pitch: 4, volume: 0.3 });
+```
+
+Browsers require a user gesture before audio can start; `bind()` installs a one-time unlock listener for you, and `play()` resumes the context automatically.
+
+## Declarative attributes
+
+| Attribute | Fires on | Default cue |
+| --- | --- | --- |
+| `data-foley-hover` | `pointerenter`, `focusin` | `tick` |
+| `data-foley-press` | `pointerdown` | `press` |
+| `data-foley-release` | `pointerup` | `release` |
+| `data-foley-click` | `click` | `tap` |
+| `data-foley-toggle` | `click` (reads `aria-pressed`) | `on` / `off` |
+| `data-foley-type` | `keydown` (Enter plays `complete`) | `thock` |
+
+Every attribute accepts a cue name as its value to override the default.
+
+`bind()` delegates from `root`, so it covers elements that don't exist yet — render a
+modal, change routes, append a list item, and they all sound without re-binding. Hover
+also fires on keyboard focus, so tabbing through an interface sounds like moving
+through it.
+
+## Sounds the user didn't trigger
+
+`bind()` covers what someone does. `observe()` covers what the interface does on its
+own — a toast arriving, a dialog closing, a drawer flipping open:
+
+```html
+<div role="status" data-foley-enter="bubble">Saved</div>
+<div class="modal" data-foley-exit="whoosh">…</div>
+<details data-foley-change="switch" open>…</details>
+```
+
+```js
+import { bind, observe } from "@foleyjs/core";
+bind();      // interaction
+observe();   // appearance and state change
+```
+
+| Attribute | Fires when | Default cue |
+| --- | --- | --- |
+| `data-foley-enter` | the element is added to the DOM | `bubble` |
+| `data-foley-exit` | the element is removed | `whoosh` |
+| `data-foley-change` | a state attribute on it changes | `switch` |
+
+One `MutationObserver`, so no lifecycle hooks and no state plumbing — mount a toast and
+it sounds. It's a separate call from `bind()` on purpose: it watches for the life of the
+page, and most apps only want interaction sounds.
+
+- **Only changes after the call fire**, so the initial render is silent. Call it once the
+  first paint is done.
+- **`-change` watches state attributes, not `class`**: `aria-expanded`, `aria-selected`,
+  `aria-checked`, `aria-pressed`, `open`, `data-state`. Class churns on every hover, which
+  would turn the page into a rattle.
+- **Exits play centered** even under `localize` — a removed element has no position left
+  to read.
+- A list rendering 100 rows fires 100 enters; the 60ms per-cue cooldown collapses them
+  into one, so you don't need to throttle.
+- `observe()` returns a stop function, and is a no-op if called twice on the same root.
+
+## The 28 cues
+
+| Family | Cues |
+| --- | --- |
+| Pointer | `tick` `hover` `glide` `pop` |
+| Press | `press` `release` `tap` `thock` |
+| Toggle | `on` `off` `switch` `latch` |
+| Feedback | `success` `error` `warning` `denied` |
+| Notify | `chime` `ping` `bell` `bubble` |
+| Motion | `swoosh` `whoosh` `drop` `rise` |
+| State | `loading` `ready` `complete` `sparkle` |
+
+## API
+
+```js
+import { play, bind, set, get, toWav, unlock, getAnalyser, on, cues, families, themes, version } from "@foleyjs/core";
+```
+
+- **`play(name, { pitch?, volume?, loop?, every?, pan?, pos? })`** — play a cue; returns `{ stop() }`. With `loop: true` it repeats until stopped — ideal for loading states.
+- **`bind(root?)`** — wire all `data-foley-*` attributes under `root` (default `document`). Idempotent, and delegated: markup rendered later is covered without re-binding.
+- **`set({ volume?, transpose?, space?, muted?, hover?, theme?, duck?, localize? })`** — update global settings. `duck` (0–1) temporarily attenuates everything, e.g. while a video plays. `localize` (0–1) pans every bound cue to its element's place on screen. `theme` accepts a name or a custom transform object (`{ pitch, decay, send, ... }`).
+- **`observe(root?)`** — sound elements that appear, leave, or change state (`data-foley-enter` / `-exit` / `-change`) via one `MutationObserver`. Opt-in; returns a stop function.
+- **`panFor(el)`** — the pan `localize` would derive for an element, for your own `play()` calls.
+- **`get()`** — snapshot of current settings.
+- **`toBuffer(name)`** — `Promise<AudioBuffer>`: same offline render, raw — for envelope drawings, meters, or custom encoding.
+- **`getSpec(name)`** — a deep, editable copy of a built-in cue's layer spec.
+- **`playSpec(spec, { id?, pitch?, volume?, pan?, pos? })`** — play a custom spec; it is validated and clamped first.
+- **`toWavSpec(spec)` / `toBufferSpec(spec)`** — offline-render a custom spec.
+- **`normalizeSpec(spec)`** — the validator itself, for checking untrusted specs (max 8 layers, all params clamped).
+- **`toSprite(gap?)`** — all 28 cues in one WAV plus a `{ name: { start, duration } }` offset map, for game engines and audio-sprite players.
+- **`toWav(name)`** — `Promise<Blob>`: offline-render a cue to 16-bit 44.1 kHz stereo WAV, honoring transpose, space, and theme. Exports are deterministic (no humanization drift).
+- **`unlock()`** — resume/create the AudioContext from a user gesture.
+- **`getAnalyser()`** — the engine's `AnalyserNode` for scopes and meters, or `null` before unlock.
+- **`on("play" | "unlock", cb)`** — subscribe to engine events; returns an unsubscribe function.
+- **`cues` / `families` / `themes` / `version`** — metadata for building your own pickers and playgrounds.
+
+## Placement
+
+A cue can come from somewhere. `pan` puts it in the stereo field; `pos` puts it in 3D
+(HRTF, inverse distance) for WebXR and canvas scenes.
+
+```js
+play("tick", { pan: -0.7 });              // over on the left
+play("ping", { pos: [1, 0, -0.5] });      // to the right, slightly in front
+set({ localize: 0.6 });                   // every bound cue pans to its own button
+```
+
+`pos` is measured from a listener at the origin, and attenuates past about 1 unit
+(inverse distance). Keep cues within a unit or two unless you want them faint —
+`[1, 0, -0.5]` is full volume and clearly to the right, while `[2, 0, -3]` is
+already about 11 dB down.
+
+One setting and the interface stops sounding like it comes from a single point — a
+toolbar on the right clicks on the right, which is the thing a screen-shaped sound
+library can do that a game audio engine never bothered to.
+
+Placement is fixed at the trigger: cues are ~200ms one-shots, over before anything
+could move, so there is no listener, no cones, and nothing to reposition mid-flight.
+The reverb send stays center — rooms don't pan, sources do. Exports (`toWav`,
+`toSprite`) stay centered too: position is a property of the performance, not of the
+sound, the same rule humanization follows.
+
+## Design your own cues
+
+Every cue is data: an array of `tone`, `noise`, and `cluster` layers. Grab one, reshape it, play it:
+
+```js
+import { getSpec, playSpec, toWavSpec } from "@foleyjs/core";
+
+const mySound = getSpec("success");
+mySound[2].f = 880;                  // raise the last note
+mySound.push({ kind: "noise", at: 0.2, filter: "highpass", f: 6000,
+               a: 0.01, d: 0.2, peak: 0.05, send: 0.4 });
+playSpec(mySound);
+const wav = await toWavSpec(mySound);
+```
+
+In TypeScript, narrow on `kind` before touching a layer's fields — `Spec` is a union,
+and cluster layers carry `fMin`/`fMax` where tone and noise layers carry `f`:
+
+```ts
+const layer = mySound[2];
+if (layer.kind === "tone") layer.f = 880;
+```
+
+Or use the visual [Cue Designer on the demo](https://usefoley.dev/#designer) — edit with live playback, then export .wav/.json or share the design as a link.
+
+## Sound sets
+
+A sound set is your product's whole sonic identity as one portable JSON object: a
+global character transform plus full replacement specs for the cues that matter most.
+
+```js
+import { set, getSet } from "@foleyjs/core";
+
+set({ theme: {
+  name: "Acme",
+  transform: { pitch: 0.9, decay: 1.3 },      // every cue, reshaped
+  cues: { success: [/* layers */], error: [/* layers */] }  // these two, replaced
+}});
+
+get().theme;   // "Acme"
+getSet();      // snapshot the active identity - JSON-safe, version it in your repo
+```
+
+- **`getSet()`** returns the active identity; feeding it back through `set({ theme })` is lossless.
+- Assigning any named theme replaces the whole identity, overrides included.
+- Overrides are validated like any spec (unknown cues dropped, params clamped).
+- Build one visually in the [Cue Designer](https://usefoley.dev/#designer): design a cue, pick
+  which built-in it replaces, "Use site-wide", then export the set or copy a set link.
+
+## Themes
+
+One setting reshapes all 28 cues — waveforms, envelopes, brightness, noise character, and reverb:
+
+```js
+set({ theme: "glass" }); // "default" | "soft" | "mechanical" | "glass"
+```
+
+**Soft** rounds every waveform and adds room. **Mechanical** halves the transients and dries the space — machined metal. **Glass** pitches up, rings the filters, and grows an inharmonic partial on every voice — the physics trick that makes struck glass sound like glass.
+
+## Engine behavior you get for free
+
+- A **master limiter** (DynamicsCompressor as brick-wall safety) so overlapping cues never clip.
+- A **60ms per-cue cooldown** so hover storms and fast sliders stay musical instead of machine-gunning.
+- **Humanization**: each performance drifts up to ±30 cents in pitch and ±8% in level, applied to the whole cue at once — repeated ticks sound performed, not stamped.
+- **Looping cues fall silent in a background tab** and resume when it's visible again, so a forgotten `play("loading", { loop: true })` can't serenade someone from a tab they've left. One-shots still fire — a `ping` for an incoming message is the point.
+
+## Framework packages
+
+- **React** — [`@foleyjs/react`](./packages/react): `const { play } = useFoley({ theme: "soft" })`
+- **Vue 3** — [`@foleyjs/vue`](./packages/vue): `app.use(FoleyPlugin)` then `<button v-foley="'success'">`
+- **AI agents** — [`agents.md`](./agents.md): integration instructions for coding assistants
+
+Both re-export everything from the core, share its version number, and declare it as a peer dependency.
+
+## Run the demo
+
+The demo page (`index.html`) imports `src/foley.js` directly — it runs exactly what the package ships. ES modules need a server:
+
+```sh
+npm run demo        # or: npx serve .
+```
+
+Then open the printed URL. GitHub Pages works too: enable it on the repo root and the demo is live.
+
+## Development
+
+```sh
+npm install      # once per clone — the test suite imports the framework packages,
+                 # which need react and the self-linked core from node_modules
+npm test         # node --test: metadata integrity, settings, docs/types consistency, build
+npm run build    # regenerate the single-file demo at dist/foley-demo.html
+npm run docs     # render README.md into dist/docs.html (deployed at /docs.html)
+npm run demo     # serve the demo locally
+```
+
+Contributions welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md). Releases follow [RELEASING.md](./RELEASING.md). CI runs the tests on every push; merges to `main` deploy the demo to GitHub Pages (enable Pages with the "GitHub Actions" source in repo settings, once). Pushing a `v*` tag publishes all three packages to npm from CI via [trusted publishing](https://docs.npmjs.com/trusted-publishers) — no tokens. One-time setup: publish each package manually once, then in each package’s npm settings add a Trusted Publisher pointing at this repo and `release.yml`. Provenance is automatic.
+
+## License
+
+MIT © eakbulut and Foley contributors.

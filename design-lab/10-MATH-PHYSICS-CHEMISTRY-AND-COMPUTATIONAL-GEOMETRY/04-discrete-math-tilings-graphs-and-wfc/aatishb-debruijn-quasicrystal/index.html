@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Pattern Collider</title>
+
+  <meta name="viewport" content="width=device-width,  initial-scale=1.0">
+  <meta name="description" content="Create And Share Mathematical Tiling Patterns">
+  <meta name="author" content="Aatish Bhatia">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+  <link rel="manifest" href="assets/site.webmanifest">
+
+  <link rel="stylesheet" type="text/css" href="normalize.css">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <!-- Load in libraries here -->
+  <script src="libraries/vue.min.js"></script>
+  <script src="libraries/p5.min.js"></script>
+  <script src="libraries/p5.svg.js"></script>
+  <script src="libraries/hsluv.min.js"></script>
+  <script src="libraries/seedrandom.min.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,600;1,300;1,600&family=Raleway:wght@200;300;400;700&display=swap" rel="stylesheet"> 
+
+  <!-- Twitter Card data -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Pattern Collider">
+  <meta name="twitter:description" content="Create And Share Mathematical Tiling Patterns">
+  <meta name="twitter:site" content="@aatishb">
+  <!-- Twitter Summary card images must be at least 120x120px -->
+  <meta name="twitter:image" content="https://aatishb.com/patterncollider/assets/social-banner.png">
+  
+  <!-- Open Graph data -->
+  <meta property="og:title" content="Pattern Collider" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://aatishb.com/patterncollider/" />
+  <meta property="og:image" content="https://aatishb.com/patterncollider/assets/social-banner.png" />
+  <meta property="og:description" content="Create And Share Mathematical Tiling Patterns" />
+
+
+</head>
+
+<body>
+
+<div id="root"> <!-- Vue can only access things contained within this div -->
+
+  <header>
+    <div class="title" v-if="!fullscreen">
+      <h1>Pattern Collider</h1>
+      <h2>Create Patterns<br>Explore Symmetries</h2>
+    </div>
+
+    <div class="toprightcorner" id="buttons">
+      <a href="https://github.com/aatishb/patterncollider#readme"><img alt="About" src="assets/question.svg" width="18" height="18" /></a>
+      <img tabindex="0" role="button" alt="Expand to fullscreen" v-if="!fullscreen && fullscreenPossible" id="hideonmobile" @click="requestFullscreen" src="assets/expand.svg" width="18" height="18" />
+      <img tabindex="0" role="button" alt="Exit fullscreen mode" v-if="fullscreen && fullscreenPossible" id="hideonmobile" @click="requestFullscreen" src="assets/compress.svg" width="18" height="18" />
+    </div>
+
+  </header>
+
+  <main>
+
+    <div class="half"  :style="{display: show.toLowerCase().includes('grid') ? 'flex' : 'none'}">
+      <div>
+        Grid
+        <button title="Download Grid Image" class="save" @click="gridDownloadCount++">💾</button>
+      </div>
+      <div class="stretch">
+        <p5 src="./drawGrid.js"
+        :style="{display: canvasDisplaySetting}"
+        :data="{
+          grid: grid,
+          multiplier: multiplier,
+          spacing: spacing,
+          intersectionPoints: intersectionPoints,
+          showIntersections: showIntersections,
+          selectedLines: selectedLines,
+          selectedTiles: selectedTiles,
+          display: canvasDisplaySetting,
+          rotate: rotate,
+          download: gridDownloadCount
+        }"
+        v-on:update:add-line="selectedLines = [...selectedLines, $event]"
+        v-on:update:remove-line="selectedLines = selectedLines.filter(e => !(e.angle == $event.angle && e.index == $event.index))"
+        v-on:update:resize-completed="canvas1Resized = true"
+        v-on:update:width="if ($event) {width = $event}"
+        v-on:update:height="if ($event) {height = $event}"
+        ></p5>
+      </div>
+    </div>
+
+    <div class="half"  :style="{display: show.toLowerCase().includes('tiling') ? 'flex': 'none'}">
+      <div>
+        Tiling
+        <button title="Download Tiling Image" class="save" @click="tilingDownloadCount++">💾</button>
+      </div>
+      <div class="stretch">
+        <p5 src="./drawTiles.js"
+        :style="{display: canvasDisplaySetting}"
+        :data="{
+          tiles: intersectionPoints,
+          pan: pan,
+          steps: steps,
+          multiplier: multiplier,
+          zoom: zoom,
+          colorTiles: colorTiles,
+          colors: colorPalette,
+          selectedLines: selectedLines,
+          selectedTiles: selectedTiles,
+          display: canvasDisplaySetting,
+          symmetry: symmetry,
+          stroke: stroke,
+          showStroke: showStroke,
+          rotate: rotate,
+          orientationColoring: orientationColoring,
+          download: tilingDownloadCount
+        }"
+        v-on:update:add-tile="selectedTiles = [...selectedTiles, $event]"
+        v-on:update:remove-tile="selectedTiles = selectedTiles.filter(e => !(e.x == $event.x && e.y == $event.y))"
+        v-on:update:resize-completed="canvas2Resized = true"
+        v-on:update:width="if ($event) {width = $event}"
+        v-on:update:height="if ($event) {height = $event}"
+        ></p5>
+      </div>
+    </div>
+
+    <div class="bottomrightcorner">
+        <button @click="clearSelection" v-if="selectedTiles.length > 0 || selectedLines.length > 0">Clear Selection</button>
+        <button @click="reset" v-if="queryURL.length > 0">Reset</button>
+    </div>
+
+  </main>
+
+  <footer>
+
+    <div class="nav">
+      <div tabindex="0" role="button" @click="mode = 'shape'" :class="mode == 'shape' ? 'lightershade' : ''">Pattern</div>
+      <div tabindex="0" role="button" @click="mode = 'size'" :class="mode == 'size' ? 'lightershade' : ''">Size</div>
+      <div tabindex="0" role="button" @click="mode = 'color'" :class="mode == 'color' ? 'lightershade' : ''">Color</div>
+    </div>
+
+    <div v-if="mode == 'shape'" class="grid lightershade">
+
+      <div>
+        <input class="slider" type="range" id="symmetry" v-model.number="symmetry" min="3" max="19" step="1"></input>
+        <label for="symmetry"><span class="dotted">{{ symmetry }}</span> Fold Symmetry</label>       
+      </div>
+
+      <div>
+        <input class="slider" type="range" id="pattern" v-model.number="pattern" min="0" max="1" step="0.01"></input>
+        <label for="pattern">Pattern:  <span class="dotted">{{ pattern }}</span></label>        
+      </div>
+
+      <div>
+        <input class="slider" type="range" id="rotate" v-model.number="rotate" min="-180" max="180" step="0.1"></input>
+        <label for="rotate">Rotate: {{rotate}}°</label>        
+      </div>
+
+      <div>
+        <input class="slider" type="range" id="pan" v-model.number="pan" min="0" max="1" step="0.001"></input>
+        <label for="pan">Pan</label>        
+      </div>
+
+      <div>
+        <input class="slider" type="range" id="disorder" v-model.number="disorder" min="0" max="1" step="0.01"></input>
+        <label for="disorder">Disorder</label>        
+      </div>
+
+      <div>
+        <button @click="randomSeed = Math.round(100 * (randomSeed + 0.01)) / 100" :disabled="disorder == 0">Randomize</button>
+      </div>
+
+      <div>
+        <button @click="copyURLToClipboard">Share Pattern</button>
+      </div>
+
+    </div>
+
+    <div v-if="mode == 'size'" class="grid lightershade">
+
+      <div>
+        <input class="slider" type="range" id="radius" v-model.number="radius" min="0" max="150" step="1"></input>
+        <label for="radius">Radius</label>        
+      </div>
+
+      <div>
+        <input class="slider" type="range" id="zoom" v-model.number="zoom" min="0.25" max="3" step="0.01"></input>
+        <label for="zoom">Zoom</label>        
+      </div>
+
+      <div style="flex-direction: row; width: auto;">
+        <label for="show">Show</label> &nbsp;&nbsp;       
+        <select id="show" v-model="show">
+          <option>Grid & Tiling</option>
+          <option>Tiling</option>
+          <option>Grid</option>
+        </select>
+      </div>
+
+    </div>
+
+
+    <div v-if="mode == 'color'" class="grid lightershade">
+
+      <div>
+        <button @click="randomizeColors" :disabled="!colorTiles">Change Color Palette</button>
+      </div>
+
+      <div>
+        <div>
+          <label for="reverseColors" :class="colorTiles ? '' : 'grey'">Reverse Colors</label>
+          <input type="checkbox" id="reverseColors" v-model="reverseColors" class="checkbox" :disabled="!colorTiles">
+        </div>
+      </div>
+
+      <div>
+        <div>
+          <label for="orientationColoring" :class="colorTiles ? '' : 'grey'">Color Using Tile Orientation</label>
+          <input type="checkbox" id="orientationColoring" v-model="orientationColoring" class="checkbox" :disabled="!colorTiles">
+        </div>
+      </div>
+      
+      <div>
+        <div>
+          <label for="colorTiles">Color Tiles</label>
+          <input type="checkbox" id="colorTiles" v-model="colorTiles" class="checkbox">
+        </div>
+      </div>
+
+      <div>
+        <div>
+          <label for="showIntersections">Intersections</label>
+          <input type="checkbox" id="showIntersections" v-model="showIntersections" class="checkbox">
+        </div>
+      </div>
+
+      <div>
+        <div>
+          <label for="showStroke" :class="colorTiles ? '' : 'grey'">Edges</label>
+          <input type="checkbox" id="showStroke" v-model="showStroke" class="checkbox" :disabled="!colorTiles">
+        </div>
+      </div>
+
+      <div>
+        <input class="slider" type="range" id="stroke" v-model.number="stroke" min="0" max="255" step="1" :disabled="!(showStroke && colorTiles)"></input>
+        <label for="stroke" :class="showStroke && colorTiles ? '' : 'grey'">Edge Brightness</label>       
+      </div>
+
+      <div>
+        <input class="slider" type="range" id="hue" v-model.number="hue" min="0" max="360" step="1" :disabled="!colorTiles"></input>
+        <label for="hue" :class="colorTiles ? '' : 'grey'">Hue</label>       
+      </div>
+
+      <div>
+        <input class="slider" type="range" id="hueRange" v-model.number="hueRange" min="-180" max="180" step="1" :disabled="!colorTiles"></input>
+        <label for="hueRange" :class="colorTiles ? '' : 'grey'">Hue Range: <span class="dotted">{{hueRange}}</span></label>       
+      </div>
+
+      <div>
+        <input class="slider" type="range" id="sat" v-model.number="sat" min="0" max="100" step="1" :disabled="!colorTiles"></input>
+        <label for="sat" :class="colorTiles ? '' : 'grey'">Saturation</label>
+      </div>
+
+      <div>
+        <input class="slider" type="range" id="contrast" v-model.number="contrast" min="0" max="50" step="1" :disabled="!colorTiles"></input>
+        <label for="contrast" :class="colorTiles ? '' : 'grey'">Contrast</label>
+      </div>
+
+      <div style="width: auto; height: auto;">
+        <div>Tiles</div>
+        <div class="row" style="display: inline-block;">
+          <svg v-for="tile in colorPalette" height = "50" width="50">
+            <polygon :points="SVGPoints(tile)" :style="SVGStyle(tile)">
+          </svg>
+        </div>
+      </div>
+
+    </div>
+
+  </footer>
+
+
+</div>
+
+<script src="vue-definitions.js"></script>
+
+</body>
+</html>

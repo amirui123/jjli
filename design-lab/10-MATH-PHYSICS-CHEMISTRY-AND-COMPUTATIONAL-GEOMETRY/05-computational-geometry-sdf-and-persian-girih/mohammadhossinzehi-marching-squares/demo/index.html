@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>marching-squares-contours: live demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; }
+  body { margin: 0; background: #fbf8f1; color: #243; display: grid; grid-template-columns: 1fr 260px; height: 100vh; }
+  canvas { width: 100%; height: 100%; display: block; cursor: crosshair; }
+  aside { padding: 16px; border-left: 1px solid #ddd6c4; overflow: auto; font-size: 14px; }
+  h1 { font-size: 16px; margin: 0 0 12px; }
+  label { display: block; margin: 12px 0 4px; }
+  input[type=range], select { width: 100%; }
+  .stats { font-family: ui-monospace, monospace; font-size: 12px; background: #f1ecdf; padding: 8px; border-radius: 6px; white-space: pre; }
+  p.hint { color: #667; font-size: 12px; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<aside>
+  <h1>marching squares, live</h1>
+  <label>Field
+    <select id="field">
+      <option value="metaballs">Moving metaballs</option>
+      <option value="terrain">Drifting terrain</option>
+      <option value="paint">Paint your own (drag)</option>
+    </select>
+  </label>
+  <label>Levels: <span id="levelsOut"></span><input id="levels" type="range" min="1" max="30" value="10"></label>
+  <label>Grid cell size (px): <span id="cellOut"></span><input id="cell" type="range" min="3" max="40" value="8"></label>
+  <label>RDP simplify tolerance: <span id="simpOut"></span><input id="simp" type="range" min="0" max="2" step="0.05" value="0"></label>
+  <label><input id="showGrid" type="checkbox"> Show sample grid</label>
+  <label><input id="showDir" type="checkbox"> Show orientation arrows</label>
+  <label><input id="paused" type="checkbox"> Pause animation</label>
+  <div class="stats" id="stats"></div>
+  <p class="hint">Contours are oriented so higher values sit on the left of travel. Try a coarse grid with the
+  checkerboard like saddles in "Paint" mode to see the centre-value disambiguation in action.</p>
+</aside>
+<script type="module">
+import { contours, thresholds, simplify } from '../src/marching-squares.js';
+
+const $ = (id) => document.getElementById(id);
+const canvas = $('c');
+const ctx = canvas.getContext('2d');
+let W = 0, H = 0, paint = null, t = 0;
+
+function resize() {
+  const dpr = window.devicePixelRatio || 1;
+  W = canvas.clientWidth; H = canvas.clientHeight;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  paint = null;
+}
+window.addEventListener('resize', resize);
+
+const balls = Array.from({ length: 6 }, (_, i) => ({
+  x: Math.random(), y: Math.random(), vx: (Math.random() - 0.5) * 0.004, vy: (Math.random() - 0.5) * 0.004, r: 0.05 + 0.04 * (i % 3),
+}));
+
+function field(kind, cols, rows, cell) {
+  const g = [];
+  if (kind === 'paint') {
+    if (!paint || paint.length !== rows || paint[0].length !== cols) paint = Array.from({ length: rows }, () => new Array(cols).fill(0));
+    return paint;
+  }
+  for (let j = 0; j < rows; j++) {
+    const row = new Array(cols);
+    for (let i = 0; i < cols; i++) {
+      const x = (i * cell) / W, y = (j * cell) / H;
+      if (kind === 'metaballs') {
+        let s = 0;
+        for (const b of balls) s += (b.r * b.r) / ((x - b.x) ** 2 * (W / H) ** 2 + (y - b.y) ** 2 + 1e-4);
+        row[i] = Math.min(s, 6);
+      } else {
+        row[i] = Math.sin(x * 9 + t) * Math.cos(y * 7 - t * 0.7) + 0.5 * Math.sin((x + y) * 17 + t * 1.3) + Math.exp(-((x - 0.5) ** 2 + (y - 0.5) ** 2) * 8);
+      }
+    }
+    g.push(row);
+  }
+  return g;
+}
+
+function colour(k) { const h = 190 - 170 * k; return `hsl(${h} 55% ${38 + 10 * k}%)`; }
+
+let dragging = false;
+canvas.addEventListener('pointerdown', (e) => { dragging = true; brush(e); });
+window.addEventListener('pointerup', () => (dragging = false));
+canvas.addEventListener('pointermove', (e) => dragging && brush(e));
+function brush(e) {
+  if ($('field').value !== 'paint' || !paint) return;
+  const cell = +$('cell').value;
+  const r = canvas.getBoundingClientRect();
+  const cx = (e.clientX - r.left) / cell, cy = (e.clientY - r.top) / cell;
+  const rad = Math.max(2, 40 / cell);
+  for (let j = Math.floor(cy - rad); j <= cy + rad; j++) for (let i = Math.floor(cx - rad); i <= cx + rad; i++) {
+    if (paint[j] && paint[j][i] !== undefined) paint[j][i] += Math.exp(-((i - cx) ** 2 + (j - cy) ** 2) / (rad * rad / 3)) * (e.shiftKey ? -0.15 : 0.15);
+  }
+}
+
+function frame() {
+  const cell = +$('cell').value, nLevels = +$('levels').value, tol = +$('simp').value;
+  $('levelsOut').textContent = nLevels; $('cellOut').textContent = cell; $('simpOut').textContent = tol;
+  if (!$('paused').checked) {
+    t += 0.01;
+    for (const b of balls) { b.x += b.vx; b.y += b.vy; if (b.x < 0 || b.x > 1) b.vx *= -1; if (b.y < 0 || b.y > 1) b.vy *= -1; }
+  }
+  const cols = Math.floor(W / cell) + 1, rows = Math.floor(H / cell) + 1;
+  const grid = field($('field').value, cols, rows, cell);
+  const levels = $('field').value === 'paint' ? [0.25, 0.5, 0.75, 1, 1.5, 2, 3].slice(0, nLevels) : thresholds(grid, nLevels);
+
+  const t0 = performance.now();
+  const lines = contours(grid, levels);
+  const dt = performance.now() - t0;
+
+  ctx.clearRect(0, 0, W, H);
+  if ($('showGrid').checked) {
+    ctx.fillStyle = '#c9c0aa';
+    for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) ctx.fillRect(i * cell - 0.75, j * cell - 0.75, 1.5, 1.5);
+  }
+  let verts = 0;
+  for (const c of lines) {
+    const pts = tol > 0 ? simplify(c.points, tol, c.closed) : c.points;
+    verts += pts.length;
+    const k = levels.length > 1 ? levels.indexOf(c.level) / (levels.length - 1) : 0.5;
+    ctx.strokeStyle = colour(k); ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    pts.forEach(([x, y], i) => (i ? ctx.lineTo(x * cell, y * cell) : ctx.moveTo(x * cell, y * cell)));
+    if (c.closed) ctx.closePath();
+    ctx.stroke();
+    if ($('showDir').checked && pts.length > 1) {
+      const [x1, y1] = pts[0], [x2, y2] = pts[1];
+      const a = Math.atan2(y2 - y1, x2 - x1), mx = x1 * cell, my = y1 * cell;
+      ctx.beginPath(); ctx.moveTo(mx + 8 * Math.cos(a), my + 8 * Math.sin(a));
+      ctx.lineTo(mx + 8 * Math.cos(a + 2.5), my + 8 * Math.sin(a + 2.5));
+      ctx.lineTo(mx + 8 * Math.cos(a - 2.5), my + 8 * Math.sin(a - 2.5)); ctx.closePath(); ctx.fillStyle = ctx.strokeStyle; ctx.fill();
+    }
+  }
+  $('stats').textContent = `grid      ${cols} x ${rows}\nlevels    ${levels.length}\ncontours  ${lines.length}\nclosed    ${lines.filter((c) => c.closed).length}\nvertices  ${verts}\nextract   ${dt.toFixed(1)} ms`;
+  requestAnimationFrame(frame);
+}
+resize();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

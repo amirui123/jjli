@@ -49,6 +49,12 @@ interface FontSettings {
   ss01: boolean;
   tabular: boolean;
   compare: boolean;
+  gradAxis: number;
+  glowRadius: number;
+  strokeOutline: boolean;
+  goldFoil: boolean;
+  sizeAdjust: number;
+  ascentOverride: number;
   exportTab: "css" | "tailwind" | "react" | "next";
 }
 
@@ -71,6 +77,12 @@ const DEFAULT: FontSettings = {
   ss01: true,
   tabular: false,
   compare: false,
+  gradAxis: 0,
+  glowRadius: 0,
+  strokeOutline: false,
+  goldFoil: false,
+  sizeAdjust: 98,
+  ascentOverride: 90,
   exportTab: "css",
 };
 
@@ -133,8 +145,19 @@ export const FontStudio: React.FC = () => {
     letterSpacing: `${s.tracking}px`,
     wordSpacing: `${s.wordSpacing}px`,
     textAlign: s.align,
+    fontVariationSettings: `"wght" ${s.weight}, "GRAD" ${s.gradAxis ?? 0}`,
     fontFeatureSettings: `"liga" ${s.ligatures ? 1 : 0}, "calt" ${s.ligatures ? 1 : 0}, "ss01" ${s.ss01 ? 1 : 0}, "kern" 1`,
     fontVariantNumeric: s.tabular ? "tabular-nums" : "normal",
+    textShadow:
+      (s.glowRadius ?? 0) > 0
+        ? `0 0 ${s.glowRadius}px rgba(245, 197, 66, 0.55)`
+        : undefined,
+    WebkitTextStroke: s.strokeOutline ? "1.3px #F5C542" : undefined,
+    backgroundImage: s.goldFoil
+      ? "linear-gradient(135deg, #FEF3C7 0%, #F59E0B 50%, #D97706 100%)"
+      : undefined,
+    WebkitBackgroundClip: s.goldFoil ? "text" : undefined,
+    WebkitTextFillColor: s.goldFoil || s.strokeOutline ? "transparent" : undefined,
   };
 
   const colorClass =
@@ -157,12 +180,15 @@ export const FontStudio: React.FC = () => {
 
   /* ------------------------------------------------------------- snippets */
 
-  const cssSnippet = `/* ${font.nameFa} — ${font.nameEn} */
+  const cssSnippet = `/* ${font.nameFa} — ${font.nameEn} (Zero-CLS Optical Calibration) */
 @font-face {
   font-family: "${font.nameEn}";
   src: url("./${file?.file ?? `${font.nameEn}.woff2`}") format("${file?.format ?? "woff2"}");
   font-weight: ${font.isVariable ? "100 900" : s.weight};
   font-display: swap;
+  size-adjust: ${s.sizeAdjust ?? 98}%;
+  ascent-override: ${s.ascentOverride ?? 90}%;
+  descent-override: 25%;
 }
 
 .type-${font.id} {
@@ -172,7 +198,10 @@ export const FontStudio: React.FC = () => {
   line-height: ${s.lineHeight};
   letter-spacing: ${s.tracking}px;
   word-spacing: ${s.wordSpacing}px;
-  font-feature-settings: "ss01" ${s.ss01 ? 1 : 0}, "liga" ${s.ligatures ? 1 : 0}, "calt" ${s.ligatures ? 1 : 0};
+  font-variation-settings: "wght" ${s.weight}, "GRAD" ${s.gradAxis ?? 0};
+  font-feature-settings: "ss01" ${s.ss01 ? 1 : 0}, "liga" ${s.ligatures ? 1 : 0}, "calt" ${s.ligatures ? 1 : 0};${
+    (s.glowRadius ?? 0) > 0 ? `\n  text-shadow: 0 0 ${s.glowRadius}px rgba(245, 197, 66, 0.55);` : ""
+  }${s.strokeOutline ? `\n  -webkit-text-stroke: 1.3px #F5C542;\n  color: transparent;` : ""}
 }`;
 
   const tailwindSnippet = `<h1
@@ -680,6 +709,57 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
               { value: "ink", label: "مرکب" },
               { value: "grid", label: "شبکه" },
             ]}
+          />
+        </div>
+      </Panel>
+
+      <Panel title="کالیبراسیون نوری و بدون پرش (Zero-CLS)">
+        <div className="space-y-3">
+          <Slider
+            label="محور نوری GRAD (بدون تغییر عرض)"
+            value={s.gradAxis ?? 0}
+            min={-50}
+            max={150}
+            step={5}
+            onChange={(v) => set({ gradAxis: v })}
+            hint="تغییر ضخامت نوری بدون جابجایی چیدمان"
+          />
+          <Slider
+            label="هالهٔ نوری حروف (Optical Bloom)"
+            value={s.glowRadius ?? 0}
+            min={0}
+            max={36}
+            step={2}
+            unit="px"
+            onChange={(v) => set({ glowRadius: v })}
+          />
+          <Slider
+            label="تطبیق ابعاد Zero-CLS (size-adjust)"
+            value={s.sizeAdjust ?? 98}
+            min={85}
+            max={115}
+            step={1}
+            unit="%"
+            onChange={(v) => set({ sizeAdjust: v })}
+          />
+          <Slider
+            label="تطبیق کرسی خط (ascent-override)"
+            value={s.ascentOverride ?? 90}
+            min={75}
+            max={110}
+            step={1}
+            unit="%"
+            onChange={(v) => set({ ascentOverride: v })}
+          />
+          <Toggle
+            label="طلاکوبی سلطنتی (Gold Foil Ink)"
+            checked={Boolean(s.goldFoil)}
+            onChange={(v) => set({ goldFoil: v })}
+          />
+          <Toggle
+            label="حاشیهٔ توخالی پوستر (Text Stroke)"
+            checked={Boolean(s.strokeOutline)}
+            onChange={(v) => set({ strokeOutline: v })}
           />
         </div>
       </Panel>

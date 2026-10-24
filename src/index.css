@@ -1,5 +1,9 @@
 @import "tailwindcss";
 @source not "../toolkit";
+@source not "../design-lab";
+@source not "../public";
+@source not "../share";
+@source not "../docs";
 
 /* ==========================================================================
    گنجینه کامل فونت‌های فارسی (نستعلیق، خوشنویسی، خاص/تایپوگرافی، مدرن و کد)
@@ -707,15 +711,87 @@ body {
 :root {
   --accent: #e8b33a;
   --accent-glow: 232, 179, 58;
-  --bg: #08080a;
-  --panel: #0d0d10;
-  --line: rgba(255, 255, 255, 0.07);
-  --line-strong: rgba(255, 255, 255, 0.12);
+  --bg: #05060a;
+  --panel: #0b0d14;
+  --panel-elevated: #101420;
+  --line: rgba(255, 255, 255, 0.075);
+  --line-strong: rgba(255, 255, 255, 0.14);
+  --font-scale: 1;
   color-scheme: dark;
 }
 
 html {
   scroll-behavior: smooth;
+  font-size: calc(16px * var(--font-scale, 1));
+}
+
+/* کنتراست بالا برای دسترسی‌پذیری و جلوگیری از هالهٔ آستیگماتیسم */
+html[data-contrast="high"] {
+  --line: rgba(255, 255, 255, 0.22);
+  --line-strong: rgba(255, 255, 255, 0.38);
+  --panel: #090b12;
+}
+html[data-contrast="high"] body {
+  color: #ffffff;
+}
+html[data-contrast="high"] [class*="border-white/"] {
+  border-color: rgba(255, 255, 255, 0.24) !important;
+}
+
+/* تغییر زندهٔ فونت نمایشی کل پلتفرم از داخل منوی دسترسی‌پذیری */
+html[data-display-font="font-nastaliq"] .font-hasti {
+  font-family: "IranNastaliq", "GulzarNastaliq", serif !important;
+  line-height: 1.95 !important;
+}
+html[data-display-font="font-morabba"] .font-hasti {
+  font-family: "Morabba", sans-serif !important;
+}
+html[data-display-font="font-kahroba"] .font-hasti {
+  font-family: "Kahroba FD", sans-serif !important;
+}
+html[data-display-font="font-peyda"] .font-hasti {
+  font-family: "Peyda", sans-serif !important;
+}
+
+/* فویل هولوگرافیک و کارت‌های حساس به مختصات موس بدون کلیک */
+.holographic-foil {
+  background: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(245, 184, 65, 0.09) 28%,
+    rgba(34, 211, 238, 0.12) 48%,
+    rgba(167, 139, 250, 0.09) 68%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  mix-blend-mode: screen;
+}
+
+.glass-bevel {
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.09),
+    0 18px 42px -18px rgba(0, 0, 0, 0.78);
+}
+
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+.spotlight-card::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 260ms ease;
+  background: radial-gradient(
+    420px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    rgba(var(--accent-glow), 0.13),
+    transparent 65%
+  );
+}
+.spotlight-card:hover::before {
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -949,13 +1025,11 @@ html[data-motion="reduced"] *::after {
   filter: blur(70px);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .marquee-track,
-  .float-y,
-  .aurora-blob,
-  .skeleton::after {
-    animation: none !important;
-  }
+html[data-reduced-motion="true"] .marquee-track,
+html[data-reduced-motion="true"] .float-y,
+html[data-reduced-motion="true"] .aurora-blob,
+html[data-reduced-motion="true"] .skeleton::after {
+  animation: none !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -1111,6 +1185,6 @@ label {
   to { transform: scale(1.12) translate3d(-2%, 1.5%, 0); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .aurora-fallback { animation: none; }
+html[data-reduced-motion="true"] .aurora-fallback {
+  animation: none;
 }

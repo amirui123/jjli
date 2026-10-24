@@ -77,7 +77,7 @@ const Router: React.FC = () => {
 };
 
 export const App: React.FC = () => (
-  <MotionConfig reducedMotion="user">
+  <MotionConfig reducedMotion="never">
     <AppSettingsProvider>
       <ToastProvider>
         <Router />

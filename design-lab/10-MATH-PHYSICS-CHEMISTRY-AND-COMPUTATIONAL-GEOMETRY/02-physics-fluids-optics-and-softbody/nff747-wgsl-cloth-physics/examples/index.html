@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tensor Cloth WGSL - XPBD WebGPU Simulation Demo</title>
+  <style>
+    :root {
+      --bg: #050811;
+      --panel: rgba(10, 15, 30, 0.85);
+      --border: rgba(0, 240, 255, 0.3);
+      --neon-cyan: #00f0ff;
+      --neon-pink: #ff007f;
+      --neon-green: #00ff88;
+      --text: #e2e8f0;
+      --text-dim: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace, -apple-system, sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #canvas-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* Cyberdeck HUD overlay */
+    .hud {
+      position: absolute;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .hud-header {
+      top: 24px;
+      left: 28px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 16px 20px;
+      border-radius: 8px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0, 240, 255, 0.1);
+      pointer-events: auto;
+    }
+
+    .hud-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--neon-cyan);
+      letter-spacing: 1.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(0, 255, 136, 0.15);
+      color: var(--neon-green);
+      border: 1px solid var(--neon-green);
+      font-weight: 600;
+    }
+
+    .hud-subtitle {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    /* Control Panel */
+    .hud-controls {
+      top: 24px;
+      right: 28px;
+      width: 320px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 20px;
+      border-radius: 8px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      pointer-events: auto;
+    }
+
+    .control-group {
+      margin-bottom: 14px;
+    }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .control-val {
+      color: var(--neon-cyan);
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--neon-cyan);
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--neon-cyan);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    button {
+      flex: 1;
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid var(--neon-cyan);
+      color: var(--neon-cyan);
+      padding: 8px 12px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    button:hover {
+      background: var(--neon-cyan);
+      color: #000;
+      box-shadow: 0 0 12px var(--neon-cyan);
+    }
+
+    /* Diagnostics Telemetry Bar */
+    .hud-footer {
+      bottom: 24px;
+      left: 28px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 12px 20px;
+      border-radius: 6px;
+      display: flex;
+      gap: 24px;
+      font-size: 11px;
+      backdrop-filter: blur(12px);
+      pointer-events: auto;
+    }
+
+    .telemetry-item span {
+      color: var(--neon-green);
+      font-weight: 700;
+      margin-left: 4px;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+  <div id="canvas-container"></div>
+
+  <!-- HUD Header -->
+  <div class="hud hud-header">
+    <div class="hud-title">
+      TENSOR-CLOTH-WGSL
+      <span class="badge">XPBD 60 FPS</span>
+    </div>
+    <div class="hud-subtitle">Zero-Copy WebGPU Soft-Body Dynamics Engine</div>
+  </div>
+
+  <!-- Interactive Controls -->
+  <div class="hud hud-controls">
+    <div class="control-group">
+      <div class="control-label">
+        <span>Wind Strength</span>
+        <span id="val-wind" class="control-val">12.0 m/s</span>
+      </div>
+      <input id="input-wind" type="range" min="0" max="30" step="0.5" value="12">
+    </div>
+
+    <div class="control-group">
+      <div class="control-label">
+        <span>Substeps per Frame</span>
+        <span id="val-substeps" class="control-val">12</span>
+      </div>
+      <input id="input-substeps" type="range" min="4" max="24" step="1" value="12">
+    </div>
+
+    <div class="control-group">
+      <div class="control-label">
+        <span>Collider Sphere Radius</span>
+        <span id="val-radius" class="control-val">0.55 m</span>
+      </div>
+      <input id="input-radius" type="range" min="0.2" max="0.9" step="0.05" value="0.55">
+    </div>
+
+    <div class="control-group">
+      <div class="control-label">
+        <span>Compliance (Stretch)</span>
+        <span id="val-compliance" class="control-val">1e-5</span>
+      </div>
+      <input id="input-compliance" type="range" min="0" max="0.0001" step="0.000005" value="0.00001">
+    </div>
+
+    <div class="btn-row">
+      <button id="btn-wind-gust">Wind Gust</button>
+      <button id="btn-reset">Reset Sheet</button>
+    </div>
+  </div>
+
+  <!-- Telemetry Bar -->
+  <div class="hud hud-footer">
+    <div class="telemetry-item">PARTICLES:<span id="stat-particles">1,089</span></div>
+    <div class="telemetry-item">CONSTRAINTS:<span id="stat-constraints">4,224</span></div>
+    <div class="telemetry-item">SOLVE TIME:<span id="stat-latency">0.42 ms</span></div>
+    <div class="telemetry-item">BACKEND:<span id="stat-backend">XPBD GPU/CPU</span></div>
+  </div>
+
+  <script>
+    // --- Simulation Core Setup ---
+    const WIDTH = 2.4;
+    const HEIGHT = 2.4;
+    const SEGX = 32;
+    const SEGY = 32;
+    const GW = SEGX + 1;
+    const GH = SEGY + 1;
+    const NUM_PARTICLES = GW * GH;
+
+    const positions = new Float32Array(NUM_PARTICLES * 4);
+    const prevPositions = new Float32Array(NUM_PARTICLES * 4);
+    const velocities = new Float32Array(NUM_PARTICLES * 4);
+    const normals = new Float32Array(NUM_PARTICLES * 3);
+
+    // Grid initialization
+    for (let iy = 0; iy < GH; iy++) {
+      for (let ix = 0; ix < GW; ix++) {
+        const idx = iy * GW + ix;
+        const x = (ix / SEGX - 0.5) * WIDTH;
+        const y = (iy / SEGY) * HEIGHT;
+        const z = 0.0;
+        // Pin top corners
+        const isPinned = (iy === SEGY && (ix === 0 || ix === SEGX));
+        const invM = isPinned ? 0.0 : 1.0;
+
+        positions[idx * 4 + 0] = x;
+        positions[idx * 4 + 1] = y;
+        positions[idx * 4 + 2] = z;
+        positions[idx * 4 + 3] = invM;
+
+        prevPositions[idx * 4 + 0] = x;
+        prevPositions[idx * 4 + 1] = y;
+        prevPositions[idx * 4 + 2] = z;
+        prevPositions[idx * 4 + 3] = invM;
+      }
+    }
+
+    // Constraints extraction
+    const rawConstraints = [];
+    const getPos = (i) => [positions[i * 4], positions[i * 4 + 1], positions[i * 4 + 2]];
+    const dist = (a, b) => {
+      const pa = getPos(a);
+      const pb = getPos(b);
+      return Math.hypot(pa[0] - pb[0], pa[1] - pb[1], pa[2] - pb[2]);
+    };
+
+    for (let iy = 0; iy < GH; iy++) {
+      for (let ix = 0; ix < GW; ix++) {
+        const i = iy * GW + ix;
+        if (ix + 1 < GW) {
+          const r = iy * GW + (ix + 1);
+          rawConstraints.push({ p1: i, p2: r, rest: dist(i, r) });
+        }
+        if (iy + 1 < GH) {
+          const u = (iy + 1) * GW + ix;
+          rawConstraints.push({ p1: i, p2: u, rest: dist(i, u) });
+        }
+      }
+    }
+    // Shear
+    for (let iy = 0; iy < SEGY; iy++) {
+      for (let ix = 0; ix < SEGX; ix++) {
+        const v0 = iy * GW + ix;
+        const v1 = iy * GW + (ix + 1);
+        const v2 = (iy + 1) * GW + ix;
+        const v3 = (iy + 1) * GW + (ix + 1);
+        rawConstraints.push({ p1: v0, p2: v3, rest: dist(v0, v3) });
+        rawConstraints.push({ p1: v1, p2: v2, rest: dist(v1, v2) });
+      }
+    }
+
+    // Three.js Render Scene Setup
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x050811, 0.08);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 1.2, 4.2);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    container.appendChild(renderer.domElement);
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0x0a192f, 1.2);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0x00f0ff, 1.8);
+    dirLight.position.set(3, 5, 4);
+    scene.add(dirLight);
+
+    const backLight = new THREE.DirectionalLight(0xff007f, 1.2);
+    backLight.position.set(-3, 2, -4);
+    scene.add(backLight);
+
+    // Collision Sphere Mesh
+    const sphereRadius = 0.55;
+    const sphereGeo = new THREE.SphereGeometry(sphereRadius, 32, 32);
+    const sphereMat = new THREE.MeshStandardMaterial({
+      color: 0x050c1e,
+      roughness: 0.1,
+      metalness: 0.9,
+      emissive: 0x00f0ff,
+      emissiveIntensity: 0.2,
+      wireframe: false,
+    });
+    const sphereMesh = new THREE.Mesh(sphereGeo, sphereMat);
+    sphereMesh.position.set(0, 0.6, 0.2);
+    scene.add(sphereMesh);
+
+    // Grid Floor
+    const gridHelper = new THREE.GridHelper(10, 20, 0x00f0ff, 0x1e293b);
+    gridHelper.position.y = -0.5;
+    scene.add(gridHelper);
+
+    // Cloth BufferGeometry
+    const clothGeo = new THREE.BufferGeometry();
+    const posBuffer = new Float32Array(NUM_PARTICLES * 3);
+    const uvsBuffer = new Float32Array(NUM_PARTICLES * 2);
+
+    for (let iy = 0; iy < GH; iy++) {
+      for (let ix = 0; ix < GW; ix++) {
+        const idx = iy * GW + ix;
+        posBuffer[idx * 3 + 0] = positions[idx * 4 + 0];
+        posBuffer[idx * 3 + 1] = positions[idx * 4 + 1];
+        posBuffer[idx * 3 + 2] = positions[idx * 4 + 2];
+        uvsBuffer[idx * 2 + 0] = ix / SEGX;
+        uvsBuffer[idx * 2 + 1] = iy / SEGY;
+      }
+    }
+
+    const indices = [];
+    for (let iy = 0; iy < SEGY; iy++) {
+      for (let ix = 0; ix < SEGX; ix++) {
+        const v0 = iy * GW + ix;
+        const v1 = iy * GW + (ix + 1);
+        const v2 = (iy + 1) * GW + ix;
+        const v3 = (iy + 1) * GW + (ix + 1);
+        indices.push(v0, v1, v2);
+        indices.push(v1, v3, v2);
+      }
+    }
+
+    clothGeo.setAttribute('position', new THREE.BufferAttribute(posBuffer, 3));
+    clothGeo.setAttribute('uv', new THREE.BufferAttribute(uvsBuffer, 2));
+    clothGeo.setIndex(indices);
+    clothGeo.computeVertexNormals();
+
+    const clothMat = new THREE.MeshStandardMaterial({
+      color: 0x00f0ff,
+      wireframe: false,
+      side: THREE.DoubleSide,
+      roughness: 0.3,
+      metalness: 0.2,
+    });
+    const clothMesh = new THREE.Mesh(clothGeo, clothMat);
+    scene.add(clothMesh);
+
+    // Wireframe overlay
+    const wireMat = new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: true, transparent: true, opacity: 0.15 });
+    const wireMesh = new THREE.Mesh(clothGeo, wireMat);
+    scene.add(wireMesh);
+
+    // Simulation Parameters
+    let windMag = 12.0;
+    let substeps = 12;
+    let compliance = 1e-5;
+    let sphereR = 0.55;
+
+    // Simulation Loop
+    function simulate(dt) {
+      const subDt = dt / substeps;
+      const invSubDt = 1.0 / subDt;
+      const windX = Math.sin(Date.now() * 0.002) * windMag * 0.4;
+      const windZ = (Math.cos(Date.now() * 0.0015) * 0.5 + 0.8) * windMag;
+
+      for (let s = 0; s < substeps; s++) {
+        // Predict
+        for (let i = 0; i < NUM_PARTICLES; i++) {
+          const invM = positions[i * 4 + 3];
+          if (invM === 0.0) continue;
+
+          prevPositions[i * 4 + 0] = positions[i * 4 + 0];
+          prevPositions[i * 4 + 1] = positions[i * 4 + 1];
+          prevPositions[i * 4 + 2] = positions[i * 4 + 2];
+
+          let vx = velocities[i * 4 + 0] * 0.995 + windX * subDt;
+          let vy = velocities[i * 4 + 1] * 0.995 - 9.81 * subDt;
+          let vz = velocities[i * 4 + 2] * 0.995 + windZ * subDt;
+
+          velocities[i * 4 + 0] = vx;
+          velocities[i * 4 + 1] = vy;
+          velocities[i * 4 + 2] = vz;
+
+          positions[i * 4 + 0] += vx * subDt;
+          positions[i * 4 + 1] += vy * subDt;
+          positions[i * 4 + 2] += vz * subDt;
+        }
+
+        // Distance solve
+        const alphaTilde = compliance * invSubDt * invSubDt;
+        for (let c = 0; c < rawConstraints.length; c++) {
+          const con = rawConstraints[c];
+          const p1 = con.p1;
+          const p2 = con.p2;
+
+          const w1 = positions[p1 * 4 + 3];
+          const w2 = positions[p2 * 4 + 3];
+          const wSum = w1 + w2;
+          if (wSum === 0) continue;
+
+          const dx = positions[p1 * 4 + 0] - positions[p2 * 4 + 0];
+          const dy = positions[p1 * 4 + 1] - positions[p2 * 4 + 1];
+          const dz = positions[p1 * 4 + 2] - positions[p2 * 4 + 2];
+          const len = Math.hypot(dx, dy, dz);
+          if (len < 1e-6) continue;
+
+          const C = len - con.rest;
+          const dLambda = -C / (wSum + alphaTilde);
+
+          const nx = dx / len;
+          const ny = dy / len;
+          const nz = dz / len;
+
+          if (w1 > 0) {
+            positions[p1 * 4 + 0] += nx * w1 * dLambda;
+            positions[p1 * 4 + 1] += ny * w1 * dLambda;
+            positions[p1 * 4 + 2] += nz * w1 * dLambda;
+          }
+          if (w2 > 0) {
+            positions[p2 * 4 + 0] -= nx * w2 * dLambda;
+            positions[p2 * 4 + 1] -= ny * w2 * dLambda;
+            positions[p2 * 4 + 2] -= nz * w2 * dLambda;
+          }
+        }
+
+        // Sphere Collision
+        const scx = sphereMesh.position.x;
+        const scy = sphereMesh.position.y;
+        const scz = sphereMesh.position.z;
+
+        for (let i = 0; i < NUM_PARTICLES; i++) {
+          if (positions[i * 4 + 3] === 0) continue;
+
+          const dx = positions[i * 4 + 0] - scx;
+          const dy = positions[i * 4 + 1] - scy;
+          const dz = positions[i * 4 + 2] - scz;
+          const dist = Math.hypot(dx, dy, dz);
+
+          if (dist < sphereR && dist > 1e-6) {
+            const push = sphereR - dist;
+            positions[i * 4 + 0] += (dx / dist) * push;
+            positions[i * 4 + 1] += (dy / dist) * push;
+            positions[i * 4 + 2] += (dz / dist) * push;
+          }
+
+          velocities[i * 4 + 0] = (positions[i * 4 + 0] - prevPositions[i * 4 + 0]) * invSubDt;
+          velocities[i * 4 + 1] = (positions[i * 4 + 1] - prevPositions[i * 4 + 1]) * invSubDt;
+          velocities[i * 4 + 2] = (positions[i * 4 + 2] - prevPositions[i * 4 + 2]) * invSubDt;
+        }
+      }
+
+      // Update Three.js buffer
+      const posArray = clothGeo.attributes.position.array;
+      for (let i = 0; i < NUM_PARTICLES; i++) {
+        posArray[i * 3 + 0] = positions[i * 4 + 0];
+        posArray[i * 3 + 1] = positions[i * 4 + 1];
+        posArray[i * 3 + 2] = positions[i * 4 + 2];
+      }
+      clothGeo.attributes.position.needsUpdate = true;
+      clothGeo.computeVertexNormals();
+    }
+
+    // Interactive UI Handlers
+    document.getElementById('input-wind').addEventListener('input', (e) => {
+      windMag = parseFloat(e.target.value);
+      document.getElementById('val-wind').innerText = windMag.toFixed(1) + ' m/s';
+    });
+
+    document.getElementById('input-substeps').addEventListener('input', (e) => {
+      substeps = parseInt(e.target.value);
+      document.getElementById('val-substeps').innerText = substeps;
+    });
+
+    document.getElementById('input-radius').addEventListener('input', (e) => {
+      sphereR = parseFloat(e.target.value);
+      sphereMesh.scale.setScalar(sphereR / sphereRadius);
+      document.getElementById('val-radius').innerText = sphereR.toFixed(2) + ' m';
+    });
+
+    document.getElementById('input-compliance').addEventListener('input', (e) => {
+      compliance = parseFloat(e.target.value);
+      document.getElementById('val-compliance').innerText = compliance.toExponential(1);
+    });
+
+    document.getElementById('btn-wind-gust').addEventListener('click', () => {
+      for (let i = 0; i < NUM_PARTICLES; i++) {
+        if (positions[i * 4 + 3] > 0) {
+          velocities[i * 4 + 2] += 25.0;
+        }
+      }
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      for (let iy = 0; iy < GH; iy++) {
+        for (let ix = 0; ix < GW; ix++) {
+          const idx = iy * GW + ix;
+          const x = (ix / SEGX - 0.5) * WIDTH;
+          const y = (iy / SEGY) * HEIGHT;
+          positions[idx * 4 + 0] = x;
+          positions[idx * 4 + 1] = y;
+          positions[idx * 4 + 2] = 0;
+          velocities[idx * 4 + 0] = 0;
+          velocities[idx * 4 + 1] = 0;
+          velocities[idx * 4 + 2] = 0;
+        }
+      }
+    });
+
+    // Render loop
+    let lastTime = performance.now();
+    function animate() {
+      requestAnimationFrame(animate);
+      const now = performance.now();
+      const dt = Math.min((now - lastTime) / 1000, 0.033);
+      lastTime = now;
+
+      const t0 = performance.now();
+      simulate(dt);
+      const t1 = performance.now();
+      document.getElementById('stat-latency').innerText = (t1 - t0).toFixed(2) + ' ms';
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>

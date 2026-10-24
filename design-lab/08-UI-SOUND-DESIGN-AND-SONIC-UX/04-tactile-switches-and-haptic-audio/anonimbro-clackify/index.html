@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>CLACKIFY® — MECHANICAL SWITCH EMULATION ENGINE / UNIT D-01</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- ============ TEXTURE LAYERS (CRT / GRAIN) ============ -->
+<div class="grain" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+
+<!-- ============ BOOT SEQUENCE ============ -->
+<div id="boot" class="boot" role="dialog" aria-label="Boot sequence">
+  <div class="boot-inner">
+    <div class="boot-head">
+      <span>CLACKIFY SYSTEMS DIV.</span>
+      <span class="dim">UNIT / D-01</span>
+    </div>
+    <pre id="bootLog" class="boot-log" aria-live="polite"></pre>
+    <div class="boot-bar-wrap"><div id="bootBar" class="boot-bar"></div></div>
+    <div class="boot-foot">
+      <span id="bootHint" class="boot-hint">RENDERING SAMPLE BANKS…</span>
+      <button id="engage" class="btn engage" disabled>▶ ENGAGE AUDIO SUBSYSTEM</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TOP BAR ============ -->
+<header class="topbar">
+  <div class="tb-cell">CLACKIFY<sup>®</sup> <span class="dim">// UNIT D-01</span></div>
+  <div class="tb-cell tb-mid">[ <span id="sysStatus">AUDIO SUBSYSTEM: STANDBY</span> ]</div>
+  <div class="tb-cell tb-right">
+    <span class="signal" id="signalBars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    <span id="led" class="led" title="power state"></span>
+    <span id="clock">--:--:--</span>&nbsp;UTC · REV 2.6
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="hero-type">
+      <div class="hero-serif" aria-hidden="true">thock.</div>
+      <h1>CLACK<span class="out">IFY</span><span class="reg">®</span></h1>
+    </div>
+    <p class="hero-sub">MECHANICAL SWITCH EMULATION ENGINE — ULTRA-LOW LATENCY KEYSTROKE AUDIO SUBSYSTEM FOR LAPTOP KEYBOARDS. SOUNDS LIKE HARDWARE. LOGS LIKE NOTHING.</p>
+    <ul class="hero-meta">
+      <li><b>01</b> LATENCY TARGET &lt; 15 MS</li>
+      <li><b>02</b> 10 SAMPLE BANKS / 120 BUFFERS</li>
+      <li><b>03</b> ZERO KEYSTROKE PERSISTENCE</li>
+    </ul>
+    <div class="ticker">&gt;&gt;&gt; MONITORING: <span id="devIn">PHYSICAL KEYBOARD</span> · OUTPUT: <span id="devOut">DEFAULT AUDIO DEVICE</span> · MODE: CLACK-THROUGH · <span id="tickerPack">BANK SW-06 ALPACA LINEAR</span> \\\</div>
+  </section>
+
+  <!-- ============ MAIN GRID: RANGE + CONTROLS ============ -->
+  <section class="grid-main">
+
+    <!-- [ 01 ] TYPING RANGE -->
+    <div class="panel panel-range">
+      <header class="ph">
+        <span>[ <b class="sec">01</b> / TYPING RANGE ]</span>
+        <span class="ph-meta">/// CLICK TO ARM · ESC TO DISARM</span>
+      </header>
+      <div id="testPad" class="test-pad" tabindex="0" aria-label="Typing test range">
+        <div class="pad-marks" aria-hidden="true"><i>+</i><i>+</i><i>+</i><i>+</i></div>
+        <div class="pad-center">
+          <div id="wordStream" class="word-stream"></div>
+          <dl class="pad-data">
+            <div><dt>SAMPLE BANK</dt><dd id="padBank">SW-06 ALPACA LINEAR</dd></div>
+            <div><dt>STREAM</dt><dd>30 W / VOLATILE</dd></div>
+            <div><dt>FEED</dt><dd id="padFeed">—</dd></div>
+          </dl>
+        </div>
+        <div id="testHint" class="test-hint">CLICK RANGE TO ARM TYPING TEST — KEYSTROKE AUDIO IS ACTIVE REGARDLESS OF FOCUS</div>
+      </div>
+      <footer class="range-stats">
+        <div class="stat"><label>WPM</label><output id="wpm">0</output></div>
+        <div class="stat"><label>ACC %</label><output id="acc">100.0</output></div>
+        <div class="stat"><label>ERR</label><output id="err">0</output></div>
+        <div class="stat"><label>ELAPSED S</label><output id="elapsed">0.0</output></div>
+        <div class="stat stat-btn"><button id="resetTest" class="btn">↻ RESET</button></div>
+      </footer>
+    </div>
+
+    <!-- [ 02 ] CONTROL MODULE -->
+    <aside class="panel panel-controls">
+      <header class="ph">
+        <span>[ <b class="sec">02</b> / CONTROL MODULE ]</span>
+        <span class="ph-meta">/// D-01</span>
+      </header>
+
+      <div class="ctl-power">
+        <button id="powerBtn" class="btn btn-power" aria-pressed="true">POWER [ ON ]</button>
+        <span class="dim">CTRL+ALT+C</span>
+      </div>
+
+      <div class="ctl-block">
+        <div class="ctl-label">SOUND PACK / SAMPLE BANK <output id="packCount" class="ctl-val">—</output></div>
+        <div id="packList" class="pack-list" role="radiogroup" aria-label="Sound pack"></div>
+      </div>
+
+      <div class="ctl-block">
+        <div class="ctl-label">MASTER VOLUME <output id="volumeOut" class="ctl-val">80</output></div>
+        <input id="volume" class="range" type="range" min="0" max="100" value="80" step="1" aria-label="Master volume">
+        <div class="ticks" aria-hidden="true">| | | | | | | | |</div>
+      </div>
+
+      <div class="ctl-block">
+        <div class="ctl-label">PITCH VARIATION <output id="pitchOut" class="ctl-val">±1.2%</output></div>
+        <input id="pitchVar" class="range" type="range" min="0" max="2" value="1.2" step="0.1" aria-label="Pitch variation">
+        <div class="ticks" aria-hidden="true">| | | | | | | | |</div>
+      </div>
+
+      <div class="ctl-block">
+        <div class="ctl-label">EXTERNAL HOOK <output id="hookOut" class="ctl-val">OFF</output></div>
+        <button id="hookBtn" class="btn btn-hook" type="button" aria-pressed="false">[ CONNECT BRIDGE ]</button>
+        <div id="hookStatus" class="flagline">HOOK: DISCONNECTED — IN-PAGE CAPTURE ONLY</div>
+        <div class="hook-meta">LOCALHOST :8091 · PYTHON HELPER · GLOBAL KEY CAPTURE</div>
+      </div>
+
+      <div class="ctl-block">
+        <div class="ctl-label">SYSTEM FLAGS</div>
+        <label class="chk"><input type="checkbox" id="tglRepeat" checked><span>[ <b>X</b> ]</span> KEY REPEAT SUPPRESSION</label>
+        <label class="chk"><input type="checkbox" id="tglGuard" checked><span>[ <b>X</b> ]</span> MUTE DURING SENSITIVE INPUTS</label>
+        <label class="chk"><input type="checkbox" id="tglHeadphone"><span>[ <b>X</b> ]</span> PLAY ONLY WHEN HEADPHONE CONNECTED</label>
+        <div id="hpStatus" class="flagline">HP GATE: —</div>
+      </div>
+
+      <div class="ctl-block">
+        <div class="ctl-label">HOTKEYS / IN-PAGE</div>
+        <dl class="hotkeys">
+          <div><dt><kbd>CTRL</kbd>+<kbd>ALT</kbd>+<kbd>C</kbd></dt><dd>POWER TOGGLE</dd></div>
+          <div><dt><kbd>CTRL</kbd>+<kbd>ALT</kbd>+<kbd>1..9/0</kbd></dt><dd>SELECT BANK</dd></div>
+          <div><dt><kbd>CTRL</kbd>+<kbd>ALT</kbd>+<kbd>M</kbd></dt><dd>SENSITIVE GUARD</dd></div>
+          <div><dt><kbd>CTRL</kbd>+<kbd>ALT</kbd>+<kbd>P</kbd></dt><dd>PAUSE BRIDGE <i>(di helper)</i></dd></div>
+        </dl>
+      </div>
+    </aside>
+  </section>
+
+  <!-- ============ KEY MATRIX + SCOPE ============ -->
+  <section class="grid-sub">
+
+    <!-- [ 03 ] KEY MATRIX -->
+    <div class="panel panel-viz">
+      <header class="ph">
+        <span>[ <b class="sec">03</b> / KEY MATRIX ]</span>
+        <span class="ph-meta">/// 60% LAYOUT · PHOSPHOR = ALPHA · RED = STAB CLASS</span>
+      </header>
+      <div id="kb" class="kb" aria-hidden="true"></div>
+      <div class="event-readout">
+        <div class="ev"><label>KEY</label><output id="evKey">—</output></div>
+        <div class="ev"><label>CODE</label><output id="evCode">—</output></div>
+        <div class="ev"><label>CLASS</label><output id="evClass">—</output></div>
+        <div class="ev"><label>DISPATCH Δ</label><output id="evDelta">—</output></div>
+        <div class="ev"><label>RATE</label><output id="evRate">—</output></div>
+        <div class="ev"><label>VOICE</label><output id="evVoice">—</output></div>
+      </div>
+    </div>
+
+    <!-- [ 04 ] OUTPUT SCOPE -->
+    <div class="panel panel-scope">
+      <header class="ph">
+        <span>[ <b class="sec">04</b> / OUTPUT SCOPE ]</span>
+        <span class="ph-meta">/// MASTER BUS · GAIN <b id="scopeGain">×1.00</b></span>
+      </header>
+      <canvas id="scope" class="scope" width="640" height="180"></canvas>
+      <div class="meters">
+        <div class="meter"><label>RMS</label><div class="mbar"><i id="rmsBar"></i></div><output id="rmsOut">-∞</output></div>
+        <div class="meter"><label>VOICES</label><div class="mbar"><i id="voiceBar"></i></div><output id="voiceOut">0 / 48</output></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ [ 05 ] TELEMETRY ============ -->
+  <section class="panel panel-telemetry">
+    <header class="ph">
+      <span>[ <b class="sec">05</b> / TELEMETRY ]</span>
+      <span class="ph-meta">/// LIVE · 10 HZ</span>
+    </header>
+    <dl class="telemetry">
+      <div><dt>SAMPLE RATE</dt><dd><output id="tSampleRate">—</output> HZ</dd></div>
+      <div><dt>BUFFER</dt><dd><output id="tBuffer">—</output> FR</dd></div>
+      <div><dt>BASE LATENCY</dt><dd><output id="tBase">—</output> MS</dd></div>
+      <div><dt>OUTPUT LATENCY</dt><dd><output id="tOutput">—</output> MS</dd></div>
+      <div><dt>DISPATCH</dt><dd><output id="tDispatch">—</output> MS</dd></div>
+      <div class="hl"><dt>TOTAL LATENCY</dt><dd><output id="tTotal">—</output> MS</dd></div>
+      <div><dt>VOICES ACTIVE</dt><dd><output id="tVoices">0</output> / <span id="tVoicesMax">48</span></dd></div>
+      <div><dt>EVENTS</dt><dd><output id="tEvents">0</output></dd></div>
+      <div><dt>SUPPRESSED</dt><dd><output id="tSuppressed">0</output></dd></div>
+      <div><dt>PROC / HANDLER</dt><dd><output id="tProc">0.0</output> %</dd></div>
+    </dl>
+  </section>
+
+  <!-- ============ PRIVACY + MATRIX ============ -->
+  <section class="grid-sub2">
+
+    <!-- [ 06 ] DATA INTEGRITY -->
+    <div class="panel panel-privacy">
+      <header class="ph">
+        <span>[ <b class="sec">06</b> / DATA INTEGRITY ]</span>
+        <span class="ph-meta">/// PRIVACY GATE</span>
+      </header>
+      <div class="hazard" aria-hidden="true"></div>
+      <div class="privacy-body">
+        <ul class="claims">
+          <li><samp>[OK]</samp> KEYSTROKE DATA: RAM-ONLY · VOLATILE</li>
+          <li><samp>[OK]</samp> DISK WRITES: NONE</li>
+          <li><samp>[OK]</samp> OUTBOUND KEYSTROKE PAYLOADS: NONE</li>
+        </ul>
+        <div class="volatile">
+          <div class="ctl-label">VOLATILE RING BUFFER — LAST 6 EVENTS <button id="clearRing" class="btn btn-xs">FLUSH</button></div>
+          <ol id="volatile" class="volatile-list"></ol>
+        </div>
+        <div class="sensitive">
+          <form onsubmit="return false">
+            <label class="ctl-label" for="sensitiveField">SENSITIVE INPUT TEST FIELD</label>
+            <input id="sensitiveField" type="password" data-sensitive placeholder="FOCUS ME — AUDIO GATES OFF" autocomplete="off">
+          </form>
+          <div id="guardFlag" class="flagline">GUARD: STANDBY</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- [ 07 ] SAMPLE BANK MATRIX -->
+    <div class="panel panel-matrix">
+      <header class="ph">
+        <span>[ <b class="sec">07</b> / SAMPLE BANK MATRIX ]</span>
+        <span class="ph-meta">/// 10 BANKS · 6 KEY CLASSES</span>
+      </header>
+      <table class="matrix">
+        <thead>
+          <tr><th></th><th>ID</th><th>SWITCH</th><th>CHARACTER</th><th>BODY HZ</th><th>CLICK</th><th>RELEASE</th><th>PROFILE</th></tr>
+        </thead>
+        <tbody id="matrixBody"></tbody>
+      </table>
+      <div class="matrix-note">KEY CLASSES: CHAR / SPACE (STAB RATTLE · PITCH ×0.55) / ENTER / BACKSPACE / MODIFIER / NAV</div>
+    </div>
+  </section>
+
+  <!-- ============ [ 08 ] SPECIFICATIONS ============ -->
+  <section class="panel panel-specs">
+    <header class="ph">
+      <span>[ <b class="sec">08</b> / SPECIFICATIONS ]</span>
+      <span class="ph-meta">/// REV 2.6.0-D01</span>
+    </header>
+    <div class="specs-grid">
+      <dl class="specs">
+        <div><dt>ENGINE</dt><dd>WEB AUDIO API · LOW-LATENCY INTERACTIVE STREAM</dd></div>
+        <div><dt>HOOK</dt><dd>IN-PAGE KEYDOWN CAPTURE — NATIVE BUILD: WIN32 LL HOOK / IOHIDMANAGER</dd></div>
+        <div><dt>POLYPHONY</dt><dd>48 VOICES · PER-KEY VOICE ALLOCATION</dd></div>
+        <div><dt>SAMPLE BANKS</dt><dd>10 SWITCH PROFILES · 120 RENDERED BUFFERS</dd></div>
+        <div><dt>PITCH VAR</dt><dd>±2% RANDOM RESAMPLING PER EVENT</dd></div>
+        <div><dt>PERSISTENCE</dt><dd>NONE — VOLATILE RAM ONLY</dd></div>
+      </dl>
+      <div class="tray">
+        <div class="ctl-label">SYSTEM TRAY PREVIEW / NATIVE BUILD</div>
+        <div class="tray-menu">
+          <div class="tray-row">● CLACKIFY — <span id="trayPack">SW-06 ALPACA</span></div>
+          <div class="tray-row">► SOUND PACK <span class="dim">▸ 10 BANKS</span></div>
+          <div class="tray-row">► VOLUME <span id="trayVol" class="dim">▸ 80%</span></div>
+          <div class="tray-row">► POWER [ON] <span class="dim">CTRL+ALT+C</span></div>
+          <div class="tray-row">► PREFERENCES…</div>
+          <div class="tray-row dim">► QUIT</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="ft-cell"><div class="barcode" aria-hidden="true"></div><span class="dim">CLK-2.6-D01</span></div>
+  <div class="ft-cell dim">© 1968–2026 CLACKIFY SYSTEMS DIV. — ALL RIGHTS RESERVED ™</div>
+  <div class="ft-cell dim">REAL SWITCH RECORDINGS · MIT SAMPLES (KBSIM / MECHVIBES) · SEE CREDITS.MD</div>
+  <div class="ft-cell dim">/// END OF TRANSMISSION \\\</div>
+</footer>
+
+<script src="assets/js/samples.js"></script>
+<script src="assets/js/synth.js"></script>
+<script src="assets/js/engine.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/bridge.js"></script>
+</body>
+</html>

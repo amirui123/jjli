@@ -1,695 +1,729 @@
-import React, { useMemo, useState } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import React, { useRef, useState } from "react";
+import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import {
+  ArrowDown,
   ArrowLeft,
-  Boxes,
   BookOpen,
-  Cpu,
-  Download,
+  Brain,
+  Clapperboard,
   Gauge,
   Layers,
+  RotateCcw,
   Sparkles,
   Type,
-  Volume2,
   Waves,
 } from "lucide-react";
 import { PERSIAN_FONT_CATALOG } from "../data/persianFontsCatalog";
-import { TOOLKIT_SKILL_SLUGS, TOOLKIT_STATS } from "../data/toolkitStats";
-import { FEATURED_SOUNDS } from "../data/featuredSounds";
+import { TOOLKIT_STATS } from "../data/toolkitStats";
+import {
+  DESIGN_LAB_PILLARS,
+  DESIGN_LAB_TOTAL_FILES,
+} from "../data/designLabManifest";
 import { navigate } from "../lib/router";
-import { useAppSettings, writePersisted } from "../lib/store";
+import { writePersisted } from "../lib/store";
 import { soundEngine } from "../engines/soundEngine";
-import { faCount, faNum } from "../lib/format";
+import { faNum } from "../lib/format";
 import { cn } from "../ui/kit";
-import { Reveal } from "../ui/MotionSections";
 import { ShaderSurface } from "../components/ShaderSurface";
 import { SHADERS } from "../engines/shaderLab";
 
-const HEADLINE = ["حرکت،", "زبانِ", "رابطِ", "فارسی", "است"];
+const SPRING_SILK = {
+  type: "spring" as const,
+  stiffness: 110,
+  damping: 20,
+  mass: 0.9,
+};
 
-const FEATURED_FONTS = [
-  { id: "iran-nastaliq", word: "نستعلیق", family: '"IranNastaliq", serif', note: "خوشنویسی" },
-  { id: "hasti", word: "هستی", family: '"Hasti", sans-serif', note: "نمایشی" },
-  { id: "morabba", word: "مربع", family: '"Morabba", sans-serif', note: "متغیر" },
-  { id: "kahroba", word: "کهربا", family: '"Kahroba FD", sans-serif', note: "۳محوره" },
-  { id: "darvish", word: "درویش", family: '"Darvish", serif', note: "دست‌نویس" },
-  { id: "vazirmatn", word: "وزیرمتن", family: '"Vazirmatn", sans-serif', note: "متن" },
-];
+const SPRING_SNAPPY = {
+  type: "spring" as const,
+  stiffness: 145,
+  damping: 22,
+  mass: 0.85,
+};
 
-/** real pair count of public/ai/dataset.json (kept in sync by the generator) */
-const AI_DATASET_PAIRS = 40;
+const HERO_FONTS = [
+  { id: "iran-nastaliq", label: "ایران‌نستعلیق" },
+  { id: "hasti", label: "فونت هستی" },
+  { id: "vazirmatn", label: "وزیرمتن" },
+  { id: "peyda", label: "پیدا" },
+] as const;
 
-const STUDIO_CARDS = [
+interface ShowcaseChapter {
+  num: string;
+  eyebrow: string;
+  titleLine1: string;
+  titleLine2: string;
+  desc: string;
+  metricValue: string;
+  metricLabel: string;
+  ctaLabel: string;
+  path: string;
+  accent: string;
+  icon: React.ElementType;
+  visualType: "typography" | "physics" | "vault" | "engines";
+}
+
+const CHAPTERS: ShowcaseChapter[] = [
   {
-    id: "fonts",
+    num: "۰۱",
+    eyebrow: "ATELIER · PERSIAN TYPOGRAPHY",
+    titleLine1: "پنجاه خانواده فونت اصیل؛",
+    titleLine2: "کالیبره‌شده برای خوانایی بی‌نقص",
+    desc: "از شکوه ایران‌نستعلیق تا دقت وزیرمتن و هستی؛ با محور نوری GRAD، طلاکوبی و خروجی بدون پرش.",
+    metricValue: faNum(TOOLKIT_STATS.fonts),
+    metricLabel: "فونت فارسی آماده دانلود (.WOFF2)",
+    ctaLabel: "ورود به آتلیه فونت",
     path: "/studio/fonts",
-    title: "استودیو فونت",
-    desc: `${TOOLKIT_STATS.fonts} خانواده فارسی، نستعلیق و نمایشی — با تنظیمات کامل و دانلود فایل واقعی فونت.`,
-    count: `${faNum(TOOLKIT_STATS.fonts)} خانواده`,
-    icon: Type,
     accent: "#E8B33A",
+    icon: Type,
+    visualType: "typography",
   },
   {
-    id: "motion",
+    num: "۰۲",
+    eyebrow: "OSCILLOSCOPE · 120HZ SPRING PHYSICS",
+    titleLine1: "فیزیک حرکت ۱۲۰ هرتز؛",
+    titleLine2: "بر پایهٔ معادلات دیفرانسیل فنر",
+    desc: "طراحی حرکت‌های ابریشمی با شبیه‌سازی زندهٔ سختی، میرایی و جرم؛ آماده برای Framer Motion و CSS.",
+    metricValue: "۱۲۰Hz",
+    metricLabel: "میرایی مستقل از نرخ فریم",
+    ctaLabel: "ورود به استودیو موشن",
     path: "/studio/motion",
-    title: "استودیو موشن",
-    desc: "فیزیک فنر، منحنی بیزی و شبیه‌سازی عددی؛ کد خروجی همان چیزی است که می‌بینید.",
-    count: "۸ رسیپی",
+    accent: "#22D3EE",
     icon: Gauge,
-    accent: "#22D3EE",
+    visualType: "physics",
   },
   {
-    id: "components",
-    path: "/studio/components",
-    title: "استودیو کامپوننت",
-    desc: `کاوشگر سورس واقعی ${faNum(TOOLKIT_STATS.registries.length)} رجیستری متن‌باز با دانلود فایل و کیت.`,
-    count: `${faNum(TOOLKIT_STATS.components)} فایل`,
-    icon: Layers,
-    accent: "#5EEAD4",
-  },
-  {
-    id: "sounds",
-    path: "/studio/sounds",
-    title: "استودیو صدا",
-    desc: `${faNum(TOOLKIT_STATS.sounds)} افکت رویه‌ای با Web Audio — قابل تنظیم، پخش و دانلود WAV.`,
-    count: `${faNum(TOOLKIT_STATS.sounds)} رسیپی`,
-    icon: Waves,
-    accent: "#FB7185",
-  },
-  {
-    id: "skills",
+    num: "۰۳",
+    eyebrow: "CODEX · 11 KNOWLEDGE PILLARS",
+    titleLine1: "چهار هزار و بیست و سه اسکیل؛",
+    titleLine2: "مرتب‌شده در ۱۱ ستون و ۴۶ زیرشاخه",
+    desc: "مخزن کامل قوانین زیبایی‌شناسی، کپی‌رایتینگ، روانشناسی رنگ، هندسهٔ گره‌چینی و ۸۴ سیستم برند.",
+    metricValue: faNum(DESIGN_LAB_TOTAL_FILES),
+    metricLabel: "فایل، بلوپرینت و مهارت تخصصی",
+    ctaLabel: "کاوش در ۴٬۰۲۳ اسکیل",
     path: "/studio/skills",
-    title: "استودیو مهارت",
-    desc: `${faNum(TOOLKIT_STATS.skills)} سند مهارتی و ${faNum(TOOLKIT_STATS.brands)} سیستم برند، با متن کامل و پرامپت آماده.`,
-    count: `${faNum(TOOLKIT_STATS.skills)} اسکیل`,
-    icon: BookOpen,
     accent: "#A78BFA",
+    icon: BookOpen,
+    visualType: "vault",
   },
   {
-    id: "engines",
-    path: "/studio/engines",
-    title: "آزمایشگاه شیدر",
-    desc: `${faNum(SHADERS.length)} شیدر GLSL زنده با سورس و ممیزی RTL خودکار.`,
-    count: `${faNum(SHADERS.length)} شیدر`,
-    icon: Sparkles,
-    accent: "#22D3EE",
-  },
-  {
-    id: "ai",
-    path: "/studio/ai",
-    title: "استودیو هوش مصنوعی",
-    desc: `${faNum(AI_DATASET_PAIRS)} جفت‌داده آموزش، QLoRA و بنچمارک — آماده تریس برای مدل‌های فارسی.`,
-    count: `${faNum(AI_DATASET_PAIRS)} جفت‌داده`,
-    icon: Sparkles,
-    accent: "#F472B6",
+    num: "۰۴",
+    eyebrow: "BLUEPRINT & DECK · COMPONENTS, SOUND & SHADERS",
+    titleLine1: "کامپوننت، شیدر و صدای رویه‌ای؛",
+    titleLine2: "همه‌چیز زنده، قابل شخصی‌سازی و دانلود",
+    desc: "۴٬۱۹۹ سورس کامپوننت، ۱۸ شیدر WebGL با عدسی شیشه مایع، ۲۰۰ صدای سنتزشده و کارگاه هوش مصنوعی.",
+    metricValue: "۴٬۱۹۹",
+    metricLabel: "سورس کامپوننت + شیدر + صدا",
+    ctaLabel: "ورود به استودیو کامپوننت",
+    path: "/studio/components",
+    accent: "#34D399",
+    icon: Layers,
+    visualType: "engines",
   },
 ];
 
-const Marquee: React.FC<{ items: string[]; reverse?: boolean; duration: number }> = ({
-  items,
-  reverse,
-  duration,
-}) => (
-  <div className="marquee-mask overflow-hidden py-1">
-    <div
-      className="marquee-track gap-2"
-      data-reverse={reverse ? "true" : undefined}
-      style={{ "--marquee-duration": `${duration}s` } as React.CSSProperties}
-    >
-      {[...items, ...items].map((t, i) => (
-        <span
-          key={`${t}-${i}`}
-          className="shrink-0 rounded-full border border-white/[0.07] bg-white/[0.02] px-3 py-1 text-[11px] text-zinc-400"
-        >
-          {t}
-        </span>
-      ))}
-    </div>
-  </div>
-);
+const QUICK_STUDIOS = [
+  { label: "فونت", path: "/studio/fonts", icon: Type, accent: "#E8B33A" },
+  { label: "موشن", path: "/studio/motion", icon: Gauge, accent: "#22D3EE" },
+  { label: "کامپوننت", path: "/studio/components", icon: Layers, accent: "#34D399" },
+  { label: "صدا", path: "/studio/sounds", icon: Waves, accent: "#FB7185" },
+  { label: "۴٬۰۲۳ اسکیل", path: "/studio/skills", icon: BookOpen, accent: "#A78BFA" },
+  { label: "شیدر و RTL", path: "/studio/engines", icon: Sparkles, accent: "#38BDF8" },
+  { label: "هوش مصنوعی", path: "/studio/ai", icon: Brain, accent: "#E879F9" },
+] as const;
 
-const SpecimenStack: React.FC = () => {
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const [fontIdx, setFontIdx] = useState(0);
+export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntro }) => {
+  const [heroFontId, setHeroFontId] = useState<string>("iran-nastaliq");
+  const [heroMotionKey, setHeroMotionKey] = useState<number>(0);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
-  const fonts = useMemo(() => PERSIAN_FONT_CATALOG.filter((f) => f.category !== "code").slice(0, 7), []);
-  const activeFont = fonts[fontIdx % fonts.length];
+  const activeHeroFont =
+    PERSIAN_FONT_CATALOG.find((f) => f.id === heroFontId) ?? PERSIAN_FONT_CATALOG[0];
+
+  // Scroll-driven progress & opposite horizontal kinetic ribbons
+  const { scrollYProgress } = useScroll();
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 90,
+    damping: 24,
+    mass: 0.6,
+  });
+
+  const ribbonRightToLeft = useTransform(smoothProgress, [0, 1], [160, -240]);
+  const ribbonLeftToRight = useTransform(smoothProgress, [0, 1], [-160, 240]);
+  const heroParallaxY = useTransform(smoothProgress, [0, 0.28], [0, -55]);
+
+  const openFontInStudio = (fontId: string) => {
+    soundEngine.playTick(1.05);
+    setHeroFontId(fontId);
+    writePersisted("studio-fonts", { fontId });
+    navigate("/studio/fonts");
+  };
+
+  const openPillarInSkills = (pillarId: string) => {
+    soundEngine.playTick(1.05);
+    const pillar = DESIGN_LAB_PILLARS.find((p) => p.id === pillarId);
+    const firstSc = pillar?.subcategories[0];
+    const firstFile = firstSc?.files[0];
+    const firstUrl =
+      pillar && firstSc && firstFile
+        ? `/design-lab/${pillar.id}/${firstSc.id}/${firstFile[0]}`
+        : undefined;
+    writePersisted("studio-skills-pick-v2", {
+      pillarId,
+      ...(firstUrl ? { vaultUrl: firstUrl } : {}),
+    });
+    navigate("/studio/skills");
+  };
+
+  const replayIntroFilm = () => {
+    soundEngine.playSuccess();
+    if (onReplayIntro) {
+      onReplayIntro();
+      return;
+    }
+    window.dispatchEvent(new CustomEvent("rtmlab:open-intro"));
+  };
 
   return (
-    <div
-      className="relative"
-      onMouseMove={(e) => {
-        const r = e.currentTarget.getBoundingClientRect();
-        setTilt({
-          x: ((e.clientY - r.top) / r.height - 0.5) * -8,
-          y: ((e.clientX - r.left) / r.width - 0.5) * 10,
-        });
-      }}
-      onMouseLeave={() => setTilt({ x: 0, y: 0 })}
-      style={{ perspective: 1200 }}
-    >
+    <div ref={containerRef} className="relative overflow-x-hidden">
+      {/* Top Scroll Progress Laser Line */}
       <motion.div
-        animate={{ rotateX: tilt.x, rotateY: tilt.y }}
-        transition={{ type: "spring", stiffness: 140, damping: 18 }}
-        className="relative space-y-3"
-        style={{ transformStyle: "preserve-3d" }}
-      >
-        <div className="absolute -inset-6 -z-10 rounded-[36px] bg-[radial-gradient(60%_60%_at_50%_40%,rgba(var(--accent-glow),0.18),transparent_70%)] blur-2xl" />
+        style={{ scaleX: smoothProgress, transformOrigin: "right" }}
+        className="fixed inset-x-0 top-14 z-30 h-[2px] bg-gradient-to-l from-[color:var(--accent)] via-cyan-400 to-violet-400"
+      />
 
-        <div className="rounded-2xl border border-white/[0.08] bg-[#0C0C0F]/95 p-4 shadow-2xl backdrop-blur">
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[9px] tracking-[0.2em] text-zinc-500">SPECIMEN</span>
-            <button
-              onClick={() => setFontIdx((i) => i + 1)}
-              className="tap-target rounded-md border border-white/10 px-2 py-1 text-[10px] text-zinc-400 hover:text-white"
-            >
-              فونت بعدی ←
-            </button>
-          </div>
-          <div
-            className="mt-3 text-center text-[34px] leading-[1.6] text-white transition-[font-family] duration-300"
-            style={{ fontFamily: activeFont.family }}
-          >
-            زیبایی در جزئیات است
-          </div>
-          <div className="mt-1 flex items-center justify-between text-[9.5px] text-zinc-500">
-            <span>{activeFont.nameFa}</span>
-            <span className="font-mono" dir="ltr">
-              {activeFont.category}
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-2xl border border-white/[0.08] bg-[#0C0C0F]/95 p-3 shadow-xl">
-            <div className="flex items-center justify-between text-[9px] text-zinc-500">
-              <span className="font-mono">SPRING</span>
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            </div>
-            <motion.button
-              whileHover={{ scale: 1.06, rotate: -2 }}
-              whileTap={{ scale: 0.94 }}
-              transition={{ type: "spring", stiffness: 420, damping: 18 }}
-              onClick={() => soundEngine.playSnap()}
-              className="mt-3 w-full rounded-xl border border-[color:var(--accent)]/40 bg-[color:var(--accent)]/10 py-2 text-[11px] text-[color:var(--accent)]"
-            >
-              دکمه مغناطیسی
-            </motion.button>
-          </div>
-
-          <div className="rounded-2xl border border-white/[0.08] bg-[#0C0C0F]/95 p-3 shadow-xl">
-            <div className="flex items-center justify-between text-[9px] text-zinc-500">
-              <span className="font-mono">AUDIO</span>
-              <Volume2 className="h-3 w-3" />
-            </div>
-            <div className="mt-2 flex h-9 items-end gap-[2px]">
-              {[6, 12, 20, 32, 24, 14, 8, 16, 28, 18, 10, 5].map((h, i) => (
-                <motion.span
-                  key={i}
-                  className="flex-1 rounded-sm bg-rose-400/70"
-                  animate={{ height: [h * 0.5, h, h * 0.6] }}
-                  transition={{ duration: 1.2 + i * 0.06, repeat: Infinity, ease: "easeInOut" }}
-                  style={{ height: h }}
-                />
-              ))}
-            </div>
-            <button
-              onClick={() => soundEngine.playRecipe(FEATURED_SOUNDS[0])}
-              className="mt-2 w-full rounded-lg border border-white/10 py-1 text-[9.5px] text-zinc-400 hover:text-white"
-            >
-              پخش {FEATURED_SOUNDS[0]?.id ?? "sound"}
-            </button>
-          </div>
-        </div>
-      </motion.div>
-    </div>
-  );
-};
-
-
-const MagneticTile: React.FC = () => {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 260, damping: 18, mass: 0.6 });
-  const sy = useSpring(y, { stiffness: 260, damping: 18, mass: 0.6 });
-
-  return (
-    <div
-      className="relative flex h-[150px] items-center justify-center overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0C0C0F]"
-      onPointerMove={(e) => {
-        const r = e.currentTarget.getBoundingClientRect();
-        x.set(((e.clientX - r.left) / r.width - 0.5) * 60);
-        y.set(((e.clientY - r.top) / r.height - 0.5) * 40);
-      }}
-      onPointerLeave={() => {
-        x.set(0);
-        y.set(0);
-      }}
-    >
-      <motion.button
-        style={{ x: sx, y: sy }}
-        whileTap={{ scale: 0.94 }}
-        onClick={() => soundEngine.playSnap()}
-        className="rounded-full border border-[color:var(--accent)]/40 bg-[color:var(--accent)]/12 px-5 py-2.5 text-[12.5px] font-bold text-[color:var(--accent)]"
-      >
-        دکمه مغناطیسی
-      </motion.button>
-      <span className="absolute bottom-2.5 start-3 font-mono text-[9px] text-zinc-600">useSpring</span>
-    </div>
-  );
-};
-
-const SpringStack: React.FC = () => {
-  const [hover, setHover] = useState(false);
-  return (
-    <div
-      className="relative flex h-[150px] items-center justify-center overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0C0C0F]"
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      {[0, 1, 2].map((i) => (
-        <motion.div
-          key={i}
-          className="absolute h-[74px] w-[150px] rounded-xl border border-white/10 bg-gradient-to-br from-[#1A1A20] to-[#0D0D11]"
-          animate={{
-            y: hover ? -i * 12 : i * 10,
-            rotate: hover ? (i - 1) * 5 : (i - 1) * 2,
-            scale: hover ? 1 - i * 0.04 : 1 - i * 0.06,
-          }}
-          transition={{ type: "spring", stiffness: 320, damping: 22, delay: i * 0.03 }}
-          style={{ zIndex: 3 - i }}
-        >
-          <span className="absolute bottom-2 start-2 font-mono text-[8.5px] text-zinc-600">card {i + 1}</span>
-        </motion.div>
-      ))}
-      <span className="absolute bottom-2.5 start-3 font-mono text-[9px] text-zinc-600">stagger + spring</span>
-    </div>
-  );
-};
-
-const KineticTile: React.FC = () => {
-  const [run, setRun] = useState(0);
-  const words = ["حرکت", "با", "وزن", "و", "معنا"];
-  return (
-    <button
-      onClick={() => {
-        setRun((r) => r + 1);
-        soundEngine.playTick(1);
-      }}
-      className="relative flex h-[150px] flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0C0C0F]"
-    >
-      <span key={run} className="flex flex-wrap justify-center gap-1.5 px-3">
-        {words.map((w, i) => (
-          <motion.span
-            key={`${run}-${w}-${i}`}
-            initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ delay: i * 0.06, type: "spring", stiffness: 260, damping: 22 }}
-            className="font-hasti text-[19px] text-zinc-100"
-          >
-            {w}
-          </motion.span>
-        ))}
-      </span>
-      <span className="absolute bottom-2.5 start-3 font-mono text-[9px] text-zinc-600">click to replay</span>
-    </button>
-  );
-};
-
-const MotionTeaser: React.FC = () => (
-  <section>
-    <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
-      <div>
-        <h2 className="font-hasti text-[22px] leading-tight text-white sm:text-[26px]">حرکت را لمس کن</h2>
-        <p className="mt-1 text-[12px] text-zinc-500">
-          سه نمونه واقعی با فیزیک فنر؛ همان چیزی که در استودیو موشن قابل تنظیم است.
-        </p>
-      </div>
-      <button
-        onClick={() => navigate("/studio/motion")}
-        className="text-[11px] text-[color:var(--accent)] hover:underline"
-      >
-        باز کردن استودیو موشن
-      </button>
-    </div>
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-      <MagneticTile />
-      <SpringStack />
-      <KineticTile />
-    </div>
-  </section>
-);
-
-export const Landing: React.FC = () => {
-  const { settings } = useAppSettings();
-  const [copied, setCopied] = useState(false);
-
-  const skillTitles = useMemo(() => TOOLKIT_SKILL_SLUGS, []);
-  const firstRow = useMemo(() => skillTitles.slice(0, 34), [skillTitles]);
-  const secondRow = useMemo(() => skillTitles.slice(34, 68), [skillTitles]);
-  const componentTotal = TOOLKIT_STATS.components;
-
-  return (
-    <div className="space-y-16 pb-6 sm:space-y-20">
-      {/* ------------------------------------------------------------- hero */}
-      <section className="relative -mx-4 overflow-hidden px-4 pb-2 pt-4 sm:-mx-6 sm:px-6">
-        <div
-          className="pointer-events-none absolute -top-32 start-1/4 -z-10 h-[420px] w-[420px] rounded-full bg-[color:var(--accent)]/10 aurora-blob"
-          aria-hidden
-        />
-        <div className="pointer-events-none absolute -top-14 end-0 -z-10 h-[320px] w-[320px] rounded-full bg-[#6366F1]/10 aurora-blob" aria-hidden />
-
-        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1 text-[10.5px] text-zinc-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              کاملاً رایگان · بدون حساب کاربری · همه‌چیز در مرورگر
-            </div>
-
-            <h1 className="mt-4 font-hasti text-[31px] leading-[1.35] text-white sm:text-[46px] lg:text-[58px]">
-              {HEADLINE.map((word, i) => (
-                <motion.span
-                  key={word}
-                  initial={{ opacity: 0, y: 26, filter: "blur(8px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  transition={{ delay: 0.06 * i, type: "spring", stiffness: 220, damping: 24 }}
-                  className={cn("inline-block", i === 3 && "text-[color:var(--accent)]")}
-                >
-                  {word}&nbsp;
-                </motion.span>
-              ))}
-            </h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.34 }}
-              className="mt-4 max-w-xl text-[13px] leading-relaxed text-zinc-400 sm:text-[13.5px]"
-            >
-              یک آزمایشگاه مهندسی کامل برای رابط‌های فارسی: {faNum(TOOLKIT_STATS.fonts)} خانواده فونت،
-              فیزیک حرکت با شبیه‌سازی واقعی، {faCount(componentTotal)} فایل کامپوننت متن‌باز،{" "}
-              {faNum(TOOLKIT_STATS.sounds)} افکت صوتی و {faNum(TOOLKIT_STATS.skills)} سند
-              مهارتی — همه با استودیوی اختصاصی، تنظیمات کامل و خروجی قابل دانلود.
-            </motion.p>
-
-            <div className="mt-6 flex flex-wrap items-center gap-2.5">
-              <button
-                onClick={() => {
-                  if (settings.sound) soundEngine.playSuccess();
-                  navigate("/dashboard");
-                }}
-                className="group inline-flex items-center gap-2 rounded-xl bg-[color:var(--accent)] px-4 py-2.5 text-[12.5px] font-bold text-black transition-transform hover:-translate-y-0.5"
-              >
-                ورود به داشبورد
-                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
-              </button>
-              <button
-                onClick={() => navigate("/studio/fonts")}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/12 bg-white/[0.03] px-4 py-2.5 text-[12.5px] text-zinc-200 transition-colors hover:border-white/25"
-              >
-                <Type className="h-4 w-4" />
-                امتحان فونت‌ها
-              </button>
-              <button
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(window.location.href);
-                    setCopied(true);
-                    soundEngine.playTick(1.2);
-                    window.setTimeout(() => setCopied(false), 1600);
-                  } catch {
-                    /* ignore */
-                  }
-                }}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 px-3 py-2.5 text-[11.5px] text-zinc-500 transition-colors hover:text-zinc-200"
-              >
-                {copied ? "کپی شد" : "اشتراک لینک"}
-              </button>
-            </div>
-
-            <dl className="mt-7 grid max-w-lg grid-cols-3 gap-3">
-              {[
-                { k: "فونت فارسی", v: faNum(TOOLKIT_STATS.fonts) },
-                { k: "فایل کامپوننت", v: faCount(componentTotal) },
-                { k: "اسکیل مهندسی", v: faNum(TOOLKIT_STATS.skills) },
-              ].map((s) => (
-                <div key={s.k} className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2">
-                  <dt className="text-[10px] text-zinc-500">{s.k}</dt>
-                  <dd className="font-mono text-[18px] tracking-tight text-zinc-100">{s.v}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-
-          <SpecimenStack />
-        </div>
-      </section>
-
-      {/* ---------------------------------------------------------- marquee */}
-      <Reveal variant="rail-stagger">
-      <section className="space-y-2">
-        <div className="flex items-end justify-between">
-          <h2 className="text-[12px] text-zinc-500">
-            {faNum(TOOLKIT_STATS.skills)} سند مهارتی مستند — از Awwwards تا شیدر و شادcn
-          </h2>
-          <button
-            onClick={() => navigate("/studio/skills")}
-            className="text-[11px] text-[color:var(--accent)] hover:underline"
-          >
-            همه را ببین
-          </button>
-        </div>
-        <Marquee items={firstRow} duration={58} />
-        <Marquee items={secondRow} reverse duration={70} />
-      </section>
-      </Reveal>
-
-      {/* ----------------------------------------------------------- studios */}
-      <Reveal variant="mask-up">
-      <section>
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <h2 className="font-hasti text-[24px] leading-tight text-white sm:text-[26px]">
-              {faNum(STUDIO_CARDS.length)} استودیو، یک زبان طراحی
-            </h2>
-            <p className="mt-1 text-[12px] text-zinc-500">
-              هر بخش صفحه مستقل، تنظیمات کامل و خروجی واقعی دارد — نه دموی تزئینی.
-            </p>
-          </div>
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="rounded-lg border border-white/10 px-2.5 py-1.5 text-[11px] text-zinc-400 hover:text-white"
-          >
-            نمای داشبورد
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {STUDIO_CARDS.map((card, i) => (
-            <motion.button
-              key={card.id}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ delay: i * 0.04, duration: 0.35 }}
-              onClick={() => navigate(card.path)}
-              className="group relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0C0C0F] p-4 text-start transition-colors hover:border-white/15"
-            >
-              <span
-                className="pointer-events-none absolute -end-10 -top-10 h-28 w-28 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
-                style={{ background: `${card.accent}33` }}
-              />
-              <div className="flex items-start justify-between">
-                <span
-                  className="flex h-9 w-9 items-center justify-center rounded-xl border"
-                  style={{ borderColor: `${card.accent}33`, background: `${card.accent}12`, color: card.accent }}
-                >
-                  <card.icon className="h-4 w-4" />
-                </span>
-                <span className="rounded-full border border-white/[0.07] px-2 py-0.5 font-mono text-[9px] text-zinc-500">
-                  {card.count}
-                </span>
-              </div>
-              <h3 className="mt-3 text-[14px] font-bold text-zinc-100">{card.title}</h3>
-              <p className="mt-1 text-[11.5px] leading-relaxed text-zinc-500">{card.desc}</p>
-              <span className="mt-3 inline-flex items-center gap-1 text-[10.5px] text-zinc-500 transition-colors group-hover:text-[color:var(--accent)]">
-                ورود به استودیو
-                <ArrowLeft className="h-3 w-3" />
-              </span>
-            </motion.button>
-          ))}
-        </div>
-      </section>
-      </Reveal>
-
-      <Reveal variant="tilt-in">
-        <MotionTeaser />
-      </Reveal>
-
-      {/* ------------------------------------------------------------- fonts */}
-      <Reveal variant="blur-in">
-      <section>
-        <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <h2 className="font-hasti text-[22px] leading-tight text-white sm:text-[26px]">فونت‌هایی که واقعاً فارسی‌اند</h2>
-            <p className="mt-1 text-[12px] text-zinc-500">
-              نستعلیق، خوشنویسی، نمایشی و متغیر — هر کدام با فایل واقعی و پیش‌نمایش زنده.
-            </p>
-          </div>
-          <button
-            onClick={() => navigate("/studio/fonts")}
-            className="text-[11px] text-[color:var(--accent)] hover:underline"
-          >
-            استودیو فونت
-          </button>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
-          {FEATURED_FONTS.map((f) => (
-            <button
-              key={f.id}
-              onClick={() => {
-                // hand the choice to the font studio through its own persisted key
-                writePersisted<{ fontId: string }>("studio-fonts", { fontId: f.id });
-                navigate("/studio/fonts");
-              }}
-              className="group rounded-2xl border border-white/[0.07] bg-[#0B0B0E] p-3 text-center transition-all hover:-translate-y-1 hover:border-[color:var(--accent)]/30"
-            >
-              <div
-                className="text-[26px] leading-[1.9] text-zinc-100 transition-colors group-hover:text-[color:var(--accent)]"
-                style={{ fontFamily: f.family }}
-              >
-                {f.word}
-              </div>
-              <div className="mt-1 text-[9.5px] text-zinc-500">{f.note}</div>
-            </button>
-          ))}
-        </div>
-      </section>
-      </Reveal>
-
-      {/* ------------------------------------------------------------ shader */}
-      <Reveal variant="drop-in">
-      <section className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-[#08080B]">
-        <div className="absolute inset-0 opacity-80">
+      {/* =====================================================================
+         SCENE 01: FULL-SCREEN CHOREOGRAPHED HERO
+         - Intro badge drops from TOP (y: -70 -> 0)
+         - Line 1 slides from RIGHT (x: 170 -> 0)
+         - Line 2 slides from LEFT (x: -170 -> 0)
+         ===================================================================== */}
+      <section className="relative flex min-h-[84vh] flex-col items-center justify-center overflow-hidden px-4 py-16 sm:px-10">
+        {/* Soft Ambient Living Shader Aura */}
+        <div className="pointer-events-none absolute inset-0 opacity-25">
           <ShaderSurface
             def={SHADERS[0]}
-            speed={0.4}
-            scale={1.15}
-            hue={0.4}
-            warp={1.1}
-            grain={0.3}
-            interactive
+            speed={0.2}
+            scale={1.35}
+            hue={0.12}
+            warp={0.7}
+            grain={0.15}
+            interactive={false}
             className="h-full w-full"
           />
         </div>
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-l from-[#08080B] via-[#08080B]/80 to-transparent" />
-        <div className="relative max-w-md p-5 sm:p-8">
-          <span className="font-mono text-[9.5px] tracking-[0.2em] text-[color:var(--accent)]">
-            LIVE · GLSL ES 1.0
-          </span>
-          <h2 className="mt-2 font-hasti text-[24px] leading-tight text-white sm:text-[30px]">
-            {faNum(SHADERS.length)} شیدر واقعی، روی GPU خودت
-          </h2>
-          <p className="mt-2 text-[12px] leading-relaxed text-zinc-400">
-            یونیفرم‌ها را زنده تغییر بده، سورس GLSL را بردار و همان کد را در پروژه‌ات بگذار.
-            هیچ تصویری دانلود نمی‌شود؛ همه‌چیز همان لحظه ساخته می‌شود.
-          </p>
-          <button
-            onClick={() => navigate("/studio/engines")}
-            className="mt-4 inline-flex items-center gap-1.5 rounded-xl border border-[color:var(--accent)]/40 bg-[color:var(--accent)]/10 px-3 py-2 text-[11.5px] text-[color:var(--accent)]"
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(60% 65% at 50% 45%, rgba(5,6,10,0.15) 0%, #05060A 82%)",
+          }}
+        />
+
+        <motion.div
+          key={heroMotionKey}
+          style={{ y: heroParallaxY }}
+          className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center text-center"
+        >
+          {/* 1. TOP-DROP INTRO PILL (معرفی از بالا می‌آید پایین) */}
+          <motion.div
+            initial={{ opacity: 0, y: -72, filter: "blur(10px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ ...SPRING_SILK, delay: 0.05 }}
+            className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.03] px-4 py-1.5 text-[11.5px] text-zinc-300 backdrop-blur-md"
           >
-            <Sparkles className="h-3.5 w-3.5" />
-            باز کردن آزمایشگاه شیدر
-          </button>
-        </div>
-      </section>
-      </Reveal>
-
-      {/* ------------------------------------------------------------ motion */}
-      <Reveal variant="clip-wipe">
-      <section className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="rounded-3xl border border-white/[0.07] bg-gradient-to-br from-[#0E0E12] to-[#08080A] p-5 sm:p-6">
-          <span className="font-mono text-[9.5px] tracking-[0.2em] text-[color:var(--accent)]">REAL PHYSICS</span>
-          <h2 className="mt-2 font-hasti text-[24px] leading-tight text-white sm:text-[30px]">
-            حرکت را با ریاضی بساز، نه با حدس
-          </h2>
-          <p className="mt-2 text-[12px] leading-relaxed text-zinc-400">
-            استودیو موشن فنر را عددی انتگرال می‌گیرد: زمان نشست، نسبت میرایی، فراجهش و منحنی
-            واقعی. همان اعداد داخل کد و کیت دانلودی قرار می‌گیرند.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
+            <span className="h-2 w-2 rounded-full bg-[color:var(--accent)] shadow-[0_0_12px_var(--accent)]" />
+            <span>آتلیهٔ مهندسی تایپوگرافی، فیزیک حرکت و طراحی راست‌به‌چپ</span>
             <button
+              type="button"
               onClick={() => {
-                if (settings.sound) soundEngine.playSpring();
-                navigate("/studio/motion");
+                soundEngine.playTick(1.15);
+                setHeroMotionKey((k) => k + 1);
               }}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-[color:var(--accent)]/40 bg-[color:var(--accent)]/10 px-3 py-2 text-[11.5px] text-[color:var(--accent)]"
+              aria-label="پخش دوباره انیمیشن ورود"
+              title="پخش دوباره انیمیشن ورود نوشته‌ها"
+              className="ms-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-zinc-300 transition-transform hover:rotate-180 hover:text-white"
             >
-              <Sparkles className="h-3.5 w-3.5" />
-              ساختن حرکت
+              <RotateCcw className="h-3 w-3" />
             </button>
-            <button
-              onClick={() => navigate("/studio/components")}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 px-3 py-2 text-[11.5px] text-zinc-400 hover:text-white"
+          </motion.div>
+
+          {/* 2. SIDE-SLIDING MONUMENTAL HEADLINE (نوشته از کنار می‌آید سر جاش) */}
+          <h1
+            style={{ fontFamily: activeHeroFont.family }}
+            className="mt-10 flex w-full flex-col items-center justify-center gap-2 text-[42px] leading-[1.7] text-white sm:text-[68px] lg:text-[80px]"
+          >
+            {/* Right-to-Center Glide */}
+            <motion.span
+              initial={{ opacity: 0, x: 180, filter: "blur(14px)" }}
+              animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+              transition={{ ...SPRING_SILK, delay: 0.18 }}
+              className="block text-zinc-100"
             >
-              <Boxes className="h-3.5 w-3.5" />
-              دیدن کامپوننت‌ها
-            </button>
+              در امتدادِ نور،
+            </motion.span>
+
+            {/* Left-to-Center Glide */}
+            <motion.span
+              initial={{ opacity: 0, x: -180, filter: "blur(14px)" }}
+              animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+              transition={{ ...SPRING_SILK, delay: 0.34 }}
+              className="block bg-gradient-to-l from-amber-200 via-[color:var(--accent)] to-amber-100 bg-clip-text text-transparent"
+            >
+              هر خط جان می‌گیرد
+            </motion.span>
+          </h1>
+
+          {/* 3. TOP-DROP SUBTITLE (معرفی کوتاه از بالا فرود می‌آید) */}
+          <motion.p
+            initial={{ opacity: 0, y: -40, filter: "blur(8px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ ...SPRING_SILK, delay: 0.5 }}
+            className="mt-6 max-w-xl text-[14px] leading-relaxed text-zinc-400 sm:text-[16px]"
+          >
+            هفت استودیوی تخصصی، {faNum(DESIGN_LAB_TOTAL_FILES)} اسکیل مهندسی،{" "}
+            {faNum(TOOLKIT_STATS.fonts)} فونت اصیل و ۴٬۱۹۹ کامپوننت تعاملی — با اسکرول به پایین، هر
+            بخش تیکه‌تیکه در برابر شما جان می‌گیرد.
+          </motion.p>
+
+          {/* 4. SIDE-CONVERGING ACTION BUTTONS (دکمه‌ها از دو طرف به مرکز می‌آیند) */}
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3.5">
+            <motion.button
+              type="button"
+              initial={{ opacity: 0, x: 90 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ ...SPRING_SNAPPY, delay: 0.62 }}
+              onClick={() => {
+                soundEngine.playTick(1.1);
+                navigate("/studio/skills");
+              }}
+              className="inline-flex items-center gap-2.5 rounded-2xl bg-[color:var(--accent)] px-7 py-3.5 text-[13px] font-bold text-[#06070B] shadow-[0_14px_38px_-10px_rgba(232,179,58,0.65)] transition-transform hover:scale-[1.03]"
+            >
+              <span>ورود به مخزن {faNum(DESIGN_LAB_TOTAL_FILES)} اسکیل</span>
+              <ArrowLeft className="h-4 w-4" />
+            </motion.button>
+
+            <motion.button
+              type="button"
+              initial={{ opacity: 0, x: -90 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ ...SPRING_SNAPPY, delay: 0.68 }}
+              onClick={replayIntroFilm}
+              className="inline-flex items-center gap-2 rounded-2xl border border-white/12 bg-white/[0.03] px-5 py-3.5 text-[12.5px] text-zinc-200 backdrop-blur-md transition-colors hover:border-white/25 hover:bg-white/[0.08]"
+            >
+              <Clapperboard className="h-4 w-4 text-[color:var(--accent)]" />
+              <span>تماشای فیلم ورودی</span>
+            </motion.button>
           </div>
+
+          {/* 5. TOP-DROPPING FEATURED FONT PILLS (شامل «فونت هستی» برای تست مستقیم) */}
+          <motion.div
+            initial={{ opacity: 0, y: -32 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...SPRING_SILK, delay: 0.8 }}
+            className="mt-12 flex flex-wrap items-center justify-center gap-2"
+          >
+            <span className="me-1 text-[11px] text-zinc-500">تغییر زندهٔ خط تیتر:</span>
+            {HERO_FONTS.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onMouseEnter={() => setHeroFontId(f.id)}
+                onClick={() => openFontInStudio(f.id)}
+                className={cn(
+                  "rounded-full border px-3.5 py-1.5 text-[11px] transition-all",
+                  heroFontId === f.id
+                    ? "border-[color:var(--accent)]/60 bg-[color:var(--accent)]/15 text-white"
+                    : "border-white/[0.07] bg-white/[0.02] text-zinc-400 hover:border-white/20 hover:text-zinc-200"
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </motion.div>
+        </motion.div>
+
+        {/* Breathing Scroll Down Indicator */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.0, duration: 0.6 }}
+          className="mt-14 flex flex-col items-center gap-2 text-zinc-500"
+        >
+          <span className="text-[10.5px] tracking-wider">اسکرول کنید تا پرده‌ها باز شوند</span>
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <ArrowDown className="h-4 w-4 text-[color:var(--accent)]" />
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* =====================================================================
+         SCENE 02: SCROLL-DRIVEN KINETIC TYPOGRAPHY RIBBONS
+         - Two monumental lines glide horizontally in opposite directions on scroll
+         ===================================================================== */}
+      <section className="relative overflow-hidden border-y border-white/[0.06] bg-[#07080D] py-16 sm:py-24">
+        <div className="space-y-4 select-none">
+          <motion.div
+            style={{ x: ribbonRightToLeft }}
+            className="whitespace-nowrap font-hasti text-[34px] text-white/15 sm:text-[56px]"
+          >
+            تایپوگرافی نوری فارسی ✦ فیزیک فنر ۱۲۰ هرتز ✦ هندسهٔ گره‌چینی ایرانی ✦ شیشهٔ مایع اسنل ✦
+          </motion.div>
+
+          <motion.div
+            style={{ x: ribbonLeftToRight }}
+            className="whitespace-nowrap font-nastaliq text-[38px] text-[color:var(--accent)]/35 sm:text-[64px]"
+          >
+            در امتدادِ نور هر خط جان می‌گیرد ✦ چهار هزار و بیست و سه مهارت مهندسی ✦ هفت استودیوی تخصصی ✦
+          </motion.div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { t: "دانلود واقعی", d: "فایل فونت، TSX، WAV و ZIP — بدون لینک الکی", i: Download },
-            { t: `${faNum(TOOLKIT_STATS.fonts)} فونت بومی`, d: "از ایران‌نستعلیق تا کهربای سه‌محوره", i: Type },
-            { t: "بدون سرور", d: "همه پردازش‌ها در مرورگر شما", i: Cpu },
-            { t: "RTL-first", d: "کلاس‌های منطقی، اعداد فارسی، نیم‌فاصله", i: Sparkles },
-          ].map((f) => (
-            <div key={f.t} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3">
-              <f.i className="h-4 w-4 text-[color:var(--accent)]" />
-              <div className="mt-2 text-[11.5px] font-bold text-zinc-200">{f.t}</div>
-              <div className="mt-0.5 text-[10.5px] leading-relaxed text-zinc-500">{f.d}</div>
-            </div>
-          ))}
+        {/* Center Manifesto Card Dropping from Top on Scroll */}
+        <div className="mx-auto mt-10 max-w-2xl px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: -65, filter: "blur(8px)" }}
+            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            viewport={{ once: false, amount: 0.4 }}
+            transition={SPRING_SILK}
+            className="rounded-3xl border border-white/[0.08] bg-[#0B0D15]/90 px-6 py-7 backdrop-blur-xl sm:px-10"
+          >
+            <span className="font-mono text-[10px] tracking-[0.22em] text-[color:var(--accent)]">
+              SCROLL-CHOREOGRAPHED ARCHITECTURE
+            </span>
+            <p className="mt-3 text-[15px] leading-relaxed text-zinc-200 sm:text-[17px]">
+              به‌جای صفحه‌های شلوغ و پر از باکس‌های تودرتو، هر قلمرو در یک پردهٔ مستقل با حرکت از
+              بالا و کناره‌ها در برابر چشم شما شکل می‌گیرد.
+            </p>
+          </motion.div>
         </div>
       </section>
-      </Reveal>
 
-      {/* --------------------------------------------------------------- cta */}
-      <Reveal variant="spring-pop">
-      <section className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-[#0B0B0E] px-5 py-10 text-center sm:px-6 sm:py-12">
-        <div className="pointer-events-none absolute inset-0 -z-0 opacity-70">
-          <div className="absolute start-1/4 top-0 h-56 w-56 rounded-full bg-[color:var(--accent)]/12 aurora-blob" />
-          <div className="absolute end-1/4 bottom-0 h-52 w-52 rounded-full bg-[#6366F1]/12 aurora-blob" />
-        </div>
-        <div className="relative">
-          <p className="font-nastaliq text-[22px] leading-[2] text-[color:var(--accent)] sm:text-[32px]">
-            هر چه بسازی، از آنِ خودت است
-          </p>
-          <h2 className="mt-2 font-hasti text-[25px] leading-tight text-white sm:text-[36px]">
-            همین حالا شروع کن — بدون ثبت‌نام
+      {/* =====================================================================
+         SCENE 03: PIECE-BY-PIECE SCROLL SHOWCASES (تیکه‌تیکه با اسکرول)
+         - For each chapter:
+           1) Number & Eyebrow drop from TOP (y: -70 -> 0)
+           2) Headline & Story glide in from RIGHT (x: 150 -> 0)
+           3) Interactive Stage glides in from LEFT (x: -150 -> 0)
+         ===================================================================== */}
+      <div className="mx-auto max-w-6xl space-y-28 px-4 py-24 sm:px-8 sm:py-32">
+        {CHAPTERS.map((ch, idx) => {
+          const Icon = ch.icon;
+          const isEven = idx % 2 === 0;
+
+          return (
+            <section
+              key={ch.num}
+              className="relative flex min-h-[68vh] flex-col justify-center"
+            >
+              {/* PIECE 1: TOP-DROP INTRODUCTION HEADER (معرفی از بالا می‌آید) */}
+              <motion.div
+                initial={{ opacity: 0, y: -70, filter: "blur(8px)" }}
+                whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                viewport={{ once: false, amount: 0.3 }}
+                transition={SPRING_SILK}
+                className="mb-8 flex items-center gap-3"
+              >
+                <span
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl border font-mono text-[14px] font-bold"
+                  style={{
+                    borderColor: `${ch.accent}45`,
+                    backgroundColor: `${ch.accent}15`,
+                    color: ch.accent,
+                  }}
+                >
+                  {ch.num}
+                </span>
+                <div className="h-px w-10 bg-white/15" />
+                <span className="font-mono text-[10.5px] tracking-[0.2em] text-zinc-400">
+                  {ch.eyebrow}
+                </span>
+              </motion.div>
+
+              {/* PIECE 2 & 3: SIDE-SLIDING TEXT + SIDE-SLIDING VISUAL STAGE */}
+              <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-14">
+                {/* Text Column: Glides in from the Side into its slot */}
+                <motion.div
+                  initial={{
+                    opacity: 0,
+                    x: isEven ? 150 : -150,
+                    filter: "blur(12px)",
+                  }}
+                  whileInView={{
+                    opacity: 1,
+                    x: 0,
+                    filter: "blur(0px)",
+                  }}
+                  viewport={{ once: false, amount: 0.25 }}
+                  transition={{ ...SPRING_SILK, delay: 0.08 }}
+                  className={cn(
+                    "space-y-5 lg:col-span-6",
+                    !isEven && "lg:order-2"
+                  )}
+                >
+                  <h2 className="font-hasti text-[30px] leading-[1.45] text-white sm:text-[40px]">
+                    <span className="block">{ch.titleLine1}</span>
+                    <span className="mt-1 block" style={{ color: ch.accent }}>
+                      {ch.titleLine2}
+                    </span>
+                  </h2>
+
+                  <p className="max-w-lg text-[14px] leading-relaxed text-zinc-400 sm:text-[15.5px]">
+                    {ch.desc}
+                  </p>
+
+                  {/* Metric + Action Button */}
+                  <div className="flex flex-wrap items-center gap-5 pt-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundEngine.playTick(1.1);
+                        navigate(ch.path);
+                      }}
+                      style={{
+                        borderColor: `${ch.accent}55`,
+                        backgroundColor: `${ch.accent}18`,
+                      }}
+                      className="group inline-flex items-center gap-2.5 rounded-2xl border px-6 py-3 text-[13px] font-bold text-white transition-all hover:scale-[1.03]"
+                    >
+                      <Icon className="h-4 w-4" style={{ color: ch.accent }} />
+                      <span>{ch.ctaLabel}</span>
+                      <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                    </button>
+
+                    <div className="border-s border-white/10 ps-4">
+                      <div
+                        className="font-mono text-[22px] font-bold leading-none"
+                        style={{ color: ch.accent }}
+                      >
+                        {ch.metricValue}
+                      </div>
+                      <div className="mt-1 text-[11px] text-zinc-500">{ch.metricLabel}</div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Interactive Visual Stage: Glides in from the Opposite Side */}
+                <motion.div
+                  initial={{
+                    opacity: 0,
+                    x: isEven ? -150 : 150,
+                    scale: 0.92,
+                    filter: "blur(12px)",
+                  }}
+                  whileInView={{
+                    opacity: 1,
+                    x: 0,
+                    scale: 1,
+                    filter: "blur(0px)",
+                  }}
+                  viewport={{ once: false, amount: 0.25 }}
+                  transition={{ ...SPRING_SILK, delay: 0.18 }}
+                  className={cn(
+                    "lg:col-span-6",
+                    !isEven && "lg:order-1"
+                  )}
+                >
+                  {/* Visual Stage 1: Typography Specimen Showcase */}
+                  {ch.visualType === "typography" && (
+                    <button
+                      type="button"
+                      onClick={() => navigate("/studio/fonts")}
+                      className="group block w-full cursor-pointer overflow-hidden rounded-[28px] border border-amber-400/25 bg-gradient-to-b from-amber-500/[0.08] to-[#090B11] p-8 text-center transition-all hover:border-amber-400/50"
+                    >
+                      <div className="font-mono text-[10px] tracking-[0.2em] text-amber-300/80">
+                        IRAN NASTALIQ · HASTI · VAZIRMATN
+                      </div>
+                      <p className="my-8 font-nastaliq text-[40px] leading-[1.95] text-white transition-transform duration-500 group-hover:scale-105 sm:text-[50px]">
+                        هنر، در جزئیاتی نهفته است
+                      </p>
+                      <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-4 py-1.5 text-[11px] text-amber-200">
+                        <span>کلیک برای تست زنده و دانلود ۵۰ فونت</span>
+                        <ArrowLeft className="h-3.5 w-3.5" />
+                      </div>
+                    </button>
+                  )}
+
+                  {/* Visual Stage 2: 120Hz Spring Wave Showcase */}
+                  {ch.visualType === "physics" && (
+                    <button
+                      type="button"
+                      onClick={() => navigate("/studio/motion")}
+                      className="group block w-full cursor-pointer overflow-hidden rounded-[28px] border border-cyan-400/25 bg-gradient-to-b from-cyan-500/[0.08] to-[#090B11] p-8 text-start transition-all hover:border-cyan-400/50"
+                    >
+                      <div className="flex items-center justify-between font-mono text-[10px] text-cyan-300">
+                        <span>SPRING OSCILLATOR · f=2.4Hz · ζ=0.68</span>
+                        <span>120 FPS</span>
+                      </div>
+                      <svg viewBox="0 0 400 130" className="my-6 h-32 w-full overflow-visible">
+                        <line
+                          x1="0"
+                          y1="45"
+                          x2="400"
+                          y2="45"
+                          stroke="rgba(34,211,238,0.2)"
+                          strokeDasharray="4 4"
+                        />
+                        <motion.path
+                          d="M 0 115 C 35 115, 55 12, 95 18 C 135 24, 155 68, 195 40 C 235 28, 265 50, 400 45"
+                          fill="none"
+                          stroke="#22D3EE"
+                          strokeWidth="3.5"
+                          strokeLinecap="round"
+                          initial={{ pathLength: 0 }}
+                          whileInView={{ pathLength: 1 }}
+                          viewport={{ once: false, amount: 0.4 }}
+                          transition={{ duration: 1.3, ease: "easeOut" }}
+                        />
+                      </svg>
+                      <div className="flex items-center justify-between text-[11.5px] text-zinc-300">
+                        <span>شبیه‌ساز زندهٔ معادله دیفرانسیل فنر</span>
+                        <span className="text-cyan-300">باز کردن اسیلوسکوپ ←</span>
+                      </div>
+                    </button>
+                  )}
+
+                  {/* Visual Stage 3: 4,023 Skills Pillar Selector */}
+                  {ch.visualType === "vault" && (
+                    <div className="rounded-[28px] border border-violet-400/25 bg-gradient-to-b from-violet-500/[0.08] to-[#090B11] p-6 sm:p-7">
+                      <div className="mb-4 flex items-center justify-between">
+                        <span className="text-[12px] font-bold text-violet-200">
+                          انتخاب مستقیم دستهٔ مهارت (۱۱ ستون):
+                        </span>
+                        <span className="font-mono text-[10.5px] text-violet-300">
+                          {faNum(DESIGN_LAB_TOTAL_FILES)} FILES
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        {DESIGN_LAB_PILLARS.slice(0, 6).map((pillar) => (
+                          <button
+                            key={pillar.id}
+                            type="button"
+                            onClick={() => openPillarInSkills(pillar.id)}
+                            className="flex items-center justify-between rounded-xl border border-white/[0.07] bg-black/35 px-3.5 py-2.5 text-start text-[11.5px] text-zinc-200 transition-all hover:border-violet-400/50 hover:bg-violet-500/15 hover:text-white"
+                          >
+                            <span className="truncate">{pillar.titleFa}</span>
+                            <span className="ms-2 shrink-0 font-mono text-[10px] text-violet-300">
+                              {faNum(pillar.totalFiles)}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => openPillarInSkills("all")}
+                        className="mt-3 w-full rounded-xl border border-violet-400/30 bg-violet-500/15 py-2.5 text-center text-[11.5px] font-bold text-violet-200 transition-colors hover:bg-violet-500/25"
+                      >
+                        مشاهده هر ۱۱ ستون و ۴۶ زیرشاخه ←
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Visual Stage 4: Components, Sound, Shaders & AI Portals */}
+                  {ch.visualType === "engines" && (
+                    <div className="grid grid-cols-2 gap-3 rounded-[28px] border border-emerald-400/25 bg-gradient-to-b from-emerald-500/[0.07] to-[#090B11] p-5 sm:p-6">
+                      {[
+                        {
+                          title: "استودیو کامپوننت",
+                          sub: "۴٬۱۹۹ سورس + ۶ ویجت",
+                          path: "/studio/components",
+                          color: "#34D399",
+                        },
+                        {
+                          title: "استودیو صدا",
+                          sub: "۲۰۰ رسیپی + خروجی WAV",
+                          path: "/studio/sounds",
+                          color: "#FB7185",
+                        },
+                        {
+                          title: "آزمایشگاه شیدر",
+                          sub: "۱۸ شیدر + شیشه مایع",
+                          path: "/studio/engines",
+                          color: "#38BDF8",
+                        },
+                        {
+                          title: "کارگاه هوش مصنوعی",
+                          sub: "پرامپت‌ساز + QLoRA",
+                          path: "/studio/ai",
+                          color: "#E879F9",
+                        },
+                      ].map((item) => (
+                        <button
+                          key={item.path}
+                          type="button"
+                          onClick={() => {
+                            soundEngine.playTick(1.05);
+                            navigate(item.path);
+                          }}
+                          className="flex flex-col justify-between rounded-2xl border border-white/[0.08] bg-black/40 p-4 text-start transition-all hover:-translate-y-0.5 hover:border-white/25"
+                        >
+                          <span
+                            className="h-2 w-2 rounded-full"
+                            style={{ backgroundColor: item.color }}
+                          />
+                          <div className="mt-5">
+                            <div className="text-[13px] font-bold text-white">{item.title}</div>
+                            <div className="mt-0.5 text-[10.5px] text-zinc-400">{item.sub}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+              </div>
+            </section>
+          );
+        })}
+      </div>
+
+      {/* =====================================================================
+         SCENE 04: MINIMAL HORIZON FOOTER DOCK (ورود هماهنگ از بالا و کناره‌ها)
+         ===================================================================== */}
+      <section className="mx-auto max-w-5xl px-4 pb-24 pt-6 text-center sm:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: -60 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, amount: 0.3 }}
+          transition={SPRING_SILK}
+          className="rounded-[32px] border border-white/[0.08] bg-[#090B12] px-6 py-12 sm:px-12"
+        >
+          <span className="font-mono text-[10px] tracking-[0.22em] text-zinc-500">
+            DIRECT STUDIO ACCESS
+          </span>
+          <h2 className="mt-2 font-hasti text-[26px] text-white sm:text-[32px]">
+            مستقیم وارد استودیوی مورد نظر خود شوید
           </h2>
-          <p className="mx-auto mt-2 max-w-lg text-[12px] leading-relaxed text-zinc-500">
-            همه استودیوها آزادند. تنظیمات ذخیره می‌شوند، خروجی‌ها واقعی‌اند و هیچ سطح پولی وجود ندارد.
-          </p>
-          <div className="mt-5 flex flex-wrap justify-center gap-2">
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="rounded-xl bg-[color:var(--accent)] px-4 py-2.5 text-[12.5px] font-bold text-black"
-            >
-              رفتن به داشبورد
-            </button>
-            <button
-              onClick={() => navigate("/studio/components")}
-              className="rounded-xl border border-white/12 px-4 py-2.5 text-[12px] text-zinc-300 hover:border-white/25"
-            >
-              مرور کامپوننت‌ها
-            </button>
+
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-2.5">
+            {QUICK_STUDIOS.map((st, idx) => {
+              const Icon = st.icon;
+              return (
+                <motion.button
+                  key={st.path}
+                  type="button"
+                  initial={{
+                    opacity: 0,
+                    x: idx % 2 === 0 ? 60 : -60,
+                  }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: false, amount: 0.2 }}
+                  transition={{ ...SPRING_SNAPPY, delay: idx * 0.05 }}
+                  onClick={() => {
+                    soundEngine.playTick(1.05);
+                    navigate(st.path);
+                  }}
+                  className="inline-flex items-center gap-2 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-[12px] font-medium text-zinc-200 transition-all hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
+                >
+                  <Icon className="h-3.5 w-3.5" style={{ color: st.accent }} />
+                  <span>{st.label}</span>
+                </motion.button>
+              );
+            })}
           </div>
-        </div>
+        </motion.div>
       </section>
-      </Reveal>
     </div>
   );
 };

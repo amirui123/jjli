@@ -1,0 +1,119 @@
+import SlidesExample from "./slides";
+export const metadata = {
+    title: 'Slides',
+}
+
+# Slides
+
+<Note>
+  Unfinished
+</Note>
+
+Slides component is inspired by [Slidev](https://sli.dev/) and other Markdown-based slides tools. Our goal is to create a headless slides component that can convert MDX and JSX in it into React components at runtime or build time, easy to write animations, and integrate UVCanvas backgrounds seamlessly.
+
+<SlidesExample />
+
+
+## Interactions
+
+- Press the slides element to focus.
+- Press the `left` and `right` keys to switch between pages and animation steps.
+- Press the `f` key or double-click the slides to toggle fullscreen.
+
+## Usage
+
+1. Compile or evaluate the MDX file
+
+
+``` md {{ title: "Raw String" }}
+# Page { props.currentPage + 1 }
+
+Test
+
+<Demo />
+
+<Background className="opacity-70">
+  <Tranquiluxe />
+</Background>
+
+---
+
+export const metadata = {
+  step: 3,
+}
+
+# Page { props.currentPage + 1 } Step { props.currentStep + 1 }
+
+Some Text...
+
+<TestAnimation step={props.currentStep} />
+
+<Background className="opacity-60">
+  <Novatrix />
+</Background>
+
+---
+
+...
+```
+
+
+``` tsx
+import { sliceMdxString } from "uvcanvas";
+```
+
+``` tsx
+const mdxContents = sliceMdxString(mdxString)
+```
+
+2. Add the { "<Slides />" } component
+
+``` tsx
+import "uvcanvas/dist/components/slides/default_components/styles.css"
+import {
+  Lumiflex,
+  Zenitho,
+  Novatrix,
+  Velustro,
+  Tranquiluxe,
+  Opulento,
+  Slides,
+  defaultComponents
+} from "uvcanvas";
+```
+
+``` tsx
+<Slides
+  mdx={mdxContents}
+  components={{
+    ...defaultComponents, // including h1, p, etc.
+    Lumiflex,
+    Zenitho,
+    Novatrix,
+    Velustro,
+    Tranquiluxe,
+    Opulento,
+    TestAnimation, // page 2
+  }}
+>
+```
+
+3. Add controls
+
+``` tsx
+<Slides {...}>
+  <SlidesActionButton
+    variant="left"
+    className="..."
+  >
+    <ArrowLeftIcon className="..."/>
+  </SlidesActionButton>
+  <SlidesActionButton
+    variant="right"
+    className="..."
+  >
+    <ArrowRightIcon className=""/>
+  </SlidesActionButton>
+</Slides>
+```
+

@@ -1,0 +1,86 @@
+import { cn } from "@repo/shadcn-ui/lib/utils";
+import type { Metadata } from "next";
+import Link, { type LinkProps } from "next/link";
+import { IconBooksFill24, IconPencilFill24 } from "nucleo-core-fill-24";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/docs",
+  },
+  description:
+    "Guides, component reference and blocks for SmoothUI. Start with installation, then browse every animated React component.",
+  // Without these, this page inherited the root layout's title and description
+  // verbatim, so / and /docs were duplicates of each other.
+  title: "Documentation",
+};
+
+export default function DocsPage() {
+  return (
+    <main className="container z-2 flex flex-1 flex-col items-center justify-center py-24 text-center md:py-36">
+      <h1 className="mb-4 font-semibold text-3xl md:text-4xl">
+        Getting Started
+      </h1>
+      <p className="text-foreground/70 text-md">
+        Portal to different sections of docs.
+      </p>
+      <div className="mt-8 grid grid-cols-1 gap-4 text-start md:grid-cols-3">
+        {[
+          {
+            description: "The guides for SmoothUI.",
+            href: "/docs/guides",
+            icon: <IconBooksFill24 className="size-full" />,
+            name: "Documentation",
+          },
+          {
+            description: "The library of SmoothUI components.",
+            href: "/docs/components",
+            icon: <IconPencilFill24 className="size-full" />,
+            name: "Components",
+          },
+          {
+            description: "The library of SmoothUI blocks.",
+            href: "/docs/blocks",
+            icon: <IconPencilFill24 className="size-full" />,
+            name: "Blocks",
+          },
+        ].map((item) => (
+          <Item
+            className="flex flex-row gap-4"
+            href={item.href}
+            key={item.name}
+          >
+            <Icon>{item.icon}</Icon>
+            <div className="flex flex-col">
+              <h2 className="mb-2 font-semibold">{item.name}</h2>
+              <p className="text-foreground/70 text-sm">{item.description}</p>
+            </div>
+          </Item>
+        ))}
+      </div>
+    </main>
+  );
+}
+
+function Icon({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mb-2 size-8 rounded-lg border bg-primary p-1 text-foreground/70">
+      {children}
+    </div>
+  );
+}
+
+function Item(
+  props: LinkProps & { children: React.ReactNode; className?: string }
+) {
+  return (
+    <Link
+      {...props}
+      className={cn(
+        "rounded-2xl border bg-card p-4 shadow-lg",
+        props.className
+      )}
+    >
+      {props.children}
+    </Link>
+  );
+}

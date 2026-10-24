@@ -1,0 +1,532 @@
+/* Shared styling for the tiling explorer. Colour tokens match index.html and
+   site.css, so the cards read as part of the site. The map itself takes
+   its colours from map.js. */
+:root {
+  color-scheme: light dark;
+  --bg: light-dark(#f6f3ec, #16161a);
+  --panel: light-dark(rgba(255, 253, 248, 0.94), rgba(30, 30, 35, 0.94));
+  --text: light-dark(#46443d, #c8c4b9);
+  --h1: light-dark(#1a1a1a, #f5f3ec);
+  --h3: light-dark(#38362e, #d8d4c9);
+  --link: light-dark(#1552a1, #7aa6e0);
+  --rule: light-dark(#ddd8cc, #3a3a3a);
+  --ring: light-dark(rgba(0, 0, 0, 0.14), rgba(255, 255, 255, 0.16));
+  --muted: light-dark(#7c786d, #918c80);
+  --danger: light-dark(#c0263b, #ff6b7d);
+  --shadow: light-dark(0 2px 10px rgba(40, 30, 10, 0.14), 0 2px 12px rgba(0, 0, 0, 0.5));
+}
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"]  { color-scheme: dark; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); }
+body {
+  color: var(--text);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+a { color: var(--link); }
+
+#map {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  cursor: grab;
+  outline: none;
+}
+#map.dragging { cursor: grabbing; }
+#map.picking { cursor: crosshair; }
+
+.card {
+  position: fixed;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+/* The title and options cards share a top bar. They sit at either end on a
+   wide screen and wrap onto two rows on a phone. The bar itself lets drags
+   through to the map. */
+.top {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  pointer-events: none;
+}
+.top .card { position: static; pointer-events: auto; }
+
+.title { max-width: 380px; padding: 0.7rem 0.9rem 0.75rem; }
+.title .back { font-size: 0.85rem; text-decoration: none; }
+.title .back:hover { text-decoration: underline; }
+/* About sits in the title card's top right corner, level with the back
+   link, since it explains the tiling the card names. */
+.top .title { position: relative; }
+.title .about-open { position: absolute; top: 0.55rem; right: 0.65rem; padding: 0.12rem 0.55rem; font-size: 0.8rem; }
+.title h1 { font-size: 1.3rem; line-height: 1.2; color: var(--h1); margin: 0.2rem 0 0.25rem; font-weight: normal; }
+.title p { margin: 0; font-size: 0.9rem; color: var(--muted); }
+.title .row { display: flex; gap: 0.5rem; margin-top: 0.55rem; flex-wrap: wrap; align-items: center; }
+.title .puzzle-link { font-size: 0.82rem; white-space: nowrap; }
+
+/* The Hat | Spectre | Hat (extended) | Krinkle switch, styled as joined
+   tabs. Each tab takes the width of its label, so all four fit the card. */
+.switch {
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: auto;
+  border: 1px solid var(--ring);
+  border-radius: 7px;
+  overflow: hidden;
+  font-size: 0.85rem;
+}
+.switch a { padding: 0.2rem 0.55rem; text-decoration: none; color: var(--h3); text-align: center; white-space: nowrap; }
+.switch a + a { border-left: 1px solid var(--ring); }
+.switch a[aria-current="page"] { background: var(--ring); color: var(--h1); }
+.switch a:hover { color: var(--h1); }
+
+button, select {
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--h3);
+  background: transparent;
+  border: 1px solid var(--ring);
+  border-radius: 7px;
+  padding: 0.28rem 0.6rem;
+  cursor: pointer;
+}
+button:hover, select:hover { border-color: var(--muted); color: var(--h1); }
+button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+select { background: var(--panel); max-width: 100%; }
+
+/* Options card, top right: shape, supertiles and grid. On a phone its body
+   folds away behind a button, the card's only head. */
+.options {
+  margin-left: auto;
+  padding: 0.55rem 0.65rem;
+  width: 16.5rem;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+}
+.options .head { display: none; }
+.options .body { display: flex; flex-direction: column; gap: 0.4rem; }
+.options .section { border-top: 1px solid var(--rule); padding-top: 0.45rem; display: flex; flex-direction: column; gap: 0.35rem; }
+.options .section:first-child { border-top: none; padding-top: 0; }
+.options .section-title { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.02em; }
+.options label { font-size: 0.88rem; color: var(--h3); display: flex; align-items: center; gap: 0.4rem; cursor: pointer; }
+.options input[type="checkbox"], .options input[type="radio"] { accent-color: var(--link); width: 1rem; height: 1rem; margin: 0; flex: none; }
+.options .sub { padding-left: 1.4rem; display: flex; flex-direction: column; gap: 0.3rem; }
+.options .inline { display: flex; flex-wrap: wrap; gap: 0.2rem 0.9rem; }
+.options .hint { font-size: 0.75rem; color: var(--muted); margin: 0; line-height: 1.35; }
+.options .linkish, .legend .linkish { border: none; padding: 0; font-size: 0.8rem; color: var(--link); background: none; }
+
+/* A labelled slider with its value alongside. */
+.slider { display: grid; grid-template-columns: 1fr auto; gap: 0.1rem 0.5rem; align-items: center; font-size: 0.85rem; color: var(--h3); }
+.slider input[type="range"] { grid-column: 1 / -1; width: 100%; margin: 0; accent-color: var(--link); }
+.slider output { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 0.8rem; }
+/* The strip under the bend slider marks where tiles start to overlap. */
+.limits { grid-column: 1 / -1; height: 4px; border-radius: 2px; margin: -0.1rem 0 0.1rem; background: var(--ring); }
+.limit-note { grid-column: 1 / -1; font-size: 0.75rem; color: var(--muted); }
+.ticks { grid-column: 1 / -1; display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--muted); margin-top: -0.15rem; }
+.ticks button { border: none; padding: 0; font-size: 0.68rem; color: var(--muted); background: none; }
+.ticks button:hover, .ticks button.on { color: var(--link); }
+/* Ticks placed under their slider values, the end ones kept inside. */
+.ticks.placed { display: block; position: relative; height: 1.1em; }
+.ticks.placed button { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+.ticks.placed button:first-child { transform: none; }
+.ticks.placed button:last-child { transform: translateX(-100%); }
+/* The zero of a signed slider: a mark across the strip and a 0 to click. */
+.limits { position: relative; }
+.limits::after { content: ""; position: absolute; left: calc(50% - 1px); top: -3px; width: 2px; height: 10px; border-radius: 1px; background: var(--h3); }
+.ticks.zero { justify-content: center; }
+.ticks.zero button { font-size: 0.8rem; font-weight: 600; padding: 0 0.4rem; }
+
+.theme-toggle, .dice {
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+}
+.theme-toggle svg, .dice svg { display: block; width: 1.05rem; height: 1.05rem; }
+:root[data-theme="dark"] .theme-toggle .moon { display: none; }
+:root[data-theme="light"] .theme-toggle .sun { display: none; }
+
+/* Zoom buttons and compass, bottom right, stacked as on a map. */
+.zoom {
+  right: max(12px, env(safe-area-inset-right));
+  bottom: max(24px, calc(env(safe-area-inset-bottom) + 12px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.zoom button {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  border-radius: 0;
+  font-size: 1.35rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+.zoom button + button { border-top: 1px solid var(--rule); }
+.zoom button:hover { background: var(--ring); }
+.zoom svg { width: 1.15rem; height: 1.15rem; display: block; }
+.zoom .compass svg { transition: transform 0.05s linear; }
+
+/* Colour panel, bottom left: the scheme menu, the dice, the theme toggle
+   and the key. Each group of orientations sits in one box, and clicking a
+   tile in it picks a new colour for the whole group. */
+.legend {
+  left: max(12px, env(safe-area-inset-left));
+  bottom: max(24px, calc(env(safe-area-inset-bottom) + 12px));
+  padding: 0.5rem 0.7rem 0.55rem;
+  max-width: calc(100vw - 90px);
+  max-height: 45vh;
+  overflow-y: auto;
+}
+.legend-head { display: flex; align-items: center; gap: 0.4rem; }
+.legend-head select { flex: 1; min-width: 7.5rem; }
+.legend-head .linkish { margin-left: 0.2rem; }
+.legend .dice { width: 2.3rem; height: 2.3rem; }
+.legend .dice svg { width: 1.35rem; height: 1.35rem; }
+#legend-body { margin-top: 0.45rem; display: flex; flex-direction: column; gap: 0.3rem; }
+#legend-body[hidden] { display: none; }
+.legend .groups { display: grid; gap: 0.3rem; justify-content: start; }
+.legend .group {
+  display: grid;
+  justify-content: start;
+  gap: 0 0.15rem;
+  border: 1px solid var(--rule);
+  border-radius: 7px;
+  padding: 0.15rem 0.25rem 0.1rem;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.legend .group:hover { border-color: var(--muted); }
+.legend figure { margin: 0; display: flex; flex-direction: column; align-items: center; min-width: 1.9rem; }
+.legend svg { width: 1.8rem; height: 1.8rem; display: block; overflow: visible; }
+.legend figcaption { font-size: 0.66rem; color: var(--text); line-height: 1.1; white-space: nowrap; }
+.legend input[type="color"] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+/* A key of many groups, such as Krinkle's wedges past 24, is one strip. */
+.legend .strip {
+  display: block;
+  width: 13rem;
+  max-width: 100%;
+  border: 1px solid var(--rule);
+  border-radius: 7px;
+  padding: 0.25rem 0.3rem 0.15rem;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.legend .strip:hover { border-color: var(--muted); }
+.legend .strip svg { width: 100%; height: 1.5rem; border-radius: 3px; }
+.legend .strip .ends { display: flex; justify-content: space-between; margin-top: 0.1rem; font-size: 0.66rem; color: var(--text); line-height: 1.1; }
+
+/* About sheet. */
+.about {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(580px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  padding: 1.1rem 1.25rem 0.4rem;
+  font-size: 0.95rem;
+  z-index: 5;
+}
+.about h2 { font-size: 1.15rem; font-weight: normal; color: var(--h1); margin: 0 2rem 0.6rem 0; }
+.about p { margin: 0 0 0.8rem; }
+.about ul { margin: 0 0 0.9rem; padding-left: 1.2rem; }
+.about li { margin-bottom: 0.25rem; }
+.about .close { position: absolute; top: 0.7rem; right: 0.7rem; width: 2rem; height: 2rem; padding: 0; border-radius: 50%; font-size: 1.1rem; }
+
+.status {
+  bottom: max(24px, calc(env(safe-area-inset-bottom) + 12px));
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+  pointer-events: none;
+}
+.fail { top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 1rem 1.25rem; max-width: calc(100vw - 24px); }
+
+/* On a phone the title card drops its description, the options fold behind
+   a button, and the status pill moves above the key. */
+@media (max-width: 640px) {
+  .title { padding: 0.5rem 0.75rem 0.6rem; }
+  .title p.hint { display: none; }
+  .title h1 { font-size: 1.1rem; }
+  .title .row { margin-top: 0.35rem; }
+  .title .about-open { top: 0.4rem; right: 0.5rem; }
+  .switch { font-size: 0.8rem; }
+  .switch a { padding: 0.2rem 0.4rem; }
+  .options { width: auto; }
+  .options .head { display: block; }
+  .options:not(.folded) .body { margin-top: 0.45rem; }
+  .options.folded .body { display: none; }
+  .status { bottom: 5.5rem; }
+  .legend svg { width: 1.55rem; height: 1.55rem; }
+  .legend figure { min-width: 1.6rem; }
+}
+
+/* ------------------------------------------------------------------
+   Phone layout (phone.js sets body.phone: width <= 600px, or a landscape
+   phone). A one-row top bar, the map full screen, a bottom toolbar, and
+   one bottom sheet at a time. Tablet and desktop never get body.phone. */
+.phone-bar, .sheet-grip, .tiling-select, .phone-more { display: none; }
+body.phone { --bar-h: calc(58px + env(safe-area-inset-bottom)); --gap: 8px; }
+html:has(body.phone), body.phone { height: 100dvh; }
+body.phone button, body.phone select, body.phone a, body.phone label { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+body.phone select, body.phone input, body.phone button { font-size: 16px; }
+
+/* Top bar: tiling menu, Essay, About. */
+body.phone .top { top: max(var(--gap), env(safe-area-inset-top)); left: max(var(--gap), env(safe-area-inset-left)); right: max(var(--gap), env(safe-area-inset-right)); }
+body.phone .top .title { width: 100%; max-width: none; padding: 6px; display: flex; align-items: center; gap: 6px; border-radius: 12px; }
+body.phone .title .back, body.phone .title p.hint, body.phone .title .credit, body.phone .switch { display: none; }
+body.phone .title h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); margin: 0; }
+body.phone .title .row { margin: 0; flex: 1; flex-wrap: nowrap; gap: 6px; min-width: 0; }
+body.phone .tiling-select {
+  display: block; flex: 1; min-width: 0; height: 44px; padding: 0 2rem 0 0.75rem;
+  font-family: Georgia, "Times New Roman", serif; font-size: 17px; color: var(--h1);
+  border: 1px solid var(--ring); border-radius: 9px; background-color: transparent;
+  -webkit-appearance: none; appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 17px) 19px, calc(100% - 12px) 19px; background-size: 5px 5px; background-repeat: no-repeat;
+}
+body.phone .mode-toggle { height: 44px; padding: 0 0.9rem; flex: none; font-size: 15px; }
+body.phone .title .about-open { position: static; order: 3; height: 44px; padding: 0 0.7rem; font-size: 15px; flex: none; border-radius: 9px; }
+
+/* Bottom toolbar. */
+body.phone .phone-bar {
+  display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 21;
+  height: var(--bar-h); padding: 0 max(4px, env(safe-area-inset-right)) env(safe-area-inset-bottom) max(4px, env(safe-area-inset-left));
+  background: var(--panel); border-top: 1px solid var(--rule); box-shadow: var(--shadow);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+body.phone .phone-bar button {
+  flex: 1; border: none; border-radius: 10px; margin: 4px 2px; padding: 0; min-height: 50px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  font-size: 12px; color: var(--h3); letter-spacing: 0.02em;
+}
+body.phone .phone-bar svg { width: 24px; height: 24px; }
+body.phone .phone-bar button[aria-expanded="true"] { background: var(--ring); color: var(--link); }
+body.phone.essay-on .phone-bar { display: none; }
+
+/* Recentre (and the compass once turned) stay; pinch and twist zoom and turn. */
+body.phone .zoom { bottom: calc(var(--bar-h) + 10px); right: max(10px, env(safe-area-inset-right)); border-radius: 50%; }
+body.phone .zoom #zoom-in, body.phone .zoom #zoom-out, body.phone .zoom #turn-left, body.phone .zoom #turn-right { display: none; }
+body.phone .zoom button { width: 44px; height: 44px; }
+body.phone .zoom #compass:not([hidden]) + * { border-top: 1px solid var(--rule); }
+body.phone.sheet-open .zoom { display: none; }
+body.phone .status { bottom: calc(var(--bar-h) + 14px); }
+
+/* Sheets: the options (split into Shape and Options), the colours, stats
+   and diffraction. Hidden until their toolbar button opens them. */
+body.phone .options, body.phone .legend, body.phone .stats, body.phone .diff { display: none; }
+body.phone[data-sheet="shape"] .options, body.phone[data-sheet="options"] .options,
+body.phone[data-sheet="colours"] .legend, body.phone[data-sheet="stats"] .stats:not([hidden]), body.phone[data-sheet="diff"] .diff:not([hidden]) {
+  display: block; position: fixed; z-index: 20; top: auto; transform: none;
+  left: max(0px, env(safe-area-inset-left)); right: max(0px, env(safe-area-inset-right)); bottom: var(--bar-h);
+  width: auto; max-width: none; margin: 0; max-height: min(55dvh, calc(100dvh - var(--top-h, 70px) - var(--bar-h) - 12px));
+  overflow-y: auto; overscroll-behavior: contain; padding: 0 16px 14px;
+  border-radius: 16px 16px 0 0; border-bottom: none; font-size: 16px;
+  animation: sheet-up 0.18s ease-out;
+}
+body.phone.essay-on[data-sheet] .stats, body.phone.essay-on[data-sheet] .diff { bottom: 0; }
+@keyframes sheet-up { from { transform: translateY(24px); opacity: 0.4; } }
+body.phone .sheet-grip {
+  display: flex; align-items: center; position: sticky; top: 0; z-index: 1; min-height: 48px; margin: 0 -16px 6px; padding: 10px 6px 0 16px;
+  background: var(--panel); border-bottom: 1px solid var(--rule); touch-action: none;
+}
+body.phone .sheet-grip .bar-handle { position: absolute; top: 6px; left: 50%; width: 40px; height: 5px; margin-left: -20px; border-radius: 3px; background: var(--rule); }
+body.phone .sheet-grip .sheet-title { flex: 1; font-weight: normal; color: var(--h1); font-size: 17px; }
+body.phone .sheet-grip .sheet-close { width: 44px; height: 44px; border: none; font-size: 26px; line-height: 1; padding: 0; color: var(--muted); }
+body.phone .stats-head .linkish, body.phone .diff .stats-head { display: none; }
+body.phone .stats-head { display: none; }
+body.phone .sheet-grip .t-options, body.phone[data-sheet="options"] .sheet-grip .t-shape { display: none; }
+body.phone[data-sheet="options"] .sheet-grip .t-options { display: inline; }
+body.phone .options .head { display: none; }
+body.phone .options .body { display: flex !important; margin: 0 !important; gap: 10px; }
+body.phone[data-sheet="shape"] .options .body > .section:not(.shape-section),
+body.phone[data-sheet="options"] .options .body > .shape-section { display: none; }
+body.phone[data-sheet="shape"] .shape-section { border-top: none; padding-top: 0; }
+body.phone[data-sheet="options"] .options .body > .section:not(.shape-section):not([hidden]) ~ .section { border-top: 1px solid var(--rule); }
+
+/* Roomy controls inside the sheets. */
+body.phone .options label { font-size: 16px; min-height: 44px; gap: 12px; }
+body.phone .options .section-title { font-size: 13px; }
+body.phone .options .hint { font-size: 13px; }
+body.phone .options input[type="checkbox"], body.phone .options input[type="radio"] { width: 22px; height: 22px; }
+body.phone .options .inline { gap: 0 1.4rem; }
+body.phone .options .linkish, body.phone .legend .linkish, body.phone .stats .linkish, body.phone .diff .linkish { font-size: 16px; min-height: 44px; padding: 0 2px; }
+body.phone .options select, body.phone .legend select { min-height: 44px; }
+body.phone .options button:not(.linkish):not(.sheet-close) { min-height: 40px; }
+body.phone .slider { font-size: 16px; gap: 4px 10px; }
+body.phone .slider output { font-size: 15px; color: var(--h1); }
+body.phone .shape-section .slider > span { font-size: 15px; color: var(--muted); }
+body.phone .shape-section .slider output { font-size: 18px; }
+/* Big, thumb-friendly sliders. */
+body.phone input[type="range"] { -webkit-appearance: none; appearance: none; height: 44px; background: transparent; touch-action: pan-y; }
+body.phone input[type="range"]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: var(--ring); }
+body.phone input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; margin-top: -12px; border-radius: 50%; background: var(--link); border: 3px solid var(--panel); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+body.phone input[type="range"]::-moz-range-track { height: 6px; border-radius: 3px; background: var(--ring); }
+body.phone input[type="range"]::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: var(--link); border: 3px solid var(--panel); }
+/* The named forms become chips, scrolling sideways if they need to. */
+body.phone .ticks, body.phone .ticks.placed {
+  display: flex; position: static; height: auto; gap: 8px; margin: 2px -16px 0; padding: 2px 16px 6px;
+  overflow-x: auto; scrollbar-width: none; justify-content: flex-start;
+}
+body.phone .ticks::-webkit-scrollbar { display: none; }
+body.phone .ticks.zero { justify-content: center; }
+body.phone .ticks button, body.phone .ticks.placed button, body.phone .ticks.zero button {
+  position: static; transform: none !important; flex: none; min-height: 44px; min-width: 44px; padding: 0 16px;
+  border: 1px solid var(--ring); border-radius: 999px; font-size: 15px; color: var(--h3); background: none; white-space: nowrap;
+}
+body.phone .ticks button.on { background: var(--link); border-color: var(--link); color: var(--panel); }
+
+/* Colours: menu, dice and theme on one row; the key scrolls sideways. */
+body.phone .legend-head { gap: 8px; }
+body.phone .legend-head select { min-width: 0; }
+body.phone .legend .dice, body.phone .theme-toggle { width: 44px; height: 44px; }
+body.phone #legend-toggle { display: none; }
+body.phone .legend .groups { display: flex !important; gap: 6px; overflow-x: auto; margin: 0 -16px; padding: 2px 16px 4px; scrollbar-width: none; }
+body.phone .legend .group { flex: none; min-height: 44px; }
+body.phone .legend .strip { width: 100%; }
+body.phone .legend figcaption { font-size: 11px; }
+
+/* Stats and diffraction fill their sheet. */
+body.phone .stats { font-size: 15px; }
+body.phone .stats .hint, body.phone .diff .hint { font-size: 13px; }
+body.phone #diff-canvas { width: min(100%, 300px); height: auto; aspect-ratio: 1; margin: 0 auto; }
+
+/* About opens above everything, with the back link and credits. */
+body.phone .about { z-index: 30; max-height: calc(100dvh - 2 * max(12px, env(safe-area-inset-top))); }
+body.phone .about .close { width: 44px; height: 44px; }
+body.phone .phone-more { display: block; border-top: 1px solid var(--rule); padding: 0.6rem 0 0.8rem; font-size: 0.85rem; color: var(--muted); }
+body.phone .phone-more .back { display: inline-block; padding: 0.4rem 0; }
+body.phone .phone-more p { margin: 0.2rem 0 0; }
+
+/* Landscape phone: the sheet keeps to the left so the map shows beside it. */
+@media (min-width: 601px) {
+  body.phone .top .title { width: auto; max-width: 460px; }
+  body.phone .phone-bar { left: 50%; right: auto; transform: translateX(-50%); width: min(460px, 100vw); border: 1px solid var(--rule); border-bottom: none; border-radius: 14px 14px 0 0; }
+  body.phone[data-sheet="shape"] .options, body.phone[data-sheet="options"] .options,
+  body.phone[data-sheet="colours"] .legend, body.phone[data-sheet="stats"] .stats:not([hidden]), body.phone[data-sheet="diff"] .diff:not([hidden]) {
+    left: max(8px, env(safe-area-inset-left)); right: auto; width: 400px; bottom: var(--bar-h);
+    max-height: calc(100dvh - var(--top-h, 60px) - var(--bar-h) - 10px);
+    border-bottom: 1px solid var(--rule); border-radius: 16px 16px 0 0;
+  }
+}
+body.phone .shape-section .slider > span:first-child { display: none; }
+body.phone .shape-section .slider output { grid-column: 1 / -1; text-align: center; }
+body.phone .ticks.placed button { flex: 1 0 auto; padding: 0 12px; }
+
+/* ------------------------------------------------------------------
+   Colour system (Hat page, Explore mode): colour by + palette + key +
+   customise. Only cards with .has-pal get these; the sibling pages keep
+   David Ryan's panel as it was. */
+.legend.has-pal { min-width: 21rem; max-height: min(72vh, calc(100dvh - 250px)); }
+.legend .pane-label { display: none; }
+.pal-row { margin-top: 0.4rem; }
+.pal-btn { display: flex; align-items: center; gap: 0.45rem; width: 100%; text-align: left; padding: 0.3rem 0.5rem; }
+.pal-btn .pal-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--h1); }
+.pal-btn .caret { color: var(--muted); font-size: 0.75rem; }
+.pal-btn[aria-expanded="true"] .caret { transform: rotate(180deg); }
+.legend .sw { display: inline-flex; flex: none; border-radius: 4px; overflow: hidden; border: 1px solid var(--ring); }
+.legend .sw i { display: block; width: 0.7rem; height: 1rem; }
+.pal-list { display: none; }
+.pal-list.open { display: block; max-height: 16rem; overflow-y: auto; margin-top: 0.35rem; border: 1px solid var(--rule); border-radius: 8px; padding: 0.35rem; overscroll-behavior: contain; }
+.pal-group { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem; margin-bottom: 0.4rem; }
+.pal-group:last-child { margin-bottom: 0; }
+.pal-group-label { grid-column: 1 / -1; font-size: 0.66rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.pal-chip { display: flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.35rem; font-size: 0.76rem; text-align: left; min-width: 0; }
+.pal-chip > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pal-chip .sw i { width: 0.42rem; height: 0.9rem; }
+.pal-chip.on { border-color: var(--link); box-shadow: inset 0 0 0 1px var(--link); color: var(--h1); }
+.key-links { display: flex; flex-wrap: wrap; align-items: center; gap: 0.15rem 0.8rem; }
+.key-links #key-tap[aria-pressed="true"] { font-weight: 600; }
+.key-hint { margin: 0; font-size: 0.7rem; color: var(--muted); line-height: 1.3; }
+.legend .group.faded { opacity: 0.4; }
+.legend .group.solo { border-color: var(--link); box-shadow: inset 0 0 0 1px var(--link); }
+.custom-panel { border-top: 1px solid var(--rule); margin-top: 0.45rem; padding-top: 0.45rem; display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.8rem; }
+.cp-row { display: flex; align-items: center; flex-wrap: wrap; gap: 0.3rem 0.4rem; }
+.cp-label { width: 4.6rem; color: var(--muted); font-size: 0.74rem; }
+.cp-chips { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.25rem; }
+.cp-chip { font-size: 0.74rem; padding: 0.14rem 0.45rem; }
+.cp-chip[aria-pressed="true"] { border-color: var(--link); color: var(--link); box-shadow: inset 0 0 0 1px var(--link); }
+.cp-sw { padding: 0.14rem; }
+.cp-sw i { display: block; width: 0.95rem; height: 0.95rem; border-radius: 3px; border: 1px solid var(--ring); }
+.legend .custom-panel input[type="color"] {
+  position: static; opacity: 1; pointer-events: auto; width: 2rem; height: 1.55rem; padding: 0 2px;
+  border: 1px solid var(--ring); border-radius: 6px; background: none; cursor: pointer;
+}
+#ink-width { flex: 1; min-width: 3rem; width: 4rem; accent-color: var(--link); margin: 0; }
+#ink-width-out { font-size: 0.72rem; color: var(--muted); min-width: 2.6rem; font-variant-numeric: tabular-nums; }
+#pal-name { flex: 1; min-width: 6rem; font: inherit; font-size: 0.8rem; padding: 0.2rem 0.45rem; border: 1px solid var(--ring); border-radius: 6px; background: var(--panel); color: var(--h1); }
+#pal-code { width: 100%; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.68rem; padding: 0.3rem 0.4rem;
+  border: 1px solid var(--ring); border-radius: 6px; background: var(--panel); color: var(--h1); resize: vertical; }
+.cp-note { margin: 0; font-size: 0.72rem; color: var(--muted); min-height: 1em; line-height: 1.3; }
+/* Essay mode keeps the article's colours: no palette or custom tools. */
+body.essay-on .legend .pal-row, body.essay-on .legend .pal-list, body.essay-on .legend .custom-panel,
+body.essay-on .legend .key-label, body.essay-on .legend.has-pal .dice { display: none !important; }
+body.essay-on .legend.has-pal { width: auto; }
+
+/* Phone: the Colours sheet in four sections, thumb-sized. */
+body.phone .legend .pane-label { display: block; flex-basis: 100%; margin: 6px 0 2px; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+body.phone .legend.has-pal { width: auto; }
+body.phone .legend.has-pal .legend-head { flex-wrap: wrap; }
+body.phone .legend.has-pal .legend-head select { flex: 1; height: 44px; font-size: 16px; }
+body.phone .legend .pal-row { margin-top: 4px; }
+body.phone .pal-btn { display: none; }
+body.phone .pal-list, body.phone .pal-list.open {
+  display: flex; gap: 8px; overflow-x: auto; overflow-y: hidden; max-height: none; border: none; border-radius: 0;
+  margin: 0 -16px; padding: 2px 16px 8px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+body.phone .pal-list::-webkit-scrollbar { display: none; }
+body.phone .pal-group { display: contents; }
+body.phone .pal-group-label { flex: none; align-self: center; width: 4.6em; font-size: 11px; line-height: 1.2; white-space: normal; text-align: right; padding-right: 2px; }
+body.phone .pal-chip { flex: none; flex-direction: column; align-items: flex-start; justify-content: center; gap: 5px; min-height: 56px; min-width: 92px; padding: 6px 12px; font-size: 16px; border-radius: 12px; }
+body.phone .pal-chip .sw i { width: 12px; height: 16px; }
+body.phone .legend.has-pal #legend-body { margin-top: 0; }
+body.phone .key-links { gap: 0 18px; }
+body.phone .key-hint { font-size: 13px; }
+body.phone .custom-panel { font-size: 16px; gap: 6px; margin-top: 6px; padding-top: 8px; }
+body.phone .cp-row { gap: 8px; }
+body.phone .cp-label { flex-basis: 100%; width: auto; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; }
+body.phone .cp-chip { min-height: 44px; min-width: 44px; padding: 0 14px; font-size: 15px; border-radius: 10px; }
+body.phone .cp-sw { padding: 0; display: grid; place-items: center; }
+body.phone .cp-sw i { width: 24px; height: 24px; border-radius: 6px; }
+body.phone .legend .custom-panel input[type="color"] { width: 52px; height: 44px; border-radius: 10px; }
+body.phone #ink-width { min-width: 120px; }
+body.phone #ink-width-out { font-size: 15px; }
+body.phone #pal-name { height: 44px; font-size: 16px; padding: 0 12px; border-radius: 10px; }
+body.phone #pal-code { font-size: 16px; min-height: 88px; border-radius: 10px; }
+body.phone .cp-note { font-size: 14px; }
+body.phone.essay-on .legend .pane-label { display: none; }

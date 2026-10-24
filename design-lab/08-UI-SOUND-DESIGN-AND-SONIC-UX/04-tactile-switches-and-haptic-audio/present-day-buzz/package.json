@@ -1,0 +1,46 @@
+{
+  "name": "@present-day/buzz",
+  "version": "0.1.1",
+  "description": "Cross-platform haptic and audio feedback library for web applications",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "build:playground": "esbuild playground/main.ts --bundle --outfile=docs/playground.js --minify --platform=browser",
+    "build:all": "bun run build && bun run build:playground",
+    "dev": "tsc --watch",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "prepublishOnly": "bun run build"
+  },
+  "keywords": [
+    "haptics",
+    "feedback",
+    "audio",
+    "webaudio",
+    "vibration",
+    "ui",
+    "interaction"
+  ],
+  "author": "Present Day",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/present-day/buzz.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.1"
+  },
+  "peerDependencies": {},
+  "engines": {
+    "node": ">=18"
+  }
+}

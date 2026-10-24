@@ -1,0 +1,82 @@
+[
+ {
+  "query": "review the UX of our checkout flow and tell me what's wrong",
+  "should_trigger": true
+ },
+ {
+  "query": "is my site WCAG 2.2 AA compliant? give me a pass/fail",
+  "should_trigger": false
+ },
+ {
+  "query": "score this landing page against the laws of UX",
+  "should_trigger": true
+ },
+ {
+  "query": "make the landing page look like neo-brutalism with a yellow palette",
+  "should_trigger": false
+ },
+ {
+  "query": "does this signup form violate Hick's law?",
+  "should_trigger": true
+ },
+ {
+  "query": "profile why the checkout takes five seconds to respond",
+  "should_trigger": false
+ },
+ {
+  "query": "audit this dashboard for usability issues and give it a health score",
+  "should_trigger": true
+ },
+ {
+  "query": "write conversion copy for the pricing page headline",
+  "should_trigger": false
+ },
+ {
+  "query": "critique the interaction design of this settings page",
+  "should_trigger": true
+ },
+ {
+  "query": "proofread the microcopy and error messages on this signup form",
+  "should_trigger": false
+ },
+ {
+  "query": "are my buttons big enough? check Fitts's law on this component",
+  "should_trigger": true
+ },
+ {
+  "query": "write interview questions for user research on our checkout",
+  "should_trigger": false
+ },
+ {
+  "query": "evaluate this onboarding flow with cognitive psychology principles",
+  "should_trigger": true
+ },
+ {
+  "query": "run lighthouse and bring the accessibility score up to 100",
+  "should_trigger": false
+ },
+ {
+  "query": "why does this pricing page feel confusing? review it",
+  "should_trigger": true
+ },
+ {
+  "query": "convert this Figma frame into React components",
+  "should_trigger": false
+ },
+ {
+  "query": "run a UX audit on the card component in this PR",
+  "should_trigger": true
+ },
+ {
+  "query": "summarise the original research paper behind Fitts's law",
+  "should_trigger": false
+ },
+ {
+  "query": "check this form against Jakob's law and the peak-end rule",
+  "should_trigger": true
+ },
+ {
+  "query": "run an A/B test plan for the new pricing layout",
+  "should_trigger": false
+ }
+]

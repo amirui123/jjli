@@ -1,20 +1,67 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { BookOpen, Check, Palette, Search, Sparkles } from "lucide-react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  Compass,
+  Download,
+  FileCode2,
+  FileText,
+  FolderTree,
+  LayoutGrid,
+  Palette,
+  Search,
+  Sliders,
+  Sparkles,
+  Wand2,
+} from "lucide-react";
 import {
   ALL_BRAND_DESIGNS_MANIFEST,
   ALL_SKILLS_MANIFEST,
   type BrandDesignManifestItem,
   type SkillManifestItem,
 } from "../data/skillsManifest";
+import {
+  DESIGN_LAB_PILLARS,
+  DESIGN_LAB_TOTAL_FILES,
+} from "../data/designLabManifest";
 import { PERSIAN_FONT_CATALOG } from "../data/persianFontsCatalog";
-import { ACCENTS, loadAsset, useAppSettings, useDebounced, usePersisted } from "../lib/store";
+import { publicUrl } from "../lib/base";
+import {
+  ACCENTS,
+  useAppSettings,
+  useDebounced,
+  usePersisted,
+} from "../lib/store";
+
+const textFetchCache = new Map<string, Promise<string>>();
+
+function loadText(input: string): Promise<string> {
+  const url = publicUrl(input);
+  const hit = textFetchCache.get(url);
+  if (hit) return hit;
+  const p = fetch(url)
+    .then((r) => {
+      if (!r.ok) throw new Error(`${r.status} ${url}`);
+      return r.text();
+    })
+    .catch((err) => {
+      textFetchCache.delete(url);
+      throw err;
+    });
+  textFetchCache.set(url, p);
+  return p;
+}
 import { saveKit, saveText } from "../lib/download";
 import {
   Badge,
-  Slider,
+  CodeBlock,
+  CopyButton,
   Panel,
   SearchField,
   Segmented,
+  Slider,
   Spinner,
   Toggle,
   cn,
@@ -22,589 +69,1206 @@ import {
 import { StudioShell, StudioList, focusStudioPreview } from "../ui/StudioShell";
 import { DownloadButton } from "../ui/DownloadButton";
 import { Markdown } from "../ui/Markdown";
-import { faNum } from "../lib/format";
+import { faCount, faNum } from "../lib/format";
 import { soundEngine } from "../engines/soundEngine";
 
-type Tab = "skills" | "brands";
+type Tab = "vault4000" | "skills179" | "brands84";
+type FileExtFilter = "all" | "md" | "code" | "shader";
+type StageViewMode = "reader" | "prompt";
+type SettingsTab = "target" | "rules" | "reader";
 
-interface ReadSettings {
-  fontId: string;
+interface SkillStudioSettings {
   size: number;
   lineHeight: number;
-  theme: "dark" | "paper";
-  favoritesOnly: boolean;
+  fontId: string;
+  theme: "dark" | "paper" | "lapis";
+  targetStack: "react-tailwind" | "nextjs" | "vue" | "vanilla" | "ae-script";
+  strictness: "mvp" | "production" | "aaa-120hz";
+  inject603010: boolean;
+  injectOledSafe: boolean;
+  injectRtlRules: boolean;
+  injectSpringPhysics: boolean;
+  outputTone: "persian-docs" | "code-only" | "step-by-step";
+  codeFontSize: number;
 }
 
-const DEFAULT_READ: ReadSettings = {
-  fontId: "vazirmatn",
-  size: 12.5,
+const DEFAULT_SETTINGS: SkillStudioSettings = {
+  size: 14,
   lineHeight: 1.9,
+  fontId: "vazirmatn",
   theme: "dark",
-  favoritesOnly: false,
+  targetStack: "react-tailwind",
+  strictness: "aaa-120hz",
+  inject603010: true,
+  injectOledSafe: true,
+  injectRtlRules: true,
+  injectSpringPhysics: true,
+  outputTone: "persian-docs",
+  codeFontSize: 12,
 };
 
-const CATEGORY_LABEL: Record<string, string> = {
-  "01-motion-and-awwwards": "موشن و Awwwards",
-  "02-3d-webgl-and-shaders": "سه‌بعدی و شیدر",
-  "03-art-direction-and-taste": "هنر و کارگردانی",
-  "04-ui-systems-and-shadcn": "سیستم رابط",
-  "05-brand-design-md-vault": "برندها",
-  "06-persian-writing-and-rtl": "نوشتار فارسی",
-};
+interface VaultFileRow {
+  pillarId: string;
+  pillarCode: string;
+  pillarTitleFa: string;
+  pillarAccent: string;
+  subcatId: string;
+  subcatTitleFa: string;
+  relPath: string;
+  fileName: string;
+  ext: string;
+  bytes: number;
+  fullUrl: string;
+}
 
-const CATEGORY_ORDER = Object.keys(CATEGORY_LABEL).filter((c) => c !== "05-brand-design-md-vault");
+const ROW_H = 40;
 
-function skillFile(id: string) {
+function skillDocUrl(id: string) {
   return `/vault/skills/${id.replace(/\//g, "__")}.md`;
 }
 
-function buildPrompt(skill: SkillManifestItem, doc: string) {
-  return `# نقش: تو یک مهندس ارشد رابط کاربری فارسی و متخصص موشن هستی.
-
-## مهارت فعال
-${skill.title}  (${skill.slug})
-
-## خلاصه
-${skill.summary}
-
-## استاندارد اجرایی (از مخزن RTL Motion Lab)
-${doc.slice(0, 2400)}
-
-## قواعد سخت‌گیرانه
-- RTL-first: تنها از کلاس‌های منطقی (ms/me/ps/pe/start/end) استفاده کن.
-- برای متون فارسی هرگز letter-spacing مثبت نگذار.
-- انیمیشن‌ها باید با useMotionValue/useSpring خارج از چرخه رندر باشند و ۶۰ فریم بمانند.
-- خروجی باید TypeScript + Tailwind v4 + framer-motion و سازگار با React 18 باشد.
-
-## درخواست
-[اینجا نیاز خودت را بنویس]
-`;
-}
-
 export const SkillsStudio: React.FC = () => {
-  const [tab, setTab] = useState<Tab>("skills");
-  const [q, setQ] = useState("");
-  const [cat, setCat] = useState<string>("all");
-  const [pick, setPick] = usePersisted<{ skill: string; brand: string }>("studio-skills-pick", {
+  const [tab, setTab] = useState<Tab>("vault4000");
+  const [stageView, setStageView] = useState<StageViewMode>("reader");
+  const [settingsTab, setSettingsTab] = useState<SettingsTab>("target");
+  const [showPillarGrid, setShowPillarGrid] = useState<boolean>(false);
+
+  const [pick, setPick] = usePersisted<{
+    pillarId?: string;
+    vaultUrl: string;
+    skill: string;
+    brand: string;
+  }>("studio-skills-pick-v2", {
+    pillarId: "all",
+    vaultUrl: "/design-lab/00-INDEX-AND-BLUEPRINTS/01-MASTER-VAULT-INDEX.md",
     skill: ALL_SKILLS_MANIFEST[0]?.id ?? "",
     brand: ALL_BRAND_DESIGNS_MANIFEST[0]?.id ?? "",
   });
-  const selectedSkill =
-    ALL_SKILLS_MANIFEST.find((x) => x.id === pick.skill) ?? ALL_SKILLS_MANIFEST[0] ?? null;
-  const selectedBrand =
-    ALL_BRAND_DESIGNS_MANIFEST.find((x) => x.id === pick.brand) ?? ALL_BRAND_DESIGNS_MANIFEST[0] ?? null;
-  const setSelectedSkill = (skill: SkillManifestItem) => {
-    setPick({ skill: skill.id });
-    focusStudioPreview();
-  };
-  const setSelectedBrand = (brand: BrandDesignManifestItem) => {
-    setPick({ brand: brand.id });
-    focusStudioPreview();
-  };
-  const [doc, setDoc] = useState<string>("");
-  const [docLoading, setDocLoading] = useState(false);
-  const [limit, setLimit] = useState(80);
+
+  const selectedPillarId = pick.pillarId ?? "all";
+  const setSelectedPillarId = (pillarId: string) => setPick({ ...pick, pillarId });
+  const [selectedSubcatId, setSelectedSubcatId] = useState<string>("all");
+  const [extFilter, setExtFilter] = useState<FileExtFilter>("all");
+  const [q, setQ] = useState("");
+
+  const [rawSettings, setSettings, reset] = usePersisted<SkillStudioSettings>(
+    "studio-skills-v2",
+    DEFAULT_SETTINGS
+  );
+  const s = useMemo(() => ({ ...DEFAULT_SETTINGS, ...rawSettings }), [rawSettings]);
+
+  const [fileContent, setFileContent] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [scrollTop, setScrollTop] = useState(0);
+  const [viewH, setViewH] = useState(480);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
   const { update } = useAppSettings();
-  const [read, setRead] = usePersisted<ReadSettings>("studio-skills", DEFAULT_READ);
-  const [favorites, setFavorites] = usePersisted<{ ids: string[] }>("skill-favs", { ids: [] });
 
-  const debounced = useDebounced(q, 150);
+  const debouncedQ = useDebounced(q, 110);
 
-  const skills = useMemo(() => {
-    const term = debounced.trim().toLowerCase();
-    return ALL_SKILLS_MANIFEST.filter((s) => {
-      const inCat = cat === "all" || s.categoryFolder === cat;
-      const inTerm =
-        !term || s.title.toLowerCase().includes(term) || s.slug.includes(term) || s.summary.toLowerCase().includes(term);
-      const inFav = !read.favoritesOnly || favorites.ids.includes(s.id);
-      return inCat && inTerm && inFav;
+  // Build flat index of all 4,023 files in design-lab
+  const allVaultRows = useMemo<VaultFileRow[]>(() => {
+    const out: VaultFileRow[] = [];
+    for (const p of DESIGN_LAB_PILLARS) {
+      for (const sc of p.subcategories) {
+        for (const [relPath, bytes] of sc.files) {
+          const parts = relPath.split("/");
+          const fileName = parts[parts.length - 1] ?? relPath;
+          const dotIdx = fileName.lastIndexOf(".");
+          const ext = dotIdx >= 0 ? fileName.slice(dotIdx + 1).toLowerCase() : "";
+          out.push({
+            pillarId: p.id,
+            pillarCode: p.code,
+            pillarTitleFa: p.titleFa,
+            pillarAccent: p.accent,
+            subcatId: sc.id,
+            subcatTitleFa: sc.titleFa,
+            relPath,
+            fileName,
+            ext,
+            bytes,
+            fullUrl: `/design-lab/${p.id}/${sc.id}/${relPath}`,
+          });
+        }
+      }
+    }
+    return out;
+  }, []);
+
+  const activePillarObj = useMemo(
+    () => DESIGN_LAB_PILLARS.find((p) => p.id === selectedPillarId) ?? null,
+    [selectedPillarId]
+  );
+
+  // Filtered 4,023 vault files
+  const filteredVaultRows = useMemo(() => {
+    const term = debouncedQ.trim().toLowerCase();
+    return allVaultRows.filter((row) => {
+      if (selectedPillarId !== "all" && row.pillarId !== selectedPillarId) return false;
+      if (selectedSubcatId !== "all" && row.subcatId !== selectedSubcatId) return false;
+      if (extFilter === "md" && row.ext !== "md" && row.ext !== "mdx") return false;
+      if (
+        extFilter === "code" &&
+        !["tsx", "ts", "jsx", "js", "py", "rs", "css", "html"].includes(row.ext)
+      ) {
+        return false;
+      }
+      if (extFilter === "shader" && !["glsl", "wgsl", "frag", "vert", "json"].includes(row.ext)) {
+        return false;
+      }
+      if (!term) return true;
+      return (
+        row.relPath.toLowerCase().includes(term) ||
+        row.subcatTitleFa.toLowerCase().includes(term) ||
+        row.pillarTitleFa.toLowerCase().includes(term)
+      );
     });
-  }, [debounced, cat, read.favoritesOnly, favorites.ids]);
+  }, [allVaultRows, selectedPillarId, selectedSubcatId, extFilter, debouncedQ]);
 
-  const brands = useMemo(() => {
-    const term = debounced.trim().toLowerCase();
-    if (!term) return ALL_BRAND_DESIGNS_MANIFEST;
-    return ALL_BRAND_DESIGNS_MANIFEST.filter((b) => b.id.includes(term) || b.title.toLowerCase().includes(term));
-  }, [debounced]);
+  const filteredSkills179 = useMemo(() => {
+    const term = debouncedQ.trim().toLowerCase();
+    return ALL_SKILLS_MANIFEST.filter((item) => {
+      if (!term) return true;
+      return `${item.title} ${item.slug} ${item.summary} ${item.categoryFolder}`
+        .toLowerCase()
+        .includes(term);
+    });
+  }, [debouncedQ]);
 
+  const filteredBrands84 = useMemo(() => {
+    const term = debouncedQ.trim().toLowerCase();
+    return ALL_BRAND_DESIGNS_MANIFEST.filter((b) => {
+      if (!term) return true;
+      return `${b.title} ${b.id} ${b.excerpt}`.toLowerCase().includes(term);
+    });
+  }, [debouncedQ]);
+
+  const selectedVaultRow = useMemo(
+    () =>
+      allVaultRows.find((r) => r.fullUrl === pick.vaultUrl) ??
+      filteredVaultRows[0] ??
+      allVaultRows[0],
+    [allVaultRows, filteredVaultRows, pick.vaultUrl]
+  );
+
+  const currentRowIndex = useMemo(() => {
+    if (!selectedVaultRow) return -1;
+    return filteredVaultRows.findIndex((r) => r.fullUrl === selectedVaultRow.fullUrl);
+  }, [filteredVaultRows, selectedVaultRow]);
+
+  const stepVaultFile = (delta: number) => {
+    if (filteredVaultRows.length === 0) return;
+    const nextIdx =
+      currentRowIndex < 0
+        ? 0
+        : (currentRowIndex + delta + filteredVaultRows.length) % filteredVaultRows.length;
+    const nextRow = filteredVaultRows[nextIdx];
+    if (nextRow) {
+      soundEngine.playTick(1.05);
+      setPick({ ...pick, vaultUrl: nextRow.fullUrl });
+    }
+  };
+
+  const selectedSkill: SkillManifestItem | null = useMemo(
+    () =>
+      ALL_SKILLS_MANIFEST.find((x) => x.id === pick.skill) ??
+      filteredSkills179[0] ??
+      ALL_SKILLS_MANIFEST[0] ??
+      null,
+    [filteredSkills179, pick.skill]
+  );
+
+  const selectedBrand: BrandDesignManifestItem | null = useMemo(
+    () =>
+      ALL_BRAND_DESIGNS_MANIFEST.find((x) => x.id === pick.brand) ??
+      filteredBrands84[0] ??
+      ALL_BRAND_DESIGNS_MANIFEST[0] ??
+      null,
+    [filteredBrands84, pick.brand]
+  );
+
+  // Load real file content on selection change
   useEffect(() => {
-    if (tab !== "skills" || !selectedSkill) return;
     let alive = true;
-    setDocLoading(true);
-    setDoc("");
-    loadAsset<string>(skillFile(selectedSkill.id))
-      .then((text) => alive && setDoc(text))
-      .catch(() => alive && setDoc(selectedSkill.excerpt))
-      .finally(() => alive && setDocLoading(false));
+    setLoading(true);
+    if (tab === "vault4000" && selectedVaultRow) {
+      loadText(selectedVaultRow.fullUrl)
+        .then((txt) => alive && setFileContent(txt))
+        .catch(() =>
+          alive &&
+          setFileContent(
+            `# ${selectedVaultRow.fileName}\n\nمسیر در مخزن: \`${selectedVaultRow.fullUrl}\`\nدسته: ${selectedVaultRow.pillarTitleFa} / ${selectedVaultRow.subcatTitleFa}`
+          )
+        )
+        .finally(() => alive && setLoading(false));
+    } else if (tab === "skills179" && selectedSkill) {
+      loadText(skillDocUrl(selectedSkill.id))
+        .then((txt) => alive && setFileContent(txt))
+        .catch(() => alive && setFileContent(selectedSkill.summary))
+        .finally(() => alive && setLoading(false));
+    } else if (tab === "brands84" && selectedBrand) {
+      loadText(`/vault/brands/${selectedBrand.id}.md`)
+        .then((txt) => alive && setFileContent(txt))
+        .catch(() => alive && setFileContent(selectedBrand.excerpt))
+        .finally(() => alive && setLoading(false));
+    } else {
+      setLoading(false);
+    }
     return () => {
       alive = false;
     };
-  }, [tab, selectedSkill]);
+  }, [tab, selectedVaultRow, selectedSkill, selectedBrand]);
 
+  // Virtualized scroll window calculation
   useEffect(() => {
-    if (tab !== "brands" || !selectedBrand) return;
-    let alive = true;
-    setDocLoading(true);
-    setDoc("");
-    loadAsset<string>(`/vault/brands/${selectedBrand.id}.md`)
-      .then((text) => alive && setDoc(text))
-      .catch(() => alive && setDoc(selectedBrand.excerpt))
-      .finally(() => alive && setDocLoading(false));
-    return () => {
-      alive = false;
-    };
-  }, [tab, selectedBrand]);
+    const el = scrollRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => setViewH(el.clientHeight || 480));
+    ro.observe(el);
+    setViewH(el.clientHeight || 480);
+    return () => ro.disconnect();
+  }, []);
 
-  const toggleFav = (id: string) => {
-    setFavorites((prev) => ({
-      ids: prev.ids.includes(id) ? prev.ids.filter((x) => x !== id) : [...prev.ids, id],
-    }));
-    soundEngine.playTick(1.2);
-  };
+  const startIdx = Math.max(0, Math.floor(scrollTop / ROW_H) - 6);
+  const endIdx = Math.min(
+    filteredVaultRows.length,
+    startIdx + Math.ceil(viewH / ROW_H) + 14
+  );
 
-  const applyBrand = (brand: BrandDesignManifestItem) => {
-    const hex = brand.colors[0]?.toLowerCase() ?? "";
-    const match =
-      ACCENTS.find((a) => a.hex.toLowerCase() === hex) ??
-      ACCENTS.find((a) => brand.colors.some((c) => c.toLowerCase() === a.hex.toLowerCase())) ??
-      ACCENTS[0];
-    update({ accent: match.id, customAccent: hex || match.hex });
-    soundEngine.playSuccess();
-  };
+  // Build customized AI Prompt from the active file + user's customization settings
+  const customizedPrompt = useMemo(() => {
+    const stackLabel =
+      s.targetStack === "react-tailwind"
+        ? "React 19 + TypeScript + Tailwind CSS v4 + Framer Motion"
+        : s.targetStack === "nextjs"
+          ? "Next.js 15 App Router + Server/Client Components + Tailwind v4"
+          : s.targetStack === "vue"
+            ? "Vue 3 Composition API + TypeScript + Tailwind CSS"
+            : s.targetStack === "ae-script"
+              ? "Adobe After Effects ExtendScript (JSX) + JavaScript Expressions"
+              : "HTML5 + Modern CSS + Vanilla TS";
 
-  const currentDoc = doc || (tab === "skills" ? selectedSkill?.excerpt : selectedBrand?.excerpt) || "";
-  const docName =
-    tab === "skills"
-      ? `${selectedSkill?.slug ?? "skill"}.md`
-      : `${selectedBrand?.id ?? "brand"}-DESIGN.md`;
+    const strictLabel =
+      s.strictness === "aaa-120hz"
+        ? "سطح AAA-120Hz (بدون افت فریم، دسترس‌پذیری کامل کیبورد و کنتراست استاندارد)"
+        : s.strictness === "production"
+          ? "سطح پروداکشن تجاری (کد تمیز، ماژولار و تایپ‌شده)"
+          : "سطح نمونهٔ اولیه سریع (MVP تک‌فایلی)";
 
-  const downloadDoc = () => {
-    if (!currentDoc) return false;
-    saveText(currentDoc, docName, "text/markdown;charset=utf-8");
+    const toneLabel =
+      s.outputTone === "code-only"
+        ? "فقط کد نهایی و کامل را بدون توضیحات اضافه برگردان."
+        : s.outputTone === "step-by-step"
+          ? "معماری را گام‌به‌گام توضیح بده و سپس کد کامل را بنویس."
+          : "کد کامل را به‌همراه کامنت‌ها و مستندات فارسی بنویس.";
+
+    const title =
+      tab === "vault4000"
+        ? `${selectedVaultRow?.fileName} (${selectedVaultRow?.subcatTitleFa})`
+        : tab === "skills179"
+          ? selectedSkill?.title ?? ""
+          : `سیستم برند ${selectedBrand?.title ?? ""}`;
+
+    const rules: string[] = [];
+    if (s.inject603010) {
+      rules.push(
+        "- **قانون رنگی ۶۰-۳۰-۱۰ در فضای OKLCH:** ۶۰٪ پس‌زمینهٔ آرام، ۳۰٪ سطوح و کارت‌ها، ۱۰٪ رنگ تأکیدی کانونی."
+      );
+    }
+    if (s.injectOledSafe) {
+      rules.push(
+        "- **محافظت از پنل OLED (ضد کشیدگی سیاه):** به‌جای `#000000` از `#05060A` و `#0B0D14` استفاده کن."
+      );
+    }
+    if (s.injectRtlRules) {
+      rules.push(
+        "- **معماری بومی RTL-First:** فقط از کلاس‌های منطقی (`ms-*`, `me-*`, `ps-*`, `pe-*`, `start-*`, `end-*`) استفاده کن و نیم‌فاصله‌ها را حفظ کن."
+      );
+    }
+    if (s.injectSpringPhysics) {
+      rules.push(
+        "- **فیزیک حرکت مرتبهٔ دوم:** تمام انیمیشن‌ها با فنر کالیبره‌شده (`stiffness: 260, damping: 24, mass: 0.9`) اجرا شوند."
+      );
+    }
+
+    return `# پرامپت مهندسی شخصی‌سازی‌شده — آزمایشگاه موشن فارسی
+## مرجع انتخاب‌شده: ${title}
+- **پشتهٔ فناوری هدف:** ${stackLabel}
+- **سطح کیفیت و سخت‌گیری:** ${strictLabel}
+- **قالب خروجی:** ${toneLabel}
+
+## قوانین الزامی تزریق‌شده
+${rules.join("\n")}
+
+## محتوای مرجع از مخزن (${tab === "vault4000" ? selectedVaultRow?.fullUrl : activeFilename(tab, selectedVaultRow, selectedSkill, selectedBrand)}):
+\`\`\`
+${(fileContent || "").slice(0, 2800)}
+\`\`\`
+`;
+  }, [fileContent, s, selectedBrand, selectedSkill, selectedVaultRow, tab]);
+
+  const currentFileName = activeFilename(tab, selectedVaultRow, selectedSkill, selectedBrand);
+
+  const downloadCurrentFile = useCallback(() => {
+    if (!fileContent) return false;
+    saveText(fileContent, currentFileName);
     return true;
-  };
+  }, [currentFileName, fileContent]);
 
-  const downloadSkillKit = async () => {
-    if (!selectedSkill || !currentDoc) return false;
-    return saveKit(`rtl-motion-skill-${selectedSkill.slug}`, [
-      { name: `${selectedSkill.slug}.md`, content: currentDoc },
-      { name: "prompt.md", content: buildPrompt(selectedSkill, currentDoc) },
+  const downloadCustomizedKit = useCallback(async () => {
+    return saveKit(`skill-kit-${currentFileName.replace(/\.\w+$/, "")}.zip`, [
+      { name: currentFileName, content: fileContent },
+      { name: "CUSTOMIZED-AI-PROMPT.md", content: customizedPrompt },
       {
-        name: "meta.json",
-        content: JSON.stringify(
-          {
-            id: selectedSkill.id,
-            title: selectedSkill.title,
-            category: selectedSkill.categoryFolder,
-            path: selectedSkill.path,
-            exportedAt: new Date().toISOString(),
-          },
-          null,
-          2
-        ),
+        name: "settings.json",
+        content: JSON.stringify(s, null, 2),
       },
     ]);
-  };
+  }, [currentFileName, customizedPrompt, fileContent, s]);
 
-  const downloadBrandKit = async () => {
-    if (!selectedBrand || !currentDoc) return false;
-    return saveKit(`rtl-motion-brand-${selectedBrand.id}`, [
-      { name: `${selectedBrand.id}-DESIGN.md`, content: currentDoc },
-      {
-        name: "tokens.json",
-        content: JSON.stringify({ brand: selectedBrand.id, colors: selectedBrand.colors, title: selectedBrand.title }, null, 2),
-      },
-      {
-        name: "tokens.css",
-        content: `:root {\n${selectedBrand.colors
-          .map((c, i) => `  --brand-${i + 1}: ${c};`)
-          .join("\n")}\n}\n`,
-      },
-    ]);
-  };
+  const readFont =
+    PERSIAN_FONT_CATALOG.find((f) => f.id === s.fontId) ?? PERSIAN_FONT_CATALOG[0];
 
-  /** Fetches every skill document and bundles them, plus an index. */
-  const downloadAllSkills = async () => {
-    const docs = await Promise.all(
-      ALL_SKILLS_MANIFEST.map(async (skill) => {
-        const text = await loadAsset<string>(skillFile(skill.id)).catch(() => skill.excerpt);
-        return { skill, text };
-      })
-    );
-    const ok = docs.filter((d) => d.text && d.text.length > 0);
-    if (ok.length === 0) return false;
-    return saveKit("rtl-motion-skills", [
-      ...ok.map(({ skill, text }) => ({ name: `${skill.id.replace(/\//g, "__")}.md`, content: text })),
-      {
-        name: "index.json",
-        content: JSON.stringify(
-          ok.map(({ skill }) => ({
-            id: skill.id,
-            title: skill.title,
-            category: skill.categoryFolder,
-            path: skill.path,
-          })),
-          null,
-          2
-        ),
-      },
-      {
-        name: "README.md",
-        content: `# خزانه مهارت‌های RTL Motion Lab
-
-${ok.length} سند \`SKILL.md\` کامل، مستقیماً از مخزن.
-
-هر سند را می‌توانید به‌عنوان دستورالعمل به یک مدل هوش مصنوعی بدهید.
-`,
-      },
-    ]);
-  };
-
-  const readFont = PERSIAN_FONT_CATALOG.find((f) => f.id === read.fontId) ?? PERSIAN_FONT_CATALOG[0];
-
-  /* ----------------------------------------------------------------- list */
-
-  const list = (
-    <StudioList
-      title={tab === "skills" ? "مهارت‌ها" : "برندها"}
-      subtitle={`${faNum(tab === "skills" ? skills.length : brands.length)} نتیجه`}
-      className="min-h-[360px] desk:min-h-0"
-      footer="هر سند با متن کامل و قابل دانلود"
-      toolbar={<Badge tone="accent">{faNum(tab === "skills" ? ALL_SKILLS_MANIFEST.length : ALL_BRAND_DESIGNS_MANIFEST.length)}</Badge>}
-    >
-      <div className="sticky top-0 z-10 -m-1.5 mb-1 space-y-2 bg-[#0D0D10]/95 p-1.5 backdrop-blur">
-        <Segmented
-          className="w-full"
-          size="sm"
-          value={tab}
-          onChange={(v) => setTab(v)}
-          options={[
-            { value: "skills", label: `اسکیل` },
-            { value: "brands", label: `برند` },
-          ]}
-        />
-        <SearchField value={q} onChange={setQ} placeholder="جستجو…" />
-        {tab === "skills" && (
-          <div className="flex flex-wrap gap-1">
-            {["all", ...CATEGORY_ORDER].map((c) => (
-              <button
-                key={c}
-                onClick={() => setCat(c)}
-                className={cn(
-                  "rounded-md border px-1.5 py-0.5 text-[9px] transition-colors",
-                  cat === c
-                    ? "border-[color:var(--accent)]/40 bg-[color:var(--accent)]/12 text-[color:var(--accent)]"
-                    : "border-white/[0.07] text-zinc-500 hover:text-zinc-300"
-                )}
-              >
-                {c === "all" ? "همه" : CATEGORY_LABEL[c] ?? c}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {tab === "skills" &&
-        skills.slice(0, limit).map((s) => (
-          <div
-            key={s.id}
-            className={cn(
-              "group flex items-start gap-1.5 rounded-lg px-1.5 py-1.5 transition-colors",
-              selectedSkill?.id === s.id ? "bg-white/[0.07]" : "hover:bg-white/[0.035]"
-            )}
-          >
-            <button onClick={() => toggleFav(s.id)} className="mt-1 shrink-0 text-[9px]" aria-label="نشان کردن">
-              <span className={favorites.ids.includes(s.id) ? "text-[color:var(--accent)]" : "text-zinc-700"}>★</span>
-            </button>
-            <button
-              onClick={() => {
-                setSelectedSkill(s);
-                soundEngine.playTick(1);
-              }}
-              className="min-w-0 flex-1 text-start"
-            >
-              <span className="block truncate text-[11px] text-zinc-200">{s.title}</span>
-              <span className="mt-0.5 block truncate font-mono text-[8.5px] text-zinc-600" dir="ltr">
-                {s.slug}
-              </span>
-            </button>
-            <DownloadButton
-              compact
-              variant="ghost"
-              label="دانلود"
-              filename={`${s.slug}.md`}
-              onDownload={async () => {
-                const text = await loadAsset<string>(skillFile(s.id)).catch(() => s.excerpt);
-                saveText(text, `${s.slug}.md`, "text/markdown;charset=utf-8");
-                return true;
-              }}
-            />
-          </div>
-        ))}
-
-      {tab === "skills" && skills.length > limit && (
-        <button
-          onClick={() => setLimit((l) => l + 80)}
-          className="mt-1 w-full rounded-lg border border-white/[0.07] py-1.5 text-[10px] text-zinc-500 hover:text-white"
-        >
-          نمایش بیشتر ({faNum(skills.length - limit)})
-        </button>
-      )}
-
-      {tab === "brands" &&
-        brands.map((b) => (
-          <div
-            key={b.id}
-            className={cn(
-              "group flex items-center gap-1.5 rounded-lg px-1.5 py-1.5 transition-colors",
-              selectedBrand?.id === b.id ? "bg-white/[0.07]" : "hover:bg-white/[0.035]"
-            )}
-          >
-            <span className="flex shrink-0 gap-0.5">
-              {b.colors.slice(0, 3).map((c, i) => (
-                <span key={i} className="h-3 w-1 rounded-sm" style={{ background: c }} />
-              ))}
-            </span>
-            <button onClick={() => setSelectedBrand(b)} className="min-w-0 flex-1 truncate text-start font-mono text-[10px] text-zinc-300" dir="ltr">
-              {b.id}
-            </button>
-            <DownloadButton
-              compact
-              variant="ghost"
-              label="دانلود"
-              filename={`${b.id}-DESIGN.md`}
-              onDownload={async () => {
-                const text = await loadAsset<string>(`/vault/brands/${b.id}.md`).catch(() => b.excerpt);
-                saveText(text, `${b.id}-DESIGN.md`, "text/markdown;charset=utf-8");
-                return true;
-              }}
-            />
-          </div>
-        ))}
-
-      {(tab === "skills" ? skills : brands).length === 0 && (
-        <div className="flex flex-col items-center py-10 text-center text-[11px] text-zinc-600">
-          <Search className="mb-2 h-5 w-5" />
-          نتیجه‌ای پیدا نشد
-        </div>
-      )}
-    </StudioList>
-  );
-
-  /* ---------------------------------------------------------------- stage */
-
-  const stage = (
-    <div className="space-y-4">
-      <Panel
-        padded={false}
-        title={
-          <span className="flex items-center gap-2">
-            {tab === "skills" ? <Sparkles className="h-3.5 w-3.5 text-[color:var(--accent)]" /> : <Palette className="h-3.5 w-3.5 text-[color:var(--accent)]" />}
-            {tab === "skills" ? selectedSkill?.title : selectedBrand?.title}
-          </span>
-        }
-        subtitle={tab === "skills" ? selectedSkill?.path : selectedBrand?.path}
-        actions={
-          <>
-            {tab === "skills" && selectedSkill && (
-              <button
-                onClick={() => toggleFav(selectedSkill.id)}
-                className={cn(
-                  "rounded-lg border px-2 py-1 text-[10px]",
-                  favorites.ids.includes(selectedSkill.id)
-                    ? "border-[color:var(--accent)]/40 bg-[color:var(--accent)]/12 text-[color:var(--accent)]"
-                    : "border-white/10 text-zinc-500 hover:text-white"
-                )}
-              >
-                {favorites.ids.includes(selectedSkill.id) ? "★" : "☆"}
-              </button>
-            )}
-            <DownloadButton compact label=".md" filename={docName} onDownload={downloadDoc} />
-            <DownloadButton
-              compact
-              label="کیت"
-              filename={tab === "skills" ? `rtl-motion-skill-${selectedSkill?.slug}.zip` : `rtl-motion-brand-${selectedBrand?.id}.zip`}
-              onDownload={tab === "skills" ? downloadSkillKit : downloadBrandKit}
-              variant="solid"
-            />
-          </>
-        }
-      >
-        {tab === "brands" && selectedBrand && (
-          <div className="flex flex-wrap items-center gap-2 border-b border-white/[0.06] p-3">
-            {selectedBrand.colors.map((c) => (
-              <button
-                key={c}
-                onClick={() => {
-                  update({ customAccent: c });
-                  soundEngine.playSnap();
-                }}
-                className="group flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.02] px-2 py-1"
-                title="اعمال این رنگ روی پلتفرم"
-              >
-                <span className="h-3.5 w-3.5 rounded-full" style={{ background: c }} />
-                <span className="font-mono text-[10px] text-zinc-400 group-hover:text-zinc-100" dir="ltr">
-                  {c}
-                </span>
-              </button>
-            ))}
-            <button
-              onClick={() => applyBrand(selectedBrand)}
-              className="ms-auto flex items-center gap-1 rounded-lg border border-[color:var(--accent)]/40 bg-[color:var(--accent)]/12 px-2.5 py-1 text-[10px] text-[color:var(--accent)]"
-            >
-              <Check className="h-3 w-3" />
-              اعمال پالت
-            </button>
-          </div>
-        )}
-
-        <div
-          className={cn("studio-scroll max-h-[52vh] min-h-[280px] overflow-y-auto p-4 desk:max-h-[46vh]", read.theme === "paper" && "paper rounded-b-2xl")}
-        >
-          {docLoading ? (
-            <Spinner className="py-16" />
-          ) : (
-            <div
-              style={{
-                fontFamily: readFont.family,
-                fontSize: `${read.size}px`,
-                lineHeight: read.lineHeight,
-              }}
-              className={read.theme === "paper" ? "text-[#191410]" : undefined}
-            >
-              <Markdown source={currentDoc} />
-            </div>
-          )}
-        </div>
-      </Panel>
-
-      {tab === "skills" && selectedSkill && (
-        <Panel
-          title="پرامپت آماده برای مدل هوش مصنوعی"
-          subtitle="شامل نقش، استاندارد اجرایی و قواعد سخت‌گیرانه RTL"
-          actions={
-            <DownloadButton
-              compact
-              label=".md"
-              filename={`${selectedSkill.slug}.prompt.md`}
-              onDownload={() => saveText(buildPrompt(selectedSkill, currentDoc), `${selectedSkill.slug}.prompt.md`)}
-            />
-          }
-        >
-          <pre className="max-h-52 overflow-auto whitespace-pre-wrap rounded-lg border border-white/[0.06] bg-black/40 p-2.5 text-[10.5px] leading-relaxed text-zinc-400" dir="ltr">
-            {buildPrompt(selectedSkill, currentDoc)}
-          </pre>
-        </Panel>
-      )}
-    </div>
-  );
-
-  /* ------------------------------------------------------------- settings */
-
-  const settings = (
-    <div className="space-y-4">
-      <Panel title="خواندن سند">
-        <div className="space-y-3">
-          <div>
-            <span className="mb-1 block text-[10.5px] text-zinc-400">فونت متن</span>
-            <select
-              value={read.fontId}
-              onChange={(e) => setRead({ fontId: e.target.value })}
-              className="w-full rounded-lg border border-white/[0.08] bg-black/50 px-2 py-1.5 text-[11px] text-zinc-200 outline-none"
-            >
-              {PERSIAN_FONT_CATALOG.map((f) => (
-                <option key={f.id} value={f.id} className="bg-[#111]">
-                  {f.nameFa}
-                </option>
-              ))}
-            </select>
-          </div>
-          <Slider label="اندازه متن" value={read.size} min={11} max={20} step={0.5} unit="px" format={(v) => v.toFixed(1)} onChange={(v) => setRead({ size: v })} />
-          <Slider label="ارتفاع خط" value={read.lineHeight} min={1.4} max={2.6} step={0.05} format={(v) => v.toFixed(2)} onChange={(v) => setRead({ lineHeight: v })} />
-          <Segmented
-            className="w-full"
-            size="sm"
-            value={read.theme}
-            onChange={(v) => setRead({ theme: v })}
-            options={[
-              { value: "dark", label: "تیره" },
-              { value: "paper", label: "کاغذی" },
-            ]}
-          />
-          <Toggle label="فقط نشان‌شده‌ها" checked={read.favoritesOnly} onChange={(v) => setRead({ favoritesOnly: v })} />
-        </div>
-      </Panel>
-
-      <Panel title="خزانه">
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            { k: "اسکیل", v: ALL_SKILLS_MANIFEST.length },
-            { k: "برند", v: ALL_BRAND_DESIGNS_MANIFEST.length },
-            { k: "دسته", v: CATEGORY_ORDER.length + 1 },
-            { k: "نشان‌شده", v: favorites.ids.length },
-          ].map((x) => (
-            <div key={x.k} className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2">
-              <div className="text-[9.5px] text-zinc-500">{x.k}</div>
-              <div className="font-mono text-[14px] text-zinc-100">{faNum(x.v)}</div>
-            </div>
-          ))}
-        </div>
-      </Panel>
-
-      <Panel tone="inset" title="کل خزانه" subtitle={`${faNum(ALL_SKILLS_MANIFEST.length)} سند کامل`}>
-        <DownloadButton
-          label="دانلود همه اسناد"
-          filename="rtl-motion-skills.zip"
-          onDownload={downloadAllSkills}
-          variant="solid"
-          className="w-full justify-center"
-        />
-      </Panel>
-
-      <Panel tone="inset" title="دانلود">
-        <p className="text-[11px] leading-relaxed text-zinc-400">
-          سند کامل به‌صورت <code className="font-mono text-[10px] text-teal-300">.md</code> یا کیت
-          شامل پرامپت و متادیتا ذخیره می‌شود.
-        </p>
-        <div className="mt-2 flex gap-1.5">
-          <DownloadButton label="سند" filename={docName} onDownload={downloadDoc} className="flex-1 justify-center" />
-          <DownloadButton
-            label="کیت"
-            filename={tab === "skills" ? `rtl-motion-skill-${selectedSkill?.slug}.zip` : `rtl-motion-brand-${selectedBrand?.id}.zip`}
-            onDownload={tab === "skills" ? downloadSkillKit : downloadBrandKit}
-            className="flex-1 justify-center"
-          />
-        </div>
-      </Panel>
-    </div>
-  );
+  const isMarkdownFile =
+    tab !== "vault4000" ||
+    ["md", "mdx", "txt", ""].includes(selectedVaultRow?.ext ?? "md");
 
   return (
     <StudioShell
-      eyebrow="SKILLS STUDIO"
-      title="استودیو مهارت و برند"
-      description={`${faNum(ALL_SKILLS_MANIFEST.length)} سند مهارتی و ${faNum(ALL_BRAND_DESIGNS_MANIFEST.length)} سیستم طراحی برند — با متن کامل، خوانای قابل تنظیم و خروجی قابل دانلود.`}
+      variant="codex"
+      eyebrow={`CODEX VAULT · ${DESIGN_LAB_TOTAL_FILES} FILES IN 11 PILLARS`}
+      title="استودیو مهارت، دانش و سیستم‌های برند"
+      description={`دسترسی منظم و دسته‌بندی‌شده به ${faNum(DESIGN_LAB_TOTAL_FILES)} فایل تخصصی در ۱۱ ستون و ۴۶ زیرشاخه به‌همراه ${faNum(ALL_SKILLS_MANIFEST.length)} راهنمای منتخب و ${faNum(ALL_BRAND_DESIGNS_MANIFEST.length)} سیستم برند.`}
       icon={BookOpen}
+      onReset={reset}
       stats={
         <>
-          <Badge tone="accent">{faNum(ALL_SKILLS_MANIFEST.length)} اسکیل</Badge>
-          <Badge>{faNum(ALL_BRAND_DESIGNS_MANIFEST.length)} برند</Badge>
+          <Badge tone="accent">{faNum(DESIGN_LAB_TOTAL_FILES)} فایل</Badge>
+          <Badge tone="neutral">۱۱ ستون · ۴۶ زیرشاخه</Badge>
         </>
       }
       actions={
-        <DownloadButton
-          label="دانلود کیت"
-          filename={tab === "skills" ? `rtl-motion-skill-${selectedSkill?.slug}.zip` : `rtl-motion-brand-${selectedBrand?.id}.zip`}
-          onDownload={tab === "skills" ? downloadSkillKit : downloadBrandKit}
-        />
+        <div className="flex items-center gap-1.5">
+          <CopyButton text={customizedPrompt} label="کپی پرامپت" compact />
+          <DownloadButton
+            label={`دانلود ${currentFileName}`}
+            onDownload={downloadCurrentFile}
+            compact
+            variant="solid"
+          />
+        </div>
       }
-      listWidth="240px"
-      settingsWidth="288px"
-      list={list}
-      stage={stage}
-      settings={settings}
+      topDeck={
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-1.5">
+            {(
+              [
+                {
+                  id: "vault4000",
+                  label: `مخزن ۴٬۰۲۳ فایلی (۱۱ ستون)`,
+                  icon: FolderTree,
+                },
+                {
+                  id: "skills179",
+                  label: `راهنماهای منتخب (${faNum(ALL_SKILLS_MANIFEST.length)})`,
+                  icon: Sparkles,
+                },
+                {
+                  id: "brands84",
+                  label: `سیستم‌های برند (${faNum(ALL_BRAND_DESIGNS_MANIFEST.length)})`,
+                  icon: Palette,
+                },
+              ] as const
+            ).map((item) => {
+              const active = tab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    soundEngine.playSnap();
+                    setTab(item.id);
+                    setScrollTop(0);
+                  }}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-xl border px-3.5 py-1.5 text-[11px] transition-all",
+                    active
+                      ? "border-violet-400/65 bg-violet-500/20 font-bold text-white shadow-sm"
+                      : "border-white/10 bg-white/[0.02] text-zinc-400 hover:border-white/20 hover:text-white"
+                  )}
+                >
+                  <item.icon className="h-3.5 w-3.5 text-violet-300" />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {tab === "vault4000" && (
+            <button
+              type="button"
+              onClick={() => setShowPillarGrid((v) => !v)}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-[10.5px] transition-all",
+                showPillarGrid
+                  ? "border-violet-400/60 bg-violet-500/20 font-bold text-violet-200"
+                  : "border-white/10 bg-white/[0.02] text-zinc-400 hover:text-white"
+              )}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+              <span>{showPillarGrid ? "بستن نمای کارتی ۱۱ ستون" : "نمای کارتی ۱۱ ستون"}</span>
+            </button>
+          )}
+        </div>
+      }
+      /* --------------------------------------------------- RIGHT RAIL: CLEAN VIRTUALIZED FILE BROWSER */
+      list={
+        <StudioList
+          title={
+            tab === "vault4000"
+              ? `فهرست فایل‌ها (${faNum(filteredVaultRows.length)})`
+              : tab === "skills179"
+                ? `مهارت‌های منتخب (${faNum(filteredSkills179.length)})`
+                : `سیستم‌های برند (${faNum(filteredBrands84.length)})`
+          }
+          subtitle={
+            tab === "vault4000" && activePillarObj
+              ? activePillarObj.titleFa
+              : "جستجو و انتخاب سریع"
+          }
+          className="min-h-[440px] desk:min-h-0"
+          listClassName="flex min-h-0 flex-col overflow-hidden p-1.5"
+          toolbar={
+            <Badge tone="accent">
+              {tab === "vault4000"
+                ? faCount(filteredVaultRows.length)
+                : tab === "skills179"
+                  ? faNum(filteredSkills179.length)
+                  : faNum(filteredBrands84.length)}
+            </Badge>
+          }
+        >
+          <div className="shrink-0 space-y-2 pb-2">
+            <SearchField
+              value={q}
+              onChange={(val) => {
+                setQ(val);
+                setScrollTop(0);
+              }}
+              placeholder="جستجو در نام فایل یا دسته..."
+            />
+
+            {tab === "vault4000" && (
+              <div className="grid grid-cols-4 gap-1">
+                {(
+                  [
+                    { id: "all", label: "همه" },
+                    { id: "md", label: "مستند" },
+                    { id: "code", label: "کد" },
+                    { id: "shader", label: "شیدر" },
+                  ] as const
+                ).map((ef) => (
+                  <button
+                    key={ef.id}
+                    type="button"
+                    onClick={() => {
+                      setExtFilter(ef.id);
+                      setScrollTop(0);
+                    }}
+                    className={cn(
+                      "rounded-lg border py-1 text-[10px] transition-colors",
+                      extFilter === ef.id
+                        ? "border-violet-400/60 bg-violet-500/20 font-bold text-white"
+                        : "border-white/[0.06] bg-white/[0.02] text-zinc-400 hover:text-zinc-200"
+                    )}
+                  >
+                    {ef.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Virtualized List for all 4,023 Vault Files */}
+          {tab === "vault4000" && (
+            <div
+              ref={scrollRef}
+              className="min-h-0 flex-1 overflow-y-auto studio-scroll"
+              onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
+            >
+              <div
+                style={{
+                  height: filteredVaultRows.length * ROW_H,
+                  position: "relative",
+                }}
+              >
+                <div style={{ transform: `translateY(${startIdx * ROW_H}px)` }}>
+                  {Array.from({ length: Math.max(0, endIdx - startIdx) }, (_, i) => {
+                    const row = filteredVaultRows[startIdx + i];
+                    if (!row) return null;
+                    const active = row.fullUrl === selectedVaultRow?.fullUrl;
+                    const isMd = row.ext === "md" || row.ext === "mdx";
+                    return (
+                      <div
+                        key={row.fullUrl}
+                        style={{ height: ROW_H }}
+                        className={cn(
+                          "group flex items-center justify-between gap-1.5 rounded-xl px-2.5 transition-colors",
+                          active
+                            ? "bg-violet-500/20 text-white ring-1 ring-inset ring-violet-400/40"
+                            : "text-zinc-300 hover:bg-white/[0.04]"
+                        )}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => {
+                            soundEngine.playTick(0.95);
+                            setPick({ ...pick, vaultUrl: row.fullUrl });
+                            focusStudioPreview();
+                          }}
+                          className="flex min-w-0 flex-1 items-center gap-2 text-start"
+                        >
+                          {isMd ? (
+                            <FileText className="h-3.5 w-3.5 shrink-0 text-violet-400" />
+                          ) : (
+                            <FileCode2 className="h-3.5 w-3.5 shrink-0 text-cyan-400" />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <div
+                              className="truncate font-mono text-[10.5px] font-medium"
+                              dir="ltr"
+                            >
+                              {row.fileName}
+                            </div>
+                            <div className="truncate text-[9px] text-zinc-500">
+                              {row.subcatTitleFa}
+                            </div>
+                          </div>
+                        </button>
+                        <span className="shrink-0 font-mono text-[8.5px] text-zinc-500">
+                          {(row.bytes / 1024).toFixed(1)}k
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              {filteredVaultRows.length === 0 && (
+                <div className="flex flex-col items-center gap-2 py-14 text-center text-[11px] text-zinc-500">
+                  <Search className="h-5 w-5" />
+                  فایلی با این فیلتر پیدا نشد
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* List for 179 Curated Skills */}
+          {tab === "skills179" && (
+            <div className="min-h-0 flex-1 space-y-1 overflow-y-auto studio-scroll">
+              {filteredSkills179.map((item) => {
+                const active = selectedSkill?.id === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playTick(0.95);
+                      setPick({ ...pick, skill: item.id });
+                      focusStudioPreview();
+                    }}
+                    className={cn(
+                      "flex w-full flex-col gap-0.5 rounded-xl border p-2.5 text-start transition-all",
+                      active
+                        ? "border-violet-400/60 bg-violet-500/18 text-white"
+                        : "border-white/[0.05] bg-white/[0.015] text-zinc-300 hover:border-white/15"
+                    )}
+                  >
+                    <span className="truncate text-[11.5px] font-bold">{item.title}</span>
+                    <span className="line-clamp-1 text-[9.5px] text-zinc-400">{item.summary}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* List for 84 Brand Design Systems */}
+          {tab === "brands84" && (
+            <div className="min-h-0 flex-1 space-y-1 overflow-y-auto studio-scroll">
+              {filteredBrands84.map((bItem) => {
+                const active = selectedBrand?.id === bItem.id;
+                return (
+                  <button
+                    key={bItem.id}
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playTick(0.95);
+                      setPick({ ...pick, brand: bItem.id });
+                      focusStudioPreview();
+                    }}
+                    className={cn(
+                      "flex w-full items-center justify-between gap-2 rounded-xl border p-2.5 text-start transition-all",
+                      active
+                        ? "border-violet-400/60 bg-violet-500/18 text-white"
+                        : "border-white/[0.05] bg-white/[0.015] text-zinc-300 hover:border-white/15"
+                    )}
+                  >
+                    <span className="truncate text-[11.5px] font-bold">{bItem.title}</span>
+                    <div className="flex items-center gap-1">
+                      {bItem.colors.slice(0, 4).map((hex, idx) => (
+                        <span
+                          key={idx}
+                          className="h-3 w-3 rounded-full border border-white/20"
+                          style={{ background: hex }}
+                        />
+                      ))}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </StudioList>
+      }
+      /* --------------------------------------------------- CENTER STAGE: CLEAN CATEGORY STRIP + TABBED READER */
+      stage={
+        <div className="space-y-3">
+          {/* Clean, Compact Category & Subcategory Navigator */}
+          {tab === "vault4000" && (
+            <div className="rounded-2xl border border-white/[0.08] bg-[#090B12] p-3.5">
+              {/* Row 1: Compact Horizontal Pillar Strip */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                <span className="me-1 flex shrink-0 items-center gap-1 text-[11px] font-bold text-violet-300">
+                  <Compass className="h-3.5 w-3.5" />
+                  <span>دسته:</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundEngine.playSnap();
+                    setSelectedPillarId("all");
+                    setSelectedSubcatId("all");
+                    setScrollTop(0);
+                  }}
+                  className={cn(
+                    "shrink-0 rounded-xl border px-3 py-1.5 text-[11px] transition-all",
+                    selectedPillarId === "all"
+                      ? "border-violet-400 bg-violet-500/25 font-bold text-white"
+                      : "border-white/[0.07] bg-white/[0.02] text-zinc-400 hover:text-white"
+                  )}
+                >
+                  همهٔ ۱۱ ستون ({faNum(DESIGN_LAB_TOTAL_FILES)})
+                </button>
+
+                {DESIGN_LAB_PILLARS.map((p) => {
+                  const active = selectedPillarId === p.id;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        soundEngine.playSnap();
+                        setSelectedPillarId(p.id);
+                        setSelectedSubcatId("all");
+                        setScrollTop(0);
+                      }}
+                      className={cn(
+                        "shrink-0 rounded-xl border px-3 py-1.5 text-[11px] transition-all",
+                        active
+                          ? "border-violet-400 bg-violet-500/25 font-bold text-white"
+                          : "border-white/[0.07] bg-white/[0.02] text-zinc-300 hover:border-white/20 hover:text-white"
+                      )}
+                    >
+                      <span className="me-1 font-mono text-[9.5px]" style={{ color: p.accent }}>
+                        {p.code}
+                      </span>
+                      <span>{p.titleFa}</span>
+                      <span className="ms-1.5 font-mono text-[9.5px] opacity-65">
+                        ({faNum(p.totalFiles)})
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Optional Expandable Full 11-Pillar Card Grid */}
+              <AnimatePresence>
+                {showPillarGrid && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-3 grid grid-cols-2 gap-2 border-t border-white/[0.06] pt-3 sm:grid-cols-3 lg:grid-cols-4">
+                      {DESIGN_LAB_PILLARS.map((p) => {
+                        const active = selectedPillarId === p.id;
+                        return (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => {
+                              soundEngine.playSnap();
+                              setSelectedPillarId(p.id);
+                              setSelectedSubcatId("all");
+                              setShowPillarGrid(false);
+                              setScrollTop(0);
+                            }}
+                            className={cn(
+                              "flex flex-col justify-between rounded-xl border p-2.5 text-start transition-all",
+                              active
+                                ? "border-violet-400 bg-violet-500/25 text-white"
+                                : "border-white/[0.07] bg-white/[0.02] text-zinc-300 hover:border-white/20"
+                            )}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span
+                                className="font-mono text-[9.5px] font-bold"
+                                style={{ color: p.accent }}
+                              >
+                                ستون {faNum(Number(p.code))}
+                              </span>
+                              <span className="font-mono text-[9px] text-zinc-400">
+                                {faNum(p.totalFiles)} فایل
+                              </span>
+                            </div>
+                            <div className="mt-1 truncate text-[11px] font-bold text-white">
+                              {p.titleFa}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Row 2: Subcategory Pills when a Pillar is selected */}
+              <AnimatePresence>
+                {activePillarObj && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    className="mt-2.5 flex flex-wrap items-center gap-1.5 border-t border-white/[0.06] pt-2.5"
+                  >
+                    <span className="me-1 text-[10.5px] font-bold text-zinc-400">
+                      زیرشاخه‌های «{activePillarObj.titleFa}»:
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedSubcatId("all");
+                        setScrollTop(0);
+                      }}
+                      className={cn(
+                        "rounded-lg border px-2.5 py-1 text-[10px] transition-all",
+                        selectedSubcatId === "all"
+                          ? "border-violet-400 bg-violet-500/25 font-bold text-white"
+                          : "border-white/10 bg-white/[0.02] text-zinc-400 hover:text-white"
+                      )}
+                    >
+                      همه ({faNum(activePillarObj.totalFiles)})
+                    </button>
+                    {activePillarObj.subcategories.map((sc) => {
+                      const active = selectedSubcatId === sc.id;
+                      return (
+                        <button
+                          key={sc.id}
+                          type="button"
+                          onClick={() => {
+                            soundEngine.playTick(1);
+                            setSelectedSubcatId(sc.id);
+                            setScrollTop(0);
+                            const firstInSub = allVaultRows.find(
+                              (r) =>
+                                r.pillarId === activePillarObj.id && r.subcatId === sc.id
+                            );
+                            if (firstInSub) {
+                              setPick({ ...pick, vaultUrl: firstInSub.fullUrl });
+                            }
+                          }}
+                          className={cn(
+                            "rounded-lg border px-2.5 py-1 text-[10px] transition-all",
+                            active
+                              ? "border-violet-400 bg-violet-500/25 font-bold text-white"
+                              : "border-white/10 bg-white/[0.02] text-zinc-400 hover:text-white"
+                          )}
+                        >
+                          {sc.titleFa} ({faNum(sc.totalFiles)})
+                        </button>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
+
+          {/* Brand Palette Bar (when in Brands mode) */}
+          {tab === "brands84" && selectedBrand && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/[0.08] bg-[#0B0D14] p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                  {selectedBrand.colors.slice(0, 5).map((hex, idx) => (
+                    <span
+                      key={idx}
+                      className="h-5 w-5 rounded-full border border-white/20"
+                      style={{ background: hex }}
+                    />
+                  ))}
+                </div>
+                <div>
+                  <h2 className="text-[15px] font-bold text-white">{selectedBrand.title}</h2>
+                  <p className="text-[10.5px] text-zinc-400">سیستم طراحی و پالت رسمی برند</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const hex = selectedBrand.colors[0]?.toLowerCase() ?? "";
+                  const match =
+                    ACCENTS.find((a) => a.hex.toLowerCase() === hex) ?? ACCENTS[0];
+                  update({ accent: match.id, customAccent: hex || match.hex });
+                  soundEngine.playSuccess();
+                }}
+                className="rounded-xl bg-[color:var(--accent)] px-3.5 py-2 text-[11px] font-bold text-[#05060A]"
+              >
+                اعمال رنگ برند روی پلتفرم
+              </button>
+            </div>
+          )}
+
+          {/* Clean Tabbed Document / Code / AI-Prompt Stage */}
+          <Panel
+            title={
+              <div className="flex flex-wrap items-center gap-2">
+                <Segmented
+                  size="sm"
+                  value={stageView}
+                  onChange={setStageView}
+                  options={[
+                    { value: "reader", label: "۱. متن اسکیل و سورس" },
+                    { value: "prompt", label: "۲. پرامپت هوش مصنوعی" },
+                  ]}
+                />
+                <span className="hidden truncate font-mono text-[11px] text-zinc-400 sm:inline" dir="ltr">
+                  {tab === "vault4000"
+                    ? selectedVaultRow?.fileName
+                    : tab === "skills179"
+                      ? selectedSkill?.title
+                      : selectedBrand?.title}
+                </span>
+              </div>
+            }
+            subtitle={
+              tab === "vault4000" && selectedVaultRow
+                ? `ستون ${faNum(Number(selectedVaultRow.pillarCode))} (${selectedVaultRow.pillarTitleFa}) ⟵ ${selectedVaultRow.subcatTitleFa} · ${faNum(selectedVaultRow.bytes)} بایت`
+                : "مطالعهٔ مستقیم یا تولید پرامپت مهندسی"
+            }
+            actions={
+              <div className="flex items-center gap-1.5">
+                {tab === "vault4000" && (
+                  <div className="flex items-center gap-1 me-1">
+                    <button
+                      type="button"
+                      onClick={() => stepVaultFile(-1)}
+                      aria-label="فایل قبلی"
+                      title="فایل قبلی"
+                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-zinc-300 hover:border-white/25 hover:text-white"
+                    >
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => stepVaultFile(1)}
+                      aria-label="فایل بعدی"
+                      title="فایل بعدی"
+                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-zinc-300 hover:border-white/25 hover:text-white"
+                    >
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+                <CopyButton
+                  text={stageView === "prompt" ? customizedPrompt : fileContent}
+                  label={stageView === "prompt" ? "کپی پرامپت" : "کپی متن"}
+                  compact
+                />
+                <DownloadButton
+                  compact
+                  label="دانلود فایل"
+                  onDownload={downloadCurrentFile}
+                />
+              </div>
+            }
+          >
+            {stageView === "prompt" ? (
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-violet-400/25 bg-violet-500/10 px-3.5 py-2.5 text-[11.5px] text-violet-200">
+                  <span className="flex items-center gap-1.5">
+                    <Wand2 className="h-4 w-4 text-violet-300" />
+                    <span>
+                      این پرامپت از روی فایل فعلی و تنظیمات ستون چپ برای Claude / Cursor آماده شده است.
+                    </span>
+                  </span>
+                  <CopyButton text={customizedPrompt} label="کپی پرامپت کامل" compact />
+                </div>
+                <CodeBlock code={customizedPrompt} language="md" maxLines={38} />
+              </div>
+            ) : loading ? (
+              <div className="flex items-center justify-center py-16">
+                <Spinner />
+              </div>
+            ) : isMarkdownFile ? (
+              <div
+                className={cn(
+                  "max-h-[62vh] overflow-y-auto rounded-2xl border p-5 transition-colors studio-scroll",
+                  s.theme === "paper"
+                    ? "border-[#D8CEBE] bg-[#F5F0E6] text-[#1A1612]"
+                    : s.theme === "lapis"
+                      ? "border-sky-400/20 bg-[#081020] text-zinc-100"
+                      : "border-white/[0.06] bg-[#07090F] text-zinc-100"
+                )}
+                style={{
+                  fontFamily: readFont.family,
+                  fontSize: `${s.size}px`,
+                  lineHeight: s.lineHeight,
+                }}
+              >
+                <Markdown source={fileContent || "# فایل آماده است"} />
+              </div>
+            ) : (
+              <CodeBlock
+                code={fileContent}
+                filename={selectedVaultRow?.fileName}
+                language={selectedVaultRow?.ext || "tsx"}
+                maxLines={420}
+                fontSize={s.codeFontSize}
+              />
+            )}
+          </Panel>
+        </div>
+      }
+      /* --------------------------------------------------- LEFT RAIL: ORGANIZED 3-TAB CUSTOMIZATION CONSOLE */
+      settings={
+        <div className="space-y-3">
+          {/* Direct Download Card */}
+          <div className="rounded-2xl border border-violet-400/40 bg-gradient-to-b from-violet-500/15 to-[#0B0D14] p-4">
+            <div className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5 text-[12px] font-bold text-white">
+                <Download className="h-4 w-4 text-violet-300" />
+                <span>دانلود فایل و کیت</span>
+              </span>
+              <Badge tone="accent">{currentFileName}</Badge>
+            </div>
+            <div className="mt-3 flex flex-col gap-2">
+              <DownloadButton
+                label={`دانلود مستقیم ${currentFileName}`}
+                onDownload={downloadCurrentFile}
+                className="w-full justify-center py-2 text-[11.5px]"
+              />
+              <DownloadButton
+                label="دانلود کیت کامل (ZIP)"
+                onDownload={downloadCustomizedKit}
+                variant="ghost"
+                className="w-full justify-center py-1.5 text-[11px]"
+              />
+            </div>
+          </div>
+
+          {/* Clean 3-Tab Customization Switcher */}
+          <Panel
+            title={
+              <span className="flex items-center gap-1.5">
+                <Sliders className="h-3.5 w-3.5 text-violet-300" />
+                <span>میز شخصی‌سازی اسکیل</span>
+              </span>
+            }
+            subtitle="تنظیمات در ۳ بخش منظم دسته‌بندی شده‌اند"
+          >
+            <div className="mb-3">
+              <Segmented
+                className="w-full"
+                size="sm"
+                value={settingsTab}
+                onChange={setSettingsTab}
+                options={[
+                  { value: "target", label: "فریم‌ورک" },
+                  { value: "rules", label: "قوانین" },
+                  { value: "reader", label: "مطالعه" },
+                ]}
+              />
+            </div>
+
+            {/* Tab 1: Target Stack & Output Format */}
+            {settingsTab === "target" && (
+              <div className="space-y-3">
+                <div>
+                  <span className="mb-1 block text-[10.5px] text-zinc-400">
+                    فریم‌ورک و پشتهٔ هدف:
+                  </span>
+                  <select
+                    value={s.targetStack}
+                    onChange={(e) =>
+                      setSettings({
+                        targetStack: e.target.value as SkillStudioSettings["targetStack"],
+                      })
+                    }
+                    className="w-full rounded-xl border border-white/15 bg-[#07090F] px-3 py-2 text-[11px] text-white outline-none focus:border-violet-400"
+                  >
+                    <option value="react-tailwind">React 19 + Tailwind v4 + Motion</option>
+                    <option value="nextjs">Next.js 15 App Router + TypeScript</option>
+                    <option value="vue">Vue 3 + Nuxt + Tailwind</option>
+                    <option value="vanilla">HTML5 + Modern CSS + Vanilla TS</option>
+                    <option value="ae-script">After Effects ExtendScript / Expression</option>
+                  </select>
+                </div>
+
+                <div>
+                  <span className="mb-1 block text-[10.5px] text-zinc-400">
+                    سطح سخت‌گیری مهندسی:
+                  </span>
+                  <Segmented
+                    className="w-full"
+                    size="sm"
+                    value={s.strictness}
+                    onChange={(strictness) => setSettings({ strictness })}
+                    options={[
+                      { value: "mvp", label: "MVP" },
+                      { value: "production", label: "پروداکشن" },
+                      { value: "aaa-120hz", label: "AAA 120Hz" },
+                    ]}
+                  />
+                </div>
+
+                <div>
+                  <span className="mb-1 block text-[10.5px] text-zinc-400">
+                    قالب خروجی پرامپت:
+                  </span>
+                  <Segmented
+                    className="w-full"
+                    size="sm"
+                    value={s.outputTone}
+                    onChange={(outputTone) => setSettings({ outputTone })}
+                    options={[
+                      { value: "code-only", label: "فقط کد" },
+                      { value: "persian-docs", label: "کد + مستندات" },
+                      { value: "step-by-step", label: "گام‌به‌گام" },
+                    ]}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Tab 2: Injected Architectural Rules */}
+            {settingsTab === "rules" && (
+              <div className="space-y-2.5">
+                <Toggle
+                  label="قانون رنگی ۶۰-۳۰-۱۰ (OKLCH)"
+                  hint="توازن بصری ۶۰٪ بوم، ۳۰٪ کارت، ۱۰٪ رنگ کانونی"
+                  checked={s.inject603010}
+                  onChange={(inject603010) => setSettings({ inject603010 })}
+                />
+                <Toggle
+                  label="محافظت پنل OLED (#05060A)"
+                  hint="جلوگیری از کشیدگی سیاه در اسکرول ۱۲۰ هرتز"
+                  checked={s.injectOledSafe}
+                  onChange={(injectOledSafe) => setSettings({ injectOledSafe })}
+                />
+                <Toggle
+                  label="معماری بومی RTL-First"
+                  hint="کلاس‌های منطقی و ممنوعیت letter-spacing مثبت"
+                  checked={s.injectRtlRules}
+                  onChange={(injectRtlRules) => setSettings({ injectRtlRules })}
+                />
+                <Toggle
+                  label="فیزیک فنر دیفرانسیل ۱۲۰Hz"
+                  hint="انیمیشن‌های طبیعی بدون پرش فریم"
+                  checked={s.injectSpringPhysics}
+                  onChange={(injectSpringPhysics) => setSettings({ injectSpringPhysics })}
+                />
+              </div>
+            )}
+
+            {/* Tab 3: Reading & Code Typography */}
+            {settingsTab === "reader" && (
+              <div className="space-y-3">
+                <div>
+                  <div className="mb-1 text-[10.5px] text-zinc-400">تم بوم مطالعه</div>
+                  <Segmented
+                    className="w-full"
+                    size="sm"
+                    value={s.theme}
+                    onChange={(theme) => setSettings({ theme })}
+                    options={[
+                      { value: "dark", label: "ابسیدین" },
+                      { value: "lapis", label: "لاجوردی" },
+                      { value: "paper", label: "کاغذ کاهی" },
+                    ]}
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-[10.5px] text-zinc-400">
+                    فونت مطالعهٔ متون فارسی:
+                    <select
+                      value={s.fontId}
+                      onChange={(e) => setSettings({ fontId: e.target.value })}
+                      className="mt-1 w-full rounded-xl border border-white/15 bg-[#07090F] px-3 py-1.5 text-[11px] text-white outline-none"
+                    >
+                      {PERSIAN_FONT_CATALOG.slice(0, 12).map((f) => (
+                        <option key={f.id} value={f.id} className="bg-[#0B0D14]">
+                          {f.nameFa}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+
+                <Slider
+                  label="اندازهٔ متن سند"
+                  value={s.size}
+                  min={11}
+                  max={19}
+                  step={0.5}
+                  unit="px"
+                  onChange={(size) => setSettings({ size })}
+                />
+                <Slider
+                  label="فاصلهٔ خطوط سند"
+                  value={s.lineHeight}
+                  min={1.4}
+                  max={2.4}
+                  step={0.05}
+                  onChange={(lineHeight) => setSettings({ lineHeight })}
+                />
+                <Slider
+                  label="اندازهٔ قلم کد"
+                  value={s.codeFontSize}
+                  min={10}
+                  max={16}
+                  step={0.5}
+                  unit="px"
+                  onChange={(codeFontSize) => setSettings({ codeFontSize })}
+                />
+              </div>
+            )}
+          </Panel>
+        </div>
+      }
     />
   );
 };
+
+function activeFilename(
+  tab: Tab,
+  vaultRow: VaultFileRow | undefined,
+  skill: SkillManifestItem | null,
+  brand: BrandDesignManifestItem | null
+) {
+  if (tab === "vault4000") return vaultRow?.fileName ?? "skill.md";
+  if (tab === "skills179") return `${skill?.slug ?? "skill"}.md`;
+  return `${brand?.id ?? "brand"}-DESIGN.md`;
+}
 
 export default SkillsStudio;

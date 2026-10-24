@@ -1,0 +1,103 @@
+/*
+ * Composites N captured frames into one labelled contact sheet.
+ *
+ * Runs on a <canvas> in the extension's CEF page rather than through a native
+ * image library, so the .zxp ships no node_modules and no binary dependency.
+ * Motion is precisely what a single still cannot show, and one sheet costs a
+ * fraction of the context that N separate images would.
+ */
+
+const { readCompletePng } = require('./png-ready.js');
+
+const GREY = '#4a4a4a';
+
+async function loadImage(filePath) {
+  // Wait for AE to finish the file - a sequence frame read mid-write decodes
+  // with its bottom rows missing.
+  const b64 = (await readCompletePng(filePath)).toString('base64');
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error(`Could not decode ${filePath}`));
+    img.src = `data:image/png;base64,${b64}`;
+  });
+}
+
+/**
+ * @param {Array<{path:string,time:number}>} frames
+ * @param {{columns?:number, label?:boolean}} options
+ * @returns {Promise<{base64:string, width:number, height:number, columns:number, rows:number}>}
+ */
+async function buildContactSheet(frames, options = {}) {
+  if (!frames.length) throw new Error('No frames to composite');
+
+  const images = await Promise.all(frames.map((f) => loadImage(f.path)));
+  const cellW = images[0].width;
+  const cellH = images[0].height;
+  const labelH = options.label === false ? 0 : 16;
+  const columns = Math.max(1, Math.min(frames.length, options.columns || Math.ceil(Math.sqrt(frames.length))));
+  const rows = Math.ceil(frames.length / columns);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = columns * cellW;
+  canvas.height = rows * (cellH + labelH);
+  const ctx = canvas.getContext('2d');
+
+  // Mid grey, not black or white: transparent regions in a capture would be
+  // ambiguous against either, and "nothing drawn here" is a real finding.
+  ctx.fillStyle = GREY;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  images.forEach((img, i) => {
+    const col = i % columns;
+    const row = Math.floor(i / columns);
+    const x = col * cellW;
+    const y = row * (cellH + labelH);
+    ctx.drawImage(img, x, y, cellW, cellH);
+
+    if (labelH) {
+      ctx.fillStyle = '#1e1e1e';
+      ctx.fillRect(x, y + cellH, cellW, labelH);
+      ctx.fillStyle = '#e0e0e0';
+      ctx.font = '11px -apple-system, sans-serif';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`${frames[i].time.toFixed(2)}s`, x + 5, y + cellH + labelH / 2);
+    }
+  });
+
+  const dataUrl = canvas.toDataURL('image/png');
+  return {
+    base64: dataUrl.replace(/^data:image\/png;base64,/, ''),
+    width: canvas.width,
+    height: canvas.height,
+    columns,
+    rows,
+  };
+}
+
+/**
+ * One capture flattened onto the same mid grey as the contact sheet.
+ * saveFrameToPng keeps the comp's alpha, and most clients show a transparent
+ * PNG on white - so a single frame read "white fill" where the sheet read
+ * "nothing drawn". Outside the CEF page (unit tests under plain Node) there is
+ * no canvas, and the raw PNG is returned unchanged.
+ *
+ * @param {string} filePath
+ * @returns {Promise<string>} base64 PNG
+ */
+async function flattenOnGrey(filePath) {
+  if (typeof document === 'undefined') {
+    return (await readCompletePng(filePath)).toString('base64');
+  }
+  const img = await loadImage(filePath);
+  const canvas = document.createElement('canvas');
+  canvas.width = img.width;
+  canvas.height = img.height;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = GREY;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, 0, 0);
+  return canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
+}
+
+module.exports = { buildContactSheet, flattenOnGrey };
