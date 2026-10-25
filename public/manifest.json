@@ -1,0 +1,23 @@
+{
+  "name": "RTL Music Lab",
+  "short_name": "RTL Music",
+  "description": "اپلیکیشن موزیک کامل برای موبایل با RTL فارسی،.Visualizer، و نمایش专业歌詞",
+  "start_url": "/public/music-app.html",
+  "display": "standalone",
+  "background_color": "#08080A",
+  "theme_color": "#08080A",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512'%3E%3Crect fill='%2308080A' width='100%25' height='100%25'/%3E%3Ccircle cx='256' cy='256' r='200' fill='%23E8B33A'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%2306070B' font-family='sans-serif' font-weight='900' font-size='140'%3EM%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192'%3E%3Crect fill='%2308080A' width='100%25' height='100%25'/%3E%3Ccircle cx='96' cy='96' r='75' fill='%23E8B33A'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%2306070B' font-family='sans-serif' font-weight='900' font-size='55'%3EM%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}
