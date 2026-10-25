@@ -199,7 +199,14 @@ ul,ol{list-style:none}
     wasm = instance.exports;
     mem = wasm.memory;
     wasm.rust_engine_init(IS_MOBILE ? 1 : 0);
+    hideBoot();
   }
+  function hideBoot(){
+    var b = document.getElementById("boot");
+    if(b){ b.style.opacity="0"; setTimeout(function(){ b.style.display="none"; }, 350); }
+  }
+  // Fallback: hide boot anyway after 1.5s even if WASM stalls
+  setTimeout(hideBoot, 1500);
 
   /* ---------- FFI helpers ---------- */
   function ptrToF32(ptr,len){ return new Float32Array(mem.buffer, ptr, len); }
