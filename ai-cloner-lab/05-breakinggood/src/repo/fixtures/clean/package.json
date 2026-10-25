@@ -1,0 +1,7 @@
+{
+  "name": "fixture-clean",
+  "version": "1.0.0",
+  "dependencies": {
+    "fixture-package": "1.0.0"
+  }
+}

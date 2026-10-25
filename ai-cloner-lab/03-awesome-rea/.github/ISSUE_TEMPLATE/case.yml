@@ -1,0 +1,54 @@
+name: Case
+description: Suggest a project, or correct an entry
+title: "[Case] "
+labels: ["case"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Project name
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Project link (code or post)
+      description: Prefer a source-code link.
+    validations:
+      required: true
+  - type: dropdown
+    id: tag
+    attributes:
+      label: Tag
+      options:
+        - REA (README, author's post or official showcase says REA)
+        - AI-RE (other or unstated AI tools)
+        - Rebuild (clean-room, no RE evidence)
+        - Claim? (not yet verified)
+        - Manual RE (by hand, no AI stated)
+    validations:
+      required: true
+  - type: input
+    id: evidence
+    attributes:
+      label: Evidence link
+      description: The README, author's post or showcase that supports the tag.
+    validations:
+      required: true
+  - type: input
+    id: license
+    attributes:
+      label: License
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes, or a correction
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: Checks
+      options:
+        - label: The project does not bypass licensing or copy paid features as its main purpose.
+          required: true
+        - label: I have read CONTRIBUTING.md.
+          required: true

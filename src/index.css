@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @source not "../toolkit";
 @source not "../design-lab";
+@source not "../ai-cloner-lab";
 @source not "../public";
 @source not "../share";
 @source not "../docs";

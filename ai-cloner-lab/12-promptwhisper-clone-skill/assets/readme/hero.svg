@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="380" viewBox="0 0 1200 380" role="img" aria-labelledby="title desc">
+  <title id="title">Clone Any Website Skill</title>
+  <desc id="desc">A public webpage is observed, specified, rebuilt as clean source, and verified through a visual comparison.</desc>
+  <rect width="1200" height="380" rx="28" fill="#f3efe6"/>
+  <path d="M48 48h1104v284H48z" fill="none" stroke="#191816" stroke-width="2"/>
+  <g font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+    <text x="74" y="88" fill="#d74f36" font-size="18" font-weight="750" letter-spacing="3">PUBLIC WEB RECONSTRUCTION · CODEX SKILL</text>
+    <text x="72" y="160" fill="#191816" font-size="60" font-weight="780">Clone Any Website</text>
+    <text x="74" y="204" fill="#605c54" font-size="23">Observe the behavior. Rebuild the system. Verify the result.</text>
+  </g>
+  <g transform="translate(74 256)" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="18">
+    <g><rect width="124" height="40" fill="#191816"/><text x="17" y="27" fill="#f3efe6">01 OBSERVE</text></g>
+    <path d="M124 20h44" stroke="#191816" stroke-width="2"/>
+    <g transform="translate(168)"><rect width="112" height="40" fill="#f3efe6" stroke="#191816" stroke-width="2"/><text x="16" y="27" fill="#191816">02 SPEC</text></g>
+    <path d="M280 20h44" stroke="#191816" stroke-width="2"/>
+    <g transform="translate(324)"><rect width="128" height="40" fill="#f3efe6" stroke="#191816" stroke-width="2"/><text x="16" y="27" fill="#191816">03 REBUILD</text></g>
+    <path d="M452 20h44" stroke="#191816" stroke-width="2"/>
+    <g transform="translate(496)"><rect width="124" height="40" fill="#d74f36"/><text x="16" y="27" fill="#fffaf1">04 VERIFY</text></g>
+  </g>
+  <g transform="translate(730 66)">
+    <g transform="rotate(-4 155 115)">
+      <rect width="310" height="225" rx="10" fill="#fffaf1" stroke="#191816" stroke-width="3"/>
+      <path d="M0 38h310" stroke="#191816" stroke-width="3"/>
+      <circle cx="18" cy="19" r="5" fill="#d74f36"/><circle cx="36" cy="19" r="5" fill="#d1b65d"/><circle cx="54" cy="19" r="5" fill="#59916e"/>
+      <rect x="24" y="64" width="126" height="26" fill="#191816"/>
+      <rect x="24" y="107" width="246" height="8" fill="#aaa399"/>
+      <rect x="24" y="126" width="190" height="8" fill="#d2cbc0"/>
+      <rect x="24" y="163" width="68" height="34" fill="#d74f36"/>
+      <rect x="176" y="58" width="104" height="94" fill="#d9e0d3"/>
+    </g>
+    <g transform="translate(178 104) rotate(4 130 92)">
+      <rect width="260" height="184" rx="10" fill="#191816" stroke="#f3efe6" stroke-width="3"/>
+      <path d="M0 34h260" stroke="#f3efe6" stroke-width="2"/>
+      <path d="M29 63h92M29 84h160M29 105h120M29 126h186" stroke="#f3efe6" stroke-width="8"/>
+      <rect x="185" y="54" width="50" height="84" fill="#d74f36" opacity=".85"/>
+      <path d="M198 62l26 68M224 62l-26 68" stroke="#191816" stroke-width="5"/>
+      <text x="28" y="161" fill="#f3efe6" font-size="17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">CLEAN SOURCE · QA PASS</text>
+    </g>
+    <path d="M-22 22h34M-5 5v34M412 251h34M429 234v34" stroke="#d74f36" stroke-width="3"/>
+  </g>
+</svg>

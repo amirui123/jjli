@@ -1,0 +1,11 @@
+node_modules/
+.playwright/
+.clone-any-website/
+dist/
+coverage/
+*.log
+.env
+.env.*
+!*.example
+__pycache__/
+*.pyc
