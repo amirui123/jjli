@@ -1,130 +1,39 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Volume2 } from "lucide-react";
 import { soundEngine } from "../engines/soundEngine";
 import { publicUrl } from "../lib/base";
 import { useAppSettings } from "../lib/store";
 import { cn } from "../ui/kit";
+import { HERO_LINES, HERO_WORDS, INTRO_COPY, INTRO_PROGRESS_LABEL } from "../shell/introCopy";
 
-/* ---------------------------------------------------------------- constants */
+/* ------------------------------------------------------------------ timing */
 
 /**
- * Pure 6-Act Cinema Choreography Timeline (TOTAL_MS = 8900ms):
- * - [0.00 .. 0.10]: Act 1A (Sweep R->L)   — Golden beam shoots from Right (950) to Left (50)
- * - [0.10 .. 0.19]: Act 1B (Rebound L->R) — Beam rebounds Left (50) to Right (950) in a counter-wave
- * - [0.19 .. 0.31]: Act 2  (Astrolabe)    — 12-Fold Sacred Persian Girih / Astrolabe blooms & spins at center while beam loops 360° into the solid Center Bar (x=220..780, y=210)
- * - [0.31 .. 0.39]: Act 3A (Fracture)     — 6 vertical laser cuts slice the bar into 7 pieces in place with visible recoil
- * - [0.39 .. 0.46]: Act 3B (Flight)       — All 7 pieces fly along curved arcs to their exact DOM-measured word coordinates
- * - [0.46 .. 0.80]: Act 4  (Words)        — Word-by-word (Right-to-Left) transformation into IranNastaliq: «در امتدادِ نور، هر خط جان می‌گیرد»
- * - [0.80 .. 1.00]: Act 5  (Prism Finale) — After the words appear, a Cosmic Prism Shockwave + Twin Orbiting Light Ribbons sweep across the calligraphy before the Curved Horizon Portal splits open!
+ * The film is four movements, and only one of them waits for the visitor.
+ *
+ *  1. greeting  1,500ms  «سلام، چطوری؟» + the bespoke medallion face
+ *  2. invite    up to 7,000ms  the living point asks to be pressed
+ *  3. bloom     1,000ms  the point gives way: shockwave, embers, sub-bass
+ *  4. sentence  3,600ms  the hero sentence lands word by word (RTL, stereo)
+ *  5. portal    1,450ms  the curved curtain splits and hands over to the site
+ *
+ * Worst case — nobody touches it — is ~14.5s, and the skip control is on
+ * screen for every frame of it.
  */
-const TOTAL_MS = 8900;
-const PORTAL_EXIT_MS = 1550;
+const GREETING_MS = 1500;
+const INVITE_TIMEOUT_MS = 7000;
+const BLOOM_MS = 1000;
+const SENTENCE_MS = 3600;
+const PORTAL_MS = 1450;
 
-/** The 6 X-coordinates along the solid center bar (x = 780..220) where the 6 fracture cuts happen */
-const CUT_POINTS_X = [700, 620, 540, 460, 380, 300];
+/** Per-word stagger of the sentence. Kept in ms so it can drive audio too. */
+const WORD_STAGGER_MS = 130;
+const WORD_LEAD_MS = 260;
 
-interface WordSpec {
-  id: number;
-  text: string;
-  gold: boolean;
-  barCenterX: number;
-  recoilY: number;
-  recoilAngle: number;
-  fallbackX: number;
-  fallbackYMobile: number;
-  fallbackXMobile: number;
-  fallbackW: number;
-}
+type Phase = "greeting" | "invite" | "bloom" | "sentence" | "exit";
 
-const WORDS: WordSpec[] = [
-  {
-    id: 0,
-    text: "در",
-    gold: false,
-    barCenterX: 740,
-    recoilY: -18,
-    recoilAngle: -11,
-    fallbackX: 855,
-    fallbackXMobile: 730,
-    fallbackYMobile: 145,
-    fallbackW: 68,
-  },
-  {
-    id: 1,
-    text: "امتدادِ",
-    gold: false,
-    barCenterX: 660,
-    recoilY: 16,
-    recoilAngle: 9,
-    fallbackX: 735,
-    fallbackXMobile: 515,
-    fallbackYMobile: 145,
-    fallbackW: 118,
-  },
-  {
-    id: 2,
-    text: "نور،",
-    gold: true,
-    barCenterX: 580,
-    recoilY: -20,
-    recoilAngle: -13,
-    fallbackX: 595,
-    fallbackXMobile: 295,
-    fallbackYMobile: 145,
-    fallbackW: 92,
-  },
-  {
-    id: 3,
-    text: "هر",
-    gold: false,
-    barCenterX: 500,
-    recoilY: 18,
-    recoilAngle: 12,
-    fallbackX: 490,
-    fallbackXMobile: 790,
-    fallbackYMobile: 278,
-    fallbackW: 66,
-  },
-  {
-    id: 4,
-    text: "خط",
-    gold: true,
-    barCenterX: 420,
-    recoilY: -16,
-    recoilAngle: -10,
-    fallbackX: 390,
-    fallbackXMobile: 625,
-    fallbackYMobile: 278,
-    fallbackW: 86,
-  },
-  {
-    id: 5,
-    text: "جان",
-    gold: true,
-    barCenterX: 340,
-    recoilY: 20,
-    recoilAngle: 11,
-    fallbackX: 275,
-    fallbackXMobile: 445,
-    fallbackYMobile: 278,
-    fallbackW: 92,
-  },
-  {
-    id: 6,
-    text: "می‌گیرد",
-    gold: false,
-    barCenterX: 260,
-    recoilY: -17,
-    recoilAngle: -9,
-    fallbackX: 130,
-    fallbackXMobile: 225,
-    fallbackYMobile: 278,
-    fallbackW: 138,
-  },
-];
-
-/* ------------ Responsive Mobile Portrait Detection Hook ------------ */
+/* ------------------------------------------------------------- responsive */
 
 function useIsMobilePortrait(): boolean {
   const [isMobile, setIsMobile] = useState<boolean>(() => {
@@ -144,112 +53,231 @@ function useIsMobilePortrait(): boolean {
   return isMobile;
 }
 
-/* ------------ Acts 1A, 1B & 2 Trajectory: R->L Sweep -> L->R Rebound -> 360° Astrolabe Loop -> Center Bar */
-
-interface TrajectorySample {
-  x: number;
-  y: number;
+function haptic(ms = 14) {
+  try {
+    if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+      navigator.vibrate(ms);
+    }
+  } catch {
+    // unsupported — silence is the correct fallback
+  }
 }
 
-function buildMultiActTrajectorySamples(isMobile: boolean): TrajectorySample[] {
-  const pts: TrajectorySample[] = [];
-  // Boost vertical wave amplitude on portrait mobile screens so the sweep fills the vertical space
-  const ampScale = isMobile ? 1.65 : 1.0;
+/* ------------------------------------------------------------ the medallion */
 
-  // Part 0 (25 pts): Ignited center point (500, 210) launches to Right edge (950, 210)
-  for (let i = 0; i <= 25; i++) {
-    const u = i / 25;
-    pts.push({
-      x: 500 + 450 * (u * u),
-      y: 210 - Math.sin(u * Math.PI) * 16 * ampScale,
-    });
-  }
+/**
+ * The film's bespoke mark: a shamse-style sun medallion with a face drawn in
+ * the same language as the type — gold rim, lapis heart, and a smile that is
+ * really just a calligraphic curve. It blinks, so it reads as a character
+ * rather than as another logo.
+ */
+const ShamsFace: React.FC<{ size?: number; blink?: boolean }> = ({ size = 96, blink = true }) => (
+  <motion.div
+    aria-hidden
+    className="relative shrink-0"
+    style={{ width: size, height: size }}
+    initial={{ scale: 0.2, rotate: -35, opacity: 0 }}
+    animate={{ scale: 1, rotate: 0, opacity: 1 }}
+    transition={{ type: "spring", stiffness: 190, damping: 14, mass: 0.8 }}
+  >
+    <svg viewBox="0 0 120 120" width={size} height={size} className="overflow-visible">
+      <defs>
+        <radialGradient id="shams-core" cx="42%" cy="34%" r="72%">
+          <stop offset="0%" stopColor="#FFFBEB" />
+          <stop offset="46%" stopColor="#F5B841" />
+          <stop offset="100%" stopColor="#B4771A" />
+        </radialGradient>
+        <linearGradient id="shams-rim" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FFFBEB" />
+          <stop offset="52%" stopColor="#F5B841" />
+          <stop offset="100%" stopColor="#38BDF8" />
+        </linearGradient>
+        <filter id="shams-glow" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="3.2" result="b" />
+          <feMerge>
+            <feMergeNode in="b" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
 
-  // Part A (85 pts): Act 1A — High-speed Pass 1 from Right (950, 210) to Left (50, 210)
-  for (let i = 1; i <= 85; i++) {
-    const u = i / 85;
-    const eased = 1 - Math.pow(1 - u, 2.0);
-    pts.push({
-      x: 950 - 900 * eased,
-      y: 210 - Math.sin(u * Math.PI * 2) * 30 * ampScale,
-    });
-  }
+      {/* rotating girih rays */}
+      <motion.g
+        style={{ transformOrigin: "60px 60px" }}
+        animate={blink ? { rotate: 360 } : { rotate: 0 }}
+        transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
+      >
+        {Array.from({ length: 12 }).map((_, i) => {
+          const a = (i * Math.PI) / 6;
+          const r1 = 46;
+          const r2 = i % 2 === 0 ? 57 : 52;
+          return (
+            <line
+              key={i}
+              x1={60 + Math.cos(a) * r1}
+              y1={60 + Math.sin(a) * r1}
+              x2={60 + Math.cos(a) * r2}
+              y2={60 + Math.sin(a) * r2}
+              stroke="url(#shams-rim)"
+              strokeWidth={i % 2 === 0 ? 2.2 : 1.3}
+              strokeLinecap="round"
+              opacity={i % 2 === 0 ? 0.95 : 0.55}
+            />
+          );
+        })}
+      </motion.g>
 
-  // Part B (85 pts): Act 1B — Counter-Sweep Rebound from Left (50, 210) back to Right (920, 210)
-  for (let i = 1; i <= 85; i++) {
-    const u = i / 85;
-    const eased = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
-    pts.push({
-      x: 50 + 870 * eased,
-      y: 210 + Math.sin(u * Math.PI * 2) * 36 * ampScale,
-    });
-  }
+      <circle
+        cx="60"
+        cy="60"
+        r="43"
+        fill="url(#shams-core)"
+        stroke="url(#shams-rim)"
+        strokeWidth="1.6"
+        filter="url(#shams-glow)"
+      />
+      <circle
+        cx="60"
+        cy="60"
+        r="35"
+        fill="none"
+        stroke="#5B3B0B"
+        strokeWidth="0.9"
+        opacity="0.35"
+      />
 
-  // Part C (115 pts): Act 2 — Full 360° Astrolabe Spiral from Right (920, 210) around the stage into (220, 210)
-  for (let i = 1; i <= 115; i++) {
-    const v = i / 115;
-    const theta = v * Math.PI * 3; // 1.5 revolutions ending at cos(3*PI) = -1 (left side x=220)
-    const rx = 420 - 140 * v;
-    const ry = (isMobile ? 195 : 152) * Math.sin(v * Math.PI * 0.9 + 0.12);
-    pts.push({
-      x: 500 + Math.cos(theta) * rx,
-      y: 210 - Math.sin(theta) * ry,
-    });
-  }
+      {/* eyes — calligraphic dots, not circles */}
+      <motion.g
+        animate={blink ? { scaleY: [1, 1, 0.12, 1] } : { scaleY: 1 }}
+        transition={{
+          duration: 5.4,
+          repeat: Infinity,
+          times: [0, 0.9, 0.95, 1],
+          ease: "easeInOut",
+        }}
+        style={{ transformOrigin: "60px 54px" }}
+      >
+        <ellipse cx="48" cy="52" rx="4.4" ry="5.6" fill="#2A1A06" />
+        <ellipse cx="72" cy="52" rx="4.4" ry="5.6" fill="#2A1A06" />
+        <circle cx="49.6" cy="50" r="1.25" fill="#FFFBEB" opacity="0.9" />
+        <circle cx="73.6" cy="50" r="1.25" fill="#FFFBEB" opacity="0.9" />
+      </motion.g>
 
-  // Part D (100 pts): Locks into the exact horizontal center bar from x=220 to x=780 at y=210 (indices 310..410)
-  for (let i = 1; i <= 100; i++) {
-    const w = i / 100;
-    pts.push({
-      x: 220 + 560 * w,
-      y: 210,
-    });
-  }
+      {/* smile + dimples */}
+      <path
+        d="M46 66 Q60 79 74 66"
+        fill="none"
+        stroke="#2A1A06"
+        strokeWidth="3.1"
+        strokeLinecap="round"
+      />
+      <circle cx="41.5" cy="63" r="1.9" fill="#B4771A" opacity="0.55" />
+      <circle cx="78.5" cy="63" r="1.9" fill="#B4771A" opacity="0.55" />
+    </svg>
+  </motion.div>
+);
 
-  return pts;
-}
+/* ---------------------------------------------------------------- 1. hello */
 
-function samplesToSvgPath(samples: TrajectorySample[], startIdx: number, endIdx: number): string {
-  const s = Math.max(0, Math.min(samples.length - 1, startIdx));
-  const e = Math.max(s, Math.min(samples.length - 1, endIdx));
-  if (e <= s) return "";
-  const cmds: string[] = [];
-  for (let i = s; i <= e; i++) {
-    const pt = samples[i];
-    if (!pt) continue;
-    cmds.push(`${i === s ? "M" : "L"}${pt.x.toFixed(1)},${pt.y.toFixed(1)}`);
-  }
-  return cmds.join(" ");
-}
+const GreetingStage: React.FC<{ reduced: boolean | null }> = ({ reduced }) => {
+  const words = INTRO_COPY.greeting.words;
+  return (
+    <motion.div
+      key="greeting"
+      className="flex flex-col items-center gap-3 px-6 text-center sm:gap-5"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, y: -26, filter: "blur(10px)" }}
+      transition={{ duration: 0.45 }}
+    >
+      <ShamsFace size={92} blink={!reduced} />
+      <div
+        dir="rtl"
+        className="flex flex-wrap items-center justify-center gap-x-3 text-[#F5F2EB]"
+        style={{ fontFamily: "'IranNastaliq', 'GulzarNastaliq', serif", lineHeight: 2 }}
+      >
+        {words.map((w, i) => (
+          <motion.span
+            key={w}
+            className="inline-block text-[clamp(34px,10vw,54px)] sm:text-[68px]"
+            initial={reduced ? false : { opacity: 0, y: 34, filter: "blur(10px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{
+              type: "spring",
+              stiffness: 150,
+              damping: 17,
+              delay: reduced ? 0 : 0.22 + i * 0.16,
+            }}
+          >
+            {w}
+          </motion.span>
+        ))}
+      </div>
+    </motion.div>
+  );
+};
 
-/** Builds a 12-pointed Sacred Persian Girih / Astrolabe star polygon path */
-function buildGirihStarPath(
-  cx: number,
-  cy: number,
-  outerR: number,
-  innerR: number,
-  points = 12
-): string {
-  const totalVerts = points * 2;
-  const cmds: string[] = [];
-  for (let i = 0; i < totalVerts; i++) {
-    const angle = (i * Math.PI) / points - Math.PI / 2;
-    const r = i % 2 === 0 ? outerR : innerR;
-    const x = cx + Math.cos(angle) * r;
-    const y = cy + Math.sin(angle) * r;
-    cmds.push(`${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`);
-  }
-  cmds.push("Z");
-  return cmds.join(" ");
-}
+/* ------------------------------------------------------------- 2. the point */
 
-/* ------------------------------------------- Act 0: The Living Point Gate */
+/**
+ * The "press here" cue: a bespoke hand that reaches in, dips onto the point and
+ * leaves a ripple — drawn rather than iconified so it matches the greeting
+ * medallion. `aria-hidden`, because the copy already says what to do.
+ */
+const TapCue: React.FC<{ className?: string }> = ({ className }) => (
+  <motion.div
+    aria-hidden
+    className={cn("pointer-events-none absolute z-20", className)}
+    initial={{ opacity: 0, scale: 0.7 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.5, delay: 0.9 }}
+  >
+    <motion.svg
+      viewBox="0 0 100 100"
+      className="h-full w-full overflow-visible"
+      style={{ filter: "drop-shadow(0 12px 22px rgba(0, 0, 0, 0.55))" }}
+      animate={{ y: [8, -4, 8], rotate: [22, 18, 22] }}
+      transition={{ duration: 2.4, times: [0, 0.42, 1], repeat: Infinity, ease: "easeInOut" }}
+    >
+      <defs>
+        <linearGradient id="intro-tap-gold" x1="12%" y1="100%" x2="88%" y2="0%">
+          <stop offset="0%" stopColor="#EBB24B" />
+          <stop offset="62%" stopColor="#F7D488" />
+          <stop offset="100%" stopColor="#FFFBEB" />
+        </linearGradient>
+      </defs>
+      {/* palm */}
+      <rect x="26" y="40" width="50" height="52" rx="18" fill="url(#intro-tap-gold)" />
+      {/* folded fingers, read as two creases rather than separate blocks */}
+      <path
+        d="M40 58h26M40 72h26"
+        stroke="rgba(80, 44, 6, 0.32)"
+        strokeWidth="4"
+        strokeLinecap="round"
+        fill="none"
+      />
+      {/* index finger */}
+      <rect x="46" y="6" width="21" height="46" rx="10.5" fill="url(#intro-tap-gold)" />
+      {/* fingertip contact + expanding ripple */}
+      <circle cx="56.5" cy="8" r="4" fill="#FFFFFF" />
+      <motion.circle
+        cx="56.5"
+        cy="7"
+        r="7"
+        fill="none"
+        stroke="#FFFBEB"
+        strokeWidth="2.2"
+        animate={{ r: [5, 20], opacity: [0.9, 0] }}
+        transition={{ duration: 1.6, repeat: Infinity, ease: "easeOut" }}
+      />
+    </motion.svg>
+  </motion.div>
+);
 
-interface IgnitionPointGateProps {
-  onIgnite: () => void;
-}
-
-const IgnitionPointGate: React.FC<IgnitionPointGateProps> = ({ onIgnite }) => {
+const PointGate: React.FC<{ onIgnite: () => void; reduced: boolean | null }> = ({
+  onIgnite,
+  reduced,
+}) => {
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [pressed, setPressed] = useState(false);
 
@@ -258,649 +286,469 @@ const IgnitionPointGate: React.FC<IgnitionPointGateProps> = ({ onIgnite }) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
-    const dx = Math.max(-28, Math.min(28, (e.clientX - cx) * 0.08));
-    const dy = Math.max(-28, Math.min(28, (e.clientY - cy) * 0.08));
+    const dx = Math.max(-34, Math.min(34, (e.clientX - cx) * 0.1));
+    const dy = Math.max(-34, Math.min(34, (e.clientY - cy) * 0.1));
     setOffset({ x: dx, y: dy });
   }, []);
 
-  const triggerIgnite = useCallback(() => {
-    try {
-      if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
-        navigator.vibrate(16);
-      }
-    } catch {
-      // ignore on unsupported browsers
-    }
-    onIgnite();
-  }, [onIgnite]);
+  return (
+    <motion.div
+      key="invite"
+      className="flex flex-col items-center gap-7 px-6 text-center sm:gap-9"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, scale: 1.08, filter: "blur(12px)" }}
+      transition={{ duration: 0.45 }}
+    >
+      <motion.div
+        dir="rtl"
+        className="flex flex-wrap items-baseline justify-center gap-x-2.5 text-[#F5F2EB]"
+        style={{ fontFamily: "'IranNastaliq', 'GulzarNastaliq', serif", lineHeight: 1.9 }}
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        <span className="text-[clamp(24px,7vw,38px)] sm:text-[clamp(46px,3.7vw,64px)]">
+          {INTRO_COPY.invite.lead}
+        </span>
+        <span className="text-[clamp(24px,7vw,38px)] text-[#F5B841] sm:text-[clamp(46px,3.7vw,64px)]">
+          {INTRO_COPY.invite.focus}
+        </span>
+      </motion.div>
+
+      <div className="relative">
+        {!reduced && (
+          <TapCue className="-bottom-5 -left-4 h-[74px] w-[74px] sm:-bottom-7 sm:-left-9 sm:h-[96px] sm:w-[96px]" />
+        )}
+
+        <motion.div
+          onPointerMove={handlePointerMove}
+          onPointerDown={() => setPressed(true)}
+          onPointerUp={() => setPressed(false)}
+          onPointerCancel={() => setPressed(false)}
+          onClick={() => {
+            haptic(16);
+            onIgnite();
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label={INTRO_COPY.invite.gateLabel}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              haptic(16);
+              onIgnite();
+            }
+          }}
+          className="group relative flex h-28 w-28 cursor-pointer touch-manipulation items-center justify-center rounded-full outline-none select-none focus-visible:ring-2 focus-visible:ring-[#F5B841]/70 sm:h-32 sm:w-32"
+          style={{
+            transform: `translate3d(${offset.x.toFixed(1)}px, ${offset.y.toFixed(1)}px, 0) scale(${pressed ? 0.9 : 1})`,
+            transition: "transform 140ms cubic-bezier(0.22, 1, 0.36, 1)",
+          }}
+        >
+          {/* breathing rings */}
+          {!reduced && (
+            <>
+              <motion.span
+                aria-hidden
+                className="pointer-events-none absolute h-[68px] w-[68px] rounded-full border border-[#F5B841]/55 sm:h-[80px] sm:w-[80px]"
+                animate={{ scale: [1, 2.5, 1], opacity: [0.5, 0, 0.5] }}
+                transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+              />
+              <motion.span
+                aria-hidden
+                className="pointer-events-none absolute h-[52px] w-[52px] rounded-full border border-[#38BDF8]/60 sm:h-[62px] sm:w-[62px]"
+                animate={{ scale: [1, 1.85, 1], opacity: [0.62, 0.12, 0.62] }}
+                transition={{ duration: 2.6, delay: 0.5, repeat: Infinity, ease: "easeInOut" }}
+              />
+            </>
+          )}
+
+          <span
+            aria-hidden
+            className="pointer-events-none absolute h-28 w-28 rounded-full bg-[#F5B841]/15 blur-2xl transition-all duration-300 group-hover:scale-125 group-hover:bg-[#F5B841]/30 sm:h-36 sm:w-36"
+          />
+
+          <span
+            className="relative z-10 flex h-7 w-7 items-center justify-center rounded-full bg-[#FFFBEB] transition-transform duration-300 group-hover:scale-110 group-active:scale-90 sm:h-8 sm:w-8"
+            style={{
+              boxShadow:
+                "0 0 22px 6px rgba(245, 184, 65, 0.95), 0 0 52px 16px rgba(56, 189, 248, 0.45)",
+            }}
+          />
+        </motion.div>
+      </div>
+
+      <motion.p
+        className="max-w-[16rem] text-[11.5px] leading-relaxed text-zinc-400 sm:max-w-none sm:text-[13.5px]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.45 }}
+      >
+        {INTRO_COPY.invite.hint}
+      </motion.p>
+    </motion.div>
+  );
+};
+
+/* ---------------------------------------------------------- 3. the bloom */
+
+const Bloom: React.FC = () => {
+  const embers = useMemo(
+    () =>
+      Array.from({ length: 46 }).map((_, i) => {
+        const a = (i / 46) * Math.PI * 2 + (i % 4) * 0.11;
+        const r = 150 + ((i * 53) % 330);
+        return {
+          x: Math.cos(a) * r,
+          y: Math.sin(a) * r * 0.84,
+          s: 2 + ((i * 7) % 7),
+          delay: (i % 6) * 0.012,
+          gold: i % 3 !== 0,
+        };
+      }),
+    []
+  );
 
   return (
-    <div
-      onPointerMove={handlePointerMove}
-      onPointerDown={() => setPressed(true)}
-      onPointerUp={() => setPressed(false)}
-      onPointerCancel={() => setPressed(false)}
-      onClick={triggerIgnite}
-      role="button"
-      tabIndex={0}
-      aria-label="شروع انیمیشن ورود با صدا"
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          triggerIgnite();
-        }
-      }}
-      className="group relative flex h-full w-full cursor-pointer touch-manipulation flex-col items-center justify-center select-none"
+    <motion.div
+      key="bloom"
+      aria-hidden
+      className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ opacity: { duration: 0.35 } }}
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
+      {/* full-frame flash — the page blinks, it does not gently glow */}
+      <motion.span
+        className="absolute inset-0 bg-[#FFFBEB]"
+        initial={{ opacity: 0.9 }}
+        animate={{ opacity: [0.9, 0.75, 0] }}
+        transition={{ duration: 0.5, times: [0, 0.4, 1], ease: "linear" }}
+      />
+
+      {/* white-hot core: expands fast, but its opacity is held on a slower clock */}
+      <motion.span
+        className="absolute h-28 w-28 rounded-full"
         style={{
           background:
-            "radial-gradient(42% 38% at 50% 50%, rgba(245, 184, 65, 0.16), rgba(29, 78, 216, 0.07) 54%, transparent 84%)",
+            "radial-gradient(circle, #FFFFFF 0%, #FFFBEB 24%, rgba(245,184,65,0.9) 52%, transparent 78%)",
+        }}
+        initial={{ scale: 0.2, opacity: 1 }}
+        animate={{ scale: 6, opacity: [1, 0.95, 0] }}
+        transition={{
+          scale: { duration: 1.05, ease: [0.16, 1, 0.3, 1] },
+          opacity: { duration: 1.05, times: [0, 0.42, 1], ease: "linear" },
         }}
       />
 
-      {/* Ergonomic 96x96px touch target around the living center point */}
-      <div
-        className="relative flex h-24 w-24 items-center justify-center transition-transform duration-150 ease-out"
+      {/* shockwave front — a soft annulus of light, never a drawn circle */}
+      <motion.span
+        className="absolute rounded-full"
         style={{
-          transform: `translate3d(${offset.x.toFixed(1)}px, ${offset.y.toFixed(1)}px, 0) scale(${pressed ? 0.92 : 1})`,
+          width: 110,
+          height: 110,
+          background:
+            "radial-gradient(closest-side, transparent 62%, rgba(245,184,65,0.95) 74%, rgba(255,251,235,0.55) 78%, transparent 88%)",
+          filter: "blur(2px)",
         }}
-      >
+        initial={{ scale: 0.22, opacity: 0.95 }}
+        animate={{ scale: 13, opacity: [0.95, 0.6, 0] }}
+        transition={{
+          scale: { duration: 1.05, ease: [0.16, 1, 0.3, 1] },
+          opacity: { duration: 1.05, times: [0, 0.34, 1], ease: "linear" },
+        }}
+      />
+
+      {/* lapis afterglow, half a beat behind and softer still */}
+      <motion.span
+        className="absolute rounded-full"
+        style={{
+          width: 110,
+          height: 110,
+          background:
+            "radial-gradient(closest-side, transparent 66%, rgba(56,189,248,0.75) 77%, transparent 90%)",
+          filter: "blur(3px)",
+        }}
+        initial={{ scale: 0.22, opacity: 0.85 }}
+        animate={{ scale: 9.5, opacity: [0.85, 0.45, 0] }}
+        transition={{
+          scale: { duration: 1.0, delay: 0.07, ease: [0.16, 1, 0.3, 1] },
+          opacity: { duration: 1.0, delay: 0.07, times: [0, 0.36, 1], ease: "linear" },
+        }}
+      />
+
+      {/* one crisp white front, gone in half a second, so the burst has an edge */}
+      <motion.span
+        className="absolute rounded-full border-[1.5px] border-white/70"
+        style={{ width: 110, height: 110, boxShadow: "0 0 26px 6px rgba(255,251,235,0.5)" }}
+        initial={{ scale: 0.2, opacity: 0.9 }}
+        animate={{ scale: 6.5, opacity: [0.9, 0.35, 0] }}
+        transition={{
+          scale: { duration: 0.55, ease: [0.16, 1, 0.3, 1] },
+          opacity: { duration: 0.55, times: [0, 0.5, 1], ease: "linear" },
+        }}
+      />
+
+      {/* a horizontal lash of light, like ink thrown across the page */}
+      <motion.span
+        className="absolute h-[3px] w-[52vw] max-w-[860px] rounded-full"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, #F5B841 18%, #FFFFFF 50%, #38BDF8 82%, transparent)",
+        }}
+        initial={{ scaleX: 0.04, opacity: 1 }}
+        animate={{ scaleX: 1.5, opacity: [1, 0.85, 0] }}
+        transition={{
+          scaleX: { duration: 0.9, ease: [0.16, 1, 0.3, 1] },
+          opacity: { duration: 0.9, times: [0, 0.4, 1], ease: "linear" },
+        }}
+      />
+
+      {embers.map((e, i) => (
         <motion.span
-          aria-hidden
-          animate={{ scale: [1, 2.55, 1], opacity: [0.48, 0, 0.48] }}
-          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-          className="pointer-events-none absolute h-16 w-16 rounded-full border border-[#F5B841]/50 sm:h-16 sm:w-16"
-        />
-
-        <motion.span
-          aria-hidden
-          animate={{ scale: [1, 1.8, 1], opacity: [0.64, 0.14, 0.64] }}
-          transition={{ duration: 2.4, delay: 0.42, repeat: Infinity, ease: "easeInOut" }}
-          className="pointer-events-none absolute h-11 w-11 rounded-full border border-[#38BDF8]/60"
-        />
-
-        <span
-          aria-hidden
-          className="pointer-events-none absolute h-24 w-24 rounded-full bg-[#F5B841]/18 blur-xl transition-transform duration-300 group-hover:scale-150 group-hover:bg-[#F5B841]/30"
-        />
-
-        <span
-          className="relative z-10 flex h-6 w-6 items-center justify-center rounded-full bg-[#FFFBEB] transition-transform duration-300 group-hover:scale-125 group-active:scale-90 sm:h-5 sm:w-5"
+          key={i}
+          className="absolute rounded-full"
           style={{
-            boxShadow:
-              "0 0 20px 5px rgba(245, 184, 65, 0.95), 0 0 46px 15px rgba(56, 189, 248, 0.45)",
+            width: e.s,
+            height: e.s,
+            background: e.gold ? "#F5B841" : "#7DD3FC",
+            boxShadow: e.gold
+              ? "0 0 12px 3px rgba(245,184,65,0.85)"
+              : "0 0 12px 3px rgba(56,189,248,0.75)",
+          }}
+          initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+          animate={{ x: e.x, y: e.y, opacity: [1, 1, 0], scale: [1, 1, 0.15] }}
+          transition={{
+            x: { duration: 1.05, delay: e.delay, ease: [0.16, 1, 0.3, 1] },
+            y: { duration: 1.05, delay: e.delay, ease: [0.16, 1, 0.3, 1] },
+            scale: { duration: 1.05, delay: e.delay, times: [0, 0.5, 1], ease: "linear" },
+            opacity: { duration: 1.05, delay: e.delay, times: [0, 0.5, 1], ease: "linear" },
           }}
         />
-      </div>
-    </div>
+      ))}
+    </motion.div>
   );
 };
 
-/* ----------------------------------------------------- Stage Visual Component */
+/* -------------------------------------------------------- 4. the sentence */
 
-interface MeasuredSlot {
-  cx: number;
-  cy: number;
-  width: number;
-}
-
-interface LineToWordsStageProps {
-  progress: number; // 0..1
-  exitProgress: number; // 0..1
+const SentenceStage: React.FC<{
+  reduced: boolean | null;
   isMobile: boolean;
-}
+  onCue: (index: number) => void;
+}> = ({ reduced, isMobile, onCue }) => {
+  // Words stay in normal flow, so the browser owns the final layout: every
+  // breakpoint lands on the same two balanced lines. The animation only moves
+  // each word *into* the slot the layout already reserved for it.
+  const cueTimers = useRef<number[]>([]);
 
-const LineToWordsStage: React.FC<LineToWordsStageProps> = ({
-  progress,
-  exitProgress,
-  isMobile,
-}) => {
-  const samples = useMemo(() => buildMultiActTrajectorySamples(isMobile), [isMobile]);
-  const totalPts = samples.length - 1; // 410; indices 310..410 are the horizontal bar (x=220..780, y=210)!
-  const girihOuterPath = useMemo(() => buildGirihStarPath(0, 0, 128, 92, 12), []);
-  const girihInnerPath = useMemo(() => buildGirihStarPath(0, 0, 76, 52, 12), []);
-
-  const svgRef = useRef<SVGSVGElement | null>(null);
-  const wordRefs = useRef<Array<HTMLSpanElement | null>>([]);
-  const [measuredSlots, setMeasuredSlots] = useState<MeasuredSlot[] | null>(null);
-
-  /**
-   * Exact `xMidYMid meet` coordinate projection from DOM viewport pixels into
-   * the SVG `viewBox="0 0 1000 420"` space on both mobile portrait (2 rows) and desktop (1 row).
-   */
-  const measureWordSlots = useCallback(() => {
-    const svgEl = svgRef.current;
-    if (!svgEl) return;
-    const svgRect = svgEl.getBoundingClientRect();
-    if (svgRect.width < 10 || svgRect.height < 10) return;
-
-    // With preserveAspectRatio="xMidYMid meet", SVG scales uniformly by the larger ratio around (500, 210)
-    const uniformScale = Math.max(1000 / svgRect.width, 420 / svgRect.height);
-    const svgCenterX = svgRect.left + svgRect.width * 0.5;
-    const svgCenterY = svgRect.top + svgRect.height * 0.5;
-
-    const nextSlots: MeasuredSlot[] = WORDS.map((w, idx) => {
-      const el = wordRefs.current[idx];
-      if (!el) {
-        return {
-          cx: isMobile ? w.fallbackXMobile : w.fallbackX,
-          cy: isMobile ? w.fallbackYMobile : 210,
-          width: w.fallbackW,
-        };
-      }
-      const r = el.getBoundingClientRect();
-      if (r.width < 2) {
-        return {
-          cx: isMobile ? w.fallbackXMobile : w.fallbackX,
-          cy: isMobile ? w.fallbackYMobile : 210,
-          width: w.fallbackW,
-        };
-      }
-      const cx = 500 + (r.left + r.width * 0.5 - svgCenterX) * uniformScale;
-      const cy = 210 + (r.top + r.height * 0.52 - svgCenterY) * uniformScale;
-      const width = Math.max(48, Math.min(185, r.width * uniformScale * 0.86));
-      return { cx, cy, width };
+  useEffect(() => {
+    if (reduced) return;
+    let offset = 0;
+    HERO_LINES.forEach((line) => {
+      line.words.forEach(() => {
+        const index = offset++;
+        const id = window.setTimeout(() => onCue(index), WORD_LEAD_MS + index * WORD_STAGGER_MS);
+        cueTimers.current.push(id);
+      });
     });
-
-    setMeasuredSlots(nextSlots);
-  }, [isMobile]);
-
-  useLayoutEffect(() => {
-    measureWordSlots();
-    const t1 = window.setTimeout(measureWordSlots, 90);
-    const t2 = window.setTimeout(measureWordSlots, 280);
-    if (typeof document !== "undefined" && "fonts" in document) {
-      void document.fonts.ready.then(() => measureWordSlots());
-    }
-    window.addEventListener("resize", measureWordSlots);
-    window.addEventListener("orientationchange", measureWordSlots);
     return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-      window.removeEventListener("resize", measureWordSlots);
-      window.removeEventListener("orientationchange", measureWordSlots);
+      cueTimers.current.forEach((id) => window.clearTimeout(id));
+      cueTimers.current = [];
     };
-  }, [measureWordSlots]);
+  }, [onCue, reduced]);
 
-  // Scale stroke widths up on mobile so lines stay bold & luminous even when the 1000-unit viewBox scales down
-  const strokeBoost = isMobile ? 1.45 : 1.0;
-  const svgFilter = isMobile ? undefined : "url(#beam-glow)";
-
-  /**
-   * ACTS 1A, 1B & 2 (progress 0.00 -> 0.31):
-   */
-  const linePhase = Math.min(1, Math.max(0, progress / 0.31));
-  const headIdx = Math.round(Math.min(1, linePhase * 1.03) * totalPts);
-  const tailIdx = Math.round(Math.pow(linePhase, 1.62) * 310);
-
-  const ribbonPath = useMemo(() => {
-    if (progress >= 0.31) return "";
-    return samplesToSvgPath(samples, tailIdx, headIdx);
-  }, [headIdx, progress, samples, tailIdx]);
-
-  const echoPath = useMemo(() => {
-    if (progress < 0.08 || progress >= 0.29) return "";
-    const echoStart = Math.max(0, tailIdx - 28);
-    const echoEnd = Math.max(echoStart, headIdx - 14);
-    return samplesToSvgPath(samples, echoStart, echoEnd);
-  }, [headIdx, progress, samples, tailIdx]);
-
-  const headPoint = samples[Math.min(totalPts, headIdx)] ?? { x: 780, y: 210 };
-
-  /**
-   * ACT 2: SACRED PERSIAN ASTROLABE / GIRIH MANDALA RING (progress 0.17 -> 0.34)
-   */
-  const astrolabeRaw = Math.min(1, Math.max(0, (progress - 0.17) / 0.16));
-  const astrolabeOpacity =
-    astrolabeRaw <= 0 || astrolabeRaw >= 1 ? 0 : Math.sin(astrolabeRaw * Math.PI);
-  const astrolabeScale =
-    (0.38 + Math.sin(astrolabeRaw * Math.PI * 0.85) * 0.88) * (isMobile ? 1.38 : 1.0);
-  const astrolabeRot = astrolabeRaw * 120;
-
-  /**
-   * ACT 3A (progress 0.31 -> 0.39): VISIBLE FRACTURE IN PLACE!
-   */
-  const fractureRaw = Math.min(1, Math.max(0, (progress - 0.31) / 0.08));
-  const fractureEased = 1 - Math.pow(1 - fractureRaw, 3.2);
-
-  /**
-   * ACT 3B (progress 0.39 -> 0.46): EACH PIECE TRAVELS TO ITS OWN WORD SLOT!
-   */
-  const travelRaw = Math.min(1, Math.max(0, (progress - 0.39) / 0.07));
-  const travelEased =
-    travelRaw <= 0
-      ? 0
-      : travelRaw < 0.5
-        ? 4 * Math.pow(travelRaw, 3)
-        : 1 - Math.pow(-2 * travelRaw + 2, 3) / 2;
-
-  /**
-   * ACT 5 (progress 0.80 -> 1.00): POST-WORD COSMIC PRISM WAVE & CALLIGRAPHIC CROWN!
-   */
-  const prismRaw = Math.min(1, Math.max(0, (progress - 0.8) / 0.19));
-  const prismBell = prismRaw <= 0 ? 0 : Math.sin(prismRaw * Math.PI);
-  const crownSweepX = 880 - prismRaw * 760;
-
-  const splitEase =
-    exitProgress <= 0.14 ? 0 : Math.pow(Math.min(1, (exitProgress - 0.14) / 0.72), 2.1);
+  let runningIndex = 0;
 
   return (
-    <div className="pointer-events-none relative flex h-full w-full flex-col items-center justify-center px-2.5 sm:px-4 select-none">
-      {/* UNIFIED STAGE CONTAINER */}
-      <div className="relative flex h-[300px] w-full max-w-[1080px] items-center justify-center sm:h-[380px]">
-        <svg
-          ref={svgRef}
-          viewBox="0 0 1000 420"
-          preserveAspectRatio="xMidYMid meet"
-          className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
+    <motion.div
+      key="sentence"
+      dir="rtl"
+      className="relative flex w-full flex-col items-center px-3 sm:px-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
+    >
+      {/* gold pool of light the words settle into */}
+      <motion.span
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[62%] w-[86%] max-w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-[50%]"
+        style={{
+          background:
+            "radial-gradient(closest-side, rgba(245,184,65,0.20), rgba(56,189,248,0.08) 58%, transparent 78%)",
+          filter: "blur(18px)",
+        }}
+        initial={{ opacity: 0, scale: 0.6 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1.1, delay: 0.5 }}
+      />
+
+      {/* one slow ribbon of light crossing the finished line */}
+      {!reduced && (
+        <motion.span
           aria-hidden
-        >
-          <defs>
-            <linearGradient id="beam-gold" x1="100%" y1="0%" x2="0%" y2="0%">
-              <stop offset="0%" stopColor="rgba(245, 184, 65, 0.22)" />
-              <stop offset="48%" stopColor="#F5B841" />
-              <stop offset="100%" stopColor="#FFFBEB" />
-            </linearGradient>
-
-            <linearGradient id="beam-turquoise" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="rgba(20, 184, 166, 0.15)" />
-              <stop offset="55%" stopColor="#38BDF8" />
-              <stop offset="100%" stopColor="#F5B841" />
-            </linearGradient>
-
-            <radialGradient id="prism-halo" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="rgba(245, 184, 65, 0.48)" />
-              <stop offset="45%" stopColor="rgba(56, 189, 248, 0.24)" />
-              <stop offset="100%" stopColor="rgba(5, 6, 10, 0)" />
-            </radialGradient>
-
-            {!isMobile && (
-              <filter id="beam-glow" x="-30%" y="-30%" width="160%" height="160%">
-                <feGaussianBlur stdDeviation="4.5" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            )}
-          </defs>
-
-          {/* ACT 2: Sacred 12-Fold Persian Girih / Astrolabe Supernova Ring in the Center */}
-          {astrolabeOpacity > 0.01 && (
-            <g
-              transform={`translate(500, 210) scale(${astrolabeScale.toFixed(3)})`}
-              style={{ opacity: astrolabeOpacity }}
-              filter={svgFilter}
-            >
-              <g transform={`rotate(${astrolabeRot.toFixed(1)})`}>
-                <path
-                  d={girihOuterPath}
-                  fill="none"
-                  stroke="url(#beam-turquoise)"
-                  strokeWidth={(1.9 * strokeBoost).toFixed(2)}
-                  strokeDasharray="8 4"
-                />
-                <circle
-                  cx="0"
-                  cy="0"
-                  r="108"
-                  fill="none"
-                  stroke="rgba(245, 184, 65, 0.6)"
-                  strokeWidth={(1.5 * strokeBoost).toFixed(2)}
-                />
-              </g>
-              <g transform={`rotate(${(-astrolabeRot * 1.35).toFixed(1)})`}>
-                <path
-                  d={girihInnerPath}
-                  fill="none"
-                  stroke="#F5B841"
-                  strokeWidth={(2.2 * strokeBoost).toFixed(2)}
-                />
-                <circle
-                  cx="0"
-                  cy="0"
-                  r="38"
-                  fill="none"
-                  stroke="#38BDF8"
-                  strokeWidth={(1.6 * strokeBoost).toFixed(2)}
-                  strokeDasharray="4 6"
-                />
-              </g>
-            </g>
-          )}
-
-          {/* ACTS 1A, 1B & 2: Counter-Sweeping & Looping Line that locks as a horizontal bar (x=220..780, y=210) */}
-          {echoPath && (
-            <path
-              d={echoPath}
-              fill="none"
-              stroke="url(#beam-turquoise)"
-              strokeWidth={(2.6 * strokeBoost).toFixed(2)}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              style={{ opacity: 0.7 }}
-            />
-          )}
-
-          {ribbonPath && (
-            <g filter={svgFilter}>
-              <path
-                d={ribbonPath}
-                fill="none"
-                stroke="rgba(245, 184, 65, 0.36)"
-                strokeWidth={(10 * strokeBoost).toFixed(1)}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d={ribbonPath}
-                fill="none"
-                stroke={
-                  progress >= 0.1 && progress < 0.2 ? "url(#beam-turquoise)" : "url(#beam-gold)"
-                }
-                strokeWidth={(4.0 * strokeBoost).toFixed(2)}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <circle cx={headPoint.x} cy={headPoint.y} r={6.8 * strokeBoost} fill="#FFFBEB" />
-              <circle
-                cx={headPoint.x}
-                cy={headPoint.y}
-                r={17 * strokeBoost}
-                fill={
-                  progress >= 0.1 && progress < 0.2
-                    ? "rgba(56, 189, 248, 0.45)"
-                    : "rgba(245, 184, 65, 0.42)"
-                }
-              />
-            </g>
-          )}
-
-          {/* ACT 3A: The 6 Laser Cut Sparks that visibly slice the bar into 7 pieces at progress = 0.31 */}
-          {progress >= 0.31 && progress <= 0.39 && (
-            <g filter={svgFilter}>
-              {CUT_POINTS_X.map((cutX, cIdx) => {
-                const sparkP = Math.min(1, Math.max(0, (progress - 0.31) / 0.075));
-                const sparkOpacity = Math.sin(sparkP * Math.PI);
-                const halfSlash = (14 + sparkP * 34) * strokeBoost;
-                return (
-                  <g
-                    key={cIdx}
-                    transform={`translate(${cutX}, 210)`}
-                    style={{ opacity: sparkOpacity }}
-                  >
-                    <line
-                      x1="0"
-                      y1={-halfSlash}
-                      x2="0"
-                      y2={halfSlash}
-                      stroke="#FFFBEB"
-                      strokeWidth={3.0 * strokeBoost * (1 - sparkP * 0.55)}
-                      strokeLinecap="round"
-                    />
-                    <circle
-                      cx="0"
-                      cy="0"
-                      r={6.5 * strokeBoost * (1 - sparkP * 0.45)}
-                      fill="#38BDF8"
-                    />
-                  </g>
-                );
-              })}
-            </g>
-          )}
-
-          {/* ACTS 3A, 3B & 4:
-              - 0.31..0.39: The unbroken bar visibly cracks into 7 separated pieces!
-              - 0.39..0.46: Each piece travels to the EXACT position of its word!
-              - 0.46..0.80: One by one, each piece transforms into its IranNastaliq word! */}
-          {progress >= 0.31 &&
-            WORDS.map((w, idx) => {
-              const slot = measuredSlots?.[idx] ?? {
-                cx: isMobile ? w.fallbackXMobile : w.fallbackX,
-                cy: isMobile ? w.fallbackYMobile : 210,
-                width: w.fallbackW,
-              };
-
-              const wordStart = 0.46 + idx * 0.046;
-              const solidifyP = Math.min(1, Math.max(0, (progress - wordStart) / 0.048));
-
-              const shardOpacity = solidifyP >= 1 ? 0 : 1 - Math.pow(solidifyP, 1.5);
-
-              if (shardOpacity <= 0.01) return null;
-
-              const spreadFromCenter = (w.barCenterX - 500) * 1.18 + 500;
-              const fracturedX = w.barCenterX + (spreadFromCenter - w.barCenterX) * fractureEased;
-              const fracturedY = 210 + w.recoilY * strokeBoost * fractureEased;
-              const fracturedAngle = w.recoilAngle * fractureEased;
-              const fracturedWidth = 80 - 26 * fractureEased;
-
-              const currX = fracturedX + (slot.cx - fracturedX) * travelEased;
-              const flightArcY =
-                Math.sin(travelEased * Math.PI) * (idx % 2 === 0 ? -32 : 32) * strokeBoost;
-              const currY = fracturedY + (slot.cy - fracturedY) * travelEased + flightArcY;
-              const currAngle = fracturedAngle * (1 - travelEased);
-              const currWidth =
-                (fracturedWidth + (slot.width - fracturedWidth) * travelEased) *
-                (1 - solidifyP * 0.65);
-              const halfLen = currWidth * 0.5;
-              const strokeW = (3.8 + solidifyP * 3.5) * strokeBoost;
-
-              return (
-                <g
-                  key={w.id}
-                  transform={`translate(${currX.toFixed(1)}, ${currY.toFixed(1)}) rotate(${currAngle.toFixed(1)})`}
-                  style={{ opacity: shardOpacity }}
-                  filter={svgFilter}
-                >
-                  <line
-                    x1={(-halfLen).toFixed(1)}
-                    y1="0"
-                    x2={halfLen.toFixed(1)}
-                    y2="0"
-                    stroke="rgba(245, 184, 65, 0.42)"
-                    strokeWidth={strokeW + 5.5 * strokeBoost}
-                    strokeLinecap="round"
-                  />
-                  <line
-                    x1={(-halfLen).toFixed(1)}
-                    y1="0"
-                    x2={halfLen.toFixed(1)}
-                    y2="0"
-                    stroke={w.gold || solidifyP > 0.05 ? "#F5B841" : "#FFFBEB"}
-                    strokeWidth={strokeW}
-                    strokeLinecap="round"
-                  />
-                </g>
-              );
-            })}
-
-          {/* ACT 5: POST-WORD COSMIC PRISM WAVE, VOLUMETRIC RAYS & CALLIGRAPHIC CROWN RIBBON (progress 0.80 -> 1.00) */}
-          {prismBell > 0.01 && (
-            <g style={{ opacity: prismBell * (1 - splitEase) }} filter={svgFilter}>
-              <ellipse
-                cx="500"
-                cy="210"
-                rx={(180 + prismRaw * 340).toFixed(1)}
-                ry={((isMobile ? 75 : 42) + prismRaw * (isMobile ? 140 : 95)).toFixed(1)}
-                fill="url(#prism-halo)"
-              />
-              <ellipse
-                cx="500"
-                cy="210"
-                rx={(160 + prismRaw * 360).toFixed(1)}
-                ry={((isMobile ? 64 : 36) + prismRaw * (isMobile ? 120 : 82)).toFixed(1)}
-                fill="none"
-                stroke="url(#beam-turquoise)"
-                strokeWidth={(2.5 * strokeBoost * (1 - prismRaw * 0.5)).toFixed(2)}
-                strokeDasharray="18 10"
-              />
-
-              {/* Golden-Turquoise Calligraphic Crown Comet sweeping across the completed words */}
-              <path
-                d={`M 880,${isMobile ? 338 : 262} Q 500,${(
-                  (isMobile ? 372 : 292) -
-                  Math.sin(prismRaw * Math.PI) * 34
-                ).toFixed(1)} 120,${isMobile ? 338 : 262}`}
-                fill="none"
-                stroke="url(#beam-gold)"
-                strokeWidth={(3.0 * strokeBoost).toFixed(2)}
-                strokeLinecap="round"
-              />
-              <circle
-                cx={crownSweepX}
-                cy={isMobile ? 348 : 272}
-                r={6.0 * strokeBoost}
-                fill="#FFFBEB"
-              />
-              <circle
-                cx={crownSweepX}
-                cy={isMobile ? 348 : 272}
-                r={16 * strokeBoost}
-                fill="rgba(245, 184, 65, 0.45)"
-              />
-            </g>
-          )}
-        </svg>
-
-        {/* ACT 4 & 5: The Actual IranNastaliq Words
-            On Mobile (<640px): Balanced 2-Hemistich Poetic Couplet («در امتدادِ نور،» / «هر خط جان می‌گیرد»)
-            On Desktop (>=640px): Single Cinema-Scope Line */}
+          className="pointer-events-none absolute inset-y-0 -z-10 w-[38%]"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, rgba(255,251,235,0.16) 45%, rgba(245,184,65,0.22) 55%, transparent)",
+            filter: "blur(14px)",
+          }}
+          initial={{ x: "160%", opacity: 0 }}
+          animate={{ x: "-160%", opacity: [0, 1, 0] }}
+          transition={{ duration: 2.1, delay: 1.15, ease: "easeInOut" }}
+        />
+      )}
+      {HERO_LINES.map((line, lineIndex) => (
         <div
-          dir="rtl"
-          className="relative z-10 flex w-full flex-wrap items-center justify-center gap-x-2.5 gap-y-0 px-2 text-center sm:gap-x-5 sm:gap-y-2 sm:px-4"
+          key={lineIndex}
+          className="flex w-full flex-wrap items-center justify-center gap-x-2.5 sm:gap-x-6"
+          style={{
+            fontFamily: "'IranNastaliq', 'GulzarNastaliq', serif",
+            lineHeight: isMobile ? 2.2 : 2.35,
+          }}
         >
-          {WORDS.map((w, idx) => {
-            const wordStart = 0.46 + idx * 0.046;
-            const solidifyP = Math.min(1, Math.max(0, (progress - wordStart) / 0.052));
-            const eased =
-              solidifyP <= 0
-                ? 0
-                : solidifyP >= 1
-                  ? 1
-                  : 1 - Math.pow(1 - solidifyP, 3) + Math.sin(solidifyP * Math.PI) * 0.07;
-
-            const wordWavePhase = Math.max(0, Math.min(1, (prismRaw - idx * 0.08) / 0.45));
-            const prismLiftY = Math.sin(wordWavePhase * Math.PI) * (isMobile ? -7 : -10);
-            const prismScaleBoost = 1 + Math.sin(wordWavePhase * Math.PI) * 0.06;
-
-            const dirY = isMobile ? (idx <= 2 ? -1 : 1) : idx % 2 === 0 ? -1 : 1;
-            const splitOffsetY = dirY * splitEase * (isMobile ? 68 : 95);
-            const splitOffsetX = (3 - idx) * splitEase * (isMobile ? 16 : 28);
-            const splitScale = (1 + splitEase * 0.32) * prismScaleBoost;
-            const splitOpacity = Math.max(0, 1 - splitEase * 1.35);
-
-            const blurPx =
-              (1 - Math.min(1, solidifyP * 1.6)) * (isMobile ? 4 : 8) +
-              splitEase * (isMobile ? 6 : 12);
-
+          {line.words.map((word) => {
+            const index = runningIndex++;
+            const dir = index % 2 === 0 ? 1 : -1;
             return (
-              <React.Fragment key={w.id}>
+              <motion.span
+                key={`${lineIndex}-${word.text}-${index}`}
+                className="inline-block whitespace-nowrap px-0.5 will-change-[transform,filter,opacity]"
+                style={{
+                  fontSize: isMobile ? "clamp(28px, 8.6vw, 40px)" : "clamp(44px, 5.2vw, 76px)",
+                  color: word.gold ? undefined : "#F5F2EB",
+                }}
+                initial={
+                  reduced
+                    ? false
+                    : {
+                        opacity: 0,
+                        x: dir * (isMobile ? 46 : 126),
+                        y: isMobile ? 64 : 118,
+                        rotate: dir * (isMobile ? 9 : 11),
+                        scale: 0.58,
+                        filter: "blur(12px)",
+                      }
+                }
+                animate={{ opacity: 1, x: 0, y: 0, rotate: 0, scale: 1, filter: "blur(0px)" }}
+                transition={{
+                  type: "spring",
+                  stiffness: 118,
+                  damping: 15,
+                  mass: 0.85,
+                  delay: reduced ? 0 : WORD_LEAD_MS / 1000 + index * (WORD_STAGGER_MS / 1000),
+                }}
+              >
                 <span
-                  ref={(el) => {
-                    wordRefs.current[idx] = el;
-                  }}
-                  className="relative inline-flex items-center justify-center px-1 py-1 text-[clamp(36px,10.4vw,52px)] leading-[2.05] will-change-[transform,opacity] sm:px-1.5 sm:py-4 sm:text-[70px] sm:leading-[2.05] md:text-[80px]"
+                  className={cn(
+                    "inline-block",
+                    word.gold
+                      ? "bg-gradient-to-l from-amber-200 via-[#F5B841] to-amber-100 bg-clip-text text-transparent"
+                      : ""
+                  )}
                   style={{
-                    fontFamily: "'IranNastaliq', 'GulzarNastaliq', serif",
-                    opacity: Math.min(1, solidifyP * 1.6) * splitOpacity,
-                    transform: `translate3d(${splitOffsetX.toFixed(1)}px, ${(
-                      (1 - Math.min(1, eased)) * (isMobile ? 12 : 16) +
-                      prismLiftY +
-                      splitOffsetY
-                    ).toFixed(1)}px, 0) scale(${((0.55 + 0.45 * eased) * splitScale).toFixed(3)})`,
-                    filter: blurPx > 0.25 ? `blur(${blurPx.toFixed(1)}px)` : undefined,
+                    filter: "drop-shadow(0 10px 26px rgba(0, 0, 0, 0.8))",
                   }}
                 >
-                  {solidifyP > 0.01 && solidifyP < 0.9 && (
-                    <span
-                      aria-hidden
-                      className="pointer-events-none absolute inset-0 rounded-full blur-lg sm:blur-xl"
-                      style={{
-                        background:
-                          "radial-gradient(circle, rgba(245,184,65,0.55), transparent 72%)",
-                        opacity: Math.sin(solidifyP * Math.PI),
-                      }}
-                    />
-                  )}
-
-                  <span
-                    className={cn(
-                      "relative z-10 block transition-colors duration-300",
-                      w.gold || prismBell > 0.25 || exitProgress > 0.04
-                        ? "text-[#F5B841]"
-                        : "text-[#F5F2EB]"
-                    )}
-                    style={{
-                      textShadow:
-                        prismBell > 0.2
-                          ? "0 0 36px rgba(245, 184, 65, 0.72), 0 0 68px rgba(56, 189, 248, 0.38)"
-                          : w.gold || exitProgress > 0.04
-                            ? "0 0 32px rgba(245, 184, 65, 0.52)"
-                            : "0 10px 28px rgba(0, 0, 0, 0.85)",
-                    }}
-                  >
-                    {w.text}
-                  </span>
+                  {word.text}
                 </span>
-                {/* Balanced Poetic Couplet Break on Mobile Portrait right after «نور،» (idx === 2) */}
-                {idx === 2 && <span aria-hidden className="h-0 basis-full sm:hidden" />}
-              </React.Fragment>
+              </motion.span>
             );
           })}
         </div>
-      </div>
-    </div>
+      ))}
+    </motion.div>
   );
 };
 
-/* ----------------------------------------------------- Main Entrance Film */
+/* ------------------------------------------------------------- the film */
 
-interface IntroFilmProps {
+export interface IntroFilmProps {
   onClose: (reason: "skip" | "finish") => void;
 }
 
 const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
   const reduced = useReducedMotion();
-  const { update } = useAppSettings();
   const isMobile = useIsMobilePortrait();
+  const { update } = useAppSettings();
 
-  const [ignited, setIgnited] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [phase, setPhase] = useState<Phase>(reduced ? "sentence" : "greeting");
   const [exitProgress, setExitProgress] = useState(0);
-  const [exiting, setExiting] = useState(false);
+  const finishedRef = useRef(false);
 
-  const firedCuesRef = useRef<Set<string>>(new Set());
+  const firedCues = useRef<Set<string>>(new Set());
+  const fireCue = useCallback((key: string, fn: () => void) => {
+    if (firedCues.current.has(key)) return;
+    firedCues.current.add(key);
+    fn();
+  }, []);
 
-  const startPortalExit = useCallback(() => {
-    if (exiting) return;
-    setExiting(true);
-    if (soundEngine.isUnlocked() && !firedCuesRef.current.has("portal")) {
-      firedCuesRef.current.add("portal");
-      soundEngine.playLineMorphCue("portal");
-    }
-  }, [exiting]);
-
-  // Drive the 1,550ms Curved Center-Split Lens Aperture Choreography
+  /* -- 1. greeting hands over to the invitation ---------------------------- */
   useEffect(() => {
-    if (!exiting) return;
+    if (phase !== "greeting") return;
+    const id = window.setTimeout(() => setPhase("invite"), GREETING_MS);
+    return () => window.clearTimeout(id);
+  }, [phase]);
+
+  /* -- 2. the invitation waits, but never forever ------------------------- */
+  useEffect(() => {
+    if (phase !== "invite") return;
+    const id = window.setTimeout(() => setPhase("bloom"), INVITE_TIMEOUT_MS);
+    return () => window.clearTimeout(id);
+  }, [phase]);
+
+  /* -- 3. the bloom resolves into the sentence ---------------------------- */
+  useEffect(() => {
+    if (phase !== "bloom") return;
+    const id = window.setTimeout(() => setPhase("sentence"), BLOOM_MS);
+    return () => window.clearTimeout(id);
+  }, [phase]);
+
+  /* -- 4. the sentence holds, then the curtain opens ---------------------- */
+  useEffect(() => {
+    if (phase !== "sentence") return;
+    fireCue("sentence-bed", () => soundEngine.playIntroSentenceBed());
+    const id = window.setTimeout(() => setPhase("exit"), SENTENCE_MS);
+    return () => window.clearTimeout(id);
+  }, [phase, fireCue]);
+
+  /* -- audio: only after a real gesture, so nothing is blocked ------------- */
+  const ignite = useCallback(async () => {
+    if (phase !== "invite") return;
+    soundEngine.enabled = true;
+    update({ sound: true });
+    try {
+      await soundEngine.unlock();
+    } catch {
+      // the film still works silently
+    }
+    fireCue("ignition", () => soundEngine.playIntroIgnition());
+    setPhase("bloom");
+  }, [phase, update, fireCue]);
+
+  const wordCue = useCallback((index: number) => {
+    soundEngine.playIntroWordTick(index, HERO_WORDS.length);
+  }, []);
+
+  /* -- 5. portal: the curved curtain splits and hands over ---------------- */
+  useEffect(() => {
+    if (phase !== "exit") return;
     let raf = 0;
     const start = performance.now();
     const appRoot = document.getElementById("root");
 
     const tick = (now: number) => {
-      const p = Math.min(1, (now - start) / PORTAL_EXIT_MS);
+      const p = Math.min(1, (now - start) / PORTAL_MS);
       setExitProgress(p);
 
       if (appRoot) {
         const settleP = Math.min(1, Math.max(0, (p - 0.12) / 0.88));
-        const settleEase = 1 - Math.pow(1 - settleP, 3.4);
-        const scale = 0.96 + 0.04 * settleEase;
+        const ease = 1 - Math.pow(1 - settleP, 3.4);
         if (p < 0.99) {
-          appRoot.style.transform = `scale(${scale.toFixed(4)})`;
+          appRoot.style.transform = `scale(${(0.96 + 0.04 * ease).toFixed(4)})`;
           appRoot.style.transformOrigin = "50% 45%";
         } else {
           appRoot.style.transform = "";
@@ -915,7 +763,10 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
           appRoot.style.transform = "";
           appRoot.style.transformOrigin = "";
         }
-        onClose("finish");
+        if (!finishedRef.current) {
+          finishedRef.current = true;
+          onClose("finish");
+        }
       }
     };
 
@@ -927,84 +778,27 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
         appRoot.style.transformOrigin = "";
       }
     };
-  }, [exiting, onClose]);
+  }, [phase, onClose]);
 
-  const handleIgnite = useCallback(async () => {
-    if (ignited) return;
-    soundEngine.enabled = true;
-    update({ sound: true });
-    await soundEngine.unlock();
-    firedCuesRef.current.clear();
-    firedCuesRef.current.add("sweep");
-    soundEngine.playLineMorphCue("sweep");
-    setIgnited(true);
-  }, [ignited, update]);
+  /* -- escape hatch -------------------------------------------------------- */
+  const skip = useCallback(() => {
+    if (finishedRef.current) return;
+    finishedRef.current = true;
+    onClose("skip");
+  }, [onClose]);
 
-  // Synchronized Studio Sound Cues across all 6 Acts
   useEffect(() => {
-    if (!ignited) return;
-
-    if (progress >= 0.1 && !firedCuesRef.current.has("rebound")) {
-      firedCuesRef.current.add("rebound");
-      soundEngine.playLineMorphCue("rebound");
-    }
-    if (progress >= 0.18 && !firedCuesRef.current.has("astrolabe")) {
-      firedCuesRef.current.add("astrolabe");
-      soundEngine.playLineMorphCue("astrolabe");
-    }
-    if (progress >= 0.24 && !firedCuesRef.current.has("spin")) {
-      firedCuesRef.current.add("spin");
-      soundEngine.playLineMorphCue("spin");
-    }
-    if (progress >= 0.31 && !firedCuesRef.current.has("shatter")) {
-      firedCuesRef.current.add("shatter");
-      soundEngine.playLineMorphCue("shatter");
-    }
-
-    WORDS.forEach((_, idx) => {
-      const wordTrigger = 0.46 + idx * 0.046;
-      const key = `word-${idx}`;
-      if (progress >= wordTrigger && !firedCuesRef.current.has(key)) {
-        firedCuesRef.current.add(key);
-        soundEngine.playLineMorphCue("word", idx);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        skip();
       }
-    });
-
-    if (progress >= 0.8 && !firedCuesRef.current.has("prism")) {
-      firedCuesRef.current.add("prism");
-      soundEngine.playLineMorphCue("prism");
-    }
-  }, [ignited, progress]);
-
-  // Continuous 60/120fps rAF timeline
-  useEffect(() => {
-    if (!ignited || exiting) return;
-    if (reduced) {
-      setProgress(1);
-      startPortalExit();
-      return;
-    }
-    let raf = 0;
-    let last = performance.now();
-
-    const tick = (now: number) => {
-      const dt = Math.min(64, now - last);
-      last = now;
-      setProgress((prev) => {
-        const next = Math.min(1, prev + dt / TOTAL_MS);
-        if (next >= 1) {
-          startPortalExit();
-        }
-        return next;
-      });
-      raf = requestAnimationFrame(tick);
     };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [skip]);
 
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [exiting, ignited, reduced, startPortalExit]);
-
-  // Curved Diamond-Lens Center Split Geometry
+  /* -- curtain geometry ---------------------------------------------------- */
   const seamIgnite = Math.min(1, Math.max(0, exitProgress / 0.22));
   const splitRaw = Math.min(1, Math.max(0, (exitProgress - 0.14) / 0.86));
   const centerOpen =
@@ -1017,24 +811,16 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
 
   const upperEdgeY = 500 - edgeOpen * 540;
   const upperControlY = 500 - centerOpen * 760;
-
   const lowerEdgeY = 500 + edgeOpen * 540;
   const lowerControlY = 500 + centerOpen * 760;
 
-  const upperWingPath = `M 0,0 L 1000,0 L 1000,${upperEdgeY.toFixed(
-    1
-  )} Q 500,${upperControlY.toFixed(1)} 0,${upperEdgeY.toFixed(1)} Z`;
+  const wing = (edgeY: number, controlY: number, top: boolean) =>
+    top
+      ? `M 0,0 L 1000,0 L 1000,${edgeY.toFixed(1)} Q 500,${controlY.toFixed(1)} 0,${edgeY.toFixed(1)} Z`
+      : `M 0,1000 L 1000,1000 L 1000,${edgeY.toFixed(1)} Q 500,${controlY.toFixed(1)} 0,${edgeY.toFixed(1)} Z`;
 
-  const lowerWingPath = `M 0,1000 L 1000,1000 L 1000,${lowerEdgeY.toFixed(
-    1
-  )} Q 500,${lowerControlY.toFixed(1)} 0,${lowerEdgeY.toFixed(1)} Z`;
-
-  const upperLipCurve = `M 0,${upperEdgeY.toFixed(1)} Q 500,${upperControlY.toFixed(
-    1
-  )} 1000,${upperEdgeY.toFixed(1)}`;
-  const lowerLipCurve = `M 0,${lowerEdgeY.toFixed(1)} Q 500,${lowerControlY.toFixed(
-    1
-  )} 1000,${lowerEdgeY.toFixed(1)}`;
+  const lipCurve = (edgeY: number, controlY: number) =>
+    `M 0,${edgeY.toFixed(1)} Q 500,${controlY.toFixed(1)} 1000,${edgeY.toFixed(1)}`;
 
   const lipGlowOpacity =
     exitProgress <= 0.01
@@ -1045,19 +831,30 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
 
   const seamHalfSpan = 500 * (1 - Math.pow(1 - seamIgnite, 3));
   const bgUrl = publicUrl("/backgrounds/nebula-lapis-gold.jpg");
-  const portalFilter = isMobile ? undefined : "url(#portal-lip-glow)";
+
+  const stageLabel =
+    phase === "greeting"
+      ? INTRO_PROGRESS_LABEL.greeting
+      : phase === "bloom"
+        ? INTRO_PROGRESS_LABEL.bloom
+        : phase === "sentence" || phase === "exit"
+          ? INTRO_PROGRESS_LABEL.sentence
+          : INTRO_PROGRESS_LABEL.invite;
 
   return (
-    <div
+    <motion.div
       role="dialog"
       aria-modal="true"
-      aria-label="تیتراژ ورود به آزمایشگاه موشن فارسی"
+      aria-label={INTRO_COPY.dialogLabel}
       className={cn(
         "fixed inset-0 z-[120] h-[100dvh] w-screen overflow-hidden overscroll-none touch-none text-[#F5F2EB]",
-        exiting ? "pointer-events-none" : ""
+        phase === "exit" ? "pointer-events-none" : ""
       )}
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
     >
-      {/* SCULPTURAL CURVED CENTER-SPLIT CURTAIN WITH COLOR-PSYCHOLOGY ARTWORK */}
+      {/* the curtain the site will be revealed through */}
       <svg
         viewBox="0 0 1000 1000"
         preserveAspectRatio="none"
@@ -1065,12 +862,7 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
         aria-hidden
       >
         <defs>
-          <pattern
-            id="intro-nebula-pattern"
-            patternUnits="userSpaceOnUse"
-            width="1000"
-            height="1000"
-          >
+          <pattern id="intro-nebula" patternUnits="userSpaceOnUse" width="1000" height="1000">
             <rect width="1000" height="1000" fill="#05060A" />
             <image
               href={bgUrl}
@@ -1084,7 +876,7 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
             <rect width="1000" height="1000" fill="rgba(5, 6, 10, 0.55)" />
           </pattern>
 
-          <linearGradient id="portal-lip-gold" x1="0%" y1="0%" x2="100%" y2="0%">
+          <linearGradient id="intro-lip" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="rgba(245, 184, 65, 0.1)" />
             <stop offset="22%" stopColor="#F5B841" />
             <stop offset="50%" stopColor="#FFFBEB" />
@@ -1093,7 +885,7 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
           </linearGradient>
 
           {!isMobile && (
-            <filter id="portal-lip-glow" x="-20%" y="-20%" width="140%" height="140%">
+            <filter id="intro-lip-glow" x="-20%" y="-20%" width="140%" height="140%">
               <feGaussianBlur stdDeviation="8" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
@@ -1103,8 +895,8 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
           )}
         </defs>
 
-        <path d={upperWingPath} fill="url(#intro-nebula-pattern)" />
-        <path d={lowerWingPath} fill="url(#intro-nebula-pattern)" />
+        <path d={wing(upperEdgeY, upperControlY, true)} fill="url(#intro-nebula)" />
+        <path d={wing(lowerEdgeY, lowerControlY, false)} fill="url(#intro-nebula)" />
 
         {exitProgress > 0.005 && exitProgress < 0.35 && (
           <line
@@ -1112,45 +904,88 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
             y1="500"
             x2={(500 + seamHalfSpan).toFixed(1)}
             y2="500"
-            stroke="url(#portal-lip-gold)"
+            stroke="url(#intro-lip)"
             strokeWidth={(2.8 + Math.sin(seamIgnite * Math.PI) * 5.5).toFixed(1)}
             strokeLinecap="round"
-            filter={portalFilter}
+            filter={isMobile ? undefined : "url(#intro-lip-glow)"}
             style={{ opacity: Math.max(0, 1 - splitRaw * 2.2) }}
           />
         )}
 
         {lipGlowOpacity > 0.01 && (
-          <g style={{ opacity: lipGlowOpacity }} filter={portalFilter}>
+          <g
+            style={{ opacity: lipGlowOpacity }}
+            filter={isMobile ? undefined : "url(#intro-lip-glow)"}
+          >
             <path
-              d={upperLipCurve}
+              d={lipCurve(upperEdgeY, upperControlY)}
               fill="none"
-              stroke="url(#portal-lip-gold)"
+              stroke="url(#intro-lip)"
               strokeWidth={isMobile ? "6" : "4.5"}
             />
             <path
-              d={lowerLipCurve}
+              d={lipCurve(lowerEdgeY, lowerControlY)}
               fill="none"
-              stroke="url(#portal-lip-gold)"
+              stroke="url(#intro-lip)"
               strokeWidth={isMobile ? "6" : "4.5"}
             />
           </g>
         )}
       </svg>
 
-      {/* CENTER STAGE */}
-      <div className="relative z-10 flex h-full w-full items-center justify-center">
-        {!ignited ? (
-          <IgnitionPointGate onIgnite={() => void handleIgnite()} />
-        ) : (
-          <LineToWordsStage progress={progress} exitProgress={exitProgress} isMobile={isMobile} />
+      {/* ambient halo behind whatever is on stage */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        animate={{ opacity: phase === "exit" ? 0 : 1 }}
+        transition={{ duration: 0.45 }}
+        style={{
+          background:
+            "radial-gradient(46% 40% at 50% 48%, rgba(245, 184, 65, 0.13), rgba(29, 78, 216, 0.07) 55%, transparent 84%)",
+        }}
+      />
+
+      {/* SKIP — present for every frame until the curtain starts opening */}
+      <button
+        type="button"
+        onClick={skip}
+        aria-label={INTRO_COPY.skipLabel}
+        data-testid="intro-skip"
+        className={cn(
+          "absolute end-3 top-3 z-30 rounded-full border border-white/15 bg-black/30 px-3.5 py-1.5 text-[11.5px] font-medium text-zinc-300 backdrop-blur-md transition-all duration-300 hover:border-[#F5B841]/50 hover:text-white focus-visible:ring-2 focus-visible:ring-[#F5B841]/60 focus-visible:outline-none sm:end-5 sm:top-5 sm:text-[12.5px]",
+          phase === "exit" ? "pointer-events-none opacity-0" : "opacity-100"
         )}
-      </div>
-    </div>
+      >
+        {INTRO_COPY.skip}
+      </button>
+
+      {/* STAGE */}
+      <motion.div
+        className="relative z-10 flex h-full w-full items-center justify-center"
+        animate={{ opacity: phase === "exit" ? 0 : 1 }}
+        transition={{ duration: 0.45 }}
+      >
+        <AnimatePresence>
+          {phase === "greeting" && <GreetingStage key="greeting" reduced={reduced} />}
+          {phase === "invite" && (
+            <PointGate key="invite" reduced={reduced} onIgnite={() => void ignite()} />
+          )}
+          {phase === "bloom" && <Bloom key="bloom" />}
+          {(phase === "sentence" || phase === "exit") && (
+            <SentenceStage key="sentence" reduced={reduced} isMobile={isMobile} onCue={wordCue} />
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      {/* screen-reader only running commentary */}
+      <p className="sr-only" aria-live="polite">
+        {stageLabel}
+      </p>
+    </motion.div>
   );
 };
 
-/* -------------------------------------------------------------------- Host */
+/* -------------------------------------------------------------------- host */
 
 export const IntroHost: React.FC = () => {
   const isAutomatedSmoke =
@@ -1186,11 +1021,8 @@ export const IntroHost: React.FC = () => {
 
   return (
     <>
-      <AnimatePresence>
-        {open && <IntroFilm key="intro-point-ignition" onClose={close} />}
-      </AnimatePresence>
+      <AnimatePresence>{open && <IntroFilm key="intro-film" onClose={close} />}</AnimatePresence>
 
-      {/* Floating Replay Trigger inside the site (compact & non-intrusive above the mobile dock) */}
       {!open && !isAutomatedSmoke && (
         <div className="fixed start-3 bottom-[74px] z-[70] sm:start-4 sm:bottom-5">
           <button
@@ -1200,10 +1032,11 @@ export const IntroHost: React.FC = () => {
               await soundEngine.unlock();
               setOpen(true);
             }}
+            aria-label={INTRO_COPY.replayLabel}
             className="group inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-[#0A0C12]/90 px-2.5 py-1.5 text-[10.5px] font-medium text-[#F5F2EB] shadow-[0_12px_32px_-8px_rgba(0,0,0,0.85)] backdrop-blur-xl transition-all hover:border-[#F5B841]/50 hover:text-white active:scale-[0.97] sm:gap-2 sm:px-3.5 sm:py-2 sm:text-[11.5px]"
           >
             <Volume2 className="h-3 w-3 text-[#F5B841] sm:h-3.5 sm:w-3.5" />
-            <span>پخش مجدد موشن ورود</span>
+            <span>{INTRO_COPY.replay}</span>
           </button>
         </div>
       )}

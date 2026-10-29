@@ -39,6 +39,7 @@ import { StudioShell, StudioList, focusStudioPreview } from "../ui/StudioShell";
 import { DownloadButton } from "../ui/DownloadButton";
 import { faNum } from "../lib/format";
 import { useToast } from "../ui/Toast";
+import { HERO_SENTENCE } from "../shell/introCopy";
 
 /* --------------------------------------------------------------- settings */
 
@@ -72,7 +73,7 @@ const DEFAULT: ShaderSettings = {
   fresnelPower: 3.2,
   vignette: 30,
   glassOverlay: true,
-  overlayText: "در امتدادِ نور، هر خط جان می‌گیرد",
+  overlayText: HERO_SENTENCE,
   glyphText: "نور خط جان کد رمز هکر ۰ ۱ ۲ ۳ ۴ ۵ ۶ ۷ ۸ ۹",
   glyphFont: '"Vazirmatn", "Hasti", sans-serif',
   paused: false,
@@ -468,7 +469,7 @@ uniforms:
                   {(s.fresnelPower ?? 3.2).toFixed(1)}
                 </div>
                 <p className="mt-1 font-nastaliq text-[24px] leading-[2] text-white">
-                  {s.overlayText || "در امتدادِ نور، هر خط جان می‌گیرد"}
+                  {s.overlayText || HERO_SENTENCE}
                 </p>
               </div>
             </div>
@@ -757,7 +758,7 @@ uniforms:
             onChange={(v) => set({ glassOverlay: v })}
           />
           <input
-            value={s.overlayText ?? "در امتدادِ نور، هر خط جان می‌گیرد"}
+            value={s.overlayText ?? HERO_SENTENCE}
             onChange={(e) => set({ overlayText: e.target.value })}
             dir="rtl"
             placeholder="متن روی عدسی شیشه مایع…"

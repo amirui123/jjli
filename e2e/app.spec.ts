@@ -8,7 +8,7 @@
 import { test, expect, type Page } from "@playwright/test";
 
 const ROUTES = [
-  { id: "home", path: "/", heading: /در امتدادِ نور/ },
+  { id: "home", path: "/", heading: /هر واژه/ },
   { id: "dashboard", path: "/dashboard", heading: /داشبورد|تله‌متری|نمای/i },
   { id: "fonts", path: "/studio/fonts", heading: /فونت/ },
   { id: "motion", path: "/studio/motion", heading: /حرکت|موشن/ },
@@ -410,21 +410,61 @@ test("nastaliq gaf keeps its two dots and does not render as kaf", async ({ page
 });
 
 /**
- * KNOWN DEFECT (reported in audit/before/report.md, not yet fixed):
- * the 6-act intro film is shown on every full page load and cannot be skipped —
- * `onClose("skip")` exists in IntroFilm's props but is never called, and there is
- * no Skip button / Escape handler. Until that is fixed, this test is marked
- * `fixme` so the suite stays green while the defect stays documented in code.
+ * The entrance film used to run for ~10.5s with no way out: `onClose("skip")`
+ * existed on the prop type but was never called, and there was no control or
+ * Escape handler. It now carries a «رد کردن» affordance on every frame, so the
+ * visitor is never trapped behind the motion.
  *
- * Remove `.fixme` once a skip control exists — it then becomes the regression guard.
+ * The film only mounts for a real browser UA (the suite's default UA is
+ * "jsdom", which is the app's own escape hatch), so this block opts out.
  */
-test.fixme("intro film can be skipped without waiting ~10.5s", async ({ page }) => {
-  // deliberately uses the real UA so the film is actually mounted
-  await page.goto("/", { waitUntil: "domcontentloaded" });
-  const gate = page.locator('[aria-label="شروع انیمیشن ورود با صدا"]');
-  await expect(gate).toBeVisible({ timeout: 15_000 });
+test.describe("intro film", () => {
+  test.use({
+    userAgent:
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+  });
 
-  // there is no visible "skip" affordance today; a fix should add one
-  const skip = page.getByRole("button", { name: /رد کردن|پرش|skip/i });
-  await expect(skip).toBeVisible({ timeout: 2000 });
+  test("can be skipped immediately instead of waiting ~10.5s", async ({ page }) => {
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+
+    // the greeting plays first, then the invitation to press the point
+    const gate = page.locator('[aria-label="شروع انیمیشن ورود با صدا"]');
+    await expect(gate).toBeVisible({ timeout: 15_000 });
+
+    const skip = page.getByTestId("intro-skip");
+    await expect(skip).toBeVisible();
+
+    const started = Date.now();
+    await skip.click({ force: true });
+    await expect(page.locator('[role="dialog"]')).toHaveCount(0, { timeout: 3_000 });
+    expect(Date.now() - started).toBeLessThan(3_000);
+  });
+
+  test("Escape also leaves the film", async ({ page }) => {
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    const film = page.locator('[role="dialog"]');
+    await expect(film).toHaveCount(1, { timeout: 10_000 });
+    // wait until the film is past mount and answering taps — pressing Escape
+    // before the key listener is attached would be a no-op, not a regression
+    await expect(page.getByTestId("intro-skip")).toBeVisible({ timeout: 10_000 });
+    await page.keyboard.press("Escape");
+    await expect(film).toHaveCount(0, { timeout: 5_000 });
+  });
+
+  test("pressing the point builds the hero sentence word by word", async ({ page }) => {
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    const gate = page.locator('[aria-label="شروع انیمیشن ورود با صدا"]');
+    await expect(gate).toBeVisible({ timeout: 15_000 });
+
+    const box = await gate.boundingBox();
+    expect(box).not.toBeNull();
+    await page.mouse.click(
+      (box?.x ?? 0) + (box?.width ?? 0) / 2,
+      (box?.y ?? 0) + (box?.height ?? 0) / 2
+    );
+
+    // once the burst resolves, the film typesets the same two lines the hero uses
+    await expect(page.locator('[role="dialog"]')).toContainText("هر واژه", { timeout: 12_000 });
+    await expect(page.locator('[role="dialog"]')).toContainText("نفس", { timeout: 6_000 });
+  });
 });

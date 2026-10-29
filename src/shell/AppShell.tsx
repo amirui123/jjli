@@ -38,6 +38,7 @@ import {
 } from "./nav";
 import { cn } from "../ui/kit";
 import { soundEngine } from "../engines/soundEngine";
+import { FOOTER_COUPLET } from "./introCopy";
 
 const PSYCHOLOGY_NOTES: Record<string, string> = {
   saffron: "کانون گرم توجه · کنتراست طلایی",
@@ -872,7 +873,7 @@ const Footer: React.FC = () => {
                 آزمایشگاه موشن و تایپوگرافی فارسی
               </span>
               <span className="block font-nastaliq text-[18px] leading-[2.3] text-[color:var(--accent)]">
-                در امتدادِ نور، هر خط جان می‌گیرد
+                {FOOTER_COUPLET}
               </span>
             </div>
           </div>

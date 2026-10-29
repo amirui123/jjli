@@ -23,6 +23,7 @@ import { faNum } from "../lib/format";
 import { cn } from "../ui/kit";
 import { ShaderSurface } from "../components/ShaderSurface";
 import { SHADERS } from "../engines/shaderLab";
+import { HERO_LINES, HERO_SENTENCE } from "../shell/introCopy";
 
 const SPRING_SILK = {
   type: "spring" as const,
@@ -275,25 +276,26 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
             }}
             className="mt-8 flex w-full flex-col items-center justify-center gap-1.5 text-[clamp(36px,10.5vw,52px)] text-white sm:mt-10 sm:gap-2 sm:text-[68px] lg:text-[80px]"
           >
-            {/* Right-to-Center Glide */}
-            <motion.span
-              initial={{ opacity: 0, x: heroSlideX }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ ...SPRING_SILK, delay: 0.16 }}
-              className="block text-zinc-100 will-change-transform"
-            >
-              در امتدادِ نور،
-            </motion.span>
-
-            {/* Left-to-Center Glide */}
-            <motion.span
-              initial={{ opacity: 0, x: -heroSlideX }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ ...SPRING_SILK, delay: 0.3 }}
-              className="block bg-gradient-to-l from-amber-200 via-[color:var(--accent)] to-amber-100 bg-clip-text text-transparent will-change-transform"
-            >
-              هر خط جان می‌گیرد
-            </motion.span>
+            {HERO_LINES.map((line, lineIndex) => {
+              const text = line.words.map((w) => w.text).join(" ");
+              const fromRight = lineIndex % 2 === 0;
+              return (
+                <motion.span
+                  key={lineIndex}
+                  initial={{ opacity: 0, x: fromRight ? heroSlideX : -heroSlideX }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ ...SPRING_SILK, delay: 0.16 + lineIndex * 0.14 }}
+                  className={cn(
+                    "block will-change-transform",
+                    lineIndex === HERO_LINES.length - 1
+                      ? "bg-gradient-to-l from-amber-200 via-[color:var(--accent)] to-amber-100 bg-clip-text text-transparent"
+                      : "text-zinc-100"
+                  )}
+                >
+                  {text}
+                </motion.span>
+              );
+            })}
           </h1>
 
           {/* 3. TOP-DROP SUBTITLE (معرفی کوتاه از بالا فرود می‌آید) */}
@@ -399,8 +401,7 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
             style={{ x: ribbonLeftToRight }}
             className="whitespace-nowrap font-nastaliq text-[38px] text-[color:var(--accent)]/35 sm:text-[64px]"
           >
-            در امتدادِ نور هر خط جان می‌گیرد ✦ چهار هزار و بیست و سه مهارت مهندسی ✦ هفت استودیوی
-            تخصصی ✦
+            {HERO_SENTENCE} ✦ چهار هزار و بیست و سه مهارت مهندسی ✦ هفت استودیوی تخصصی ✦
           </motion.div>
         </div>
 
