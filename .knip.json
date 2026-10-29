@@ -1,0 +1,35 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "src/main.tsx",
+    "src/dev/smoke.tsx",
+    "scripts/*.mjs",
+    "tools/*.mjs",
+    "e2e/**/*.spec.ts"
+  ],
+  "project": ["src/**/*.{ts,tsx}", "scripts/**/*.mjs", "tools/**/*.mjs"],
+  "ignore": ["design-lab/**", "public/**", "share/**", "dist/**", "audit/**"],
+  "ignoreDependencies": [
+    "@sparticuz/chromium",
+    "@axe-core/playwright",
+    "@lhci/cli",
+    "lhci",
+    "sitespeed.io",
+    "pa11y-ci",
+    "backstopjs",
+    "secretlint",
+    "@secretlint/secretlint-rule-preset-recommend",
+    "stylelint-config-standard",
+    "vite-bundle-analyzer",
+    "sharp",
+    "axe-core",
+    "purgecss",
+    "linkinator",
+    "prettier",
+    "html-validate",
+    "knip",
+    "size-limit",
+    "@size-limit/file"
+  ],
+  "ignoreExportsUsedInFile": true
+}

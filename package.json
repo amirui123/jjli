@@ -14,7 +14,32 @@
     "smoke": "npm run build && node scripts/smoke-test.mjs",
     "chunks": "node scripts/generate-component-chunks.mjs",
     "lint": "eslint src scripts",
-    "single": "node scripts/build-single-file.mjs"
+    "single": "node scripts/build-single-file.mjs",
+    "tool:setup": "node tools/setup-browser.mjs",
+    "audit:crawl": "node tools/audit-crawl.mjs",
+    "audit:axe": "node tools/audit-axe.mjs",
+    "audit:lighthouse": "node tools/audit-lighthouse.mjs",
+    "audit:links": "node tools/audit-links.mjs",
+    "audit:purgecss": "node tools/audit-purgecss.mjs",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report",
+    "test:e2e:all-browsers": "playwright test --project=chromium-desktop --project=chromium-mobile",
+    "lint:eslint": "eslint src scripts tools e2e",
+    "lint:style": "stylelint \"src/**/*.css\"",
+    "lint:html": "html-validate index.html dist/index.html",
+    "lint:format": "prettier --check \"src/**/*.{ts,tsx,css}\" \"scripts/**/*.mjs\" \"tools/**/*.mjs\" \"e2e/**/*.ts\"",
+    "lint:format:fix": "prettier --write \"src/**/*.{ts,tsx,css}\" \"scripts/**/*.mjs\" \"tools/**/*.mjs\" \"e2e/**/*.ts\"",
+    "audit:knip": "knip",
+    "audit:size": "size-limit",
+    "audit:secrets": "secretlint \"**/*\"",
+    "audit:semgrep": ".tooling/venv/bin/semgrep scan --config tools/semgrep-rules/rtl-motion-lab.yml --metrics=off src/",
+    "audit:npm": "npm audit --omit=dev",
+    "a11y:pa11y": "pa11y-ci --config .pa11yci.json",
+    "visual:reference": "backstop reference --config backstop.json",
+    "visual:test": "backstop test --config backstop.json",
+    "lhci": "lhci autorun --config lighthouserc.json",
+    "health": "npm run typecheck && npm run lint:eslint && npm run build && npm run audit:size"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -25,21 +50,120 @@
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.64.1",
+    "@secretlint/secretlint-rule-preset-recommend": "^13.1.0",
+    "@size-limit/file": "^14.3.0",
+    "@sparticuz/chromium": "^153.0.0",
     "@tailwindcss/vite": "^4.0.9",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
+    "axe-core": "^4.14.0",
+    "backstopjs": "^6.3.25",
     "eslint": "^9.39.5",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react-hooks": "^5.2.0",
     "globals": "^15.15.0",
+    "html-validate": "^11.17.0",
     "jsdom": "^30.1.3",
+    "knip": "^5.88.1",
+    "lighthouse": "^13.6.0",
+    "linkinator": "^8.1.0",
+    "pa11y": "^10.0.0",
+    "pa11y-ci": "^5.0.0",
+    "playwright-core": "^1.64.1",
+    "prettier": "^3.9.10",
+    "purgecss": "^8.0.0",
+    "secretlint": "^13.1.0",
+    "sharp": "^0.35.5",
+    "sitespeed.io": "^42.10.0",
+    "size-limit": "^14.3.0",
+    "stylelint": "^16.26.1",
+    "stylelint-config-standard": "^39.0.1",
     "tailwindcss": "^4.0.9",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.72.0",
-    "vite": "^6.1.0"
+    "vite": "^6.1.0",
+    "vite-bundle-analyzer": "^1.3.9"
   },
   "engines": {
     "node": "22.x"
-  }
+  },
+  "size-limit": [
+    {
+      "name": "initial JS (entry + vendor)",
+      "path": "dist/assets/index-*.js",
+      "limit": "120 kB"
+    },
+    {
+      "name": "react vendor",
+      "path": "dist/assets/vendor-react-*.js",
+      "limit": "150 kB"
+    },
+    {
+      "name": "motion vendor",
+      "path": "dist/assets/vendor-motion-*.js",
+      "limit": "130 kB"
+    },
+    {
+      "name": "icons vendor",
+      "path": "dist/assets/vendor-icons-*.js",
+      "limit": "30 kB"
+    },
+    {
+      "name": "CSS (all)",
+      "path": "dist/assets/*.css",
+      "limit": "200 kB"
+    },
+    {
+      "name": "data: design-lab",
+      "path": "dist/assets/data-design-lab-*.js",
+      "limit": "260 kB"
+    },
+    {
+      "name": "data: registries",
+      "path": "dist/assets/data-registries-*.js",
+      "limit": "250 kB"
+    },
+    {
+      "name": "data: skills",
+      "path": "dist/assets/data-skills-*.js",
+      "limit": "210 kB"
+    },
+    {
+      "name": "all page chunks combined",
+      "path": [
+        "dist/assets/Dashboard-*.js",
+        "dist/assets/Landing-*.js",
+        "dist/assets/MotionStudio-*.js",
+        "dist/assets/EnginesStudio-*.js",
+        "dist/assets/SkillsStudio-*.js",
+        "dist/assets/AiStudio-*.js",
+        "dist/assets/FontStudio-*.js",
+        "dist/assets/ComponentsStudio-*.js",
+        "dist/assets/SoundStudio-*.js",
+        "dist/assets/IntroFilm-*.js",
+        "dist/assets/shaderLab-*.js",
+        "dist/assets/persianFontsCatalog-*.js"
+      ],
+      "limit": "125 kB"
+    },
+    {
+      "name": "SoundStudio (heaviest page)",
+      "path": "dist/assets/SoundStudio-*.js",
+      "limit": "32 kB"
+    },
+    {
+      "name": "ComponentsStudio",
+      "path": "dist/assets/ComponentsStudio-*.js",
+      "limit": "25 kB"
+    },
+    {
+      "name": "FontStudio",
+      "path": "dist/assets/FontStudio-*.js",
+      "limit": "15 kB"
+    }
+  ]
 }

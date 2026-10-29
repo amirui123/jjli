@@ -1,0 +1,36 @@
+{
+  "id": "rtl-motion-lab",
+  "viewports": [
+    { "label": "320", "width": 320, "height": 900 },
+    { "label": "375", "width": 375, "height": 900 },
+    { "label": "768", "width": 768, "height": 1000 },
+    { "label": "1024", "width": 1024, "height": 900 },
+    { "label": "1440", "width": 1440, "height": 900 },
+    { "label": "1920", "width": 1920, "height": 1080 }
+  ],
+  "onBeforeScript": "backstop/onBefore.js",
+  "onReadyScript": "backstop/onReady.js",
+  "scenarios": [
+    { "label": "home", "url": "http://127.0.0.1:4173/#/", "delay": 2200, "misMatchThreshold": 0.5 },
+    { "label": "dashboard", "url": "http://127.0.0.1:4173/#/dashboard", "delay": 2000 },
+    { "label": "fonts", "url": "http://127.0.0.1:4173/#/studio/fonts", "delay": 2500 },
+    { "label": "motion", "url": "http://127.0.0.1:4173/#/studio/motion", "delay": 2000 },
+    { "label": "components", "url": "http://127.0.0.1:4173/#/studio/components", "delay": 2800 },
+    { "label": "sounds", "url": "http://127.0.0.1:4173/#/studio/sounds", "delay": 2000 },
+    { "label": "skills", "url": "http://127.0.0.1:4173/#/studio/skills", "delay": 2500 },
+    { "label": "engines", "url": "http://127.0.0.1:4173/#/studio/engines", "delay": 2600 },
+    { "label": "ai", "url": "http://127.0.0.1:4173/#/studio/ai", "delay": 2400 }
+  ],
+  "paths": {
+    "bitmaps_reference": "audit/backstop/reference",
+    "bitmaps_test": "audit/backstop/test",
+    "html_report": "audit/backstop/report"
+  },
+  "engine": "puppeteer",
+  "engineOptions": {
+    "args": ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
+  },
+  "asyncCaptureLimit": 2,
+  "asyncCompareLimit": 2,
+  "report": ["browser", "json"]
+}

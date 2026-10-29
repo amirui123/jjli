@@ -16,3 +16,13 @@ dist-single/
 # built on demand); zips and other exports stay local
 share/*
 !share/rtl-motion-lab-standalone.html
+
+# local audit toolchain (browser binary, shared libs, python venv) — rebuilt by `npm run tool:setup`
+.tooling/
+# audit output (screenshots, reports) is uploaded as a CI artifact, not committed
+audit/
+# playwright artefacts
+playwright-report/
+test-results/
+.backstopjs/
+.lighthouseci/
