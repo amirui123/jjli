@@ -7,14 +7,23 @@
     "tools/*.mjs",
     "e2e/**/*.spec.ts"
   ],
-  "project": ["src/**/*.{ts,tsx}", "scripts/**/*.mjs", "tools/**/*.mjs"],
-  "ignore": ["design-lab/**", "public/**", "share/**", "dist/**", "audit/**"],
+  "project": [
+    "src/**/*.{ts,tsx}",
+    "scripts/**/*.mjs",
+    "tools/**/*.mjs"
+  ],
+  "ignore": [
+    "design-lab/**",
+    "public/**",
+    "share/**",
+    "dist/**",
+    "audit/**"
+  ],
   "ignoreDependencies": [
     "@sparticuz/chromium",
     "@axe-core/playwright",
     "@lhci/cli",
     "lhci",
-    "sitespeed.io",
     "pa11y-ci",
     "backstopjs",
     "secretlint",
