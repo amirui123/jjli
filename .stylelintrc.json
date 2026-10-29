@@ -1,0 +1,54 @@
+{
+  "extends": [
+    "stylelint-config-standard"
+  ],
+  "ignoreFiles": [
+    "dist/**",
+    "public/**",
+    "design-lab/**",
+    "share/**"
+  ],
+  "rules": {
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": [
+          "theme",
+          "source",
+          "custom-variant",
+          "plugin",
+          "utility",
+          "variant",
+          "apply",
+          "import",
+          "font-face"
+        ]
+      }
+    ],
+    "custom-property-pattern": null,
+    "selector-class-pattern": null,
+    "no-descending-specificity": null,
+    "declaration-block-no-redundant-longhand-properties": null,
+    "shorthand-property-no-redundant-values": null,
+    "font-family-name-quotes": null,
+    "value-keyword-case": null,
+    "alpha-value-notation": null,
+    "color-function-notation": null,
+    "keyframes-name-pattern": null,
+    "media-feature-range-notation": null,
+    "rule-empty-line-before": null,
+    "comment-empty-line-before": null,
+    "declaration-empty-line-before": null,
+    "no-duplicate-selectors": null,
+    "no-duplicate-at-import-rules": true,
+    "declaration-block-no-duplicate-properties": true,
+    "import-notation": null,
+    "at-rule-empty-line-before": null,
+    "declaration-block-no-shorthand-property-overrides": null,
+    "no-invalid-position-at-import-rule": true,
+    "color-function-alias-notation": null,
+    "property-no-vendor-prefix": null,
+    "selector-not-notation": null,
+    "color-hex-length": null
+  }
+}

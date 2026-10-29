@@ -18,9 +18,11 @@ if (!fs.existsSync(TOOLKIT_DIR) || fs.readdirSync(TOOLKIT_DIR).length < 4) {
   process.exit(0);
 }
 
-
 const ROOT = "toolkit/04-motion-primitives-and-ui";
-if (!fs.existsSync(ROOT)) { console.warn("[generate] toolkit missing — skipping chunks."); process.exit(0); }
+if (!fs.existsSync(ROOT)) {
+  console.warn("[generate] toolkit missing — skipping chunks.");
+  process.exit(0);
+}
 const OUT = "public/regcode/chunks";
 const CHUNK = 120;
 const TEXT_EXT = new Set([".tsx", ".ts", ".jsx", ".js", ".css", ".json", ".md", ".mjs"]);
@@ -79,7 +81,14 @@ for (const id of fs.readdirSync(ROOT).sort()) {
 
   const jsonFiles = all.filter((rel) => rel.toLowerCase().endsWith(".json")).length;
   const sourceFiles = all.length - jsonFiles;
-  registries.push({ id, totalFiles: all.length, sourceFiles, readable: readable.length, chunks: chunkCount, files });
+  registries.push({
+    id,
+    totalFiles: all.length,
+    sourceFiles,
+    readable: readable.length,
+    chunks: chunkCount,
+    files,
+  });
   totalFiles += all.length;
   totalChunks += chunkCount;
   console.log(
@@ -141,4 +150,6 @@ fs.mkdirSync("src/data", { recursive: true });
 fs.writeFileSync("src/data/registryFiles.ts", `${header}${body};\n`);
 
 const totalSource = registries.reduce((a, r) => a + r.sourceFiles, 0);
-console.log(`\n✅ ${totalFiles} files (${totalSource} source) · ${totalChunks} chunks · src/data/registryFiles.ts`);
+console.log(
+  `\n✅ ${totalFiles} files (${totalSource} source) · ${totalChunks} chunks · src/data/registryFiles.ts`
+);

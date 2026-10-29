@@ -1,0 +1,121 @@
+name: Audit & Quality Gates
+
+# Runs the toolkit permanently so regressions cannot land.
+# Phases: static → build → size → e2e → a11y → perf.
+# Every job uploads its raw report to the run so `before` vs `after` stays comparable.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audit-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # installed browsers work on GitHub runners without the sandbox workarounds
+  CHROME_PATH: ""
+
+jobs:
+  static:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: TypeScript (strict)
+        run: npm run typecheck
+      - name: ESLint (+ jsx-a11y)
+        run: npx eslint src scripts tools e2e
+      - name: Stylelint
+        run: npx stylelint "src/**/*.css"
+      - name: HTML validation
+        run: npx html-validate index.html
+      - name: Prettier
+        run: npm run lint:format
+      - name: Knip (dead code)
+        run: npx knip
+      - name: Secrets
+        run: npx secretlint "**/*"
+      - name: Dependencies (runtime only)
+        run: npm audit --omit=dev
+
+  build-and-size:
+    name: Build & bundle budget
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: size-limit
+        run: npx size-limit
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 3
+
+  e2e:
+    name: Playwright e2e + axe
+    runs-on: ubuntu-latest
+    needs: build-and-size
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # on GitHub's runners the CDN is reachable, so the real installer works
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - name: e2e
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            audit
+          retention-days: 7
+
+  lighthouse:
+    name: Lighthouse CI
+    runs-on: ubuntu-latest
+    needs: build-and-size
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Start static server
+        run: |
+          PORT=4173 node scripts/serve-static.mjs &
+          npx wait-on http://127.0.0.1:4173 --timeout 60000
+      - name: LHCI autorun (thresholds in lighthouserc.json)
+        run: npx lhci autorun --config lighthouserc.json
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse
+          path: audit/before/lhci
+          retention-days: 7

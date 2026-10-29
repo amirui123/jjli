@@ -5,13 +5,7 @@ import { usePersisted } from "../lib/store";
 import { soundEngine } from "../engines/soundEngine";
 
 export type StudioVariant =
-  | "atelier"
-  | "oscilloscope"
-  | "blueprint"
-  | "daw"
-  | "codex"
-  | "shader-deck"
-  | "neural-forge";
+  "atelier" | "oscilloscope" | "blueprint" | "daw" | "codex" | "shader-deck" | "neural-forge";
 
 const VARIANT_META: Record<
   StudioVariant,
@@ -36,8 +30,7 @@ const VARIANT_META: Record<
   oscilloscope: {
     badge: "OSCILLOSCOPE · آزمایشگاه فیزیک ۱۲۰Hz",
     accentHex: "#22D3EE",
-    headerBg:
-      "radial-gradient(90% 140% at 100% 0%, rgba(34,211,238,0.16), rgba(9,13,22,0.95) 65%)",
+    headerBg: "radial-gradient(90% 140% at 100% 0%, rgba(34,211,238,0.16), rgba(9,13,22,0.95) 65%)",
     step1: "۱. انتخاب الگوریتم حرکت",
     step2: "۲. تنظیم چابکی و نرمی فنر",
     step3: "۳. کپی یا دانلود کد حرکت",
@@ -45,8 +38,7 @@ const VARIANT_META: Record<
   blueprint: {
     badge: "BLUEPRINT · مونتاژ کامپوننت و سورس",
     accentHex: "#34D399",
-    headerBg:
-      "radial-gradient(90% 140% at 100% 0%, rgba(52,211,153,0.15), rgba(9,14,20,0.95) 65%)",
+    headerBg: "radial-gradient(90% 140% at 100% 0%, rgba(52,211,153,0.15), rgba(9,14,20,0.95) 65%)",
     step1: "۱. انتخاب ویجت یا رجیستری",
     step2: "۲. تست زنده در صحنه",
     step3: "۳. دانلود فایل TSX یا کیت",
@@ -72,8 +64,7 @@ const VARIANT_META: Record<
   "shader-deck": {
     badge: "GPU & PERSIAN ENGINES · شیدر و موتور بومی",
     accentHex: "#38BDF8",
-    headerBg:
-      "radial-gradient(90% 140% at 100% 0%, rgba(56,189,248,0.16), rgba(8,13,24,0.95) 65%)",
+    headerBg: "radial-gradient(90% 140% at 100% 0%, rgba(56,189,248,0.16), rgba(8,13,24,0.95) 65%)",
     step1: "۱. انتخاب شیدر یا موتور بومی",
     step2: "۲. انتخاب مود نوری یا ورودی",
     step3: "۳. دانلود کد GLSL / موتور",

@@ -15,10 +15,7 @@ import {
 } from "lucide-react";
 import { PERSIAN_FONT_CATALOG } from "../data/persianFontsCatalog";
 import { TOOLKIT_STATS } from "../data/toolkitStats";
-import {
-  DESIGN_LAB_PILLARS,
-  DESIGN_LAB_TOTAL_FILES,
-} from "../data/designLabManifest";
+import { DESIGN_LAB_PILLARS, DESIGN_LAB_TOTAL_FILES } from "../data/designLabManifest";
 import { navigate } from "../lib/router";
 import { writePersisted } from "../lib/store";
 import { soundEngine } from "../engines/soundEngine";
@@ -26,6 +23,7 @@ import { faNum } from "../lib/format";
 import { cn } from "../ui/kit";
 import { ShaderSurface } from "../components/ShaderSurface";
 import { SHADERS } from "../engines/shaderLab";
+import { HERO_LINES, HERO_SENTENCE } from "../shell/introCopy";
 
 const SPRING_SILK = {
   type: "spring" as const,
@@ -233,8 +231,7 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
         <div
           className="pointer-events-none absolute inset-0"
           style={{
-            background:
-              "radial-gradient(60% 65% at 50% 45%, rgba(5,6,10,0.15) 0%, #05060A 82%)",
+            background: "radial-gradient(60% 65% at 50% 45%, rgba(5,6,10,0.15) 0%, #05060A 82%)",
           }}
         />
 
@@ -251,7 +248,9 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
             className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[10.5px] text-zinc-300 backdrop-blur-md sm:gap-2.5 sm:px-4 sm:text-[11.5px]"
           >
             <span className="h-2 w-2 shrink-0 rounded-full bg-[color:var(--accent)] shadow-[0_0_12px_var(--accent)]" />
-            <span className="truncate">آتلیهٔ مهندسی تایپوگرافی، فیزیک حرکت و طراحی راست‌به‌چپ</span>
+            <span className="truncate">
+              آتلیهٔ مهندسی تایپوگرافی، فیزیک حرکت و طراحی راست‌به‌چپ
+            </span>
             <button
               type="button"
               onClick={() => {
@@ -268,28 +267,35 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
 
           {/* 2. SIDE-SLIDING MONUMENTAL HEADLINE (نوشته از کنار می‌آید سر جاش) */}
           <h1
-            style={{ fontFamily: activeHeroFont.family }}
-            className="mt-8 flex w-full flex-col items-center justify-center gap-1.5 text-[clamp(36px,10.5vw,52px)] leading-[1.68] text-white sm:mt-10 sm:gap-2 sm:text-[68px] sm:leading-[1.7] lg:text-[80px]"
+            data-testid="hero-headline"
+            style={{
+              fontFamily: activeHeroFont.family,
+              // Nastaliq stacks are ~2em tall; a 1.68 leading makes the second
+              // line physically collide with the first one.
+              lineHeight: activeHeroFont.recommendedLineHeight ?? 1.7,
+            }}
+            className="mt-8 flex w-full flex-col items-center justify-center gap-1.5 text-[clamp(36px,10.5vw,52px)] text-white sm:mt-10 sm:gap-2 sm:text-[68px] lg:text-[80px]"
           >
-            {/* Right-to-Center Glide */}
-            <motion.span
-              initial={{ opacity: 0, x: heroSlideX }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ ...SPRING_SILK, delay: 0.16 }}
-              className="block text-zinc-100 will-change-transform"
-            >
-              در امتدادِ نور،
-            </motion.span>
-
-            {/* Left-to-Center Glide */}
-            <motion.span
-              initial={{ opacity: 0, x: -heroSlideX }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ ...SPRING_SILK, delay: 0.3 }}
-              className="block bg-gradient-to-l from-amber-200 via-[color:var(--accent)] to-amber-100 bg-clip-text text-transparent will-change-transform"
-            >
-              هر خط جان می‌گیرد
-            </motion.span>
+            {HERO_LINES.map((line, lineIndex) => {
+              const text = line.words.map((w) => w.text).join(" ");
+              const fromRight = lineIndex % 2 === 0;
+              return (
+                <motion.span
+                  key={lineIndex}
+                  initial={{ opacity: 0, x: fromRight ? heroSlideX : -heroSlideX }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ ...SPRING_SILK, delay: 0.16 + lineIndex * 0.14 }}
+                  className={cn(
+                    "block will-change-transform",
+                    lineIndex === HERO_LINES.length - 1
+                      ? "bg-gradient-to-l from-amber-200 via-[color:var(--accent)] to-amber-100 bg-clip-text text-transparent"
+                      : "text-zinc-100"
+                  )}
+                >
+                  {text}
+                </motion.span>
+              );
+            })}
           </h1>
 
           {/* 3. TOP-DROP SUBTITLE (معرفی کوتاه از بالا فرود می‌آید) */}
@@ -395,7 +401,7 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
             style={{ x: ribbonLeftToRight }}
             className="whitespace-nowrap font-nastaliq text-[38px] text-[color:var(--accent)]/35 sm:text-[64px]"
           >
-            در امتدادِ نور هر خط جان می‌گیرد ✦ چهار هزار و بیست و سه مهارت مهندسی ✦ هفت استودیوی تخصصی ✦
+            {HERO_SENTENCE} ✦ چهار هزار و بیست و سه مهارت مهندسی ✦ هفت استودیوی تخصصی ✦
           </motion.div>
         </div>
 
@@ -474,10 +480,7 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
                   }}
                   viewport={{ once: isMobile, amount: 0.2 }}
                   transition={{ ...SPRING_SILK, delay: 0.06 }}
-                  className={cn(
-                    "space-y-5 lg:col-span-6",
-                    !isEven && "lg:order-2"
-                  )}
+                  className={cn("space-y-5 lg:col-span-6", !isEven && "lg:order-2")}
                 >
                   <h2 className="font-hasti text-[28px] leading-[1.45] text-white sm:text-[40px]">
                     <span className="block">{ch.titleLine1}</span>
@@ -535,10 +538,7 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
                   }}
                   viewport={{ once: isMobile, amount: 0.2 }}
                   transition={{ ...SPRING_SILK, delay: 0.14 }}
-                  className={cn(
-                    "lg:col-span-6",
-                    !isEven && "lg:order-1"
-                  )}
+                  className={cn("lg:col-span-6", !isEven && "lg:order-1")}
                 >
                   {/* Visual Stage 1: Typography Specimen Showcase */}
                   {ch.visualType === "typography" && (

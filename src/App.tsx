@@ -59,10 +59,10 @@ const PageSkeleton: React.FC = () => (
 const Router: React.FC = () => {
   const { route, path, meta } = useRouter();
   const known = path === "/" || ROUTES.some((r) => r.path === path.replace(/\/+$/, ""));
-  const Page = known ? PAGES[meta.id] ?? NotFound : NotFound;
+  const Page = known ? (PAGES[meta.id] ?? NotFound) : NotFound;
 
   useEffect(() => {
-    document.title = `${known ? TITLES[meta.id] ?? "استودیو" : "صفحه پیدا نشد"} | آزمایشگاه موشن فارسی`;
+    document.title = `${known ? (TITLES[meta.id] ?? "استودیو") : "صفحه پیدا نشد"} | آزمایشگاه موشن فارسی`;
   }, [meta.id, known]);
 
   return (

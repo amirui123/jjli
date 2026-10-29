@@ -1,0 +1,35 @@
+{
+  "defaults": {
+    "standard": "WCAG2AA",
+    "timeout": 240000,
+    "wait": 1200,
+    "chromeLaunchConfig": {
+      "executablePath": "/tmp/chromium",
+      "args": [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--no-zygote",
+        "--use-gl=angle",
+        "--use-angle=swiftshader",
+        "--enable-unsafe-swiftshader"
+      ]
+    },
+    "headers": {
+      "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) jsdom Chromium/153 Safari/537.36"
+    },
+    "runners": ["axe", "htmlcs"]
+  },
+  "urls": [
+    "http://127.0.0.1:4173/#/",
+    "http://127.0.0.1:4173/#/dashboard",
+    "http://127.0.0.1:4173/#/studio/fonts",
+    "http://127.0.0.1:4173/#/studio/motion",
+    "http://127.0.0.1:4173/#/studio/components",
+    "http://127.0.0.1:4173/#/studio/sounds",
+    "http://127.0.0.1:4173/#/studio/skills",
+    "http://127.0.0.1:4173/#/studio/engines",
+    "http://127.0.0.1:4173/#/studio/ai",
+    "http://127.0.0.1:4173/#/nope"
+  ]
+}

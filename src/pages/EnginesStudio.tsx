@@ -12,16 +12,34 @@ import {
   Square,
   Type,
 } from "lucide-react";
-import { SHADERS, SHADER_CATEGORY_LABEL, VERTEX_SHADER, SHADER_PRELUDE, shaderSource, type ShaderCategory } from "../engines/shaderLab";
+import {
+  SHADERS,
+  SHADER_CATEGORY_LABEL,
+  VERTEX_SHADER,
+  SHADER_PRELUDE,
+  shaderSource,
+  type ShaderCategory,
+} from "../engines/shaderLab";
 import { auditPersianCopy, auditRtlMotionCode } from "../engines/persianEngines";
 import { ShaderSurface } from "../components/ShaderSurface";
 import { usePersisted } from "../lib/store";
 import { saveKit, saveText } from "../lib/download";
-import { Badge, CodeBlock, CopyButton, Panel, SearchField, Segmented, Slider, Toggle, cn } from "../ui/kit";
+import {
+  Badge,
+  CodeBlock,
+  CopyButton,
+  Panel,
+  SearchField,
+  Segmented,
+  Slider,
+  Toggle,
+  cn,
+} from "../ui/kit";
 import { StudioShell, StudioList, focusStudioPreview } from "../ui/StudioShell";
 import { DownloadButton } from "../ui/DownloadButton";
 import { faNum } from "../lib/format";
 import { useToast } from "../ui/Toast";
+import { HERO_SENTENCE } from "../shell/introCopy";
 
 /* --------------------------------------------------------------- settings */
 
@@ -55,7 +73,7 @@ const DEFAULT: ShaderSettings = {
   fresnelPower: 3.2,
   vignette: 30,
   glassOverlay: true,
-  overlayText: "در امتدادِ نور، هر خط جان می‌گیرد",
+  overlayText: HERO_SENTENCE,
   glyphText: "نور خط جان کد رمز هکر ۰ ۱ ۲ ۳ ۴ ۵ ۶ ۷ ۸ ۹",
   glyphFont: '"Vazirmatn", "Hasti", sans-serif',
   paused: false,
@@ -138,7 +156,12 @@ export const EnginesStudio: React.FC = () => {
     const target = SHADERS.find((x) => x.id === id);
     if (!target) return;
     setPick({ id, hue: target.preset.hue });
-    set({ speed: target.preset.speed, scale: target.preset.scale, warp: target.preset.warp, hue: target.preset.hue });
+    set({
+      speed: target.preset.speed,
+      scale: target.preset.scale,
+      warp: target.preset.warp,
+      hue: target.preset.hue,
+    });
     focusStudioPreview();
   };
 
@@ -193,7 +216,10 @@ uniforms:
       `یافته‌ها: ${audit.issues.length} (${critical} بحرانی)`,
       "",
       "## یافته‌ها",
-      ...audit.issues.map((i) => `- [${i.severity === "critical" ? "x" : " "}] ${i.titleFa}\n  - قاعده: ${i.rule}\n  - نمونه: \`${i.match}\`\n  - اصلاح: ${i.fixFa}`),
+      ...audit.issues.map(
+        (i) =>
+          `- [${i.severity === "critical" ? "x" : " "}] ${i.titleFa}\n  - قاعده: ${i.rule}\n  - نمونه: \`${i.match}\`\n  - اصلاح: ${i.fixFa}`
+      ),
       "",
       "## کد اصلاح‌شده",
       "```tsx",
@@ -201,7 +227,9 @@ uniforms:
       "```",
       "",
       `## بازرسی دوباره: امتیاز ${fixedAudit.score}/100`,
-      ...fixedAudit.issues.map((i) => `- ${i.severity === "critical" ? "🔴" : "🟡"} ${i.titleFa} → ${i.fixFa}`),
+      ...fixedAudit.issues.map(
+        (i) => `- ${i.severity === "critical" ? "🔴" : "🟡"} ${i.titleFa} → ${i.fixFa}`
+      ),
       "",
       "## ممیزی متن",
       ...copyAudit.issues.map((i) => `- ${i.titleFa} → ${i.fixFa}`),
@@ -246,7 +274,12 @@ uniforms:
                 }}
               />
               <span className="min-w-0">
-                <span className={cn("block truncate text-[11.5px]", active ? "text-white" : "text-zinc-300")}>
+                <span
+                  className={cn(
+                    "block truncate text-[11.5px]",
+                    active ? "text-white" : "text-zinc-300"
+                  )}
+                >
                   {item.nameFa}
                 </span>
                 <span className="block truncate font-mono text-[9px] text-zinc-600" dir="ltr">
@@ -262,30 +295,46 @@ uniforms:
               key={issue.id}
               className={cn(
                 "mb-1 rounded-lg border px-2 py-1.5",
-                issue.severity === "critical" ? "border-rose-500/25 bg-rose-500/[0.06]" : "border-amber-500/20 bg-amber-500/[0.05]"
+                issue.severity === "critical"
+                  ? "border-rose-500/25 bg-rose-500/[0.06]"
+                  : "border-amber-500/20 bg-amber-500/[0.05]"
               )}
             >
               <div className="flex items-center gap-1.5">
-                <span className={cn("h-1.5 w-1.5 rounded-full", issue.severity === "critical" ? "bg-rose-400" : "bg-amber-400")} />
+                <span
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    issue.severity === "critical" ? "bg-rose-400" : "bg-amber-400"
+                  )}
+                />
                 <span className="text-[10px] font-medium text-zinc-200">{issue.rule}</span>
               </div>
               <p className="mt-0.5 text-[10px] leading-relaxed text-zinc-500">{issue.titleFa}</p>
               {issue.match && (
-                <code dir="ltr" className="mt-1 block truncate rounded bg-black/40 px-1.5 py-0.5 font-mono text-[9px] text-zinc-400">
+                <code
+                  dir="ltr"
+                  className="mt-1 block truncate rounded bg-black/40 px-1.5 py-0.5 font-mono text-[9px] text-zinc-400"
+                >
                   {issue.match}
                 </code>
               )}
             </div>
           )),
           ...copyAudit.issues.map((issue) => (
-            <div key={issue.id} className="mb-1 rounded-lg border border-white/[0.07] bg-white/[0.02] px-2 py-1.5">
+            <div
+              key={issue.id}
+              className="mb-1 rounded-lg border border-white/[0.07] bg-white/[0.02] px-2 py-1.5"
+            >
               <div className="text-[10px] text-zinc-300">{issue.titleFa}</div>
               <p className="mt-0.5 text-[9.5px] text-zinc-500">{issue.fixFa}</p>
             </div>
           )),
           ...(audit.issues.length === 0 && copyAudit.issues.length === 0
             ? [
-                <div key="clean" className="rounded-lg border border-emerald-500/25 bg-emerald-500/[0.06] p-3 text-center">
+                <div
+                  key="clean"
+                  className="rounded-lg border border-emerald-500/25 bg-emerald-500/[0.06] p-3 text-center"
+                >
                   <BadgeCheck className="mx-auto h-5 w-5 text-emerald-400" />
                   <p className="mt-1 text-[11px] text-emerald-300">هیچ مشکلی پیدا نشد</p>
                 </div>,
@@ -301,8 +350,16 @@ uniforms:
           ? `${faNum(filtered.length)} از ${faNum(SHADERS.length)} شیدر`
           : `${faNum(audit.issues.length + copyAudit.issues.length)} یافته · امتیاز ${faNum(audit.score)}`
       }
-      toolbar={<Badge tone={mode === "shader" ? "accent" : critical ? "danger" : "success"}>{mode === "shader" ? faNum(SHADERS.length) : faNum(audit.score)}</Badge>}
-      footer={mode === "shader" ? "سورس GLSL هر شیدر قابل دانلود است" : "خروجی: کد اصلاح‌شده + گزارش Markdown"}
+      toolbar={
+        <Badge tone={mode === "shader" ? "accent" : critical ? "danger" : "success"}>
+          {mode === "shader" ? faNum(SHADERS.length) : faNum(audit.score)}
+        </Badge>
+      }
+      footer={
+        mode === "shader"
+          ? "سورس GLSL هر شیدر قابل دانلود است"
+          : "خروجی: کد اصلاح‌شده + گزارش Markdown"
+      }
       className="min-h-[360px] desk:min-h-0"
     >
       {mode === "shader" ? (
@@ -310,7 +367,9 @@ uniforms:
           <div className="sticky top-0 z-10 -m-1.5 mb-1.5 space-y-2 bg-[#0D0D10]/95 p-1.5 backdrop-blur">
             <SearchField value={q} onChange={setQ} placeholder="نام شیدر…" />
             <div className="flex flex-wrap gap-1">
-              {(["all", "hacker", "gradient", "noise", "geometric", "liquid", "retro"] as const).map((c) => (
+              {(
+                ["all", "hacker", "gradient", "noise", "geometric", "liquid", "retro"] as const
+              ).map((c) => (
                 <button
                   key={c}
                   onClick={() => setCat(c)}
@@ -356,7 +415,12 @@ uniforms:
               {s.paused ? "پخش" : "توقف"}
             </button>
             <DownloadButton label="GLSL" filename={`${shader.id}.frag`} onDownload={downloadGlsl} />
-            <DownloadButton label="کیت" filename={`rtl-shader-${shader.id}.zip`} onDownload={downloadKit} variant="solid" />
+            <DownloadButton
+              label="کیت"
+              filename={`rtl-shader-${shader.id}.zip`}
+              onDownload={downloadKit}
+              variant="solid"
+            />
           </div>
         </div>
 
@@ -400,16 +464,20 @@ uniforms:
                 }}
               >
                 <div className="font-mono text-[9.5px] text-amber-200/80" dir="ltr">
-                  SNELL IOR n={(s.ior ?? 1.52).toFixed(2)} · CAUCHY Δn={(s.chromatic ?? 0.28).toFixed(2)} · FRESNEL p={(s.fresnelPower ?? 3.2).toFixed(1)}
+                  SNELL IOR n={(s.ior ?? 1.52).toFixed(2)} · CAUCHY Δn=
+                  {(s.chromatic ?? 0.28).toFixed(2)} · FRESNEL p=
+                  {(s.fresnelPower ?? 3.2).toFixed(1)}
                 </div>
                 <p className="mt-1 font-nastaliq text-[24px] leading-[2] text-white">
-                  {s.overlayText || "در امتدادِ نور، هر خط جان می‌گیرد"}
+                  {s.overlayText || HERO_SENTENCE}
                 </p>
               </div>
             </div>
           )}
           <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between bg-gradient-to-t from-black/70 to-transparent p-3">
-            <span className="font-mono text-[9px] tracking-[0.2em] text-white/60">LIVE · GLSL ES 1.0</span>
+            <span className="font-mono text-[9px] tracking-[0.2em] text-white/60">
+              LIVE · GLSL ES 1.0
+            </span>
             <span className="font-mono text-[9px] text-white/50" dir="ltr">
               {s.speed.toFixed(2)}× · hue {s.hue.toFixed(2)} · warp {s.warp.toFixed(2)}
             </span>
@@ -427,7 +495,12 @@ uniforms:
           </>
         }
       >
-        <CodeBlock code={shaderSource(shader)} language="glsl" maxLines={16} filename={`${shader.id}.frag`} />
+        <CodeBlock
+          code={shaderSource(shader)}
+          language="glsl"
+          maxLines={16}
+          filename={`${shader.id}.frag`}
+        />
       </Panel>
 
       <Panel title="شیدرهای این دسته" padded={false}>
@@ -461,12 +534,26 @@ uniforms:
           </div>
           <div className="flex items-center gap-1.5">
             <CopyButton text={audit.fixedCode} label="کپی اصلاح" compact />
-            <DownloadButton label="گزارش" filename="rtl-audit.md" onDownload={downloadAudit} variant="solid" />
+            <DownloadButton
+              label="گزارش"
+              filename="rtl-audit.md"
+              onDownload={downloadAudit}
+              variant="solid"
+            />
           </div>
         </div>
         <div className="grid grid-cols-3 gap-px bg-white/[0.04]">
           {[
-            { k: "امتیاز", v: faNum(audit.score), tone: audit.score > 70 ? "text-emerald-300" : audit.score > 40 ? "text-amber-300" : "text-rose-300" },
+            {
+              k: "امتیاز",
+              v: faNum(audit.score),
+              tone:
+                audit.score > 70
+                  ? "text-emerald-300"
+                  : audit.score > 40
+                    ? "text-amber-300"
+                    : "text-rose-300",
+            },
             { k: "بحرانی", v: faNum(critical), tone: "text-rose-300" },
             { k: "هشدار", v: faNum(audit.issues.length - critical), tone: "text-amber-300" },
           ].map((m) => (
@@ -478,7 +565,11 @@ uniforms:
         </div>
       </Panel>
 
-      <Panel title="کد خودت را بچسبان" subtitle="لحظه‌ای تحلیل می‌شود" actions={<Badge>{faNum(code.length)} کاراکتر</Badge>}>
+      <Panel
+        title="کد خودت را بچسبان"
+        subtitle="لحظه‌ای تحلیل می‌شود"
+        actions={<Badge>{faNum(code.length)} کاراکتر</Badge>}
+      >
         <textarea
           value={code}
           onChange={(e) => setCode(e.target.value)}
@@ -556,8 +647,8 @@ uniforms:
         <p className="text-[11px] leading-relaxed text-zinc-400">
           در فارسی، فاصله‌گذاری فیزیکی (ml/mr) در حالت راست‌به‌چپ آینه نمی‌شود، شکستن حروف با
           <code className="mx-1 rounded bg-white/10 px-1 font-mono text-[10px]">split("")</code>
-          اتصال خط را نابود می‌کند و انیمیت‌کردن layout باعث افت فریم می‌شود. این ممیزی هر سه دسته را با
-          اصلاح خودکار گزارش می‌کند.
+          اتصال خط را نابود می‌کند و انیمیت‌کردن layout باعث افت فریم می‌شود. این ممیزی هر سه دسته
+          را با اصلاح خودکار گزارش می‌کند.
         </p>
       </Panel>
     </div>
@@ -569,15 +660,58 @@ uniforms:
     <div className="space-y-3">
       <Panel title="یونیفرم‌ها" subtitle="روی رندر زنده اثر می‌گذارد">
         <div className="space-y-3">
-          <Slider label="سرعت" value={s.speed} min={0} max={2} step={0.01} format={(v) => `${v.toFixed(2)}×`} onChange={(v) => set({ speed: v })} />
-          <Slider label="مقیاس" value={s.scale} min={0.4} max={4} step={0.05} format={(v) => v.toFixed(2)} onChange={(v) => set({ scale: v })} />
-          <Slider label="چرخش رنگ" value={s.hue} min={0} max={1} step={0.01} format={(v) => `${Math.round(v * 360)}°`} onChange={(v) => set({ hue: v })} />
-          <Slider label="اعوجاج" value={s.warp} min={0} max={3} step={0.01} format={(v) => v.toFixed(2)} onChange={(v) => set({ warp: v })} />
-          <Slider label="دانه" value={s.grain} min={0} max={1.5} step={0.01} format={(v) => v.toFixed(2)} onChange={(v) => set({ grain: v })} />
+          <Slider
+            label="سرعت"
+            value={s.speed}
+            min={0}
+            max={2}
+            step={0.01}
+            format={(v) => `${v.toFixed(2)}×`}
+            onChange={(v) => set({ speed: v })}
+          />
+          <Slider
+            label="مقیاس"
+            value={s.scale}
+            min={0.4}
+            max={4}
+            step={0.05}
+            format={(v) => v.toFixed(2)}
+            onChange={(v) => set({ scale: v })}
+          />
+          <Slider
+            label="چرخش رنگ"
+            value={s.hue}
+            min={0}
+            max={1}
+            step={0.01}
+            format={(v) => `${Math.round(v * 360)}°`}
+            onChange={(v) => set({ hue: v })}
+          />
+          <Slider
+            label="اعوجاج"
+            value={s.warp}
+            min={0}
+            max={3}
+            step={0.01}
+            format={(v) => v.toFixed(2)}
+            onChange={(v) => set({ warp: v })}
+          />
+          <Slider
+            label="دانه"
+            value={s.grain}
+            min={0}
+            max={1.5}
+            step={0.01}
+            format={(v) => v.toFixed(2)}
+            onChange={(v) => set({ grain: v })}
+          />
         </div>
       </Panel>
 
-      <Panel title="اطلس حروف فارسی و شیدرهای هکری (WebGL Glyph Atlas)" subtitle="حروف و واژه‌هایی که داخل باران ماتریکس و شیدرهای هکری می‌بارند">
+      <Panel
+        title="اطلس حروف فارسی و شیدرهای هکری (WebGL Glyph Atlas)"
+        subtitle="حروف و واژه‌هایی که داخل باران ماتریکس و شیدرهای هکری می‌بارند"
+      >
         <div className="space-y-2.5">
           <input
             value={s.glyphText ?? "نور خط جان کد رمز هکر ۰ ۱ ۲ ۳ ۴ ۵ ۶ ۷ ۸ ۹"}
@@ -624,7 +758,7 @@ uniforms:
             onChange={(v) => set({ glassOverlay: v })}
           />
           <input
-            value={s.overlayText ?? "در امتدادِ نور، هر خط جان می‌گیرد"}
+            value={s.overlayText ?? HERO_SENTENCE}
             onChange={(e) => set({ overlayText: e.target.value })}
             dir="rtl"
             placeholder="متن روی عدسی شیشه مایع…"
@@ -672,8 +806,17 @@ uniforms:
 
       <Panel title="رفتار">
         <div className="space-y-1.5">
-          <Toggle label="توقف رندر" checked={s.paused} onChange={(v) => set({ paused: v })} hint="برای صرفه‌جویی باتری" />
-          <Toggle label="واکنش به اشاره‌گر" checked={s.interactive} onChange={(v) => set({ interactive: v })} />
+          <Toggle
+            label="توقف رندر"
+            checked={s.paused}
+            onChange={(v) => set({ paused: v })}
+            hint="برای صرفه‌جویی باتری"
+          />
+          <Toggle
+            label="واکنش به اشاره‌گر"
+            checked={s.interactive}
+            onChange={(v) => set({ interactive: v })}
+          />
           <button
             onClick={() => {
               set({
@@ -727,7 +870,7 @@ uniforms:
         <ul className="space-y-1.5 text-[10.5px] text-zinc-400">
           {[
             "فاصله و گوشه منطقی (ms/me/ps/pe، border-s/e)",
-            "split(\"\") و اتصال حروف",
+            'split("") و اتصال حروف',
             "tracking و letter-spacing فارسی",
             "انیمیشن layout در برابر GPU",
             "space-x در RTL",
@@ -735,7 +878,7 @@ uniforms:
             "نیم‌فاصله می/نمی",
             "ارقام لاتین در متن",
             "آینه‌سازی آیکون جهت‌دار",
-            "dir=\"ltr\" قفل‌شده",
+            'dir="ltr" قفل‌شده',
           ].map((r) => (
             <li key={r} className="flex gap-1.5">
               <ShieldCheck className="mt-0.5 h-3 w-3 shrink-0 text-[color:var(--accent)]" />
@@ -766,8 +909,8 @@ uniforms:
 
       <Panel tone="inset" title="پیشنهاد">
         <p className="text-[11px] leading-relaxed text-zinc-400">
-          هر آیتم را یکی‌یکی روی کد خودتان اجرا کنید. اصلاح خودکار امن است، اما آینه‌سازی آیکون‌ها
-          و ایزوله‌سازی لاتین را باید دستی تأیید کنید.
+          هر آیتم را یکی‌یکی روی کد خودتان اجرا کنید. اصلاح خودکار امن است، اما آینه‌سازی آیکون‌ها و
+          ایزوله‌سازی لاتین را باید دستی تأیید کنید.
         </p>
       </Panel>
     </div>

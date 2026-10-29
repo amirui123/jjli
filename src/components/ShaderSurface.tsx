@@ -19,24 +19,83 @@ interface Props {
 
 const DEFAULT_PERSIAN_GLYPHS: readonly string[] = [
   // 0..31: 32 Persian letters
-  "آ", "ب", "پ", "ت", "ث", "ج", "چ", "ح",
-  "خ", "د", "ذ", "ر", "ز", "ژ", "س", "ش",
-  "ص", "ض", "ط", "ظ", "ع", "غ", "ف", "ق",
-  "ک", "گ", "ل", "م", "ن", "و", "ه", "ی",
+  "آ",
+  "ب",
+  "پ",
+  "ت",
+  "ث",
+  "ج",
+  "چ",
+  "ح",
+  "خ",
+  "د",
+  "ذ",
+  "ر",
+  "ز",
+  "ژ",
+  "س",
+  "ش",
+  "ص",
+  "ض",
+  "ط",
+  "ظ",
+  "ع",
+  "غ",
+  "ف",
+  "ق",
+  "ک",
+  "گ",
+  "ل",
+  "م",
+  "ن",
+  "و",
+  "ه",
+  "ی",
   // 32..41: 10 Persian digits
-  "۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹",
+  "۰",
+  "۱",
+  "۲",
+  "۳",
+  "۴",
+  "۵",
+  "۶",
+  "۷",
+  "۸",
+  "۹",
   // 42..55: 14 Persian calligraphic & hacker short words/ligatures
-  "نور", "خط", "جان", "کد", "رمز", "حق", "هو",
-  "لا", "موج", "شب", "صفر", "یک", "مرز", "روح",
+  "نور",
+  "خط",
+  "جان",
+  "کد",
+  "رمز",
+  "حق",
+  "هو",
+  "لا",
+  "موج",
+  "شب",
+  "صفر",
+  "یک",
+  "مرز",
+  "روح",
   // 56..63: 8 Cyber / Hacker terminal symbols
-  "⌘", "✦", "⚡", "◈", "∆", "Ω", "∑", "∞",
+  "⌘",
+  "✦",
+  "⚡",
+  "◈",
+  "∆",
+  "Ω",
+  "∑",
+  "∞",
 ];
 
 /**
  * Generates an 8x8 (64-cell, 512x512) high-contrast glyph texture atlas
  * containing real Persian letters, digits, words, and optional user text.
  */
-function buildPersianGlyphAtlas(customText?: string, fontFamily = '"Vazirmatn", "Hasti", sans-serif'): HTMLCanvasElement {
+function buildPersianGlyphAtlas(
+  customText?: string,
+  fontFamily = '"Vazirmatn", "Hasti", sans-serif'
+): HTMLCanvasElement {
   const canvas = document.createElement("canvas");
   canvas.width = 512;
   canvas.height = 512;
@@ -136,7 +195,11 @@ export const ShaderSurface: React.FC<Props> = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const gl = canvas.getContext("webgl", { antialias: false, alpha: false, powerPreference: "high-performance" });
+    const gl = canvas.getContext("webgl", {
+      antialias: false,
+      alpha: false,
+      powerPreference: "high-performance",
+    });
     if (!gl) {
       const message = "WebGL در این مرورگر در دسترس نیست";
       setFailed(message);
@@ -233,14 +296,15 @@ export const ShaderSurface: React.FC<Props> = ({
     };
     resize();
 
-    const ro =
-      typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => resize()) : null;
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => resize()) : null;
     ro?.observe(canvas);
 
     let visible = true;
     const io =
       typeof IntersectionObserver !== "undefined"
-        ? new IntersectionObserver(([entry]) => (visible = entry.isIntersecting), { threshold: 0.02 })
+        ? new IntersectionObserver(([entry]) => (visible = entry.isIntersecting), {
+            threshold: 0.02,
+          })
         : null;
     io?.observe(canvas);
 

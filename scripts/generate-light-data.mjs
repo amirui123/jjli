@@ -55,7 +55,12 @@ export const TOOLKIT_STATS = {
   componentFiles: ${fileTotal},
   tsxFiles: ${tsxTotal},
   registries: ${JSON.stringify(
-    REGISTRY_FILES.map((r) => ({ id: r.id, label: r.label, total: r.totalFiles, source: r.sourceFiles })),
+    REGISTRY_FILES.map((r) => ({
+      id: r.id,
+      label: r.label,
+      total: r.totalFiles,
+      source: r.sourceFiles,
+    })),
     null,
     2
   ).replace(/\n/g, "\n  ")},
@@ -82,4 +87,6 @@ export const FEATURED_SOUNDS: SoundRecipeItem[] = ${JSON.stringify(featured, nul
 console.log(
   `✅ stats: ${ALL_SKILLS_MANIFEST.length} skills · ${ALL_BRAND_DESIGNS_MANIFEST.length} brands · ${ALL_SOUND_RECIPES_MANIFEST.length} sounds · ${PERSIAN_FONT_CATALOG.length} fonts`
 );
-console.log(`✅ registry: ${sourceTotal} source / ${fileTotal} files / ${tsxTotal} tsx · ${featured.length} featured sounds`);
+console.log(
+  `✅ registry: ${sourceTotal} source / ${fileTotal} files / ${tsxTotal} tsx · ${featured.length} featured sounds`
+);

@@ -12,14 +12,7 @@
 
 /* ------------------------------------------------------------------ types */
 
-export type SoundCategory =
-  | "ui"
-  | "impact"
-  | "sweep"
-  | "air"
-  | "texture"
-  | "cinematic"
-  | "notify";
+export type SoundCategory = "ui" | "impact" | "sweep" | "air" | "texture" | "cinematic" | "notify";
 
 export interface FilterSpec {
   type: "lowpass" | "highpass" | "bandpass";
@@ -347,7 +340,13 @@ class ProceduralSoundEngine {
 
   /* --------------------------------------------------------------- voices */
 
-  private filterNode(ctx: BaseAudioContext, spec: FilterSpec, cutoffScale: number, at: number, dur: number) {
+  private filterNode(
+    ctx: BaseAudioContext,
+    spec: FilterSpec,
+    cutoffScale: number,
+    at: number,
+    dur: number
+  ) {
     const filter = ctx.createBiquadFilter();
     filter.type = spec.type;
     const from = clamp(spec.f * cutoffScale, 30, 19000);
@@ -362,7 +361,14 @@ class ProceduralSoundEngine {
     return filter;
   }
 
-  private lfo(ctx: BaseAudioContext, spec: LfoSpec, param: AudioParam, at: number, dur: number, scale = 1) {
+  private lfo(
+    ctx: BaseAudioContext,
+    spec: LfoSpec,
+    param: AudioParam,
+    at: number,
+    dur: number,
+    scale = 1
+  ) {
     const osc = ctx.createOscillator();
     const amp = ctx.createGain();
     osc.type = "sine";
@@ -391,7 +397,8 @@ class ProceduralSoundEngine {
     const sustainUntil = Math.max(at + a + 0.001, at + dur - r);
     node.gain.setValueAtTime(0.0001, at);
     node.gain.exponentialRampToValueAtTime(Math.max(peak, 0.0002), at + a);
-    if (sustainUntil > at + a) node.gain.linearRampToValueAtTime(Math.max(peak * 0.86, 0.0002), sustainUntil);
+    if (sustainUntil > at + a)
+      node.gain.linearRampToValueAtTime(Math.max(peak * 0.86, 0.0002), sustainUntil);
     node.gain.exponentialRampToValueAtTime(0.0001, at + dur);
   }
 
@@ -504,7 +511,15 @@ class ProceduralSoundEngine {
 
         const voiceGain = ctx.createGain();
         const peak = clamp(layer.gain ?? 0.18, 0.0005, 1.2);
-        this.envelope(ctx, voiceGain, at, dur, peak, layer.attack ?? 0.006, layer.release ?? Math.min(0.4, dur * 0.5));
+        this.envelope(
+          ctx,
+          voiceGain,
+          at,
+          dur,
+          peak,
+          layer.attack ?? 0.006,
+          layer.release ?? Math.min(0.4, dur * 0.5)
+        );
         voiceGain.connect(out);
 
         freqs.forEach((base, index) => {
@@ -536,7 +551,8 @@ class ProceduralSoundEngine {
           }
         });
 
-        if (layer.lfo?.target === "gain") this.lfo(ctx, layer.lfo, voiceGain.gain, at, dur, peak * 0.6);
+        if (layer.lfo?.target === "gain")
+          this.lfo(ctx, layer.lfo, voiceGain.gain, at, dur, peak * 0.6);
         if (layer.lfo?.target === "filter" && layer.filter && tail !== out) {
           const base = clamp(layer.filter.f * cutoffScale, 30, 19000);
           const depth = Math.min(Math.abs(layer.lfo.depth), base * 0.85);
@@ -550,7 +566,15 @@ class ProceduralSoundEngine {
         src.loop = true;
         const env = ctx.createGain();
         const peak = clamp(layer.gain ?? 0.12, 0.0005, 1);
-        this.envelope(ctx, env, at, dur, peak, layer.attack ?? 0.01, layer.release ?? Math.min(0.5, dur * 0.6));
+        this.envelope(
+          ctx,
+          env,
+          at,
+          dur,
+          peak,
+          layer.attack ?? 0.01,
+          layer.release ?? Math.min(0.5, dur * 0.6)
+        );
         let tail: AudioNode = env;
         if (layer.filter) {
           const f = this.filterNode(ctx, layer.filter, cutoffScale, at, dur);
@@ -649,7 +673,8 @@ class ProceduralSoundEngine {
     const OfflineCtor =
       typeof window !== "undefined"
         ? window.OfflineAudioContext ||
-          (window as unknown as { webkitOfflineAudioContext?: typeof OfflineAudioContext }).webkitOfflineAudioContext
+          (window as unknown as { webkitOfflineAudioContext?: typeof OfflineAudioContext })
+            .webkitOfflineAudioContext
         : undefined;
     if (!OfflineCtor) return null;
     const stretch = clamp(options.stretch ?? 1, 0.25, 4);
@@ -717,8 +742,21 @@ class ProceduralSoundEngine {
     this.quick({
       duration: 0.14,
       layers: [
-        { k: "tone", f: 620, to: 380, dur: 0.1, gain: 0.2, partials: [{ m: 2.4, a: 0.2, d: 0.05 }] },
-        { k: "noise", color: "white", dur: 0.05, gain: 0.08, filter: { type: "highpass", f: 2400 } },
+        {
+          k: "tone",
+          f: 620,
+          to: 380,
+          dur: 0.1,
+          gain: 0.2,
+          partials: [{ m: 2.4, a: 0.2, d: 0.05 }],
+        },
+        {
+          k: "noise",
+          color: "white",
+          dur: 0.05,
+          gain: 0.08,
+          filter: { type: "highpass", f: 2400 },
+        },
       ],
     });
   }
@@ -727,7 +765,15 @@ class ProceduralSoundEngine {
     this.quick({
       duration: 0.34,
       layers: [
-        { k: "tone", f: 320, to: 720, dur: 0.3, gain: 0.14, type: "triangle", lfo: { rate: 18, depth: 20, target: "pitch" } },
+        {
+          k: "tone",
+          f: 320,
+          to: 720,
+          dur: 0.3,
+          gain: 0.14,
+          type: "triangle",
+          lfo: { rate: 18, depth: 20, target: "pitch" },
+        },
         { k: "tone", f: 480, to: 1080, dur: 0.24, gain: 0.05 },
       ],
     });
@@ -753,7 +799,17 @@ class ProceduralSoundEngine {
   playError() {
     this.quick({
       duration: 0.3,
-      layers: [{ k: "tone", f: 220, to: 160, dur: 0.26, gain: 0.16, type: "square", filter: { type: "lowpass", f: 1200 } }],
+      layers: [
+        {
+          k: "tone",
+          f: 220,
+          to: 160,
+          dur: 0.26,
+          gain: 0.16,
+          type: "square",
+          filter: { type: "lowpass", f: 1200 },
+        },
+      ],
     });
   }
 
@@ -993,15 +1049,7 @@ class ProceduralSoundEngine {
    * - "portal": Warm studio resolution chord with L-Cut reverb tail
    */
   playLineMorphCue(
-    stage:
-      | "sweep"
-      | "rebound"
-      | "astrolabe"
-      | "spin"
-      | "shatter"
-      | "word"
-      | "prism"
-      | "portal",
+    stage: "sweep" | "rebound" | "astrolabe" | "spin" | "shatter" | "word" | "prism" | "portal",
     wordIndex = 0
   ) {
     if (!this.enabled) return;
@@ -1335,6 +1383,155 @@ class ProceduralSoundEngine {
       { overlap: true, gain: 0.92 }
     );
   }
+
+  /**
+   * One crystalline tick per landing word of the entrance film's sentence.
+   *
+   * The point of these is the stereo image: Persian reads right to left, so the
+   * first word is placed hard right and the last one hard left. Walking a chord
+   * upward while the pan sweeps R→L is what makes the line feel like it is
+   * physically travelling across the screen instead of just fading in.
+   */
+  playIntroWordTick(index: number, total: number) {
+    if (!this.enabled) return;
+
+    const scale = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33, 659.25];
+    const f = scale[Math.max(0, Math.min(scale.length - 1, index))] ?? 440;
+    const t = total > 1 ? index / (total - 1) : 0.5;
+    const pan = clamp(0.74 - t * 1.48, -0.74, 0.74);
+
+    this.playDesign(
+      {
+        duration: 0.7,
+        gain: 0.85,
+        reverb: { decay: 1.15, mix: 0.26 },
+        layers: [
+          {
+            k: "bell",
+            f,
+            dur: 0.6,
+            gain: 0.15,
+            pan,
+            ratios: [
+              [1, 1, 1],
+              [2.0, 0.34, 0.72],
+              [2.756, 0.16, 0.48],
+            ],
+          },
+          {
+            k: "noise",
+            color: "pink",
+            dur: 0.28,
+            at: 0.005,
+            gain: 0.045,
+            pan: pan * 0.7,
+            attack: 0.01,
+            release: 0.2,
+            filter: { type: "bandpass", f: 1600 + index * 260, q: 1.6 },
+          },
+        ],
+      },
+      { overlap: true, gain: 0.86 }
+    );
+  }
+
+  /** Deep, wide "the point just gave way" bloom for the tap moment. */
+  playIntroIgnition() {
+    if (!this.enabled) return;
+
+    this.playDesign(
+      {
+        duration: 1.5,
+        gain: 0.9,
+        reverb: { decay: 2.1, mix: 0.42 },
+        layers: [
+          {
+            k: "tone",
+            f: 98.0,
+            to: 49.0,
+            dur: 1.25,
+            gain: 0.3,
+            type: "sine",
+            attack: 0.008,
+            release: 0.9,
+            filter: { type: "lowpass", f: 260 },
+          },
+          {
+            k: "bell",
+            f: 392.0,
+            dur: 1.1,
+            at: 0.0,
+            gain: 0.16,
+            pan: 0.55,
+            ratios: [
+              [1, 1, 1],
+              [1.5, 0.44, 0.8],
+              [2.4, 0.24, 0.55],
+            ],
+          },
+          {
+            k: "bell",
+            f: 587.33,
+            dur: 1.2,
+            at: 0.07,
+            gain: 0.14,
+            pan: -0.55,
+            ratios: [
+              [1, 0.95, 1],
+              [2.0, 0.3, 0.6],
+            ],
+          },
+          {
+            k: "noise",
+            color: "pink",
+            dur: 0.9,
+            at: 0.0,
+            gain: 0.075,
+            attack: 0.02,
+            release: 0.6,
+            filter: { type: "highpass", f: 320, to: 5200 },
+          },
+        ],
+      },
+      { overlap: true, gain: 0.9 }
+    );
+  }
+
+  /** Soft stereo shimmer that runs under the sentence while it settles. */
+  playIntroSentenceBed() {
+    if (!this.enabled) return;
+
+    this.playDesign(
+      {
+        duration: 3.2,
+        gain: 0.8,
+        reverb: { decay: 2.6, mix: 0.46 },
+        layers: [
+          {
+            k: "tone",
+            f: [146.83, 220.0, 293.66],
+            dur: 2.9,
+            gain: 0.14,
+            type: "sine",
+            attack: 0.5,
+            release: 1.4,
+            filter: { type: "lowpass", f: 1200, to: 2400 },
+          },
+          {
+            k: "seq",
+            gain: 0.1,
+            filter: { type: "lowpass", f: 4200 },
+            steps: [
+              { f: 880.0, at: 0.0, dur: 0.4, type: "triangle" },
+              { f: 1174.66, at: 0.28, dur: 0.5, type: "triangle" },
+              { f: 1318.51, at: 0.6, dur: 0.6, type: "sine" },
+            ],
+          },
+        ],
+      },
+      { overlap: true, gain: 0.82 }
+    );
+  }
 }
 
 export const soundEngine = new ProceduralSoundEngine();
@@ -1388,5 +1585,10 @@ export function designFromLegacy(r: LegacyRecipe): SoundDesign {
       release: Math.min(0.3, dur),
     });
   }
-  return { duration: dur + 0.1, gain: 0.85, reverb: { decay: Math.min(1.6, dur * 1.4), mix: 0.16 }, layers };
+  return {
+    duration: dur + 0.1,
+    gain: 0.85,
+    reverb: { decay: Math.min(1.6, dur * 1.4), mix: 0.16 },
+    layers,
+  };
 }

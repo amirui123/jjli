@@ -14,7 +14,10 @@
    -------------------------------------------------------------------------- */
 @font-face {
   font-family: "IranNastaliq";
-  src: url("/fonts/01-nastaliq-and-calligraphy/IranNastaliq-Web.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/IranNastaliq-Web.woff2") format("woff2");
+  src:
+    url("/fonts/01-nastaliq-and-calligraphy/IranNastaliq-Web.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/IranNastaliq-Web.woff2")
+      format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -22,7 +25,10 @@
 
 @font-face {
   font-family: "GulzarNastaliq";
-  src: url("/fonts/01-nastaliq-and-calligraphy/GulzarNastaliq-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/GulzarNastaliq-Regular.woff2") format("woff2");
+  src:
+    url("/fonts/01-nastaliq-and-calligraphy/GulzarNastaliq-Regular.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/GulzarNastaliq-Regular.woff2")
+      format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -30,7 +36,10 @@
 
 @font-face {
   font-family: "Darvish";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Darvish-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Darvish-VF.woff") format("woff-variations");
+  src:
+    url("/fonts/01-nastaliq-and-calligraphy/Darvish-VF.woff") format("woff-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Darvish-VF.woff")
+      format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -38,7 +47,10 @@
 
 @font-face {
   font-family: "Hafez";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Hafez-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Hafez-Regular.woff2") format("woff2");
+  src:
+    url("/fonts/01-nastaliq-and-calligraphy/Hafez-Regular.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Hafez-Regular.woff2")
+      format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -46,21 +58,30 @@
 
 @font-face {
   font-family: "Tahrir";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Tahrir-Medium.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Tahrir-Medium.woff") format("woff");
+  src:
+    url("/fonts/01-nastaliq-and-calligraphy/Tahrir-Medium.woff") format("woff"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Tahrir-Medium.woff")
+      format("woff");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Tahrir";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Tahrir-Bold.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Tahrir-Bold.woff") format("woff");
+  src:
+    url("/fonts/01-nastaliq-and-calligraphy/Tahrir-Bold.woff") format("woff"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Tahrir-Bold.woff")
+      format("woff");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Tahrir";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Tahrir-Black.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Tahrir-Black.woff") format("woff");
+  src:
+    url("/fonts/01-nastaliq-and-calligraphy/Tahrir-Black.woff") format("woff"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Tahrir-Black.woff")
+      format("woff");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -68,7 +89,10 @@
 
 @font-face {
   font-family: "Katibeh";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Katibeh-Web.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Katibeh-Web.woff") format("woff");
+  src:
+    url("/fonts/01-nastaliq-and-calligraphy/Katibeh-Web.woff") format("woff"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Katibeh-Web.woff")
+      format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -76,7 +100,10 @@
 
 @font-face {
   font-family: "Behdad";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Behdad-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Behdad-Regular.woff2") format("woff2");
+  src:
+    url("/fonts/01-nastaliq-and-calligraphy/Behdad-Regular.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Behdad-Regular.woff2")
+      format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -84,14 +111,20 @@
 
 @font-face {
   font-family: "Parastoo FD";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Parastoo-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Parastoo-FD.woff2") format("woff2");
+  src:
+    url("/fonts/01-nastaliq-and-calligraphy/Parastoo-FD.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Parastoo-FD.woff2")
+      format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Parastoo FD";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Parastoo-Bold-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Parastoo-Bold-FD.woff2") format("woff2");
+  src:
+    url("/fonts/01-nastaliq-and-calligraphy/Parastoo-Bold-FD.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Parastoo-Bold-FD.woff2")
+      format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -99,7 +132,10 @@
 
 @font-face {
   font-family: "Tanha FD";
-  src: url("/fonts/01-nastaliq-and-calligraphy/Tanha-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Tanha-FD.woff2") format("woff2");
+  src:
+    url("/fonts/01-nastaliq-and-calligraphy/Tanha-FD.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/01-nastaliq-and-calligraphy/Tanha-FD.woff2")
+      format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -110,7 +146,10 @@
    -------------------------------------------------------------------------- */
 @font-face {
   font-family: "Hasti";
-  src: url("/fonts/02-special-and-display/Hasti-Heavy.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Hasti-Heavy.woff") format("woff");
+  src:
+    url("/fonts/02-special-and-display/Hasti-Heavy.woff") format("woff"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Hasti-Heavy.woff")
+      format("woff");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
@@ -118,28 +157,40 @@
 
 @font-face {
   font-family: "Peyda";
-  src: url("/fonts/02-special-and-display/PeydaWeb-Regular.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/PeydaWeb-Regular.woff") format("woff");
+  src:
+    url("/fonts/02-special-and-display/PeydaWeb-Regular.woff") format("woff"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/PeydaWeb-Regular.woff")
+      format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Peyda";
-  src: url("/fonts/02-special-and-display/PeydaWeb-Medium.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/PeydaWeb-Medium.woff") format("woff");
+  src:
+    url("/fonts/02-special-and-display/PeydaWeb-Medium.woff") format("woff"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/PeydaWeb-Medium.woff")
+      format("woff");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Peyda";
-  src: url("/fonts/02-special-and-display/PeydaWeb-Bold.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/PeydaWeb-Bold.woff") format("woff");
+  src:
+    url("/fonts/02-special-and-display/PeydaWeb-Bold.woff") format("woff"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/PeydaWeb-Bold.woff")
+      format("woff");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Peyda";
-  src: url("/fonts/02-special-and-display/PeydaWeb-Black.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/PeydaWeb-Black.woff") format("woff");
+  src:
+    url("/fonts/02-special-and-display/PeydaWeb-Black.woff") format("woff"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/PeydaWeb-Black.woff")
+      format("woff");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -147,7 +198,10 @@
 
 @font-face {
   font-family: "Morabba";
-  src: url("/fonts/02-special-and-display/Morabba-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Morabba-VF.woff") format("woff-variations");
+  src:
+    url("/fonts/02-special-and-display/Morabba-VF.woff") format("woff-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Morabba-VF.woff")
+      format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -155,7 +209,10 @@
 
 @font-face {
   font-family: "Doran";
-  src: url("/fonts/02-special-and-display/Doran-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Doran-VF.woff") format("woff-variations");
+  src:
+    url("/fonts/02-special-and-display/Doran-VF.woff") format("woff-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Doran-VF.woff")
+      format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -163,7 +220,10 @@
 
 @font-face {
   font-family: "Kahroba FD";
-  src: url("/fonts/02-special-and-display/Kahroba-VF-FD.woff2") format("woff2-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Kahroba-VF-FD.woff2") format("woff2-variations");
+  src:
+    url("/fonts/02-special-and-display/Kahroba-VF-FD.woff2") format("woff2-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Kahroba-VF-FD.woff2")
+      format("woff2-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -171,28 +231,40 @@
 
 @font-face {
   font-family: "Pinar FD";
-  src: url("/fonts/02-special-and-display/Pinar-FD-Medium.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Pinar-FD-Medium.woff2") format("woff2");
+  src:
+    url("/fonts/02-special-and-display/Pinar-FD-Medium.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Pinar-FD-Medium.woff2")
+      format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Pinar FD";
-  src: url("/fonts/02-special-and-display/Pinar-FD-Bold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Pinar-FD-Bold.woff2") format("woff2");
+  src:
+    url("/fonts/02-special-and-display/Pinar-FD-Bold.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Pinar-FD-Bold.woff2")
+      format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Pinar FD";
-  src: url("/fonts/02-special-and-display/Pinar-FD-ExtraBold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Pinar-FD-ExtraBold.woff2") format("woff2");
+  src:
+    url("/fonts/02-special-and-display/Pinar-FD-ExtraBold.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Pinar-FD-ExtraBold.woff2")
+      format("woff2");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Pinar FD";
-  src: url("/fonts/02-special-and-display/Pinar-FD-Black.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Pinar-FD-Black.woff2") format("woff2");
+  src:
+    url("/fonts/02-special-and-display/Pinar-FD-Black.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Pinar-FD-Black.woff2")
+      format("woff2");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -200,21 +272,30 @@
 
 @font-face {
   font-family: "Kalameh";
-  src: url("/fonts/02-special-and-display/KalamehWeb-Regular.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/KalamehWeb-Regular.woff") format("woff");
+  src:
+    url("/fonts/02-special-and-display/KalamehWeb-Regular.woff") format("woff"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/KalamehWeb-Regular.woff")
+      format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Kalameh";
-  src: url("/fonts/02-special-and-display/KalamehWeb-Medium.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/KalamehWeb-Medium.woff") format("woff");
+  src:
+    url("/fonts/02-special-and-display/KalamehWeb-Medium.woff") format("woff"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/KalamehWeb-Medium.woff")
+      format("woff");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Kalameh";
-  src: url("/fonts/02-special-and-display/KalamehWeb-Black.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/KalamehWeb-Black.woff") format("woff");
+  src:
+    url("/fonts/02-special-and-display/KalamehWeb-Black.woff") format("woff"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/KalamehWeb-Black.woff")
+      format("woff");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -222,7 +303,10 @@
 
 @font-face {
   font-family: "Aviny";
-  src: url("/fonts/02-special-and-display/Aviny-Web.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Aviny-Web.woff") format("woff");
+  src:
+    url("/fonts/02-special-and-display/Aviny-Web.woff") format("woff"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Aviny-Web.woff")
+      format("woff");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -230,7 +314,10 @@
 
 @font-face {
   font-family: "Lalezar";
-  src: url("/fonts/02-special-and-display/Lalezar-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Lalezar-Regular.woff2") format("woff2");
+  src:
+    url("/fonts/02-special-and-display/Lalezar-Regular.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Lalezar-Regular.woff2")
+      format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -238,7 +325,10 @@
 
 @font-face {
   font-family: "Potk";
-  src: url("/fonts/02-special-and-display/Potk.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Potk.woff") format("woff");
+  src:
+    url("/fonts/02-special-and-display/Potk.woff") format("woff"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Potk.woff")
+      format("woff");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -246,7 +336,10 @@
 
 @font-face {
   font-family: "Gofteh";
-  src: url("/fonts/02-special-and-display/GoftehWeb-Heavy.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/GoftehWeb-Heavy.woff") format("woff");
+  src:
+    url("/fonts/02-special-and-display/GoftehWeb-Heavy.woff") format("woff"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/GoftehWeb-Heavy.woff")
+      format("woff");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
@@ -254,7 +347,10 @@
 
 @font-face {
   font-family: "Onvan";
-  src: url("/fonts/02-special-and-display/Onvan.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Onvan.woff2") format("woff2");
+  src:
+    url("/fonts/02-special-and-display/Onvan.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Onvan.woff2")
+      format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -262,21 +358,30 @@
 
 @font-face {
   font-family: "Ekraan";
-  src: url("/fonts/02-special-and-display/Ekraan-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Ekraan-Regular.woff2") format("woff2");
+  src:
+    url("/fonts/02-special-and-display/Ekraan-Regular.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Ekraan-Regular.woff2")
+      format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Ekraan";
-  src: url("/fonts/02-special-and-display/Ekraan-Medium.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Ekraan-Medium.woff2") format("woff2");
+  src:
+    url("/fonts/02-special-and-display/Ekraan-Medium.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Ekraan-Medium.woff2")
+      format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Ekraan";
-  src: url("/fonts/02-special-and-display/Ekraan-Bold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Ekraan-Bold.woff2") format("woff2");
+  src:
+    url("/fonts/02-special-and-display/Ekraan-Bold.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Ekraan-Bold.woff2")
+      format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -284,7 +389,10 @@
 
 @font-face {
   font-family: "Liana";
-  src: url("/fonts/02-special-and-display/Liana-VF.woff2") format("woff2-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Liana-VF.woff2") format("woff2-variations");
+  src:
+    url("/fonts/02-special-and-display/Liana-VF.woff2") format("woff2-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Liana-VF.woff2")
+      format("woff2-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -292,7 +400,10 @@
 
 @font-face {
   font-family: "Edameh";
-  src: url("/fonts/02-special-and-display/Edameh-ExtraBlack.woff") format("woff"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Edameh-ExtraBlack.woff") format("woff");
+  src:
+    url("/fonts/02-special-and-display/Edameh-ExtraBlack.woff") format("woff"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Edameh-ExtraBlack.woff")
+      format("woff");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -300,7 +411,10 @@
 
 @font-face {
   font-family: "Shoor";
-  src: url("/fonts/02-special-and-display/Shoor-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Shoor-VF.woff") format("woff-variations");
+  src:
+    url("/fonts/02-special-and-display/Shoor-VF.woff") format("woff-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Shoor-VF.woff")
+      format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -308,7 +422,10 @@
 
 @font-face {
   font-family: "Rokh";
-  src: url("/fonts/02-special-and-display/Rokh-VF.ttf") format("truetype-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Rokh-VF.ttf") format("truetype-variations");
+  src:
+    url("/fonts/02-special-and-display/Rokh-VF.ttf") format("truetype-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/02-special-and-display/Rokh-VF.ttf")
+      format("truetype-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -319,7 +436,10 @@
    -------------------------------------------------------------------------- */
 @font-face {
   font-family: "Vazirmatn";
-  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-Variable.woff2") format("woff2-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-Variable.woff2") format("woff2-variations");
+  src:
+    url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-Variable.woff2") format("woff2-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-Variable.woff2")
+      format("woff2-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -327,28 +447,40 @@
 
 @font-face {
   font-family: "Vazirmatn FD";
-  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Regular.woff2") format("woff2");
+  src:
+    url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Regular.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Regular.woff2")
+      format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Vazirmatn FD";
-  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Medium.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Medium.woff2") format("woff2");
+  src:
+    url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Medium.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Medium.woff2")
+      format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Vazirmatn FD";
-  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-SemiBold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-SemiBold.woff2") format("woff2");
+  src:
+    url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-SemiBold.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-SemiBold.woff2")
+      format("woff2");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Vazirmatn FD";
-  src: url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Bold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Bold.woff2") format("woff2");
+  src:
+    url("/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Bold.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/vazirmatn/Vazirmatn-UI-FD-Bold.woff2")
+      format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -356,42 +488,60 @@
 
 @font-face {
   font-family: "YekanBakh";
-  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Light.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Light.woff2") format("woff2");
+  src:
+    url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Light.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Light.woff2")
+      format("woff2");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "YekanBakh";
-  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Regular.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Regular.woff2") format("woff2");
+  src:
+    url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Regular.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Regular.woff2")
+      format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "YekanBakh";
-  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-SemiBold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-SemiBold.woff2") format("woff2");
+  src:
+    url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-SemiBold.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-SemiBold.woff2")
+      format("woff2");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "YekanBakh";
-  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Bold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Bold.woff2") format("woff2");
+  src:
+    url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Bold.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Bold.woff2")
+      format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "YekanBakh";
-  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-ExtraBold.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-ExtraBold.woff2") format("woff2");
+  src:
+    url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-ExtraBold.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-ExtraBold.woff2")
+      format("woff2");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "YekanBakh";
-  src: url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Black.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Black.woff2") format("woff2");
+  src:
+    url("/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Black.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/yekanbakh/YekanBakh-Black.woff2")
+      format("woff2");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -399,7 +549,10 @@
 
 @font-face {
   font-family: "IRANSansX";
-  src: url("/fonts/03-modern-ui-and-variable/IRANSansX-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/IRANSansX-VF.woff") format("woff-variations");
+  src:
+    url("/fonts/03-modern-ui-and-variable/IRANSansX-VF.woff") format("woff-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/IRANSansX-VF.woff")
+      format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -407,7 +560,10 @@
 
 @font-face {
   font-family: "IRANYekanX";
-  src: url("/fonts/03-modern-ui-and-variable/IRANYekanX-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/IRANYekanX-VF.woff") format("woff-variations");
+  src:
+    url("/fonts/03-modern-ui-and-variable/IRANYekanX-VF.woff") format("woff-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/IRANYekanX-VF.woff")
+      format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -415,7 +571,10 @@
 
 @font-face {
   font-family: "Dana";
-  src: url("/fonts/03-modern-ui-and-variable/Dana-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Dana-VF.woff") format("woff-variations");
+  src:
+    url("/fonts/03-modern-ui-and-variable/Dana-VF.woff") format("woff-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Dana-VF.woff")
+      format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -423,7 +582,10 @@
 
 @font-face {
   font-family: "AnjomanMax";
-  src: url("/fonts/03-modern-ui-and-variable/AnjomanMax-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/AnjomanMax-VF.woff") format("woff-variations");
+  src:
+    url("/fonts/03-modern-ui-and-variable/AnjomanMax-VF.woff") format("woff-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/AnjomanMax-VF.woff")
+      format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -431,7 +593,10 @@
 
 @font-face {
   font-family: "Abar";
-  src: url("/fonts/03-modern-ui-and-variable/Abar-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Abar-VF.woff") format("woff-variations");
+  src:
+    url("/fonts/03-modern-ui-and-variable/Abar-VF.woff") format("woff-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Abar-VF.woff")
+      format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -439,7 +604,10 @@
 
 @font-face {
   font-family: "Modam";
-  src: url("/fonts/03-modern-ui-and-variable/Modam-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Modam-VF.woff") format("woff-variations");
+  src:
+    url("/fonts/03-modern-ui-and-variable/Modam-VF.woff") format("woff-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Modam-VF.woff")
+      format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -447,7 +615,10 @@
 
 @font-face {
   font-family: "Farhang";
-  src: url("/fonts/03-modern-ui-and-variable/Farhang-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Farhang-VF.woff") format("woff-variations");
+  src:
+    url("/fonts/03-modern-ui-and-variable/Farhang-VF.woff") format("woff-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Farhang-VF.woff")
+      format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -455,7 +626,10 @@
 
 @font-face {
   font-family: "Borna";
-  src: url("/fonts/03-modern-ui-and-variable/Borna-VF.woff") format("woff-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Borna-VF.woff") format("woff-variations");
+  src:
+    url("/fonts/03-modern-ui-and-variable/Borna-VF.woff") format("woff-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Borna-VF.woff")
+      format("woff-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -463,7 +637,10 @@
 
 @font-face {
   font-family: "Arad";
-  src: url("/fonts/03-modern-ui-and-variable/Arad-VF.woff2") format("woff2-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Arad-VF.woff2") format("woff2-variations");
+  src:
+    url("/fonts/03-modern-ui-and-variable/Arad-VF.woff2") format("woff2-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/Arad-VF.woff2")
+      format("woff2-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -471,7 +648,10 @@
 
 @font-face {
   font-family: "Estedad";
-  src: url("/fonts/03-modern-ui-and-variable/estedad/Estedad-Variable.woff2") format("woff2-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/estedad/Estedad-Variable.woff2") format("woff2-variations");
+  src:
+    url("/fonts/03-modern-ui-and-variable/estedad/Estedad-Variable.woff2") format("woff2-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/estedad/Estedad-Variable.woff2")
+      format("woff2-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -479,7 +659,10 @@
 
 @font-face {
   font-family: "Sahel";
-  src: url("/fonts/03-modern-ui-and-variable/sahel/Sahel-Variable.woff2") format("woff2-variations"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/sahel/Sahel-Variable.woff2") format("woff2-variations");
+  src:
+    url("/fonts/03-modern-ui-and-variable/sahel/Sahel-Variable.woff2") format("woff2-variations"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/sahel/Sahel-Variable.woff2")
+      format("woff2-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -487,7 +670,10 @@
 
 @font-face {
   font-family: "Sahel FD";
-  src: url("/fonts/03-modern-ui-and-variable/sahel/Sahel-Bold-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/sahel/Sahel-Bold-FD.woff2") format("woff2");
+  src:
+    url("/fonts/03-modern-ui-and-variable/sahel/Sahel-Bold-FD.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/sahel/Sahel-Bold-FD.woff2")
+      format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -495,7 +681,10 @@
 
 @font-face {
   font-family: "Shabnam FD";
-  src: url("/fonts/03-modern-ui-and-variable/shabnam/Shabnam-Bold-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/shabnam/Shabnam-Bold-FD.woff2") format("woff2");
+  src:
+    url("/fonts/03-modern-ui-and-variable/shabnam/Shabnam-Bold-FD.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/shabnam/Shabnam-Bold-FD.woff2")
+      format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -503,7 +692,10 @@
 
 @font-face {
   font-family: "Shabnam FD";
-  src: url("/fonts/03-modern-ui-and-variable/shabnam/Shabnam-Medium-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/shabnam/Shabnam-Medium-FD.woff2") format("woff2");
+  src:
+    url("/fonts/03-modern-ui-and-variable/shabnam/Shabnam-Medium-FD.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/shabnam/Shabnam-Medium-FD.woff2")
+      format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -527,7 +719,10 @@
 
 @font-face {
   font-family: "Shabnam FD";
-  src: url("/fonts/03-modern-ui-and-variable/shabnam/Shabnam-FD.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/shabnam/Shabnam-FD.woff2") format("woff2");
+  src:
+    url("/fonts/03-modern-ui-and-variable/shabnam/Shabnam-FD.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/03-modern-ui-and-variable/shabnam/Shabnam-FD.woff2")
+      format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -614,7 +809,10 @@
    -------------------------------------------------------------------------- */
 @font-face {
   font-family: "Vazir Code";
-  src: url("/fonts/04-code-monospace/Vazir-Code-Hack.woff2") format("woff2"), url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/04-code-monospace/Vazir-Code-Hack.woff2") format("woff2");
+  src:
+    url("/fonts/04-code-monospace/Vazir-Code-Hack.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/amirui123/jjli@a1281bb841c872621b75a8c6d057be8cc0cfa631/public/fonts/04-code-monospace/Vazir-Code-Hack.woff2")
+      format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -973,15 +1171,21 @@
 /* گارد تایپوگرافی فارسی و نستعلیق */
 [dir="rtl"] {
   letter-spacing: 0;
-  font-feature-settings: "ss01" 1, "kern" 1, "liga" 1, "calt" 1;
+  font-feature-settings:
+    "ss01" 1,
+    "kern" 1,
+    "liga" 1,
+    "calt" 1;
 }
 
 .font-nastaliq {
   font-family: "IranNastaliq", "GulzarNastaliq", serif;
   line-height: 2.35;
-  font-feature-settings: "liga" 1, "calt" 1, "swsh" 1;
+  font-feature-settings:
+    "liga" 1,
+    "calt" 1,
+    "swsh" 1;
 }
-
 
 :root {
   --font-ui: "Vazirmatn", "YekanBakh", system-ui, -apple-system, sans-serif;
@@ -996,15 +1200,34 @@ body {
   font-feature-settings: "ss01" 1;
 }
 
-.font-vazirmatn { font-family: "Vazirmatn", sans-serif; }
-.font-yekanbakh { font-family: "YekanBakh", "Vazirmatn", sans-serif; }
-.font-peyda { font-family: "Peyda", "Vazirmatn", sans-serif; }
-.font-hasti { font-family: "Hasti", "Katibeh", "Lalezar", "Vazirmatn", serif; }
-.font-nastaliq { font-family: "IranNastaliq", "GulzarNastaliq", "Gulzar", "Vazirmatn", serif; line-height: 2.3 !important; }
-.font-kahroba { font-family: "Kahroba FD", "Lalezar", "Vazirmatn", sans-serif; }
-.font-morabba { font-family: "Morabba", "Lalezar", "Vazirmatn", sans-serif; }
-.font-doran { font-family: "Doran", "Mirza", "Vazirmatn", serif; }
-.font-code { font-family: "Vazir Code", ui-monospace, SFMono-Regular, monospace; }
+.font-vazirmatn {
+  font-family: "Vazirmatn", sans-serif;
+}
+.font-yekanbakh {
+  font-family: "YekanBakh", "Vazirmatn", sans-serif;
+}
+.font-peyda {
+  font-family: "Peyda", "Vazirmatn", sans-serif;
+}
+.font-hasti {
+  font-family: "Hasti", "Katibeh", "Lalezar", "Vazirmatn", serif;
+}
+.font-nastaliq {
+  font-family: "IranNastaliq", "GulzarNastaliq", "Gulzar", "Vazirmatn", serif;
+  line-height: 2.3 !important;
+}
+.font-kahroba {
+  font-family: "Kahroba FD", "Lalezar", "Vazirmatn", sans-serif;
+}
+.font-morabba {
+  font-family: "Morabba", "Lalezar", "Vazirmatn", sans-serif;
+}
+.font-doran {
+  font-family: "Doran", "Mirza", "Vazirmatn", serif;
+}
+.font-code {
+  font-family: "Vazir Code", ui-monospace, SFMono-Regular, monospace;
+}
 
 [dir="rtl"] *:not([data-tracking]) {
   letter-spacing: 0;
@@ -1161,9 +1384,7 @@ html[data-motion="reduced"] *::after {
 /* ---------------------------------------------------------------- surfaces */
 
 .surface {
-  background:
-    radial-gradient(120% 120% at 100% 0%, rgba(var(--accent-glow), 0.05), transparent 55%),
-    #0d0d10;
+  background: radial-gradient(120% 120% at 100% 0%, rgba(var(--accent-glow), 0.05), transparent 55%), #0d0d10;
 }
 
 .hairline {
@@ -1171,7 +1392,8 @@ html[data-motion="reduced"] *::after {
 }
 
 .glow-accent {
-  box-shadow: 0 0 0 1px rgba(var(--accent-glow), 0.22),
+  box-shadow:
+    0 0 0 1px rgba(var(--accent-glow), 0.22),
     0 12px 40px -18px rgba(var(--accent-glow), 0.55);
 }
 
@@ -1184,12 +1406,7 @@ html[data-motion="reduced"] *::after {
 }
 
 .accent-gradient {
-  background-image: linear-gradient(
-    100deg,
-    var(--accent) 0%,
-    #f6e7b8 45%,
-    var(--accent) 100%
-  );
+  background-image: linear-gradient(100deg, var(--accent) 0%, #f6e7b8 45%, var(--accent) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -1197,12 +1414,25 @@ html[data-motion="reduced"] *::after {
 
 /* ---------------------------------------------------------------- code view */
 
-.tk-c { color: #5b6472; font-style: italic; }
-.tk-s { color: #86e0b4; }
-.tk-k { color: #c4a2ff; }
-.tk-n { color: #f3c969; }
-.tk-f { color: #7cc9f7; }
-.tk-tag { color: #f79c8a; }
+.tk-c {
+  color: #5b6472;
+  font-style: italic;
+}
+.tk-s {
+  color: #86e0b4;
+}
+.tk-k {
+  color: #c4a2ff;
+}
+.tk-n {
+  color: #f3c969;
+}
+.tk-f {
+  color: #7cc9f7;
+}
+.tk-tag {
+  color: #f79c8a;
+}
 
 .code-num {
   min-width: 2.6rem;
@@ -1221,8 +1451,12 @@ html[data-motion="reduced"] *::after {
 /* ------------------------------------------------------------------ motion */
 
 @keyframes marquee-rtl {
-  from { transform: translateX(0); }
-  to { transform: translateX(50%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(50%);
+  }
 }
 
 .marquee-track {
@@ -1235,14 +1469,25 @@ html[data-motion="reduced"] *::after {
 }
 
 @keyframes float-soft {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 @keyframes aurora-drift {
-  0% { transform: translate3d(-6%, -4%, 0) rotate(0deg) scale(1.05); }
-  50% { transform: translate3d(6%, 4%, 0) rotate(8deg) scale(1.15); }
-  100% { transform: translate3d(-6%, -4%, 0) rotate(0deg) scale(1.05); }
+  0% {
+    transform: translate3d(-6%, -4%, 0) rotate(0deg) scale(1.05);
+  }
+  50% {
+    transform: translate3d(6%, 4%, 0) rotate(8deg) scale(1.15);
+  }
+  100% {
+    transform: translate3d(-6%, -4%, 0) rotate(0deg) scale(1.05);
+  }
 }
 
 .aurora-blob {
@@ -1251,17 +1496,16 @@ html[data-motion="reduced"] *::after {
 }
 
 @keyframes shimmer-sweep {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .shimmer-text {
-  background: linear-gradient(
-    100deg,
-    rgba(255, 255, 255, 0.55) 20%,
-    #fff 40%,
-    rgba(255, 255, 255, 0.55) 60%
-  );
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0.55) 20%, #fff 40%, rgba(255, 255, 255, 0.55) 60%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -1307,12 +1551,7 @@ html[data-motion="reduced"] *::after {
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.055),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.055), transparent);
   animation: skeleton-sweep 1.4s ease-in-out infinite;
 }
 @keyframes skeleton-sweep {
@@ -1505,9 +1744,12 @@ label {
 
 /* نوار پایین روی گوشی: لبه‌های محو تا معلوم شود قابل اسکرول افقی است */
 @media (max-width: 767px) {
-  .dock-mask {
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 14px, #000 calc(100% - 14px), transparent);
-    mask-image: linear-gradient(to right, transparent, #000 14px, #000 calc(100% - 14px), transparent);
+  /* edge fade only while the dock is actually scrollable (below ~900px) */
+  @media (max-width: 899px) {
+    .dock-mask {
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 16px, #000 calc(100% - 16px), transparent);
+      mask-image: linear-gradient(to right, transparent, #000 16px, #000 calc(100% - 16px), transparent);
+    }
   }
 }
 
@@ -1524,15 +1766,18 @@ label {
   background:
     radial-gradient(60% 50% at 20% 20%, rgba(var(--accent-glow), 0.5), transparent 60%),
     radial-gradient(50% 60% at 80% 30%, rgba(120, 90, 255, 0.35), transparent 65%),
-    radial-gradient(70% 70% at 50% 90%, rgba(30, 200, 180, 0.28), transparent 70%),
-    #07070a;
+    radial-gradient(70% 70% at 50% 90%, rgba(30, 200, 180, 0.28), transparent 70%), #07070a;
   filter: blur(4px) saturate(1.15);
   animation: aurora-drift 14s ease-in-out infinite alternate;
 }
 
 @keyframes aurora-drift {
-  from { transform: scale(1) translate3d(0, 0, 0); }
-  to { transform: scale(1.12) translate3d(-2%, 1.5%, 0); }
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.12) translate3d(-2%, 1.5%, 0);
+  }
 }
 
 html[data-reduced-motion="true"] .aurora-fallback {

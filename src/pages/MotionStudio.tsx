@@ -10,15 +10,7 @@ import {
   type SpringParams,
 } from "../lib/spring";
 import { saveKit, saveText } from "../lib/download";
-import {
-  Badge,
-  CodeBlock,
-  Panel,
-  Segmented,
-  Slider,
-  Toggle,
-  cn,
-} from "../ui/kit";
+import { Badge, CodeBlock, Panel, Segmented, Slider, Toggle, cn } from "../ui/kit";
 import { StudioShell, StudioList } from "../ui/StudioShell";
 import { DownloadButton } from "../ui/DownloadButton";
 import { faNum } from "../lib/format";
@@ -92,9 +84,28 @@ const Graph: React.FC<{ samples: number[]; accent: string }> = ({ samples, accen
     .join(" ");
   const targetY = H - ((1 - min) / range) * H;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="h-24 w-full" preserveAspectRatio="none" aria-label="منحنی حرکت">
-      <line x1="0" y1={targetY} x2={W} y2={targetY} stroke="rgba(255,255,255,0.12)" strokeDasharray="2 2" strokeWidth="0.4" />
-      <path d={path} fill="none" stroke={accent} strokeWidth="0.9" vectorEffect="non-scaling-stroke" />
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      className="h-24 w-full"
+      preserveAspectRatio="none"
+      aria-label="منحنی حرکت"
+    >
+      <line
+        x1="0"
+        y1={targetY}
+        x2={W}
+        y2={targetY}
+        stroke="rgba(255,255,255,0.12)"
+        strokeDasharray="2 2"
+        strokeWidth="0.4"
+      />
+      <path
+        d={path}
+        fill="none"
+        stroke={accent}
+        strokeWidth="0.9"
+        vectorEffect="non-scaling-stroke"
+      />
     </svg>
   );
 };
@@ -133,7 +144,12 @@ export const MotionStudio: React.FC = () => {
   };
   const animate = { x: 0, y: 0, opacity: 1, scale: 1, rotate: 0, rotateX: 0, filter: "blur(0px)" };
   const hover = { scale: s.scale, rotate: s.rotate * 0.6 * dirSign };
-  const loopTransition = { ...transition, repeat: Infinity, repeatType: "reverse" as const, repeatDelay: 0.5 };
+  const loopTransition = {
+    ...transition,
+    repeat: Infinity,
+    repeatType: "reverse" as const,
+    repeatDelay: 0.5,
+  };
 
   const replayAll = () => {
     setReplay((r) => r + 1);
@@ -164,10 +180,10 @@ export const MotionStudio: React.FC = () => {
     analysis.dampingRatio < 0.35
       ? { label: "کشسان", tone: "warn" as const }
       : analysis.dampingRatio < 0.8
-      ? { label: "طبیعی", tone: "accent" as const }
-      : analysis.dampingRatio < 1
-      ? { label: "آرام", tone: "success" as const }
-      : { label: "بدون نوسان", tone: "neutral" as const };
+        ? { label: "طبیعی", tone: "accent" as const }
+        : analysis.dampingRatio < 1
+          ? { label: "آرام", tone: "success" as const }
+          : { label: "بدون نوسان", tone: "neutral" as const };
 
   /* ------------------------------------------------------------- exports */
 
@@ -352,7 +368,8 @@ ${preset?.hintFa ?? ""}
           <div
             className="pointer-events-none absolute inset-0"
             style={{
-              background: "radial-gradient(70% 90% at 50% 100%, rgba(var(--accent-glow),0.10), transparent 70%)",
+              background:
+                "radial-gradient(70% 90% at 50% 100%, rgba(var(--accent-glow),0.10), transparent 70%)",
             }}
           />
           <motion.div
@@ -367,7 +384,10 @@ ${preset?.hintFa ?? ""}
               <div className="relative h-44 w-72 max-w-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#17171C] to-[#0B0B0E] p-4 shadow-2xl">
                 <div
                   className="absolute inset-0 opacity-40"
-                  style={{ background: "radial-gradient(120% 120% at 100% 0%, rgba(var(--accent-glow),0.28), transparent 60%)" }}
+                  style={{
+                    background:
+                      "radial-gradient(120% 120% at 100% 0%, rgba(var(--accent-glow),0.28), transparent 60%)",
+                  }}
                 />
                 <div className="relative flex h-full flex-col justify-between">
                   <div className="flex items-start justify-between">
@@ -375,7 +395,9 @@ ${preset?.hintFa ?? ""}
                     <span className="h-6 w-8 rounded bg-gradient-to-br from-[color:var(--accent)]/70 to-transparent" />
                   </div>
                   <div>
-                    <p className="font-hasti text-[22px] leading-tight text-white">{s.content || DEFAULT.content}</p>
+                    <p className="font-hasti text-[22px] leading-tight text-white">
+                      {s.content || DEFAULT.content}
+                    </p>
                     <p className="mt-1 font-mono text-[10px] text-zinc-500" dir="ltr">
                       {s.stiffness}/{s.damping}/{s.mass}
                     </p>
@@ -386,7 +408,9 @@ ${preset?.hintFa ?? ""}
 
             {s.target === "type" && (
               <div className="text-center">
-                <p className="font-nastaliq text-[38px] leading-[1.9] text-white">{s.content || DEFAULT.content}</p>
+                <p className="font-nastaliq text-[38px] leading-[1.9] text-white">
+                  {s.content || DEFAULT.content}
+                </p>
                 <p className="mt-2 font-mono text-[10px] text-zinc-500" dir="ltr">
                   {analysis.settleTime.toFixed(2)}s · ζ {analysis.dampingRatio.toFixed(2)}
                 </p>
@@ -425,9 +449,16 @@ ${preset?.hintFa ?? ""}
       </Panel>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Panel title="منحنی حرکت" subtitle="موقعیت بر حسب زمان — انتگرال‌گیری عددی" actions={<Badge>{s.mode === "spring" ? "Spring" : "Bezier"}</Badge>}>
+        <Panel
+          title="منحنی حرکت"
+          subtitle="موقعیت بر حسب زمان — انتگرال‌گیری عددی"
+          actions={<Badge>{s.mode === "spring" ? "Spring" : "Bezier"}</Badge>}
+        >
           <Graph samples={analysis.samples} accent="var(--accent)" />
-          <div className="mt-1 flex items-center justify-between font-mono text-[9.5px] text-zinc-600" dir="ltr">
+          <div
+            className="mt-1 flex items-center justify-between font-mono text-[9.5px] text-zinc-600"
+            dir="ltr"
+          >
             <span>0s</span>
             <span>{analysis.settleTime.toFixed(2)}s</span>
             <span>3s</span>
@@ -436,15 +467,33 @@ ${preset?.hintFa ?? ""}
 
         <Panel title="تنظیمات بیزی" subtitle="در حالت Tween اعمال می‌شود">
           <svg viewBox="0 0 100 100" className="h-28 w-full">
-            <rect x="0" y="0" width="100" height="100" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
+            <rect
+              x="0"
+              y="0"
+              width="100"
+              height="100"
+              fill="none"
+              stroke="rgba(255,255,255,0.06)"
+              strokeWidth="0.5"
+            />
             <path
               d={`M0,100 C${s.bezier[0] * 100},${100 - s.bezier[1] * 100} ${s.bezier[2] * 100},${100 - s.bezier[3] * 100} 100,0`}
               fill="none"
               stroke="var(--accent)"
               strokeWidth="1.2"
             />
-            <circle cx={s.bezier[0] * 100} cy={100 - s.bezier[1] * 100} r="2" fill="var(--accent)" />
-            <circle cx={s.bezier[2] * 100} cy={100 - s.bezier[3] * 100} r="2" fill="var(--accent)" />
+            <circle
+              cx={s.bezier[0] * 100}
+              cy={100 - s.bezier[1] * 100}
+              r="2"
+              fill="var(--accent)"
+            />
+            <circle
+              cx={s.bezier[2] * 100}
+              cy={100 - s.bezier[3] * 100}
+              r="2"
+              fill="var(--accent)"
+            />
           </svg>
           <div className="mt-2 grid grid-cols-2 gap-3">
             {(["x1", "y1", "x2", "y2"] as const).map((axis, i) => (
@@ -514,10 +563,40 @@ ${preset?.hintFa ?? ""}
     <div className="space-y-4">
       <Panel title="پارامترهای فنر">
         <div className="space-y-3.5">
-          <Slider label="سختی (stiffness)" value={s.stiffness} min={40} max={900} step={10} onChange={(v) => set({ stiffness: v })} />
-          <Slider label="میرایی (damping)" value={s.damping} min={4} max={70} onChange={(v) => set({ damping: v })} />
-          <Slider label="جرم (mass)" value={s.mass} min={0.2} max={3} step={0.05} format={(v) => v.toFixed(2)} onChange={(v) => set({ mass: v })} />
-          <Slider label="مدت Tween" value={s.durationS} min={0.1} max={2} step={0.05} unit="s" format={(v) => v.toFixed(2)} onChange={(v) => set({ durationS: v })} />
+          <Slider
+            label="سختی (stiffness)"
+            value={s.stiffness}
+            min={40}
+            max={900}
+            step={10}
+            onChange={(v) => set({ stiffness: v })}
+          />
+          <Slider
+            label="میرایی (damping)"
+            value={s.damping}
+            min={4}
+            max={70}
+            onChange={(v) => set({ damping: v })}
+          />
+          <Slider
+            label="جرم (mass)"
+            value={s.mass}
+            min={0.2}
+            max={3}
+            step={0.05}
+            format={(v) => v.toFixed(2)}
+            onChange={(v) => set({ mass: v })}
+          />
+          <Slider
+            label="مدت Tween"
+            value={s.durationS}
+            min={0.1}
+            max={2}
+            step={0.05}
+            unit="s"
+            format={(v) => v.toFixed(2)}
+            onChange={(v) => set({ durationS: v })}
+          />
         </div>
       </Panel>
 
@@ -537,17 +616,93 @@ ${preset?.hintFa ?? ""}
               ]}
             />
           </div>
-          <Slider label="فاصله افقی (X)" value={s.distance} min={0} max={320} step={4} unit="px" onChange={(v) => set({ distance: v })} />
-          <Slider label="پرش عمودی (Lift Y)" value={s.liftY ?? 0} min={-120} max={120} step={4} unit="px" onChange={(v) => set({ liftY: v })} />
-          <Slider label="مقیاس اولیه ورود (Initial Scale)" value={s.initialScale ?? 0.94} min={0.5} max={1.25} step={0.02} format={(v) => `${v.toFixed(2)}×`} onChange={(v) => set({ initialScale: v })} />
-          <Slider label="بلور اولیه (Motion Blur)" value={s.blur} min={0} max={30} unit="px" onChange={(v) => set({ blur: v })} />
-          <Slider label="شفافیت اولیه (Opacity)" value={s.opacityFrom} min={0} max={1} step={0.05} format={(v) => v.toFixed(2)} onChange={(v) => set({ opacityFrom: v })} />
-          <Slider label="چرخش دوبعدی (Rotate Z)" value={s.rotate} min={0} max={30} unit="°" onChange={(v) => set({ rotate: v })} />
-          <Slider label="چرخش سه‌بعدی (Tilt X)" value={s.rotateX ?? 0} min={-40} max={40} step={2} unit="°" onChange={(v) => set({ rotateX: v })} />
-          <Slider label="بزرگ‌نمایی هاور (Hover Scale)" value={s.scale} min={1} max={1.35} step={0.01} format={(v) => `${v.toFixed(2)}×`} onChange={(v) => set({ scale: v })} />
-          <Slider label="تأخیر پله‌ای (Stagger)" value={s.stagger} min={0} max={0.3} step={0.01} unit="s" format={(v) => v.toFixed(2)} onChange={(v) => set({ stagger: v })} />
+          <Slider
+            label="فاصله افقی (X)"
+            value={s.distance}
+            min={0}
+            max={320}
+            step={4}
+            unit="px"
+            onChange={(v) => set({ distance: v })}
+          />
+          <Slider
+            label="پرش عمودی (Lift Y)"
+            value={s.liftY ?? 0}
+            min={-120}
+            max={120}
+            step={4}
+            unit="px"
+            onChange={(v) => set({ liftY: v })}
+          />
+          <Slider
+            label="مقیاس اولیه ورود (Initial Scale)"
+            value={s.initialScale ?? 0.94}
+            min={0.5}
+            max={1.25}
+            step={0.02}
+            format={(v) => `${v.toFixed(2)}×`}
+            onChange={(v) => set({ initialScale: v })}
+          />
+          <Slider
+            label="بلور اولیه (Motion Blur)"
+            value={s.blur}
+            min={0}
+            max={30}
+            unit="px"
+            onChange={(v) => set({ blur: v })}
+          />
+          <Slider
+            label="شفافیت اولیه (Opacity)"
+            value={s.opacityFrom}
+            min={0}
+            max={1}
+            step={0.05}
+            format={(v) => v.toFixed(2)}
+            onChange={(v) => set({ opacityFrom: v })}
+          />
+          <Slider
+            label="چرخش دوبعدی (Rotate Z)"
+            value={s.rotate}
+            min={0}
+            max={30}
+            unit="°"
+            onChange={(v) => set({ rotate: v })}
+          />
+          <Slider
+            label="چرخش سه‌بعدی (Tilt X)"
+            value={s.rotateX ?? 0}
+            min={-40}
+            max={40}
+            step={2}
+            unit="°"
+            onChange={(v) => set({ rotateX: v })}
+          />
+          <Slider
+            label="بزرگ‌نمایی هاور (Hover Scale)"
+            value={s.scale}
+            min={1}
+            max={1.35}
+            step={0.01}
+            format={(v) => `${v.toFixed(2)}×`}
+            onChange={(v) => set({ scale: v })}
+          />
+          <Slider
+            label="تأخیر پله‌ای (Stagger)"
+            value={s.stagger}
+            min={0}
+            max={0.3}
+            step={0.01}
+            unit="s"
+            format={(v) => v.toFixed(2)}
+            onChange={(v) => set({ stagger: v })}
+          />
           <div className="space-y-2 border-t border-white/[0.06] pt-3">
-            <Toggle label="قرینه‌سازی RTL" checked={s.rtl} onChange={(v) => set({ rtl: v })} hint="محور حرکت با جهت صفحه برعکس می‌شود" />
+            <Toggle
+              label="قرینه‌سازی RTL"
+              checked={s.rtl}
+              onChange={(v) => set({ rtl: v })}
+              hint="محور حرکت با جهت صفحه برعکس می‌شود"
+            />
             <Toggle label="حلقه پیوسته" checked={s.loop} onChange={(v) => set({ loop: v })} />
           </div>
         </div>
@@ -557,18 +712,27 @@ ${preset?.hintFa ?? ""}
         <ul className="space-y-1.5 text-[11px] text-zinc-400">
           <li className="flex justify-between">
             <span>سرعت اوج</span>
-            <span className="font-mono text-zinc-200" dir="ltr">{analysis.peakVelocity.toFixed(2)}</span>
+            <span className="font-mono text-zinc-200" dir="ltr">
+              {analysis.peakVelocity.toFixed(2)}
+            </span>
           </li>
           <li className="flex justify-between">
             <span>نمونه‌ها</span>
-            <span className="font-mono text-zinc-200" dir="ltr">{analysis.samples.length}</span>
+            <span className="font-mono text-zinc-200" dir="ltr">
+              {analysis.samples.length}
+            </span>
           </li>
           <li className="flex justify-between">
             <span>وضعیت</span>
-            <span className="text-zinc-200">{analysis.dampingRatio < 1 ? "زیرمیرا" : "بیش‌میرا"}</span>
+            <span className="text-zinc-200">
+              {analysis.dampingRatio < 1 ? "زیرمیرا" : "بیش‌میرا"}
+            </span>
           </li>
         </ul>
-        <p className="mt-2 rounded-lg bg-black/30 p-2 font-mono text-[9px] leading-relaxed text-zinc-500" dir="ltr">
+        <p
+          className="mt-2 rounded-lg bg-black/30 p-2 font-mono text-[9px] leading-relaxed text-zinc-500"
+          dir="ltr"
+        >
           {cssEasing.slice(0, 88)}…
         </p>
       </Panel>
@@ -597,11 +761,16 @@ ${preset?.hintFa ?? ""}
         >
           <span className="flex items-center justify-between gap-2">
             <span className="text-[12px] font-medium text-zinc-100">{p.labelFa}</span>
-            <span className="font-mono text-[9px] text-zinc-600">{pAnalysis.settleTime.toFixed(2)}s</span>
+            <span className="font-mono text-[9px] text-zinc-600">
+              {pAnalysis.settleTime.toFixed(2)}s
+            </span>
           </span>
           <span className="mt-0.5 block truncate text-[10px] text-zinc-500">{p.hintFa}</span>
           <span className="mt-1.5 flex h-1 gap-0.5 overflow-hidden rounded-full">
-            <span className="h-full rounded-full bg-[color:var(--accent)]/70" style={{ width: `${Math.min(100, pAnalysis.settleTime * 70)}%` }} />
+            <span
+              className="h-full rounded-full bg-[color:var(--accent)]/70"
+              style={{ width: `${Math.min(100, pAnalysis.settleTime * 70)}%` }}
+            />
             <span className="h-full flex-1 rounded-full bg-white/5" />
           </span>
         </button>
@@ -622,7 +791,11 @@ ${preset?.hintFa ?? ""}
         </>
       }
       actions={
-        <DownloadButton label="دانلود کیت" filename={`rtl-motion-${s.presetId}.zip`} onDownload={downloadConfig} />
+        <DownloadButton
+          label="دانلود کیت"
+          filename={`rtl-motion-${s.presetId}.zip`}
+          onDownload={downloadConfig}
+        />
       }
       onReset={() => {
         reset();

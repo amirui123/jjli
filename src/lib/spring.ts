@@ -72,7 +72,10 @@ export function springToCssLinear(analysis: SpringAnalysis, points = 24): string
   const { samples } = analysis;
   // The curve must be sampled over the same window as the exported
   // `animation-duration` (the settle time) — otherwise the easing is time-warped.
-  const lastIdx = Math.max(2, Math.min(samples.length - 1, Math.round(analysis.settleTime * SPRING_SAMPLE_RATE)));
+  const lastIdx = Math.max(
+    2,
+    Math.min(samples.length - 1, Math.round(analysis.settleTime * SPRING_SAMPLE_RATE))
+  );
   const step = Math.max(0, lastIdx / (points - 1));
   const values: string[] = [];
   for (let i = 0; i < points; i++) {
@@ -115,7 +118,6 @@ export const SPRING_PRESETS: {
   { id: "liquid", labelFa: "مایع", params: { stiffness: 90, damping: 14, mass: 1.4 } },
 ];
 
-
 /** Curated motion recipes — each one fully describes the transition + path. */
 export interface MotionPreset {
   id: string;
@@ -142,7 +144,12 @@ export const MOTION_PRESETS: MotionPreset[] = [
     params: { stiffness: 120, damping: 22, mass: 1 },
     durationS: 0.6,
     bezier: [0.22, 1, 0.36, 1],
-    distance: 80, rotate: 0, blur: 10, opacityFrom: 0, scale: 1.02, target: "type",
+    distance: 80,
+    rotate: 0,
+    blur: 10,
+    opacityFrom: 0,
+    scale: 1.02,
+    target: "type",
   },
   {
     id: "snappy",
@@ -152,7 +159,12 @@ export const MOTION_PRESETS: MotionPreset[] = [
     params: { stiffness: 420, damping: 30, mass: 0.7 },
     durationS: 0.35,
     bezier: [0.4, 0, 0.2, 1],
-    distance: 48, rotate: 0, blur: 4, opacityFrom: 0.2, scale: 1.04, target: "card",
+    distance: 48,
+    rotate: 0,
+    blur: 4,
+    opacityFrom: 0.2,
+    scale: 1.04,
+    target: "card",
   },
   {
     id: "bouncy",
@@ -162,7 +174,12 @@ export const MOTION_PRESETS: MotionPreset[] = [
     params: { stiffness: 320, damping: 12, mass: 0.9 },
     durationS: 0.6,
     bezier: [0.34, 1.56, 0.64, 1],
-    distance: 110, rotate: 6, blur: 0, opacityFrom: 0.3, scale: 1.08, target: "orb",
+    distance: 110,
+    rotate: 6,
+    blur: 0,
+    opacityFrom: 0.3,
+    scale: 1.08,
+    target: "orb",
   },
   {
     id: "heavy",
@@ -172,7 +189,12 @@ export const MOTION_PRESETS: MotionPreset[] = [
     params: { stiffness: 180, damping: 34, mass: 2.2 },
     durationS: 0.9,
     bezier: [0.16, 1, 0.3, 1],
-    distance: 64, rotate: 2, blur: 12, opacityFrom: 0, scale: 1.01, target: "card",
+    distance: 64,
+    rotate: 2,
+    blur: 12,
+    opacityFrom: 0,
+    scale: 1.01,
+    target: "card",
   },
   {
     id: "whip",
@@ -182,7 +204,12 @@ export const MOTION_PRESETS: MotionPreset[] = [
     params: { stiffness: 700, damping: 18, mass: 0.45 },
     durationS: 0.3,
     bezier: [0.7, 0, 0.84, 0],
-    distance: 160, rotate: 12, blur: 6, opacityFrom: 0, scale: 1.06, target: "type",
+    distance: 160,
+    rotate: 12,
+    blur: 6,
+    opacityFrom: 0,
+    scale: 1.06,
+    target: "type",
   },
   {
     id: "liquid",
@@ -192,7 +219,12 @@ export const MOTION_PRESETS: MotionPreset[] = [
     params: { stiffness: 90, damping: 14, mass: 1.4 },
     durationS: 1.1,
     bezier: [0.25, 0.1, 0.25, 1],
-    distance: 120, rotate: 4, blur: 18, opacityFrom: 0, scale: 1.05, target: "orb",
+    distance: 120,
+    rotate: 4,
+    blur: 18,
+    opacityFrom: 0,
+    scale: 1.05,
+    target: "orb",
   },
   {
     id: "editorial",
@@ -202,7 +234,12 @@ export const MOTION_PRESETS: MotionPreset[] = [
     params: { stiffness: 260, damping: 26, mass: 1 },
     durationS: 0.7,
     bezier: [0.22, 1, 0.36, 1],
-    distance: 40, rotate: 0, blur: 8, opacityFrom: 0, scale: 1, target: "type",
+    distance: 40,
+    rotate: 0,
+    blur: 8,
+    opacityFrom: 0,
+    scale: 1,
+    target: "type",
   },
   {
     id: "brutal",
@@ -212,6 +249,11 @@ export const MOTION_PRESETS: MotionPreset[] = [
     params: { stiffness: 500, damping: 40, mass: 1 },
     durationS: 0.22,
     bezier: [0.9, 0, 1, 0.2],
-    distance: 24, rotate: 0, blur: 0, opacityFrom: 0.6, scale: 1.02, target: "card",
+    distance: 24,
+    rotate: 0,
+    blur: 0,
+    opacityFrom: 0.6,
+    scale: 1.02,
+    target: "card",
   },
 ];

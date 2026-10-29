@@ -33,14 +33,16 @@ export const AiPipeline: React.FC<{
         labelFa: "دیتاست",
         icon: Database,
         value: pairs ? `${faNum(pairs)} جفت` : "…",
-        noteFa: "جفت‌های واقعی RTL از رجیستری‌های عمومی؛ هر جفت شامل ویژگی، پیام کاربر و پاسخ دستیار است.",
+        noteFa:
+          "جفت‌های واقعی RTL از رجیستری‌های عمومی؛ هر جفت شامل ویژگی، پیام کاربر و پاسخ دستیار است.",
       },
       {
         id: "prompt",
         labelFa: "سیستم‌پرامپت",
         icon: FileJson2,
         value: `${systemPromptKb.toFixed(1)}K چارک`,
-        noteFa: "قیدهای RTL، اعداد فارسی و استاندارد موشن در یک فایل؛ همان چیزی که مدل هنگام آموزش می‌بیند.",
+        noteFa:
+          "قیدهای RTL، اعداد فارسی و استاندارد موشن در یک فایل؛ همان چیزی که مدل هنگام آموزش می‌بیند.",
       },
       {
         id: "tuning",
@@ -54,7 +56,8 @@ export const AiPipeline: React.FC<{
         labelFa: "کیت آموزش",
         icon: Brain,
         value: `${faNum(files)} فایل`,
-        noteFa: "دیتاست، سیستم‌پرامپت و اسکریپت QLoRA یک‌جا؛ همان فایل‌هایی که در همین صفحه دانلود می‌شوند.",
+        noteFa:
+          "دیتاست، سیستم‌پرامپت و اسکریپت QLoRA یک‌جا؛ همان فایل‌هایی که در همین صفحه دانلود می‌شوند.",
       },
     ],
     [pairs, files, rank, systemPromptKb]
