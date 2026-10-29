@@ -871,7 +871,7 @@ const Footer: React.FC = () => {
               <span className="block text-[13px] font-bold text-zinc-100">
                 آزمایشگاه موشن و تایپوگرافی فارسی
               </span>
-              <span className="block font-nastaliq text-[18px] leading-[1.8] text-[color:var(--accent)]">
+              <span className="block font-nastaliq text-[18px] leading-[2.3] text-[color:var(--accent)]">
                 در امتدادِ نور، هر خط جان می‌گیرد
               </span>
             </div>

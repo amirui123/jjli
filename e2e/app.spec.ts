@@ -261,6 +261,65 @@ test("mobile: studio becomes a three-tab sheet and returns to preview after a pi
 });
 
 /**
+ * Nastaliq ascenders and descenders stack ~2em tall, so a two-line headline
+ * needs at least ~2.0em of leading. It shipped with a hard-coded 1.68 for every
+ * display font, which made the second line physically collide with the first
+ * one (the tail of «هر» ran into «نور،»). The headline must now take its leading
+ * from the font catalog, and each font must keep its own value.
+ */
+test("hero headline uses the leading that its display font needs", async ({ page }) => {
+  currentPage = "hero";
+  await open(page, "/");
+  const headline = page.locator('[data-testid="hero-headline"]');
+  await expect(headline).toBeVisible();
+
+  const metrics = await headline.evaluate((el) => {
+    const s = getComputedStyle(el);
+    return {
+      family: s.fontFamily.split(",")[0].replace(/"/g, ""),
+      size: parseFloat(s.fontSize),
+      leading: parseFloat(s.lineHeight) / parseFloat(s.fontSize),
+    };
+  });
+
+  // default hero font is IranNastaliq, whose own metrics need ~2.4em
+  expect(metrics.family).toBe("IranNastaliq");
+  expect(metrics.leading).toBeGreaterThanOrEqual(2.3);
+
+  // the two lines must not share a single pixel row of ink
+  const box = await headline.boundingBox();
+  const shot = await page.screenshot({ clip: box ?? undefined });
+  const pixels = await page.evaluate(async (pngB64) => {
+    const img = new Image();
+    img.src = `data:image/png;base64,${pngB64}`;
+    await img.decode();
+    const c = document.createElement("canvas");
+    c.width = img.width;
+    c.height = img.height;
+    const ctx = c.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    const { data } = ctx.getImageData(0, 0, img.width, img.height);
+    const rows = new Array(img.height).fill(0);
+    for (let y = 0; y < img.height; y++) {
+      for (let x = 0; x < img.width; x++) {
+        const i = (y * img.width + x) * 4;
+        if (data[i] > 36 || data[i + 1] > 36 || data[i + 2] > 36) rows[y]++;
+      }
+    }
+    let best = 0;
+    let run = 0;
+    for (const n of rows) {
+      run = n === 0 ? run + 1 : 0;
+      if (run > best) best = run;
+    }
+    return { tallestEmptyBand: best, height: img.height };
+  }, shot.toString("base64"));
+
+  // a real gap between the two lines is at least a tenth of the block
+  expect(pixels.tallestEmptyBand).toBeGreaterThan(pixels.height * 0.08);
+});
+
+/**
  * KNOWN DEFECT (reported in audit/before/report.md, not yet fixed):
  * the 6-act intro film is shown on every full page load and cannot be skipped —
  * `onClose("skip")` exists in IntroFilm's props but is never called, and there is

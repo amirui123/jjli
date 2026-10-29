@@ -803,7 +803,7 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({
                   ref={(el) => {
                     wordRefs.current[idx] = el;
                   }}
-                  className="relative inline-flex items-center justify-center px-1 py-1 text-[clamp(36px,10.4vw,52px)] leading-[1.68] will-change-[transform,opacity] sm:px-1.5 sm:py-4 sm:text-[70px] sm:leading-[2.05] md:text-[80px]"
+                  className="relative inline-flex items-center justify-center px-1 py-1 text-[clamp(36px,10.4vw,52px)] leading-[2.05] will-change-[transform,opacity] sm:px-1.5 sm:py-4 sm:text-[70px] sm:leading-[2.05] md:text-[80px]"
                   style={{
                     fontFamily: "'IranNastaliq', 'GulzarNastaliq', serif",
                     opacity: Math.min(1, solidifyP * 1.6) * splitOpacity,

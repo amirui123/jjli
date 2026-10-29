@@ -266,8 +266,14 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
 
           {/* 2. SIDE-SLIDING MONUMENTAL HEADLINE (نوشته از کنار می‌آید سر جاش) */}
           <h1
-            style={{ fontFamily: activeHeroFont.family }}
-            className="mt-8 flex w-full flex-col items-center justify-center gap-1.5 text-[clamp(36px,10.5vw,52px)] leading-[1.68] text-white sm:mt-10 sm:gap-2 sm:text-[68px] sm:leading-[1.7] lg:text-[80px]"
+            data-testid="hero-headline"
+            style={{
+              fontFamily: activeHeroFont.family,
+              // Nastaliq stacks are ~2em tall; a 1.68 leading makes the second
+              // line physically collide with the first one.
+              lineHeight: activeHeroFont.recommendedLineHeight ?? 1.7,
+            }}
+            className="mt-8 flex w-full flex-col items-center justify-center gap-1.5 text-[clamp(36px,10.5vw,52px)] text-white sm:mt-10 sm:gap-2 sm:text-[68px] lg:text-[80px]"
           >
             {/* Right-to-Center Glide */}
             <motion.span
