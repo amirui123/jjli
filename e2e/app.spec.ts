@@ -320,6 +320,96 @@ test("hero headline uses the leading that its display font needs", async ({ page
 });
 
 /**
+ * «گ» must not render as «ک».
+ *
+ * IranNastaliq draws the second dot of گ as a short stroke that sits beside the
+ * ک head-stroke. In the upstream woff2 it never rises above that head-stroke, so
+ * the glyph's silhouette is identical to ک and «می‌گیرد» reads as «می‌کیرد» —
+ * the defect the user reported. The shipped font now carries the dot 200 font
+ * units further up-left, which makes گ reach measurably higher than ک.
+ *
+ * The check is geometric rather than perceptual: at a given size, the topmost
+ * ink of گ must clear the topmost ink of ک by at least 5% of the font size.
+ * With the upstream font that difference is exactly 0 px, so this is a real
+ * regression guard for "someone re-downloaded the font".
+ */
+test("nastaliq gaf keeps its two dots and does not render as kaf", async ({ page }) => {
+  currentPage = "gaf-dots";
+  await open(page, "/");
+
+  const SIZE = 160;
+  await page.evaluate(async (size) => {
+    await document.fonts.ready;
+    const hero = document.querySelector('[data-testid="hero-headline"]');
+    const family = hero ? getComputedStyle(hero).fontFamily : "";
+    const probe = document.createElement("div");
+    probe.id = "gaf-probe";
+    probe.style.cssText = [
+      "position:fixed",
+      "left:0",
+      "top:0",
+      "width:620px",
+      "height:560px",
+      "z-index:999999",
+      "background:#000",
+      "color:#fff",
+      "direction:rtl",
+      "text-align:center",
+      `font-family:${family}`,
+      `font-size:${size}px`,
+      "line-height:3.2",
+    ].join(";");
+    probe.textContent = "\u06AF";
+    document.body.appendChild(probe);
+  }, SIZE);
+
+  const probe = page.locator("#gaf-probe");
+  const box = await probe.boundingBox();
+  if (!box) throw new Error("gaf probe did not render");
+
+  const gafShot = await page.screenshot({ clip: box });
+  await page.evaluate(() => {
+    const el = document.getElementById("gaf-probe");
+    if (el) el.textContent = "\u06A9";
+  });
+  await page.waitForTimeout(120);
+  const kafShot = await page.screenshot({ clip: box });
+
+  const tops = await page.evaluate(
+    async ([a, b]) => {
+      const topInk = async (b64: string) => {
+        const img = new Image();
+        img.src = `data:image/png;base64,${b64}`;
+        await img.decode();
+        const c = document.createElement("canvas");
+        c.width = img.width;
+        c.height = img.height;
+        const ctx = c.getContext("2d");
+        if (!ctx) return img.height;
+        ctx.drawImage(img, 0, 0);
+        const { data } = ctx.getImageData(0, 0, img.width, img.height);
+        for (let y = 0; y < img.height; y++) {
+          for (let x = 0; x < img.width; x++) {
+            if (data[(y * img.width + x) * 4] > 110) return y;
+          }
+        }
+        return img.height;
+      };
+      return { gafTop: await topInk(a), kafTop: await topInk(b) };
+    },
+    [gafShot.toString("base64"), kafShot.toString("base64")]
+  );
+
+  // both glyphs must have rendered at all
+  expect(tops.gafTop).toBeLessThan(560);
+  expect(tops.kafTop).toBeLessThan(560);
+
+  // گ's second dot must reach above ک's head-stroke
+  const rise = tops.kafTop - tops.gafTop;
+  expect(rise).toBeGreaterThan(SIZE * 0.05);
+});
+
+/**
  * KNOWN DEFECT (reported in audit/before/report.md, not yet fixed):
  * the 6-act intro film is shown on every full page load and cannot be skipped —
  * `onClose("skip")` exists in IntroFilm's props but is never called, and there is
