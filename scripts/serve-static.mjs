@@ -33,16 +33,7 @@ const MIME = {
   ".txt": "text/plain; charset=utf-8",
 };
 
-const COMPRESSIBLE = new Set([
-  ".html",
-  ".js",
-  ".mjs",
-  ".css",
-  ".json",
-  ".md",
-  ".svg",
-  ".txt",
-]);
+const COMPRESSIBLE = new Set([".html", ".js", ".mjs", ".css", ".json", ".md", ".svg", ".txt"]);
 
 const cache = new Map();
 
@@ -52,7 +43,8 @@ function cached(filePath, encoding) {
   if (hit) return hit;
   const raw = fs.readFileSync(filePath);
   let out = raw;
-  if (encoding === "br") out = zlib.brotliCompressSync(raw, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 9 } });
+  if (encoding === "br")
+    out = zlib.brotliCompressSync(raw, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 9 } });
   else if (encoding === "gzip") out = zlib.gzipSync(raw, { level: 9 });
   cache.set(key, out);
   return out;
@@ -67,8 +59,8 @@ function send(req, res, filePath, status = 200) {
       ext === ".html"
         ? "no-cache"
         : ext === ".json" || ext === ".md"
-        ? "public, max-age=3600"
-        : "public, max-age=31536000, immutable",
+          ? "public, max-age=3600"
+          : "public, max-age=31536000, immutable",
     "Access-Control-Allow-Origin": "*",
     "X-Content-Type-Options": "nosniff",
   };
@@ -116,8 +108,7 @@ const server = http.createServer((req, res) => {
 
     // Only a browser navigation gets the SPA shell; missing assets are real 404s.
     const isNavigation =
-      String(req.headers.accept || "").includes("text/html") &&
-      !path.extname(urlPath);
+      String(req.headers.accept || "").includes("text/html") && !path.extname(urlPath);
 
     if (isNavigation) {
       send(req, res, path.join(ROOT, "index.html"));

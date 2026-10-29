@@ -128,6 +128,71 @@ test("bottom dock navigates between all nine sections", async ({ page }) => {
   await expect(page).toHaveURL(/#\/studio\/motion/);
 });
 
+/**
+ * The dock is the only navigation surface in the shell (the old duplicate
+ * section rail in the top bar was removed), so it has to keep magnification,
+ * label visibility and no-overflow behaviour at every viewport.
+ */
+test("top bar carries no section nav and the dock magnifies on hover", async ({
+  page,
+}, testInfo) => {
+  currentPage = "chrome";
+  await open(page, "/");
+  const isMobile = testInfo.project.name.includes("mobile");
+
+  // no duplicated section navigation anywhere in the header
+  const header = page.locator("header").first();
+  await expect(header.locator('a[href^="#/studio"], button[aria-label^="استودیو"]')).toHaveCount(0);
+
+  // breadcrumb still tells the user where they are (desktop/tablet only)
+  if (!isMobile) {
+    await expect(header.getByRole("navigation", { name: "مسیر فعلی" })).toBeVisible();
+  }
+
+  const dock = page.locator('nav[aria-label="ناوبری بخش‌ها"]');
+  await expect(dock).toBeVisible();
+  await expect(dock.locator("button").first()).toBeVisible();
+
+  // nothing may overflow horizontally (the old shell was 10/10 pages broken at 320px)
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - window.innerWidth
+  );
+  expect(overflow).toBeLessThanOrEqual(0);
+
+  if (!isMobile) {
+    const item = dock.locator("button").nth(3);
+    const before = await item.boundingBox();
+    await item.hover();
+    await expect
+      .poll(async () => (await item.boundingBox())?.height ?? 0, { timeout: 4_000 })
+      .toBeGreaterThan((before?.height ?? 0) + 2);
+  }
+});
+
+test("display settings switch visual state in RTL", async ({ page }) => {
+  currentPage = "appearance";
+  await open(page, "/dashboard");
+  await page.locator('button[aria-label="تنظیمات نمایش"]').first().click();
+
+  const toggle = page.locator("#toggle-contrast");
+  const knobOffset = () =>
+    toggle.locator("span[aria-hidden] > span").evaluate((el) => {
+      const track = (el.parentElement ?? el).getBoundingClientRect();
+      const knob = el.getBoundingClientRect();
+      // distance from the *start* edge — in RTL the track's start edge is its right edge
+      return Math.round(track.right - knob.right);
+    });
+
+  await expect(toggle).toHaveAttribute("aria-checked", "false");
+  const off = await knobOffset();
+  // off sits at the reading-start edge (the right edge in RTL)
+  expect(off).toBeLessThan(6);
+  await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-checked", "true");
+  // "on" slides the knob to the reading-end edge — ~22px on a 36px track
+  await expect.poll(knobOffset).toBeGreaterThan(off + 10);
+});
+
 test("accent picker applies the theme to CSS custom properties", async ({ page }) => {
   currentPage = "accent";
   await open(page, "/dashboard");

@@ -123,10 +123,13 @@ export const AiStudio: React.FC = () => {
   const kind = PROMPT_KINDS.find((k) => k.id === promptKind) ?? PROMPT_KINDS[0];
 
   const prompt = useMemo(() => {
-    const skill = ALL_SKILLS_MANIFEST.find((s) => s.slug.includes("motion")) ?? ALL_SKILLS_MANIFEST[0];
+    const skill =
+      ALL_SKILLS_MANIFEST.find((s) => s.slug.includes("motion")) ?? ALL_SKILLS_MANIFEST[0];
     const extraRules: string[] = [];
     if (enforceIranFintech) {
-      extraRules.push("- پشتیبانی بومی از کارت شتاب (Luhn)، شبا (ISO-7064 Mod-97-10) و تقویم جلالی.");
+      extraRules.push(
+        "- پشتیبانی بومی از کارت شتاب (Luhn)، شبا (ISO-7064 Mod-97-10) و تقویم جلالی."
+      );
     }
     if (enforceZeroCls) {
       extraRules.push(
@@ -134,7 +137,9 @@ export const AiStudio: React.FC = () => {
       );
     }
     if (enforceOledSafe) {
-      extraRules.push("- کنتراست نوری OKLCH و پس‌زمینه #05060A (منع #000000 برای جلوگیری از OLED Smearing).");
+      extraRules.push(
+        "- کنتراست نوری OKLCH و پس‌زمینه #05060A (منع #000000 برای جلوگیری از OLED Smearing)."
+      );
     }
 
     return `# نقش (${targetIde})
@@ -215,8 +220,14 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
 
   const currentPair = dataset?.pairs[pairIdx];
 
-  const currentExport = tab === "prompt" ? prompt : tab === "tuning" ? pythonSnippet : JSON.stringify(currentPair ?? {}, null, 2);
-  const currentFileName = tab === "prompt" ? "prompt.md" : tab === "tuning" ? "train_qlora.py" : "pair.json";
+  const currentExport =
+    tab === "prompt"
+      ? prompt
+      : tab === "tuning"
+        ? pythonSnippet
+        : JSON.stringify(currentPair ?? {}, null, 2);
+  const currentFileName =
+    tab === "prompt" ? "prompt.md" : tab === "tuning" ? "train_qlora.py" : "pair.json";
 
   const copyExport = () => {
     navigator.clipboard?.writeText(currentExport).catch(() => {});
@@ -255,8 +266,8 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
         tab === "dataset"
           ? `${faNum(dataset?.total ?? 0)} جفت آموزشی`
           : tab === "prompt"
-          ? `${faNum(PROMPT_KINDS.length)} قالب`
-          : `${faNum(MODELS.length)} مدل`
+            ? `${faNum(PROMPT_KINDS.length)} قالب`
+            : `${faNum(MODELS.length)} مدل`
       }
       className="min-h-[360px] desk:min-h-0"
       footer={tab === "dataset" ? "داده واقعی از دیتاست مخزن" : undefined}
@@ -306,7 +317,9 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
               }}
               className={cn(
                 "mb-0.5 block w-full truncate rounded-lg px-2 py-1 text-start font-mono text-[9.5px]",
-                pairIdx === i ? "bg-white/[0.07] text-white" : "text-zinc-400 hover:bg-white/[0.035]"
+                pairIdx === i
+                  ? "bg-white/[0.07] text-white"
+                  : "text-zinc-400 hover:bg-white/[0.035]"
               )}
               dir="ltr"
             >
@@ -325,7 +338,9 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
             }}
             className={cn(
               "mb-0.5 block w-full truncate rounded-lg px-2 py-1.5 text-start font-mono text-[9.5px]",
-              tuning.baseModel === m ? "bg-white/[0.07] text-white" : "text-zinc-400 hover:bg-white/[0.035]"
+              tuning.baseModel === m
+                ? "bg-white/[0.07] text-white"
+                : "text-zinc-400 hover:bg-white/[0.035]"
             )}
             dir="ltr"
           >
@@ -336,7 +351,11 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
       {tab === "dataset" && !loading && (
         <div className="mt-2 space-y-1 border-t border-white/[0.06] pt-2">
           {ALL_AI_TRAINING_FILES.map((f) => (
-            <div key={f} className="flex items-center gap-1.5 font-mono text-[8.5px] text-zinc-600" dir="ltr">
+            <div
+              key={f}
+              className="flex items-center gap-1.5 font-mono text-[8.5px] text-zinc-600"
+              dir="ltr"
+            >
               <FileJson2 className="h-2.5 w-2.5 shrink-0" />
               <span className="truncate">{f}</span>
             </div>
@@ -366,7 +385,12 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
               <>
                 <Badge>{faNum(prompt.length)} کاراکتر</Badge>
                 <CopyButton text={prompt} label="کپی" compact />
-                <DownloadButton compact label=".md" filename="prompt.md" onDownload={() => saveText(prompt, "prompt.md")} />
+                <DownloadButton
+                  compact
+                  label=".md"
+                  filename="prompt.md"
+                  onDownload={() => saveText(prompt, "prompt.md")}
+                />
               </>
             }
           >
@@ -384,7 +408,10 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
                 { k: "فونت", v: font.nameFa },
                 { k: "سطح", v: ["حداقلی", "متوسط", "کامل", "تولیدی"][promptDetail - 1] },
               ].map((x) => (
-                <div key={x.k} className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2">
+                <div
+                  key={x.k}
+                  className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2"
+                >
                   <div className="text-[9.5px] text-zinc-500">{x.k}</div>
                   <div className="mt-0.5 truncate text-[11px] text-zinc-200">{x.v}</div>
                 </div>
@@ -392,7 +419,11 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
             </div>
           </Panel>
 
-          <Panel title="پرامپت سیستمی مدل" subtitle="همان فایلی که هنگام آموزش استفاده می‌شود" padded={false}>
+          <Panel
+            title="پرامپت سیستمی مدل"
+            subtitle="همان فایلی که هنگام آموزش استفاده می‌شود"
+            padded={false}
+          >
             <div className="max-h-[280px] overflow-y-auto p-3">
               {systemPrompt ? (
                 <Markdown source={systemPrompt} />
@@ -436,7 +467,10 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
                   },
                   { k: "سیستم‌پرامپت", v: `${(systemPrompt.length / 1024).toFixed(1)}K` },
                 ].map((x) => (
-                  <div key={x.k} className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2">
+                  <div
+                    key={x.k}
+                    className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2"
+                  >
                     <div className="text-[9.5px] text-zinc-500">{x.k}</div>
                     <div className="font-mono text-[14px] text-zinc-100">{x.v}</div>
                   </div>
@@ -457,7 +491,11 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
                     label="جفت"
                     filename={`${currentPair.component}.json`}
                     onDownload={() =>
-                      saveText(JSON.stringify(currentPair, null, 2), `${currentPair.component}.json`, "application/json")
+                      saveText(
+                        JSON.stringify(currentPair, null, 2),
+                        `${currentPair.component}.json`,
+                        "application/json"
+                      )
                     }
                   />
                 </>
@@ -480,7 +518,12 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
                   <div className="mb-1 flex items-center gap-1.5 text-[10px] text-zinc-500">
                     <Cpu className="h-3 w-3" /> پاسخ مدل
                   </div>
-                  <CodeBlock code={currentPair.assistant} language="tsx" maxLines={20} filename="answer.tsx" />
+                  <CodeBlock
+                    code={currentPair.assistant}
+                    language="tsx"
+                    maxLines={20}
+                    filename="answer.tsx"
+                  />
                 </div>
                 {currentPair.features.length > 0 && (
                   <div className="flex flex-wrap gap-1">
@@ -514,7 +557,13 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
               </>
             }
           >
-            <CodeBlock code={pythonSnippet} language="python" maxLines={26} filename="train_qlora.py" showCopy={false} />
+            <CodeBlock
+              code={pythonSnippet}
+              language="python"
+              maxLines={26}
+              filename="train_qlora.py"
+              showCopy={false}
+            />
           </Panel>
 
           <Panel title="برآورد منابع" subtitle="تخمین تجربی برای ۴بیت + LoRA">
@@ -522,7 +571,11 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
               {[
                 {
                   k: "VRAM تقریبی",
-                  v: tuning.baseModel.includes("7B") ? "~9GB" : tuning.baseModel.includes("1.5B") ? "~4GB" : "~11GB",
+                  v: tuning.baseModel.includes("7B")
+                    ? "~9GB"
+                    : tuning.baseModel.includes("1.5B")
+                      ? "~4GB"
+                      : "~11GB",
                   icon: Gauge,
                 },
                 {
@@ -530,10 +583,17 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
                   v: `${((tuning.rank * 4 * 4096 * 32) / 1e6).toFixed(1)}M`,
                   icon: Cpu,
                 },
-                { k: "گام تقریبی", v: faNum(Math.round((40 / tuning.batch) * tuning.epochs)), icon: Database },
+                {
+                  k: "گام تقریبی",
+                  v: faNum(Math.round((40 / tuning.batch) * tuning.epochs)),
+                  icon: Database,
+                },
                 { k: "حافظه دیتاست", v: "0.33MB", icon: FileJson2 },
               ].map((x) => (
-                <div key={x.k} className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5">
+                <div
+                  key={x.k}
+                  className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5"
+                >
                   <div className="flex items-center gap-1 text-[9.5px] text-zinc-500">
                     <x.icon className="h-3 w-3" />
                     {x.k}
@@ -559,7 +619,13 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
           />
         }
       >
-        <CodeBlock code={currentExport} language="md" maxLines={14} filename={currentFileName} showCopy={false} />
+        <CodeBlock
+          code={currentExport}
+          language="md"
+          maxLines={14}
+          filename={currentFileName}
+          showCopy={false}
+        />
       </Panel>
     </div>
   );
@@ -591,16 +657,26 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
               </div>
             </div>
             <div>
-              <span className="mb-1 block text-[10.5px] text-zinc-400">مدل یا محیط هدف (Target IDE/LLM)</span>
+              <span className="mb-1 block text-[10.5px] text-zinc-400">
+                مدل یا محیط هدف (Target IDE/LLM)
+              </span>
               <select
                 value={targetIde}
                 onChange={(e) => setTargetIde(e.target.value)}
                 className="w-full rounded-lg border border-white/[0.08] bg-black/50 px-2 py-1.5 text-[11px] text-zinc-200 outline-none"
               >
-                <option value="Claude 3.7 / 4 Sonnet" className="bg-[#111]">Claude 3.7 / 4 Sonnet</option>
-                <option value="Cursor IDE (.cursorrules)" className="bg-[#111]">Cursor IDE (.cursorrules)</option>
-                <option value="GPT-4o / o3" className="bg-[#111]">GPT-4o / o3</option>
-                <option value="Qwen-2.5-Coder / DeepSeek-R1" className="bg-[#111]">Qwen-2.5-Coder / DeepSeek-R1</option>
+                <option value="Claude 3.7 / 4 Sonnet" className="bg-[#111]">
+                  Claude 3.7 / 4 Sonnet
+                </option>
+                <option value="Cursor IDE (.cursorrules)" className="bg-[#111]">
+                  Cursor IDE (.cursorrules)
+                </option>
+                <option value="GPT-4o / o3" className="bg-[#111]">
+                  GPT-4o / o3
+                </option>
+                <option value="Qwen-2.5-Coder / DeepSeek-R1" className="bg-[#111]">
+                  Qwen-2.5-Coder / DeepSeek-R1
+                </option>
               </select>
             </div>
             <div>
@@ -610,10 +686,18 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
                 onChange={(e) => setAestheticPersona(e.target.value)}
                 className="w-full rounded-lg border border-white/[0.08] bg-black/50 px-2 py-1.5 text-[11px] text-zinc-200 outline-none"
               >
-                <option value="Obsidian Luxury + Persian Nastaliq" className="bg-[#111]">اشرافی ابسیدین + نستعلیق</option>
-                <option value="Apple Liquid Glass & Fresnel" className="bg-[#111]">شیشه مایع اپل (Liquid Glass)</option>
-                <option value="SpaceX Dark Cockpit" className="bg-[#111]">کابین تاریک مهندسی (Dark Cockpit)</option>
-                <option value="Swiss High Data-Ink" className="bg-[#111]">گرید سوئیسی تافتی (High Data-Ink)</option>
+                <option value="Obsidian Luxury + Persian Nastaliq" className="bg-[#111]">
+                  اشرافی ابسیدین + نستعلیق
+                </option>
+                <option value="Apple Liquid Glass & Fresnel" className="bg-[#111]">
+                  شیشه مایع اپل (Liquid Glass)
+                </option>
+                <option value="SpaceX Dark Cockpit" className="bg-[#111]">
+                  کابین تاریک مهندسی (Dark Cockpit)
+                </option>
+                <option value="Swiss High Data-Ink" className="bg-[#111]">
+                  گرید سوئیسی تافتی (High Data-Ink)
+                </option>
               </select>
             </div>
             <div>
@@ -694,7 +778,9 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
               </select>
             </div>
             <div>
-              <span className="mb-1 block text-[10.5px] text-zinc-400">دقت کوانتیزاسیون (Quantization)</span>
+              <span className="mb-1 block text-[10.5px] text-zinc-400">
+                دقت کوانتیزاسیون (Quantization)
+              </span>
               <Segmented
                 className="w-full"
                 size="sm"
@@ -707,13 +793,62 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
                 ]}
               />
             </div>
-            <Slider label="رتبه LoRA (r)" value={tuning.rank} min={4} max={64} step={4} onChange={(v) => setTuning({ rank: v })} />
-            <Slider label="آلفا" value={tuning.alpha} min={8} max={128} step={8} onChange={(v) => setTuning({ alpha: v })} />
-            <Slider label="Dropout" value={tuning.dropout} min={0} max={0.2} step={0.01} onChange={(v) => setTuning({ dropout: v })} format={(v) => v.toFixed(2)} />
-            <Slider label="نرخ یادگیری" value={tuning.lr} min={0.0001} max={0.001} step={0.0001} onChange={(v) => setTuning({ lr: v })} format={(v) => v.toExponential(1)} />
-            <Slider label="دوره‌ها" value={tuning.epochs} min={1} max={8} onChange={(v) => setTuning({ epochs: v })} />
-            <Slider label="طول دنباله" value={tuning.seqLen} min={512} max={4096} step={256} onChange={(v) => setTuning({ seqLen: v })} />
-            <Slider label="Batch" value={tuning.batch} min={1} max={8} onChange={(v) => setTuning({ batch: v })} />
+            <Slider
+              label="رتبه LoRA (r)"
+              value={tuning.rank}
+              min={4}
+              max={64}
+              step={4}
+              onChange={(v) => setTuning({ rank: v })}
+            />
+            <Slider
+              label="آلفا"
+              value={tuning.alpha}
+              min={8}
+              max={128}
+              step={8}
+              onChange={(v) => setTuning({ alpha: v })}
+            />
+            <Slider
+              label="Dropout"
+              value={tuning.dropout}
+              min={0}
+              max={0.2}
+              step={0.01}
+              onChange={(v) => setTuning({ dropout: v })}
+              format={(v) => v.toFixed(2)}
+            />
+            <Slider
+              label="نرخ یادگیری"
+              value={tuning.lr}
+              min={0.0001}
+              max={0.001}
+              step={0.0001}
+              onChange={(v) => setTuning({ lr: v })}
+              format={(v) => v.toExponential(1)}
+            />
+            <Slider
+              label="دوره‌ها"
+              value={tuning.epochs}
+              min={1}
+              max={8}
+              onChange={(v) => setTuning({ epochs: v })}
+            />
+            <Slider
+              label="طول دنباله"
+              value={tuning.seqLen}
+              min={512}
+              max={4096}
+              step={256}
+              onChange={(v) => setTuning({ seqLen: v })}
+            />
+            <Slider
+              label="Batch"
+              value={tuning.batch}
+              min={1}
+              max={8}
+              onChange={(v) => setTuning({ batch: v })}
+            />
           </div>
         </Panel>
       )}
@@ -756,23 +891,27 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
       <AiTour />
       <StudioShell
         eyebrow="AI STUDIO"
-      title="استودیو هوش مصنوعی"
-      description={`پرامپت‌ساز تخصصی RTL، مرورگر ${faNum(dataset?.total ?? 40)} جفت داده آموزشی و پیکربندی QLoRA — همه از دارایی واقعی مخزن و قابل دانلود.`}
-      icon={Brain}
-      stats={
-        <>
-          <Badge tone="accent">{faNum(dataset?.total ?? 40)} جفت داده</Badge>
-          <Badge>{faNum(MODELS.length)} مدل پایه</Badge>
-        </>
-      }
-      actions={
-        <DownloadButton label="کیت آموزش" filename="rtl-motion-dataset.zip" onDownload={downloadDatasetKit} />
-      }
-      listWidth="228px"
-      settingsWidth="292px"
-      list={list}
-      stage={stage}
-      settings={settings}
+        title="استودیو هوش مصنوعی"
+        description={`پرامپت‌ساز تخصصی RTL، مرورگر ${faNum(dataset?.total ?? 40)} جفت داده آموزشی و پیکربندی QLoRA — همه از دارایی واقعی مخزن و قابل دانلود.`}
+        icon={Brain}
+        stats={
+          <>
+            <Badge tone="accent">{faNum(dataset?.total ?? 40)} جفت داده</Badge>
+            <Badge>{faNum(MODELS.length)} مدل پایه</Badge>
+          </>
+        }
+        actions={
+          <DownloadButton
+            label="کیت آموزش"
+            filename="rtl-motion-dataset.zip"
+            onDownload={downloadDatasetKit}
+          />
+        }
+        listWidth="228px"
+        settingsWidth="292px"
+        list={list}
+        stage={stage}
+        settings={settings}
       />
     </>
   );

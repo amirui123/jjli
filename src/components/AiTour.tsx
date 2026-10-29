@@ -177,8 +177,12 @@ export const AiTour: React.FC = () => {
                   <Sparkles className="h-3.5 w-3.5" />
                 </span>
                 <div>
-                  <p className="text-[12px] font-bold leading-tight text-zinc-100">استودیو هوش مصنوعی</p>
-                  <p className="font-mono text-[8.5px] tracking-[0.16em] text-zinc-500">AI · QUICK TOUR</p>
+                  <p className="text-[12px] font-bold leading-tight text-zinc-100">
+                    استودیو هوش مصنوعی
+                  </p>
+                  <p className="font-mono text-[8.5px] tracking-[0.16em] text-zinc-500">
+                    AI · QUICK TOUR
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-1.5">
@@ -198,7 +202,12 @@ export const AiTour: React.FC = () => {
               </div>
             </div>
 
-            <div className={cn("relative grid gap-4 p-4", isMobile ? "grid-cols-1" : "grid-cols-[220px_minmax(0,1fr)] p-6")}>
+            <div
+              className={cn(
+                "relative grid gap-4 p-4",
+                isMobile ? "grid-cols-1" : "grid-cols-[220px_minmax(0,1fr)] p-6"
+              )}
+            >
               {/* animated visual */}
               <div className="relative flex min-h-[130px] items-center justify-center overflow-hidden rounded-2xl border border-white/[0.06] bg-[#08080C]">
                 <div
@@ -252,11 +261,20 @@ export const AiTour: React.FC = () => {
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.25 }}
                   >
-                    <p className="text-[10px] tracking-[0.14em] text-[color:var(--accent)]">{active.kicker}</p>
-                    <h3 className={cn("mt-1.5 font-bold leading-snug text-white", isMobile ? "text-[18px]" : "text-[22px]")}>
+                    <p className="text-[10px] tracking-[0.14em] text-[color:var(--accent)]">
+                      {active.kicker}
+                    </p>
+                    <h3
+                      className={cn(
+                        "mt-1.5 font-bold leading-snug text-white",
+                        isMobile ? "text-[18px]" : "text-[22px]"
+                      )}
+                    >
                       {active.titleFa}
                     </h3>
-                    <p className="mt-2 text-[12px] leading-relaxed text-zinc-400">{active.bodyFa}</p>
+                    <p className="mt-2 text-[12px] leading-relaxed text-zinc-400">
+                      {active.bodyFa}
+                    </p>
                   </motion.div>
                 </AnimatePresence>
 

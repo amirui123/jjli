@@ -294,10 +294,7 @@ export function validateIranianNationalCode(input: string): {
  */
 export function generateShebaFromCard(cardInput: string): string {
   const bank = detectIranianBank(cardInput);
-  const digits = toEnglishDigits(cardInput)
-    .replace(/\D/g, "")
-    .padEnd(16, "0")
-    .slice(0, 16);
+  const digits = toEnglishDigits(cardInput).replace(/\D/g, "").padEnd(16, "0").slice(0, 16);
   const bban = `${bank.shebaCode}01000${digits}`; // 22 digits
   // Compute ISO 7064 Mod-97 for IR (I=18, R=27 -> 182700)
   const numericStr = `${bban}182700`;
@@ -326,18 +323,7 @@ const TEENS = [
   "نوزده",
 ];
 const TENS = ["", "", "بیست", "سی", "چهل", "پنجاه", "شصت", "هفتاد", "هشتاد", "نود"];
-const HUNDREDS = [
-  "",
-  "صد",
-  "دویست",
-  "سیصد",
-  "چهارصد",
-  "پانصد",
-  "ششصد",
-  "هفتصد",
-  "هشتصد",
-  "نهصد",
-];
+const HUNDREDS = ["", "صد", "دویست", "سیصد", "چهارصد", "پانصد", "ششصد", "هفتصد", "هشتصد", "نهصد"];
 const SCALES = ["", "هزار", "میلیون", "میلیارد", "همت (هزار میلیارد)"];
 
 function threeDigitsToFa(n: number): string {
@@ -416,10 +402,7 @@ export function cleanupPersianText(raw: string): {
  * ZWNJ-Safe Persian Kinetic Word Splitter
  */
 export function splitPersianWordsSafe(text: string): string[] {
-  return text
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
+  return text.trim().split(/\s+/).filter(Boolean);
 }
 
 export interface AuditIssue {
@@ -504,10 +487,7 @@ export function auditRtlMotionCode(code: string): {
       match: (code.match(/animate=\{\{\s*(width|height|top|left)\s*:/) || [""])[0],
       fixFa: "جایگزینی با تبدیل‌های سخت‌افزاری GPU (scaleX, x, y, opacity)",
     });
-    fixedCode = fixedCode.replace(
-      /animate=\{\{\s*left\s*:\s*([^}]+)\}\}/g,
-      "animate={{ x: $1 }}"
-    );
+    fixedCode = fixedCode.replace(/animate=\{\{\s*left\s*:\s*([^}]+)\}\}/g, "animate={{ x: $1 }}");
   }
 
   /* ---------------------------------------------------------------- bauteil 2
@@ -522,7 +502,9 @@ export function auditRtlMotionCode(code: string): {
       match: (code.match(/\bspace-[xy]-\d+/) || [""])[0],
       fixFa: "جایگزینی با gap-* که در هر دو جهت درست کار می‌کند",
     });
-    fixedCode = fixedCode.replace(/\bspace-x-(\d+)/g, "gap-x-$1").replace(/\bspace-y-(\d+)/g, "gap-y-$1");
+    fixedCode = fixedCode
+      .replace(/\bspace-x-(\d+)/g, "gap-x-$1")
+      .replace(/\bspace-y-(\d+)/g, "gap-y-$1");
   }
 
   if (/\b(border|rounded)-[lr](-|\b)/.test(code)) {
@@ -562,7 +544,7 @@ export function auditRtlMotionCode(code: string): {
       titleFa: "قفل‌کردن جهت ltr روی بلوک متنی؛ در حالت راست‌به‌چپ می‌شکند",
       rule: "Direction Inheritance",
       match: (code.match(/\b(dir|direction)\s*[:=]\s*["']?ltr/) || [""])[0],
-      fixFa: "جهت را به ریشه بسپارید و فقط برای اعداد/کد از dir=\"ltr\" استفاده کنید",
+      fixFa: 'جهت را به ریشه بسپارید و فقط برای اعداد/کد از dir="ltr" استفاده کنید',
     });
     fixedCode = fixedCode
       .replace(/\s+dir\s*=\s*(["'])ltr\1/g, "")
@@ -609,7 +591,10 @@ export function auditRtlMotionCode(code: string): {
     fixedCode = fixedCode.replace(/ي/g, "ی").replace(/ك/g, "ک");
   }
 
-  if (/letter-spacing\s*:\s*[0-9.]+(px|em|rem)/.test(code) && !/letter-spacing\s*:\s*0/.test(code)) {
+  if (
+    /letter-spacing\s*:\s*[0-9.]+(px|em|rem)/.test(code) &&
+    !/letter-spacing\s*:\s*0/.test(code)
+  ) {
     issues.push({
       id: "letter-spacing",
       severity: "warning",
@@ -618,13 +603,13 @@ export function auditRtlMotionCode(code: string): {
       match: (code.match(/letter-spacing\s*:\s*[0-9.]+(px|em|rem)/) || [""])[0],
       fixFa: "letter-spacing: 0 برای فارسی",
     });
-    fixedCode = fixedCode.replace(
-      /letter-spacing\s*:\s*[0-9.]+(px|em|rem)/g,
-      "letter-spacing: 0"
-    );
+    fixedCode = fixedCode.replace(/letter-spacing\s*:\s*[0-9.]+(px|em|rem)/g, "letter-spacing: 0");
   }
 
-  if (/(Arrow(Left|Right)|Chevron(Left|Right)|MoveRight|MoveLeft)/.test(code) && !/rtl:|rotate-180|scale-x-\[-1/.test(code)) {
+  if (
+    /(Arrow(Left|Right)|Chevron(Left|Right)|MoveRight|MoveLeft)/.test(code) &&
+    !/rtl:|rotate-180|scale-x-\[-1/.test(code)
+  ) {
     issues.push({
       id: "icon-mirror",
       severity: "warning",
@@ -794,10 +779,7 @@ export const ACCENT_PALETTES: Record<
   },
 };
 
-export function mutateComponentCode(
-  baseCode: string,
-  config: StudioPhysicsConfig
-): string {
+export function mutateComponentCode(baseCode: string, config: StudioPhysicsConfig): string {
   const palette = ACCENT_PALETTES[config.accentName];
   return baseCode
     .replace(/stiffness:\s*\d+/g, `stiffness: ${config.stiffness}`)

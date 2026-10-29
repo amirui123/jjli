@@ -32,13 +32,17 @@ window.matchMedia = (query) => ({
   removeListener() {},
   addEventListener() {},
   removeEventListener() {},
-  dispatchEvent() { return false; },
+  dispatchEvent() {
+    return false;
+  },
 });
 class Obs {
   observe() {}
   unobserve() {}
   disconnect() {}
-  takeRecords() { return []; }
+  takeRecords() {
+    return [];
+  }
 }
 window.ResizeObserver = Obs;
 window.IntersectionObserver = Obs;
@@ -46,17 +50,20 @@ window.scrollTo = () => {};
 window.HTMLElement.prototype.scrollIntoView = () => {};
 window.HTMLCanvasElement.prototype.getContext = function (type) {
   if (type === "2d") {
-    return new Proxy({}, {
-      get: (t, k) => {
-        if (k === "canvas") return this;
-        if (k === "createLinearGradient" || k === "createRadialGradient")
-          return () => ({ addColorStop() {} });
-        if (k === "getImageData") return () => ({ data: new Uint8ClampedArray(4) });
-        if (k === "measureText") return () => ({ width: 10 });
-        return () => {};
-      },
-      set: () => true,
-    });
+    return new Proxy(
+      {},
+      {
+        get: (t, k) => {
+          if (k === "canvas") return this;
+          if (k === "createLinearGradient" || k === "createRadialGradient")
+            return () => ({ addColorStop() {} });
+          if (k === "getImageData") return () => ({ data: new Uint8ClampedArray(4) });
+          if (k === "measureText") return () => ({ width: 10 });
+          return () => {};
+        },
+        set: () => true,
+      }
+    );
   }
   return null;
 };
@@ -118,8 +125,12 @@ console.error = (...args) => {
   if (/not implemented|Not implemented|Warning: ReactDOMServer/.test(msg)) return;
   errors.push(msg.slice(0, 300));
 };
-process.on("uncaughtException", (e) => { errors.push(`UNCAUGHT: ${e?.stack ?? e?.message}`); });
-process.on("unhandledRejection", (e) => { errors.push(`REJECTION: ${e?.stack ?? e?.message ?? e}`); });
+process.on("uncaughtException", (e) => {
+  errors.push(`UNCAUGHT: ${e?.stack ?? e?.message}`);
+});
+process.on("unhandledRejection", (e) => {
+  errors.push(`REJECTION: ${e?.stack ?? e?.message ?? e}`);
+});
 
 // ------------------------------------------------------------------- bundle
 const out = await build({
@@ -153,7 +164,11 @@ const ROUTES = [
   ["/nope", "۴۰۴"],
 ];
 
-try { mod.mount(); } catch (e) { errors.push(`MOUNT: ${e?.stack}`); }
+try {
+  mod.mount();
+} catch (e) {
+  errors.push(`MOUNT: ${e?.stack}`);
+}
 await wait(500);
 console.log("mounted. text len:", mod.text().length);
 
@@ -186,7 +201,8 @@ for (const studio of ["fonts", "motion", "components", "sounds", "skills", "engi
   const main = document.querySelector("main");
   const rails = main?.querySelectorAll("[data-rail]").length ?? 0;
   if (rails !== 3) errors.push(`RAILS ${studio}: expected 3 rails, found ${rails}`);
-  if (main && main.textContent.trim().length < 200) errors.push(`RAILS ${studio}: stage content is empty`);
+  if (main && main.textContent.trim().length < 200)
+    errors.push(`RAILS ${studio}: stage content is empty`);
 }
 
 // interaction 2: component file opens real source
@@ -201,9 +217,17 @@ else {
   if (code.length < 200) {
     errors.push(`COMPONENTS: code panel too small (${code.length})`);
     console.log("DEBUG rows:", document.querySelectorAll("[data-file-row]").length);
-    console.log("DEBUG stage:", (document.querySelector("main")?.textContent ?? "").slice(600, 2200));
+    console.log(
+      "DEBUG stage:",
+      (document.querySelector("main")?.textContent ?? "").slice(600, 2200)
+    );
     const r = await fetch("/regcode/chunks/animate-ui/0.json");
-    console.log("DEBUG fetch ok:", r.ok, "rows:", document.querySelectorAll("[data-file-row]").length);
+    console.log(
+      "DEBUG fetch ok:",
+      r.ok,
+      "rows:",
+      document.querySelectorAll("[data-file-row]").length
+    );
   }
 }
 
@@ -219,7 +243,8 @@ else {
   await wait(700);
   const specimen = document.querySelector("[data-testid=font-specimen]");
   const style = specimen?.getAttribute("style") ?? "";
-  if (!/Hasti/i.test(style)) errors.push(`DEEPLINK: specimen did not pick Hasti (${style.slice(0, 60)})`);
+  if (!/Hasti/i.test(style))
+    errors.push(`DEEPLINK: specimen did not pick Hasti (${style.slice(0, 60)})`);
 }
 
 // interaction 4: accent choice must reach the CSS custom properties

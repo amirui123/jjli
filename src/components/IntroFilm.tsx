@@ -223,7 +223,13 @@ function samplesToSvgPath(samples: TrajectorySample[], startIdx: number, endIdx:
 }
 
 /** Builds a 12-pointed Sacred Persian Girih / Astrolabe star polygon path */
-function buildGirihStarPath(cx: number, cy: number, outerR: number, innerR: number, points = 12): string {
+function buildGirihStarPath(
+  cx: number,
+  cy: number,
+  outerR: number,
+  innerR: number,
+  points = 12
+): string {
   const totalVerts = points * 2;
   const cmds: string[] = [];
   for (let i = 0; i < totalVerts; i++) {
@@ -347,7 +353,11 @@ interface LineToWordsStageProps {
   isMobile: boolean;
 }
 
-const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgress, isMobile }) => {
+const LineToWordsStage: React.FC<LineToWordsStageProps> = ({
+  progress,
+  exitProgress,
+  isMobile,
+}) => {
   const samples = useMemo(() => buildMultiActTrajectorySamples(isMobile), [isMobile]);
   const totalPts = samples.length - 1; // 410; indices 310..410 are the horizontal bar (x=220..780, y=210)!
   const girihOuterPath = useMemo(() => buildGirihStarPath(0, 0, 128, 92, 12), []);
@@ -445,9 +455,7 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
    */
   const astrolabeRaw = Math.min(1, Math.max(0, (progress - 0.17) / 0.16));
   const astrolabeOpacity =
-    astrolabeRaw <= 0 || astrolabeRaw >= 1
-      ? 0
-      : Math.sin(astrolabeRaw * Math.PI);
+    astrolabeRaw <= 0 || astrolabeRaw >= 1 ? 0 : Math.sin(astrolabeRaw * Math.PI);
   const astrolabeScale =
     (0.38 + Math.sin(astrolabeRaw * Math.PI * 0.85) * 0.88) * (isMobile ? 1.38 : 1.0);
   const astrolabeRot = astrolabeRaw * 120;
@@ -466,20 +474,18 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
     travelRaw <= 0
       ? 0
       : travelRaw < 0.5
-      ? 4 * Math.pow(travelRaw, 3)
-      : 1 - Math.pow(-2 * travelRaw + 2, 3) / 2;
+        ? 4 * Math.pow(travelRaw, 3)
+        : 1 - Math.pow(-2 * travelRaw + 2, 3) / 2;
 
   /**
    * ACT 5 (progress 0.80 -> 1.00): POST-WORD COSMIC PRISM WAVE & CALLIGRAPHIC CROWN!
    */
-  const prismRaw = Math.min(1, Math.max(0, (progress - 0.80) / 0.19));
+  const prismRaw = Math.min(1, Math.max(0, (progress - 0.8) / 0.19));
   const prismBell = prismRaw <= 0 ? 0 : Math.sin(prismRaw * Math.PI);
   const crownSweepX = 880 - prismRaw * 760;
 
   const splitEase =
-    exitProgress <= 0.14
-      ? 0
-      : Math.pow(Math.min(1, (exitProgress - 0.14) / 0.72), 2.1);
+    exitProgress <= 0.14 ? 0 : Math.pow(Math.min(1, (exitProgress - 0.14) / 0.72), 2.1);
 
   return (
     <div className="pointer-events-none relative flex h-full w-full flex-col items-center justify-center px-2.5 sm:px-4 select-none">
@@ -592,7 +598,9 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
               <path
                 d={ribbonPath}
                 fill="none"
-                stroke={progress >= 0.10 && progress < 0.20 ? "url(#beam-turquoise)" : "url(#beam-gold)"}
+                stroke={
+                  progress >= 0.1 && progress < 0.2 ? "url(#beam-turquoise)" : "url(#beam-gold)"
+                }
                 strokeWidth={(4.0 * strokeBoost).toFixed(2)}
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -603,7 +611,7 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
                 cy={headPoint.y}
                 r={17 * strokeBoost}
                 fill={
-                  progress >= 0.10 && progress < 0.20
+                  progress >= 0.1 && progress < 0.2
                     ? "rgba(56, 189, 248, 0.45)"
                     : "rgba(245, 184, 65, 0.42)"
                 }
@@ -633,7 +641,12 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
                       strokeWidth={3.0 * strokeBoost * (1 - sparkP * 0.55)}
                       strokeLinecap="round"
                     />
-                    <circle cx="0" cy="0" r={6.5 * strokeBoost * (1 - sparkP * 0.45)} fill="#38BDF8" />
+                    <circle
+                      cx="0"
+                      cy="0"
+                      r={6.5 * strokeBoost * (1 - sparkP * 0.45)}
+                      fill="#38BDF8"
+                    />
                   </g>
                 );
               })}
@@ -653,21 +666,14 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
               };
 
               const wordStart = 0.46 + idx * 0.046;
-              const solidifyP = Math.min(
-                1,
-                Math.max(0, (progress - wordStart) / 0.048)
-              );
+              const solidifyP = Math.min(1, Math.max(0, (progress - wordStart) / 0.048));
 
-              const shardOpacity =
-                solidifyP >= 1
-                  ? 0
-                  : 1 - Math.pow(solidifyP, 1.5);
+              const shardOpacity = solidifyP >= 1 ? 0 : 1 - Math.pow(solidifyP, 1.5);
 
               if (shardOpacity <= 0.01) return null;
 
               const spreadFromCenter = (w.barCenterX - 500) * 1.18 + 500;
-              const fracturedX =
-                w.barCenterX + (spreadFromCenter - w.barCenterX) * fractureEased;
+              const fracturedX = w.barCenterX + (spreadFromCenter - w.barCenterX) * fractureEased;
               const fracturedY = 210 + w.recoilY * strokeBoost * fractureEased;
               const fracturedAngle = w.recoilAngle * fractureEased;
               const fracturedWidth = 80 - 26 * fractureEased;
@@ -675,8 +681,7 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
               const currX = fracturedX + (slot.cx - fracturedX) * travelEased;
               const flightArcY =
                 Math.sin(travelEased * Math.PI) * (idx % 2 === 0 ? -32 : 32) * strokeBoost;
-              const currY =
-                fracturedY + (slot.cy - fracturedY) * travelEased + flightArcY;
+              const currY = fracturedY + (slot.cy - fracturedY) * travelEased + flightArcY;
               const currAngle = fracturedAngle * (1 - travelEased);
               const currWidth =
                 (fracturedWidth + (slot.width - fracturedWidth) * travelEased) *
@@ -715,10 +720,7 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
 
           {/* ACT 5: POST-WORD COSMIC PRISM WAVE, VOLUMETRIC RAYS & CALLIGRAPHIC CROWN RIBBON (progress 0.80 -> 1.00) */}
           {prismBell > 0.01 && (
-            <g
-              style={{ opacity: prismBell * (1 - splitEase) }}
-              filter={svgFilter}
-            >
+            <g style={{ opacity: prismBell * (1 - splitEase) }} filter={svgFilter}>
               <ellipse
                 cx="500"
                 cy="210"
@@ -748,7 +750,12 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
                 strokeWidth={(3.0 * strokeBoost).toFixed(2)}
                 strokeLinecap="round"
               />
-              <circle cx={crownSweepX} cy={isMobile ? 348 : 272} r={6.0 * strokeBoost} fill="#FFFBEB" />
+              <circle
+                cx={crownSweepX}
+                cy={isMobile ? 348 : 272}
+                r={6.0 * strokeBoost}
+                fill="#FFFBEB"
+              />
               <circle
                 cx={crownSweepX}
                 cy={isMobile ? 348 : 272}
@@ -768,16 +775,13 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
         >
           {WORDS.map((w, idx) => {
             const wordStart = 0.46 + idx * 0.046;
-            const solidifyP = Math.min(
-              1,
-              Math.max(0, (progress - wordStart) / 0.052)
-            );
+            const solidifyP = Math.min(1, Math.max(0, (progress - wordStart) / 0.052));
             const eased =
               solidifyP <= 0
                 ? 0
                 : solidifyP >= 1
-                ? 1
-                : 1 - Math.pow(1 - solidifyP, 3) + Math.sin(solidifyP * Math.PI) * 0.07;
+                  ? 1
+                  : 1 - Math.pow(1 - solidifyP, 3) + Math.sin(solidifyP * Math.PI) * 0.07;
 
             const wordWavePhase = Math.max(0, Math.min(1, (prismRaw - idx * 0.08) / 0.45));
             const prismLiftY = Math.sin(wordWavePhase * Math.PI) * (isMobile ? -7 : -10);
@@ -835,8 +839,8 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
                         prismBell > 0.2
                           ? "0 0 36px rgba(245, 184, 65, 0.72), 0 0 68px rgba(56, 189, 248, 0.38)"
                           : w.gold || exitProgress > 0.04
-                          ? "0 0 32px rgba(245, 184, 65, 0.52)"
-                          : "0 10px 28px rgba(0, 0, 0, 0.85)",
+                            ? "0 0 32px rgba(245, 184, 65, 0.52)"
+                            : "0 10px 28px rgba(0, 0, 0, 0.85)",
                     }}
                   >
                     {w.text}
@@ -940,7 +944,7 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
   useEffect(() => {
     if (!ignited) return;
 
-    if (progress >= 0.10 && !firedCuesRef.current.has("rebound")) {
+    if (progress >= 0.1 && !firedCuesRef.current.has("rebound")) {
       firedCuesRef.current.add("rebound");
       soundEngine.playLineMorphCue("rebound");
     }
@@ -966,7 +970,7 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
       }
     });
 
-    if (progress >= 0.80 && !firedCuesRef.current.has("prism")) {
+    if (progress >= 0.8 && !firedCuesRef.current.has("prism")) {
       firedCuesRef.current.add("prism");
       soundEngine.playLineMorphCue("prism");
     }
@@ -1007,8 +1011,8 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
     splitRaw <= 0
       ? 0
       : splitRaw < 0.5
-      ? 4 * Math.pow(splitRaw, 3)
-      : 1 - Math.pow(-2 * splitRaw + 2, 3) / 2;
+        ? 4 * Math.pow(splitRaw, 3)
+        : 1 - Math.pow(-2 * splitRaw + 2, 3) / 2;
   const edgeOpen = Math.pow(centerOpen, 1.65);
 
   const upperEdgeY = 500 - edgeOpen * 540;
@@ -1036,8 +1040,8 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
     exitProgress <= 0.01
       ? 0
       : exitProgress < 0.2
-      ? exitProgress / 0.2
-      : Math.max(0, 1 - (exitProgress - 0.25) / 0.72);
+        ? exitProgress / 0.2
+        : Math.max(0, 1 - (exitProgress - 0.25) / 0.72);
 
   const seamHalfSpan = 500 * (1 - Math.pow(1 - seamIgnite, 3));
   const bgUrl = publicUrl("/backgrounds/nebula-lapis-gold.jpg");
@@ -1061,7 +1065,12 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
         aria-hidden
       >
         <defs>
-          <pattern id="intro-nebula-pattern" patternUnits="userSpaceOnUse" width="1000" height="1000">
+          <pattern
+            id="intro-nebula-pattern"
+            patternUnits="userSpaceOnUse"
+            width="1000"
+            height="1000"
+          >
             <rect width="1000" height="1000" fill="#05060A" />
             <image
               href={bgUrl}
@@ -1072,11 +1081,7 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
               preserveAspectRatio="xMidYMid slice"
               opacity="0.34"
             />
-            <rect
-              width="1000"
-              height="1000"
-              fill="rgba(5, 6, 10, 0.55)"
-            />
+            <rect width="1000" height="1000" fill="rgba(5, 6, 10, 0.55)" />
           </pattern>
 
           <linearGradient id="portal-lip-gold" x1="0%" y1="0%" x2="100%" y2="0%">

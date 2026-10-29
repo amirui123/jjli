@@ -22,7 +22,15 @@ import { useToast } from "../ui/Toast";
 const LEGACY_ITEMS: SoundItem[] = ALL_SOUND_RECIPES_MANIFEST.map((r) => {
   const ratio = Math.abs(r.freqTo - r.freqFrom) / Math.max(r.freqFrom, 1);
   const category: SoundItem["category"] =
-    r.duration > 1.6 ? "air" : r.duration > 0.45 ? "sweep" : r.hasNoise ? "impact" : ratio > 0.4 ? "sweep" : "ui";
+    r.duration > 1.6
+      ? "air"
+      : r.duration > 0.45
+        ? "sweep"
+        : r.hasNoise
+          ? "impact"
+          : ratio > 0.4
+            ? "sweep"
+            : "ui";
   return {
     id: r.id,
     nameFa: r.id.replace(/[-_]/g, " "),
@@ -48,7 +56,8 @@ const CATEGORY_ORDER: (SoundItem["category"] | "all" | "long")[] = [
   "long",
 ];
 
-const seconds = (v: number) => `${v < 1 ? faNum(Math.round(v * 1000)) + "ms" : faNum(v.toFixed(v < 10 ? 1 : 0)) + "s"}`;
+const seconds = (v: number) =>
+  `${v < 1 ? faNum(Math.round(v * 1000)) + "ms" : faNum(v.toFixed(v < 10 ? 1 : 0)) + "s"}`;
 
 /* ----------------------------------------------------------------- settings */
 
@@ -81,12 +90,12 @@ const DEFAULT: SoundSettings = {
 
 /* ---------------------------------------------------------------- waveform */
 
-const Waveform: React.FC<{ item: SoundItem; options: PlayOptions; version: number; progress: number }> = ({
-  item,
-  options,
-  version,
-  progress,
-}) => {
+const Waveform: React.FC<{
+  item: SoundItem;
+  options: PlayOptions;
+  version: number;
+  progress: number;
+}> = ({ item, options, version, progress }) => {
   const ref = useRef<HTMLCanvasElement | null>(null);
   const [peaks, setPeaks] = useState<number[] | null>(null);
   const [boxWidth, setBoxWidth] = useState(0);
@@ -198,8 +207,12 @@ export const SoundStudio: React.FC = () => {
   const [s, set, reset] = usePersisted<SoundSettings>("studio-sounds", DEFAULT);
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<(typeof CATEGORY_ORDER)[number]>("all");
-  const [pick, setPick] = usePersisted<{ id: string }>("studio-sounds-pick", { id: SOUND_LIBRARY[0]?.id ?? "" });
-  const selectedId = SOUND_LIBRARY.some((r) => r.id === pick.id) ? pick.id : SOUND_LIBRARY[0]?.id ?? "";
+  const [pick, setPick] = usePersisted<{ id: string }>("studio-sounds-pick", {
+    id: SOUND_LIBRARY[0]?.id ?? "",
+  });
+  const selectedId = SOUND_LIBRARY.some((r) => r.id === pick.id)
+    ? pick.id
+    : (SOUND_LIBRARY[0]?.id ?? "");
   const [version, setVersion] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [seqPlaying, setSeqPlaying] = useState(false);
@@ -219,7 +232,13 @@ export const SoundStudio: React.FC = () => {
   };
 
   const options: PlayOptions = useMemo(
-    () => ({ pitch: s.pitch, gain: s.gain, cutoff: s.cutoff, stretch: s.stretch, noise: s.noise ? true : undefined }),
+    () => ({
+      pitch: s.pitch,
+      gain: s.gain,
+      cutoff: s.cutoff,
+      stretch: s.stretch,
+      noise: s.noise ? true : undefined,
+    }),
     [s.pitch, s.gain, s.cutoff, s.stretch, s.noise]
   );
 
@@ -249,7 +268,7 @@ export const SoundStudio: React.FC = () => {
     const pulses = Math.max(1, Math.min(steps, s.euclidPulses ?? 5));
     const arr: boolean[] = [];
     for (let i = 0; i < steps; i++) {
-      arr.push(((i * pulses) % steps) < pulses);
+      arr.push((i * pulses) % steps < pulses);
     }
     return arr;
   }, [s.euclidPulses, s.euclidSteps]);
@@ -284,7 +303,11 @@ export const SoundStudio: React.FC = () => {
   }, [q, cat]);
 
   const countFor = (c: (typeof CATEGORY_ORDER)[number]) =>
-    c === "all" ? SOUND_LIBRARY.length : c === "long" ? SOUND_LIBRARY.filter((r) => r.duration >= 5).length : SOUND_LIBRARY.filter((r) => r.category === c).length;
+    c === "all"
+      ? SOUND_LIBRARY.length
+      : c === "long"
+        ? SOUND_LIBRARY.filter((r) => r.duration >= 5).length
+        : SOUND_LIBRARY.filter((r) => r.category === c).length;
 
   const stopTimers = () => {
     if (playTimer.current) window.clearTimeout(playTimer.current);
@@ -331,11 +354,14 @@ export const SoundStudio: React.FC = () => {
       const t = (performance.now() - started) / 1000 / total;
       setElapsed(Math.min(1, t));
     }, 60);
-    playTimer.current = window.setTimeout(() => {
-      setPlaying(false);
-      setElapsed(0);
-      stopTimers();
-    }, total * 1000 + 140);
+    playTimer.current = window.setTimeout(
+      () => {
+        setPlaying(false);
+        setElapsed(0);
+        stopTimers();
+      },
+      total * 1000 + 140
+    );
   };
 
   useEffect(
@@ -361,7 +387,10 @@ export const SoundStudio: React.FC = () => {
       saveBlob(blob, `${selected.id}.wav`);
       return true;
     } catch {
-      toast.push("رندر WAV ناموفق بود", { desc: "مرورگر از OfflineAudioContext پشتیبانی نمی‌کند", tone: "error" });
+      toast.push("رندر WAV ناموفق بود", {
+        desc: "مرورگر از OfflineAudioContext پشتیبانی نمی‌کند",
+        tone: "error",
+      });
       return false;
     }
   };
@@ -403,20 +432,26 @@ soundEngine.playDesign(item.design, ${JSON.stringify(options)});`,
         <span
           className={cn(
             "flex h-6 w-6 shrink-0 items-center justify-center rounded-md",
-            active ? "bg-[color:var(--accent)]/20 text-[color:var(--accent)]" : "bg-white/[0.04] text-zinc-500"
+            active
+              ? "bg-[color:var(--accent)]/20 text-[color:var(--accent)]"
+              : "bg-white/[0.04] text-zinc-500"
           )}
         >
           <Play className="h-3 w-3" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className={cn("block truncate text-[11.5px]", active ? "text-white" : "text-zinc-300")}>
+          <span
+            className={cn("block truncate text-[11.5px]", active ? "text-white" : "text-zinc-300")}
+          >
             {item.nameFa}
           </span>
           <span className="block truncate text-[9.5px] text-zinc-600">
             {SOUND_CATEGORY_LABEL[item.category]} · {seconds(item.duration)}
           </span>
         </span>
-        {item.duration >= 5 && <span className="shrink-0 text-[9px] text-[color:var(--accent)]/80">بلند</span>}
+        {item.duration >= 5 && (
+          <span className="shrink-0 text-[9px] text-[color:var(--accent)]/80">بلند</span>
+        )}
       </button>
     );
   });
@@ -450,7 +485,9 @@ soundEngine.playDesign(item.design, ${JSON.stringify(options)});`,
         </div>
       </div>
       {rows}
-      {filtered.length === 0 && <p className="py-8 text-center text-[11px] text-zinc-600">صدایی پیدا نشد</p>}
+      {filtered.length === 0 && (
+        <p className="py-8 text-center text-[11px] text-zinc-600">صدایی پیدا نشد</p>
+      )}
     </StudioList>
   );
 
@@ -472,25 +509,43 @@ soundEngine.playDesign(item.design, ${JSON.stringify(options)});`,
               aria-pressed={playing}
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11.5px] font-bold transition-colors",
-                playing ? "bg-white/10 text-white ring-1 ring-inset ring-white/20" : "bg-[color:var(--accent)] text-black"
+                playing
+                  ? "bg-white/10 text-white ring-1 ring-inset ring-white/20"
+                  : "bg-[color:var(--accent)] text-black"
               )}
             >
               {playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
               {playing ? "توقف" : "پخش"}
             </button>
-            <DownloadButton label="WAV" filename={`${selected.id}.wav`} onDownload={downloadWav} variant="outline" />
-            <DownloadButton label="کیت" filename={`rtl-sound-${selected.id}.zip`} onDownload={downloadKit} variant="solid" />
+            <DownloadButton
+              label="WAV"
+              filename={`${selected.id}.wav`}
+              onDownload={downloadWav}
+              variant="outline"
+            />
+            <DownloadButton
+              label="کیت"
+              filename={`rtl-sound-${selected.id}.zip`}
+              onDownload={downloadKit}
+              variant="solid"
+            />
           </div>
         </div>
 
         <div className="relative bg-[#0A0A0C] px-3 py-3">
           <div
             className="pointer-events-none absolute inset-0 opacity-70"
-            style={{ background: "radial-gradient(60% 120% at 50% 0%, rgba(var(--accent-glow),0.12), transparent 70%)" }}
+            style={{
+              background:
+                "radial-gradient(60% 120% at 50% 0%, rgba(var(--accent-glow),0.12), transparent 70%)",
+            }}
           />
           <div className="relative">
             <Waveform item={selected} options={options} version={version} progress={elapsed} />
-            <div className="mt-1 flex items-center justify-between font-mono text-[9.5px] text-zinc-600" dir="ltr">
+            <div
+              className="mt-1 flex items-center justify-between font-mono text-[9.5px] text-zinc-600"
+              dir="ltr"
+            >
               <span>0s</span>
               <span>{audibleDuration(selected.design, options).toFixed(2)}s</span>
               <span>{faNum(selected.design.layers.length)} layers</span>
@@ -502,7 +557,13 @@ soundEngine.playDesign(item.design, ${JSON.stringify(options)});`,
           {[
             { k: "لایه‌ها", v: faNum(selected.design.layers.length), i: Sparkles },
             { k: "طول", v: seconds(selected.duration), i: Timer },
-            { k: "ریورب", v: selected.design.reverb ? `${faNum(Math.round(selected.design.reverb.mix * 100))}%` : "—", i: Waves },
+            {
+              k: "ریورب",
+              v: selected.design.reverb
+                ? `${faNum(Math.round(selected.design.reverb.mix * 100))}%`
+                : "—",
+              i: Waves,
+            },
             { k: "دسته", v: SOUND_CATEGORY_LABEL[selected.category], i: Volume2 },
           ].map((m) => (
             <div key={m.k} className="bg-[#0D0D10] px-3 py-2.5">
@@ -517,7 +578,12 @@ soundEngine.playDesign(item.design, ${JSON.stringify(options)});`,
       </Panel>
 
       <Panel title="طراحی صدا (JSON)" subtitle="همان چیزی که موتور سینتز اجرا می‌کند">
-        <CodeBlock code={JSON.stringify(selected.design, null, 2)} language="json" maxLines={14} filename={`${selected.id}.json`} />
+        <CodeBlock
+          code={JSON.stringify(selected.design, null, 2)}
+          language="json"
+          maxLines={14}
+          filename={`${selected.id}.json`}
+        />
       </Panel>
 
       <Panel title="صدای همین دسته" subtitle="برای شنیدن سریع و مقایسه" padded={false}>
@@ -546,13 +612,70 @@ soundEngine.playDesign(item.design, ${JSON.stringify(options)});`,
     <div className="space-y-3">
       <Panel title="میکس و فضاسازی پیشرفته" subtitle="روی پخش زنده و خروجی WAV اثر می‌گذارد">
         <div className="space-y-3">
-          <Slider label="زیر و بمی (Pitch)" value={s.pitch ?? 1} min={0.5} max={2} step={0.01} format={(v) => `${v.toFixed(2)}×`} onChange={(v) => set({ pitch: v })} />
-          <Slider label="بلندی (Master Gain)" value={s.gain ?? 1} min={0} max={2} step={0.01} format={(v) => `${v.toFixed(2)}×`} onChange={(v) => set({ gain: v })} />
-          <Slider label="فیلتر (Cutoff)" value={s.cutoff ?? 1} min={0.2} max={3} step={0.01} format={(v) => `${v.toFixed(2)}×`} onChange={(v) => set({ cutoff: v })} />
-          <Slider label="کشش زمان (Time Stretch)" value={s.stretch} min={0.5} max={2.5} step={0.01} format={(v) => `${v.toFixed(2)}×`} onChange={(v) => set({ stretch: v })} hint="صداهای بلند تا ۳۰ ثانیه کشیده می‌شوند" />
-          <Slider label="پژواک فضایی (Reverb Mix)" value={s.reverbMix ?? 0.28} min={0} max={0.95} step={0.05} format={(v) => `${Math.round(v * 100)}%`} onChange={(v) => set({ reverbMix: v })} />
-          <Slider label="مکان استریو (Stereo Pan L/R)" value={s.stereoPan ?? 0} min={-1} max={1} step={0.1} format={(v) => v.toFixed(1)} onChange={(v) => set({ stereoPan: v })} />
-          <Slider label="تقویت هارمونیک (Overtone Boost)" value={s.harmonicBoost ?? 1} min={0.2} max={2.2} step={0.1} format={(v) => `${v.toFixed(1)}×`} onChange={(v) => set({ harmonicBoost: v })} />
+          <Slider
+            label="زیر و بمی (Pitch)"
+            value={s.pitch ?? 1}
+            min={0.5}
+            max={2}
+            step={0.01}
+            format={(v) => `${v.toFixed(2)}×`}
+            onChange={(v) => set({ pitch: v })}
+          />
+          <Slider
+            label="بلندی (Master Gain)"
+            value={s.gain ?? 1}
+            min={0}
+            max={2}
+            step={0.01}
+            format={(v) => `${v.toFixed(2)}×`}
+            onChange={(v) => set({ gain: v })}
+          />
+          <Slider
+            label="فیلتر (Cutoff)"
+            value={s.cutoff ?? 1}
+            min={0.2}
+            max={3}
+            step={0.01}
+            format={(v) => `${v.toFixed(2)}×`}
+            onChange={(v) => set({ cutoff: v })}
+          />
+          <Slider
+            label="کشش زمان (Time Stretch)"
+            value={s.stretch}
+            min={0.5}
+            max={2.5}
+            step={0.01}
+            format={(v) => `${v.toFixed(2)}×`}
+            onChange={(v) => set({ stretch: v })}
+            hint="صداهای بلند تا ۳۰ ثانیه کشیده می‌شوند"
+          />
+          <Slider
+            label="پژواک فضایی (Reverb Mix)"
+            value={s.reverbMix ?? 0.28}
+            min={0}
+            max={0.95}
+            step={0.05}
+            format={(v) => `${Math.round(v * 100)}%`}
+            onChange={(v) => set({ reverbMix: v })}
+          />
+          <Slider
+            label="مکان استریو (Stereo Pan L/R)"
+            value={s.stereoPan ?? 0}
+            min={-1}
+            max={1}
+            step={0.1}
+            format={(v) => v.toFixed(1)}
+            onChange={(v) => set({ stereoPan: v })}
+          />
+          <Slider
+            label="تقویت هارمونیک (Overtone Boost)"
+            value={s.harmonicBoost ?? 1}
+            min={0.2}
+            max={2.2}
+            step={0.1}
+            format={(v) => `${v.toFixed(1)}×`}
+            onChange={(v) => set({ harmonicBoost: v })}
+          />
         </div>
       </Panel>
 
@@ -604,7 +727,9 @@ soundEngine.playDesign(item.design, ${JSON.stringify(options)});`,
             min={4}
             max={16}
             step={1}
-            onChange={(v) => set({ euclidSteps: v, euclidPulses: Math.min(s.euclidPulses ?? 5, v) })}
+            onChange={(v) =>
+              set({ euclidSteps: v, euclidPulses: Math.min(s.euclidPulses ?? 5, v) })
+            }
           />
           <Slider
             label="سرعت ریتم (BPM)"
@@ -620,8 +745,18 @@ soundEngine.playDesign(item.design, ${JSON.stringify(options)});`,
 
       <Panel title="رفتار">
         <div className="space-y-1.5">
-          <Toggle label="پیش‌شنود خودکار" checked={s.autoPreview} onChange={(v) => set({ autoPreview: v })} hint="با انتخاب هر رسیپی پخش می‌شود" />
-          <Toggle label="افزودن نویز" checked={s.noise} onChange={(v) => set({ noise: v })} hint="برای رسیپی‌های قدیمی" />
+          <Toggle
+            label="پیش‌شنود خودکار"
+            checked={s.autoPreview}
+            onChange={(v) => set({ autoPreview: v })}
+            hint="با انتخاب هر رسیپی پخش می‌شود"
+          />
+          <Toggle
+            label="افزودن نویز"
+            checked={s.noise}
+            onChange={(v) => set({ noise: v })}
+            hint="برای رسیپی‌های قدیمی"
+          />
           <button
             onClick={() => {
               setVersion((v) => v + 1);
@@ -635,8 +770,11 @@ soundEngine.playDesign(item.design, ${JSON.stringify(options)});`,
       </Panel>
 
       <Panel tone="inset" title="چطور استفاده کنم؟">
-        <pre dir="ltr" className="overflow-x-auto rounded-lg bg-black/50 p-2 font-mono text-[10px] leading-relaxed text-zinc-300">
-{`soundEngine.playDesign(item.design, { gain: 0.8 });`}
+        <pre
+          dir="ltr"
+          className="overflow-x-auto rounded-lg bg-black/50 p-2 font-mono text-[10px] leading-relaxed text-zinc-300"
+        >
+          {`soundEngine.playDesign(item.design, { gain: 0.8 });`}
         </pre>
         <p className="mt-2 text-[10.5px] leading-relaxed text-zinc-500">
           هر صدا فقط چند نود Web Audio است؛ بدون فایل، بدون دانلود و بدون تأخیر شبکه. صداهای بلند را
@@ -646,12 +784,14 @@ soundEngine.playDesign(item.design, ${JSON.stringify(options)});`,
 
       <Panel title="آمار کتابخانه">
         <div className="grid grid-cols-2 gap-1.5">
-          {([
-            ["کل", SOUND_LIBRARY.length],
-            ["بلند (۵s+)", countFor("long")],
-            ["سینمایی", countFor("cinematic")],
-            ["فضا", countFor("air")],
-          ] as const).map(([k, v]) => (
+          {(
+            [
+              ["کل", SOUND_LIBRARY.length],
+              ["بلند (۵s+)", countFor("long")],
+              ["سینمایی", countFor("cinematic")],
+              ["فضا", countFor("air")],
+            ] as const
+          ).map(([k, v]) => (
             <div key={k} className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2">
               <div className="text-[9.5px] text-zinc-500">{k}</div>
               <div className="font-mono text-[13px] text-zinc-100">{faNum(v)}</div>
@@ -674,7 +814,14 @@ soundEngine.playDesign(item.design, ${JSON.stringify(options)});`,
           <Badge>{faNum(countFor("long"))} بلند</Badge>
         </>
       }
-      actions={<DownloadButton label="دانلود کتابخانه" filename="rtl-sound-library.json" onDownload={() => saveTextLibrary()} variant="outline" />}
+      actions={
+        <DownloadButton
+          label="دانلود کتابخانه"
+          filename="rtl-sound-library.json"
+          onDownload={() => saveTextLibrary()}
+          variant="outline"
+        />
+      }
       onReset={() => {
         reset();
         setVersion((v) => v + 1);

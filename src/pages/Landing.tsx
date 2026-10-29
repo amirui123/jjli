@@ -15,10 +15,7 @@ import {
 } from "lucide-react";
 import { PERSIAN_FONT_CATALOG } from "../data/persianFontsCatalog";
 import { TOOLKIT_STATS } from "../data/toolkitStats";
-import {
-  DESIGN_LAB_PILLARS,
-  DESIGN_LAB_TOTAL_FILES,
-} from "../data/designLabManifest";
+import { DESIGN_LAB_PILLARS, DESIGN_LAB_TOTAL_FILES } from "../data/designLabManifest";
 import { navigate } from "../lib/router";
 import { writePersisted } from "../lib/store";
 import { soundEngine } from "../engines/soundEngine";
@@ -233,8 +230,7 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
         <div
           className="pointer-events-none absolute inset-0"
           style={{
-            background:
-              "radial-gradient(60% 65% at 50% 45%, rgba(5,6,10,0.15) 0%, #05060A 82%)",
+            background: "radial-gradient(60% 65% at 50% 45%, rgba(5,6,10,0.15) 0%, #05060A 82%)",
           }}
         />
 
@@ -251,7 +247,9 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
             className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[10.5px] text-zinc-300 backdrop-blur-md sm:gap-2.5 sm:px-4 sm:text-[11.5px]"
           >
             <span className="h-2 w-2 shrink-0 rounded-full bg-[color:var(--accent)] shadow-[0_0_12px_var(--accent)]" />
-            <span className="truncate">آتلیهٔ مهندسی تایپوگرافی، فیزیک حرکت و طراحی راست‌به‌چپ</span>
+            <span className="truncate">
+              آتلیهٔ مهندسی تایپوگرافی، فیزیک حرکت و طراحی راست‌به‌چپ
+            </span>
             <button
               type="button"
               onClick={() => {
@@ -395,7 +393,8 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
             style={{ x: ribbonLeftToRight }}
             className="whitespace-nowrap font-nastaliq text-[38px] text-[color:var(--accent)]/35 sm:text-[64px]"
           >
-            در امتدادِ نور هر خط جان می‌گیرد ✦ چهار هزار و بیست و سه مهارت مهندسی ✦ هفت استودیوی تخصصی ✦
+            در امتدادِ نور هر خط جان می‌گیرد ✦ چهار هزار و بیست و سه مهارت مهندسی ✦ هفت استودیوی
+            تخصصی ✦
           </motion.div>
         </div>
 
@@ -474,10 +473,7 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
                   }}
                   viewport={{ once: isMobile, amount: 0.2 }}
                   transition={{ ...SPRING_SILK, delay: 0.06 }}
-                  className={cn(
-                    "space-y-5 lg:col-span-6",
-                    !isEven && "lg:order-2"
-                  )}
+                  className={cn("space-y-5 lg:col-span-6", !isEven && "lg:order-2")}
                 >
                   <h2 className="font-hasti text-[28px] leading-[1.45] text-white sm:text-[40px]">
                     <span className="block">{ch.titleLine1}</span>
@@ -535,10 +531,7 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
                   }}
                   viewport={{ once: isMobile, amount: 0.2 }}
                   transition={{ ...SPRING_SILK, delay: 0.14 }}
-                  className={cn(
-                    "lg:col-span-6",
-                    !isEven && "lg:order-1"
-                  )}
+                  className={cn("lg:col-span-6", !isEven && "lg:order-1")}
                 >
                   {/* Visual Stage 1: Typography Specimen Showcase */}
                   {ch.visualType === "typography" && (

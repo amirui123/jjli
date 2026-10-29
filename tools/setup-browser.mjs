@@ -17,7 +17,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-import { ROOT, LIB_DIR } from "./lib/browser.mjs";
+import { LIB_DIR } from "./lib/browser.mjs";
 
 const NET = "https://registry.npmjs.org";
 const log = (...a) => console.log("[tool:setup]", ...a);

@@ -18,10 +18,7 @@ import {
   Waves,
 } from "lucide-react";
 import { TOOLKIT_STATS } from "../data/toolkitStats";
-import {
-  DESIGN_LAB_PILLARS,
-  DESIGN_LAB_TOTAL_FILES,
-} from "../data/designLabManifest";
+import { DESIGN_LAB_PILLARS, DESIGN_LAB_TOTAL_FILES } from "../data/designLabManifest";
 import { SHADERS } from "../engines/shaderLab";
 import { navigate } from "../lib/router";
 import { ACCENTS, useAppSettings, writePersisted } from "../lib/store";
@@ -263,7 +260,10 @@ export const Dashboard: React.FC = () => {
   };
 
   return (
-    <div key={animKey} className="mx-auto max-w-6xl space-y-16 overflow-x-hidden px-3 py-6 sm:px-6 sm:py-10">
+    <div
+      key={animKey}
+      className="mx-auto max-w-6xl space-y-16 overflow-x-hidden px-3 py-6 sm:px-6 sm:py-10"
+    >
       {/* =====================================================================
          SECTION 1: AVIONICS TELEMETRY HEADER
          - Status bar drops from TOP (y: -60 -> 0)
@@ -301,7 +301,7 @@ export const Dashboard: React.FC = () => {
               soundEngine.playTick(1.15);
               setAnimKey((k) => k + 1);
             }}
-            aria-label="پخش دوباره انیمیشن‌های داشبورد"
+            aria-label="پخش مجدد انیمیشن‌ها"
             className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[10.5px] text-zinc-300 transition-colors hover:border-white/25 hover:text-white"
           >
             <RotateCcw className="h-3 w-3 text-[color:var(--accent)]" />
@@ -618,7 +618,10 @@ export const Dashboard: React.FC = () => {
                   <h3 className="mt-5 font-hasti text-[28px] text-white sm:text-[34px]">
                     {activeStudio.title}
                   </h3>
-                  <p className="mt-2 text-[14px] font-medium" style={{ color: activeStudio.accent }}>
+                  <p
+                    className="mt-2 text-[14px] font-medium"
+                    style={{ color: activeStudio.accent }}
+                  >
                     {activeStudio.tagline}
                   </p>
                   <p className="mt-3 max-w-xl text-[13px] leading-relaxed text-zinc-300">

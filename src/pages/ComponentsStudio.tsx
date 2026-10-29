@@ -15,16 +15,7 @@ import { CHUNK_SIZE, REGISTRY_FILES } from "../data/registryFiles";
 import { COMPONENT_CATALOG } from "../data/componentCatalog";
 import { loadAsset, useDebounced, usePersisted } from "../lib/store";
 import { saveKit, saveText } from "../lib/download";
-import {
-  Badge,
-  CodeBlock,
-  CopyButton,
-  Panel,
-  SearchField,
-  Slider,
-  Toggle,
-  cn,
-} from "../ui/kit";
+import { Badge, CodeBlock, CopyButton, Panel, SearchField, Slider, Toggle, cn } from "../ui/kit";
 import { StudioShell, StudioList, focusStudioPreview } from "../ui/StudioShell";
 import { DownloadButton } from "../ui/DownloadButton";
 import {
@@ -140,7 +131,7 @@ export const ComponentsStudio: React.FC = () => {
   });
   const regId = REGISTRY_FILES.some((r) => r.id === pick.regId)
     ? pick.regId
-    : REGISTRY_FILES[0]?.id ?? "";
+    : (REGISTRY_FILES[0]?.id ?? "");
 
   const [activeWidget, setActiveWidget] = useState<FlagshipId>("bank-card");
   const [showLiveDeck, setShowLiveDeck] = useState(true);
@@ -285,23 +276,17 @@ export const STUDIO_COMPONENT_TOKENS = {
 } as const;\n\n`;
       return header + rawSource;
     },
-    [
-      s.injectCustomHeader,
-      s.dirMode,
-      s.borderRadius,
-      s.glassBlur,
-      s.accentColor,
-      s.widgetScale,
-    ]
+    [s.injectCustomHeader, s.dirMode, s.borderRadius, s.glassBlur, s.accentColor, s.widgetScale]
   );
 
   const downloadFile = useCallback(async () => {
     const file = await ensureCode(selected);
     if (!file) return false;
     const name = file.p.split("/").pop() ?? "component.tsx";
-    const finalContent = file.p.endsWith(".tsx") || file.p.endsWith(".ts")
-      ? decorateSourceWithCustomTokens(file.c, file.p)
-      : file.c;
+    const finalContent =
+      file.p.endsWith(".tsx") || file.p.endsWith(".ts")
+        ? decorateSourceWithCustomTokens(file.c, file.p)
+        : file.c;
     saveText(finalContent, name, file.p.endsWith(".tsx") ? "text/typescript" : "text/plain");
     return true;
   }, [ensureCode, selected, decorateSourceWithCustomTokens]);
@@ -404,9 +389,7 @@ export const STUDIO_COMPONENT_TOKENS = {
       }}
       topDeck={
         <div className="flex flex-wrap items-center gap-1">
-          <span className="me-1 text-[10px] font-bold text-emerald-300">
-            ویجت‌های تعاملی بومی:
-          </span>
+          <span className="me-1 text-[10px] font-bold text-emerald-300">ویجت‌های تعاملی بومی:</span>
           {FLAGSHIP_WIDGETS.map((w) => {
             const active = showLiveDeck && activeWidget === w.id;
             return (

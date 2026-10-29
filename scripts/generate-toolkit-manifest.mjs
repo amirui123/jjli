@@ -44,8 +44,7 @@ const skills = skillFiles.map((file) => {
     .split("\n")
     .map((l) => l.trim())
     .filter(Boolean);
-  const heading =
-    lines.find((l) => l.startsWith("# "))?.replace(/^#+\s*/, "") || skillSlug;
+  const heading = lines.find((l) => l.startsWith("# "))?.replace(/^#+\s*/, "") || skillSlug;
   const summary =
     lines
       .filter((l) => !l.startsWith("#") && !l.startsWith("---") && l.length > 25)
@@ -75,25 +74,20 @@ const brandDesigns = designFiles.map((file) => {
   const fileName = path.basename(file);
   const brandSlug = fileName.replace(/-?DESIGN\.md$/i, "");
   const raw = fs.readFileSync(file, "utf8");
-  const hexMatches = Array.from(
-    new Set(raw.match(/#[0-9A-Fa-f]{6}\b/g) || [])
-  ).slice(0, 6);
+  const hexMatches = Array.from(new Set(raw.match(/#[0-9A-Fa-f]{6}\b/g) || [])).slice(0, 6);
   const lines = raw
     .split("\n")
     .map((l) => l.trim())
     .filter(Boolean);
   const title =
-    lines.find((l) => l.startsWith("# "))?.replace(/^#+\s*/, "") ||
-    brandSlug.toUpperCase();
+    lines.find((l) => l.startsWith("# "))?.replace(/^#+\s*/, "") || brandSlug.toUpperCase();
   const excerpt = raw.slice(0, 340);
 
   return {
     id: brandSlug,
     name: brandSlug,
     title: title.slice(0, 80),
-    colors: hexMatches.length
-      ? hexMatches
-      : ["#09090B", "#6366F1", "#06B6D4", "#FAFAFA"],
+    colors: hexMatches.length ? hexMatches : ["#09090B", "#6366F1", "#06B6D4", "#FAFAFA"],
     path: `toolkit/01-skills-and-standards/05-brand-design-md-vault/${fileName}`,
     excerpt,
   };
@@ -108,10 +102,7 @@ const registryDirs = fs
 
 const registriesManifest = registryDirs.map((regName) => {
   const regPath = path.join(compRoot, regName);
-  const files = walk(
-    regPath,
-    (full, name) => name.endsWith(".tsx") || name.endsWith(".ts")
-  );
+  const files = walk(regPath, (full, name) => name.endsWith(".tsx") || name.endsWith(".ts"));
 
   const allFileNames = files.map((f) => path.relative(regPath, f));
 
@@ -124,10 +115,7 @@ const registriesManifest = registryDirs.map((regName) => {
     if (content.length >= 250 && content.length <= 2000) {
       codeSamples.push({
         name: path.basename(tf, ".tsx"),
-        relPath: `toolkit/04-motion-primitives-and-ui/${regName}/${path.relative(
-          regPath,
-          tf
-        )}`,
+        relPath: `toolkit/04-motion-primitives-and-ui/${regName}/${path.relative(regPath, tf)}`,
         code: content,
       });
     }
@@ -142,10 +130,7 @@ const registriesManifest = registryDirs.map((regName) => {
 });
 
 // 4. Scan all 200+ Procedural Sound files in 07-core-engines/03-procedural-sound-engine
-const soundRoot = path.join(
-  ROOT,
-  "07-core-engines/03-procedural-sound-engine"
-);
+const soundRoot = path.join(ROOT, "07-core-engines/03-procedural-sound-engine");
 const soundFilesRaw = walk(
   soundRoot,
   (full, name) => name.endsWith(".ts") && name !== "react-bits-sound.ts"
@@ -164,16 +149,8 @@ const soundRecipes = soundFilesRaw.map((f) => {
     id: name,
     duration: durMatch ? Number(durMatch[1]) : 0.18,
     lowpass: lpMatch ? Number(lpMatch[1]) : 6000,
-    freqFrom: fromMatch
-      ? Number(fromMatch[1])
-      : freqMatch
-      ? Number(freqMatch[1])
-      : 340,
-    freqTo: toMatch
-      ? Number(toMatch[1])
-      : freqMatch
-      ? Number(freqMatch[1]) * 1.25
-      : 520,
+    freqFrom: fromMatch ? Number(fromMatch[1]) : freqMatch ? Number(freqMatch[1]) : 340,
+    freqTo: toMatch ? Number(toMatch[1]) : freqMatch ? Number(freqMatch[1]) * 1.25 : 520,
     hasNoise: raw.includes("type: 'noise'"),
     snippet: raw.slice(0, 420),
   };
@@ -194,20 +171,17 @@ const engineFolders = fs
     };
   });
 
-const rtlEngineFiles = walk(
-  path.join(ROOT, "03-persian-rtl-engine"),
-  () => true
-).map((f) => path.relative(path.join(ROOT, "03-persian-rtl-engine"), f));
+const rtlEngineFiles = walk(path.join(ROOT, "03-persian-rtl-engine"), () => true).map((f) =>
+  path.relative(path.join(ROOT, "03-persian-rtl-engine"), f)
+);
 
-const qaFiles = walk(
-  path.join(ROOT, "05-qa-and-bug-hunters"),
-  () => true
-).map((f) => path.relative(path.join(ROOT, "05-qa-and-bug-hunters"), f));
+const qaFiles = walk(path.join(ROOT, "05-qa-and-bug-hunters"), () => true).map((f) =>
+  path.relative(path.join(ROOT, "05-qa-and-bug-hunters"), f)
+);
 
-const aiFiles = walk(
-  path.join(ROOT, "06-ai-model-training"),
-  () => true
-).map((f) => path.relative(path.join(ROOT, "06-ai-model-training"), f));
+const aiFiles = walk(path.join(ROOT, "06-ai-model-training"), () => true).map((f) =>
+  path.relative(path.join(ROOT, "06-ai-model-training"), f)
+);
 
 const DATA_DIR = path.join(REPO, "src/data");
 const totalComponents = registriesManifest.reduce((a, b) => a + b.totalFiles, 0);
@@ -220,8 +194,8 @@ const header = (title) => `/**
 
 /* --------------------------------------------------------------- skills */
 const skillsTs =
-  header(`${skills.length} SKILL.md + ${brandDesigns.length} brand DESIGN.md`)
-  + `export interface SkillManifestItem {
+  header(`${skills.length} SKILL.md + ${brandDesigns.length} brand DESIGN.md`) +
+  `export interface SkillManifestItem {
   id: string;
   slug: string;
   categoryFolder: string;
@@ -248,8 +222,8 @@ fs.writeFileSync(path.join(DATA_DIR, "skillsManifest.ts"), skillsTs, "utf8");
 
 /* ----------------------------------------------------------- registries */
 const registriesTs =
-  header(`${registriesManifest.length} registries · ${totalComponents} files`)
-  + `export interface RegistryManifestItem {
+  header(`${registriesManifest.length} registries · ${totalComponents} files`) +
+  `export interface RegistryManifestItem {
   id: string;
   totalFiles: number;
   allComponents: string[];
@@ -273,8 +247,8 @@ const designedSoundCount = fs.existsSync(SOUND_LIBRARY_FILE)
   : 0;
 const totalSounds = soundRecipes.length + designedSoundCount;
 const soundsTs =
-  header(`${soundRecipes.length} procedural sound recipes`)
-  + `export interface SoundRecipeItem {
+  header(`${soundRecipes.length} procedural sound recipes`) +
+  `export interface SoundRecipeItem {
   id: string;
   duration: number;
   lowpass: number;
@@ -290,8 +264,8 @@ fs.writeFileSync(path.join(DATA_DIR, "soundsManifest.ts"), soundsTs, "utf8");
 
 /* --------------------------------------------------------------- engines */
 const engineTs =
-  header("core engine file indexes")
-  + `export const ALL_ENGINE_FOLDERS_MANIFEST = ${JSON.stringify(engineFolders, null, 2)};
+  header("core engine file indexes") +
+  `export const ALL_ENGINE_FOLDERS_MANIFEST = ${JSON.stringify(engineFolders, null, 2)};
 
 export const ALL_RTL_ENGINE_FILES: string[] = ${JSON.stringify(rtlEngineFiles, null, 2)};
 
@@ -303,8 +277,8 @@ fs.writeFileSync(path.join(DATA_DIR, "engineFilesManifest.ts"), engineTs, "utf8"
 
 /* ----------------------------------------------------------------- stats */
 const statsTs =
-  header("tiny counters used by the landing page & dashboard")
-  + `export const TOOLKIT_STATS = ${JSON.stringify(
+  header("tiny counters used by the landing page & dashboard") +
+  `export const TOOLKIT_STATS = ${JSON.stringify(
     {
       skills: skills.length,
       brands: brandDesigns.length,
@@ -321,9 +295,7 @@ const statsTs =
   )} as const;
 
 /** Lightweight slug list for marquees/nav (no excerpts). */
-export const TOOLKIT_SKILL_SLUGS: string[] = ${JSON.stringify(
-    skills.map((s) => s.slug)
-  )};
+export const TOOLKIT_SKILL_SLUGS: string[] = ${JSON.stringify(skills.map((s) => s.slug))};
 
 /** A curated handful of sound recipes so the landing page stays light. */
 export const FEATURED_SOUNDS = ${JSON.stringify(soundRecipes.slice(0, 10), null, 2)};
@@ -331,8 +303,9 @@ export const FEATURED_SOUNDS = ${JSON.stringify(soundRecipes.slice(0, 10), null,
 fs.writeFileSync(path.join(DATA_DIR, "toolkitStats.ts"), statsTs, "utf8");
 
 /* ---------------------------------------------------------------- barrel */
-const barrel = header("barrel re-export (kept for backwards compatibility)")
-  + `export * from "./skillsManifest";
+const barrel =
+  header("barrel re-export (kept for backwards compatibility)") +
+  `export * from "./skillsManifest";
 export * from "./registriesManifest";
 export * from "./soundsManifest";
 export * from "./engineFilesManifest";

@@ -35,7 +35,8 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
         </span>
         <h1 className="mt-4 font-hasti text-[26px] leading-tight text-white">این بخش بالا نیامد</h1>
         <p className="mt-2 text-[12px] leading-relaxed text-zinc-500">
-          یک خطای غیرمنتظره رخ داد؛ بقیه پلتفرم سالم است. می‌توانی دوباره تلاش کنی یا به خانه برگردی.
+          یک خطای غیرمنتظره رخ داد؛ بقیه پلتفرم سالم است. می‌توانی دوباره تلاش کنی یا به خانه
+          برگردی.
         </p>
         <p
           dir="ltr"

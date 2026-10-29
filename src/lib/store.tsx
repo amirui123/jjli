@@ -59,9 +59,7 @@ export function usePersisted<T extends object>(
 
   const update = useCallback((patch: Partial<T> | ((prev: T) => T)) => {
     setState((prev) =>
-      typeof patch === "function"
-        ? (patch as (p: T) => T)(prev)
-        : { ...prev, ...patch }
+      typeof patch === "function" ? (patch as (p: T) => T)(prev) : { ...prev, ...patch }
     );
   }, []);
 
@@ -79,13 +77,7 @@ export function usePersisted<T extends object>(
 
 /* ------------------------------------------------------------ app settings */
 
-export type AccentId =
-  | "saffron"
-  | "turquoise"
-  | "lapis"
-  | "emerald"
-  | "rose"
-  | "violet";
+export type AccentId = "saffron" | "turquoise" | "lapis" | "emerald" | "rose" | "violet";
 
 export interface AccentTheme {
   id: AccentId;
@@ -138,10 +130,7 @@ interface Ctx {
 const SettingsCtx = createContext<Ctx | null>(null);
 
 export function AppSettingsProvider({ children }: { children: React.ReactNode }) {
-  const [settings, update, reset] = usePersisted<AppSettings>(
-    "app-settings",
-    DEFAULT_SETTINGS
-  );
+  const [settings, update, reset] = usePersisted<AppSettings>("app-settings", DEFAULT_SETTINGS);
 
   const baseAccent = ACCENTS.find((a) => a.id === settings.accent) ?? ACCENTS[0];
   const accent = useMemo<AccentTheme>(
@@ -155,8 +144,8 @@ export function AppSettingsProvider({ children }: { children: React.ReactNode })
     settings.reduceMotion || settings.motionLevel === 1
       ? 0.35
       : settings.motionLevel === 2
-      ? 0.7
-      : 1;
+        ? 0.7
+        : 1;
 
   useEffect(() => {
     const root = document.documentElement;
@@ -193,7 +182,13 @@ export function useAppSettings(): Ctx {
 
 function hexToRgb(hex: string): string {
   const clean = hex.replace("#", "");
-  const full = clean.length === 3 ? clean.split("").map((c) => c + c).join("") : clean;
+  const full =
+    clean.length === 3
+      ? clean
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : clean;
   const num = Number.parseInt(full, 16);
   if (Number.isNaN(num)) return "232,179,58";
   return `${(num >> 16) & 255},${(num >> 8) & 255},${num & 255}`;

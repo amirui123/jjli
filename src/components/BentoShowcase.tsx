@@ -58,11 +58,7 @@ export const Iranian3DBankCardWidget: React.FC<{
   const springY = useSpring(y, { stiffness, damping });
 
   const rotateX = useTransform(springY, [-0.5, 0.5], [maxTilt, -maxTilt]);
-  const rotateY = useTransform(
-    springX,
-    [-0.5, 0.5],
-    [-maxTilt * rtlSign, maxTilt * rtlSign]
-  );
+  const rotateY = useTransform(springX, [-0.5, 0.5], [-maxTilt * rtlSign, maxTilt * rtlSign]);
 
   return (
     <div className="flex w-full flex-col items-center gap-3">
@@ -89,9 +85,7 @@ export const Iranian3DBankCardWidget: React.FC<{
                 className="h-2.5 w-2.5 rounded-full shadow-sm"
                 style={{ backgroundColor: bank.accentHex }}
               />
-              <span className="text-sm font-bold tracking-normal">
-                {bank.nameFa}
-              </span>
+              <span className="text-sm font-bold tracking-normal">{bank.nameFa}</span>
             </div>
             <span className="rounded-full border border-white/15 bg-black/35 px-2.5 py-0.5 text-[10px] text-zinc-200 backdrop-blur-md">
               {bank.badgeText}
@@ -164,23 +158,36 @@ export const PersianKineticTypographyWidget: React.FC<{
   physics?: StudioPhysicsConfig;
   compact?: boolean;
 }> = ({ physics, compact = false }) => {
-  const [selectedFont, setSelectedFont] = useState<string>(
-    physics?.fontFamily || "font-hasti"
-  );
+  const [selectedFont, setSelectedFont] = useState<string>(physics?.fontFamily || "font-hasti");
   const [replayKey, setReplayKey] = useState(0);
 
   const fontOptions = [
     { id: "font-hasti", label: "هستی (Hasti)", sample: "هنر مهندسی موشن و تایپوگرافی اصیل ایرانی" },
-    { id: "font-nastaliq", label: "نستعلیق (Nastaliq)", sample: "چو ایران نباشد تن من مباد • آزمایشگاه موشن" },
-    { id: "font-kahroba", label: "کهربا متغیر (Kahroba)", sample: "فیزیک فنری ۶۰ فریم بدون شکستن نیم‌فاصله‌ها" },
-    { id: "font-morabba", label: "مربع (Morabba)", sample: "سیستم طراحی تاریک و مهندسی در تراز جهانی" },
+    {
+      id: "font-nastaliq",
+      label: "نستعلیق (Nastaliq)",
+      sample: "چو ایران نباشد تن من مباد • آزمایشگاه موشن",
+    },
+    {
+      id: "font-kahroba",
+      label: "کهربا متغیر (Kahroba)",
+      sample: "فیزیک فنری ۶۰ فریم بدون شکستن نیم‌فاصله‌ها",
+    },
+    {
+      id: "font-morabba",
+      label: "مربع (Morabba)",
+      sample: "سیستم طراحی تاریک و مهندسی در تراز جهانی",
+    },
     { id: "font-peyda", label: "پیدا (Peyda)", sample: "رابط کاربری مدرن و راست‌به‌چپ نسل جدید" },
-    { id: "font-yekanbakh", label: "یکان‌بخ (YekanBakh)", sample: "تایپوگرافی دقیق برای داشبوردهای فین‌تک و هوش مصنوعی" },
+    {
+      id: "font-yekanbakh",
+      label: "یکان‌بخ (YekanBakh)",
+      sample: "تایپوگرافی دقیق برای داشبوردهای فین‌تک و هوش مصنوعی",
+    },
   ];
 
   const activeFontObj =
-    fontOptions.find((f) => f.id === (physics?.fontFamily || selectedFont)) ||
-    fontOptions[0];
+    fontOptions.find((f) => f.id === (physics?.fontFamily || selectedFont)) || fontOptions[0];
   const words = splitPersianWordsSafe(activeFontObj.sample);
 
   return (
@@ -388,9 +395,7 @@ export const DynamicIslandWidget: React.FC<{
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-cyan-300">
-                    معمار هوش مصنوعی RTL
-                  </span>
+                  <span className="text-xs font-bold text-cyan-300">معمار هوش مصنوعی RTL</span>
                   <span className="rounded bg-cyan-500/20 px-1.5 py-0.5 text-[10px] text-cyan-300">
                     زنده
                   </span>
@@ -415,17 +420,11 @@ export const DynamicIslandWidget: React.FC<{
                   <Check className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-white">
-                    واریز آنی پایا تایید شد
-                  </p>
-                  <p className="text-[11px] text-zinc-400">
-                    بلوبانک سامان • کد پیگیری ۴۸۲۹۱۰
-                  </p>
+                  <p className="text-xs font-bold text-white">واریز آنی پایا تایید شد</p>
+                  <p className="text-[11px] text-zinc-400">بلوبانک سامان • کد پیگیری ۴۸۲۹۱۰</p>
                 </div>
               </div>
-              <span className="font-bold text-sm text-emerald-400">
-                +۲۴,۵۰۰,۰۰۰ ت
-              </span>
+              <span className="font-bold text-sm text-emerald-400">+۲۴,۵۰۰,۰۰۰ ت</span>
             </motion.div>
           )}
 
@@ -438,9 +437,7 @@ export const DynamicIslandWidget: React.FC<{
               className="flex items-center justify-between"
             >
               <div>
-                <p className="text-xs font-bold text-indigo-300">
-                  موتور شیدر OGL + GPU Compositor
-                </p>
+                <p className="text-xs font-bold text-indigo-300">موتور شیدر OGL + GPU Compositor</p>
                 <p className="mt-0.5 text-[11px] text-zinc-400">
                   بودجه فریم: ۱۶.۶ms • بدون Layout Shift
                 </p>
@@ -522,9 +519,7 @@ export const RtlMotionBugHunterWidget: React.FC = () => {
             className="flex items-center justify-between rounded-lg border border-rose-500/20 bg-rose-500/10 px-2.5 py-1 text-[11px] text-rose-200"
           >
             <span className="truncate">{issue.titleFa}</span>
-            <span className="font-mono text-[10px] text-rose-300">
-              {issue.match}
-            </span>
+            <span className="font-mono text-[10px] text-rose-300">{issue.match}</span>
           </div>
         ))}
         {audit.issues.length === 0 && (
@@ -584,8 +579,8 @@ export const JalaliCalendarWidget: React.FC<{
                 isSelected
                   ? "text-white font-bold"
                   : isFriday
-                  ? "text-rose-400 hover:bg-white/5"
-                  : "text-zinc-300 hover:bg-white/5"
+                    ? "text-rose-400 hover:bg-white/5"
+                    : "text-zinc-300 hover:bg-white/5"
               }`}
             >
               {isSelected && (
@@ -634,9 +629,7 @@ export const UniversalComponentPreview: React.FC<{
       return (
         <div className="flex flex-col items-center gap-3">
           <SiriShaderOrb active />
-          <span className="text-xs text-zinc-300">
-            گوی شیدری چندلایه و طیف صوتی هوش مصنوعی
-          </span>
+          <span className="text-xs text-zinc-300">گوی شیدری چندلایه و طیف صوتی هوش مصنوعی</span>
         </div>
       );
     case "rtl-auditor":
@@ -663,9 +656,7 @@ export const UniversalComponentPreview: React.FC<{
     case "otp-farsi":
       return (
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-white/10 bg-zinc-950 p-5">
-          <span className="text-xs text-zinc-300">
-            کد تایید ۵ رقمی ارسال‌شده به ۰۹۱۲•••۸۴۹۲
-          </span>
+          <span className="text-xs text-zinc-300">کد تایید ۵ رقمی ارسال‌شده به ۰۹۱۲•••۸۴۹۲</span>
           <div dir="ltr" className="flex gap-2">
             {["۴", "۸", "۲", "۹", "۱"].map((d, idx) => (
               <motion.div
@@ -735,7 +726,8 @@ export const BentoShowcaseGrid: React.FC<{
           </h2>
         </div>
         <p className="max-w-md text-xs sm:text-sm text-zinc-400">
-          هر کارت زیر یک کامپوننت واقعی ۶۰ فریم بر ثانیه است؛ ماوس را حرکت دهید، فونت‌های خاص و نستعلیق را عوض کنید یا مستقیم وارد استودیوی فیزیک شوید.
+          هر کارت زیر یک کامپوننت واقعی ۶۰ فریم بر ثانیه است؛ ماوس را حرکت دهید، فونت‌های خاص و
+          نستعلیق را عوض کنید یا مستقیم وارد استودیوی فیزیک شوید.
         </p>
       </div>
 
@@ -752,7 +744,8 @@ export const BentoShowcaseGrid: React.FC<{
                 </h3>
               </div>
               <p className="mt-1 text-xs text-zinc-400">
-                تشخیص خودکار بانک از روی BIN، الگوریتم Luhn، فویل هولوگرافیک و قرینه‌سازی زاویه 3D در RTL
+                تشخیص خودکار بانک از روی BIN، الگوریتم Luhn، فویل هولوگرافیک و قرینه‌سازی زاویه 3D
+                در RTL
               </p>
             </div>
             <div className="flex items-center gap-1.5">

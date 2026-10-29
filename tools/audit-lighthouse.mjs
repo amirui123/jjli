@@ -14,8 +14,6 @@ import { PAGES, urlFor, auditDir, writeJSON, ROOT } from "./lib/browser.mjs";
 const BASE = process.env.AUDIT_BASE_URL || "http://127.0.0.1:4173";
 const OUT = auditDir("before");
 const CHROME = process.env.CHROME_PATH || "/tmp/chromium";
-const UA =
-  "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) jsdom Chromium/153 Safari/537.36";
 
 // The 404 page is deliberately excluded: it is a dev-only route.
 const TARGETS = PAGES.filter((p) => p.id !== "notfound");

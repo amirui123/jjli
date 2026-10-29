@@ -12,14 +12,7 @@
 
 /* ------------------------------------------------------------------ types */
 
-export type SoundCategory =
-  | "ui"
-  | "impact"
-  | "sweep"
-  | "air"
-  | "texture"
-  | "cinematic"
-  | "notify";
+export type SoundCategory = "ui" | "impact" | "sweep" | "air" | "texture" | "cinematic" | "notify";
 
 export interface FilterSpec {
   type: "lowpass" | "highpass" | "bandpass";
@@ -347,7 +340,13 @@ class ProceduralSoundEngine {
 
   /* --------------------------------------------------------------- voices */
 
-  private filterNode(ctx: BaseAudioContext, spec: FilterSpec, cutoffScale: number, at: number, dur: number) {
+  private filterNode(
+    ctx: BaseAudioContext,
+    spec: FilterSpec,
+    cutoffScale: number,
+    at: number,
+    dur: number
+  ) {
     const filter = ctx.createBiquadFilter();
     filter.type = spec.type;
     const from = clamp(spec.f * cutoffScale, 30, 19000);
@@ -362,7 +361,14 @@ class ProceduralSoundEngine {
     return filter;
   }
 
-  private lfo(ctx: BaseAudioContext, spec: LfoSpec, param: AudioParam, at: number, dur: number, scale = 1) {
+  private lfo(
+    ctx: BaseAudioContext,
+    spec: LfoSpec,
+    param: AudioParam,
+    at: number,
+    dur: number,
+    scale = 1
+  ) {
     const osc = ctx.createOscillator();
     const amp = ctx.createGain();
     osc.type = "sine";
@@ -391,7 +397,8 @@ class ProceduralSoundEngine {
     const sustainUntil = Math.max(at + a + 0.001, at + dur - r);
     node.gain.setValueAtTime(0.0001, at);
     node.gain.exponentialRampToValueAtTime(Math.max(peak, 0.0002), at + a);
-    if (sustainUntil > at + a) node.gain.linearRampToValueAtTime(Math.max(peak * 0.86, 0.0002), sustainUntil);
+    if (sustainUntil > at + a)
+      node.gain.linearRampToValueAtTime(Math.max(peak * 0.86, 0.0002), sustainUntil);
     node.gain.exponentialRampToValueAtTime(0.0001, at + dur);
   }
 
@@ -504,7 +511,15 @@ class ProceduralSoundEngine {
 
         const voiceGain = ctx.createGain();
         const peak = clamp(layer.gain ?? 0.18, 0.0005, 1.2);
-        this.envelope(ctx, voiceGain, at, dur, peak, layer.attack ?? 0.006, layer.release ?? Math.min(0.4, dur * 0.5));
+        this.envelope(
+          ctx,
+          voiceGain,
+          at,
+          dur,
+          peak,
+          layer.attack ?? 0.006,
+          layer.release ?? Math.min(0.4, dur * 0.5)
+        );
         voiceGain.connect(out);
 
         freqs.forEach((base, index) => {
@@ -536,7 +551,8 @@ class ProceduralSoundEngine {
           }
         });
 
-        if (layer.lfo?.target === "gain") this.lfo(ctx, layer.lfo, voiceGain.gain, at, dur, peak * 0.6);
+        if (layer.lfo?.target === "gain")
+          this.lfo(ctx, layer.lfo, voiceGain.gain, at, dur, peak * 0.6);
         if (layer.lfo?.target === "filter" && layer.filter && tail !== out) {
           const base = clamp(layer.filter.f * cutoffScale, 30, 19000);
           const depth = Math.min(Math.abs(layer.lfo.depth), base * 0.85);
@@ -550,7 +566,15 @@ class ProceduralSoundEngine {
         src.loop = true;
         const env = ctx.createGain();
         const peak = clamp(layer.gain ?? 0.12, 0.0005, 1);
-        this.envelope(ctx, env, at, dur, peak, layer.attack ?? 0.01, layer.release ?? Math.min(0.5, dur * 0.6));
+        this.envelope(
+          ctx,
+          env,
+          at,
+          dur,
+          peak,
+          layer.attack ?? 0.01,
+          layer.release ?? Math.min(0.5, dur * 0.6)
+        );
         let tail: AudioNode = env;
         if (layer.filter) {
           const f = this.filterNode(ctx, layer.filter, cutoffScale, at, dur);
@@ -649,7 +673,8 @@ class ProceduralSoundEngine {
     const OfflineCtor =
       typeof window !== "undefined"
         ? window.OfflineAudioContext ||
-          (window as unknown as { webkitOfflineAudioContext?: typeof OfflineAudioContext }).webkitOfflineAudioContext
+          (window as unknown as { webkitOfflineAudioContext?: typeof OfflineAudioContext })
+            .webkitOfflineAudioContext
         : undefined;
     if (!OfflineCtor) return null;
     const stretch = clamp(options.stretch ?? 1, 0.25, 4);
@@ -717,8 +742,21 @@ class ProceduralSoundEngine {
     this.quick({
       duration: 0.14,
       layers: [
-        { k: "tone", f: 620, to: 380, dur: 0.1, gain: 0.2, partials: [{ m: 2.4, a: 0.2, d: 0.05 }] },
-        { k: "noise", color: "white", dur: 0.05, gain: 0.08, filter: { type: "highpass", f: 2400 } },
+        {
+          k: "tone",
+          f: 620,
+          to: 380,
+          dur: 0.1,
+          gain: 0.2,
+          partials: [{ m: 2.4, a: 0.2, d: 0.05 }],
+        },
+        {
+          k: "noise",
+          color: "white",
+          dur: 0.05,
+          gain: 0.08,
+          filter: { type: "highpass", f: 2400 },
+        },
       ],
     });
   }
@@ -727,7 +765,15 @@ class ProceduralSoundEngine {
     this.quick({
       duration: 0.34,
       layers: [
-        { k: "tone", f: 320, to: 720, dur: 0.3, gain: 0.14, type: "triangle", lfo: { rate: 18, depth: 20, target: "pitch" } },
+        {
+          k: "tone",
+          f: 320,
+          to: 720,
+          dur: 0.3,
+          gain: 0.14,
+          type: "triangle",
+          lfo: { rate: 18, depth: 20, target: "pitch" },
+        },
         { k: "tone", f: 480, to: 1080, dur: 0.24, gain: 0.05 },
       ],
     });
@@ -753,7 +799,17 @@ class ProceduralSoundEngine {
   playError() {
     this.quick({
       duration: 0.3,
-      layers: [{ k: "tone", f: 220, to: 160, dur: 0.26, gain: 0.16, type: "square", filter: { type: "lowpass", f: 1200 } }],
+      layers: [
+        {
+          k: "tone",
+          f: 220,
+          to: 160,
+          dur: 0.26,
+          gain: 0.16,
+          type: "square",
+          filter: { type: "lowpass", f: 1200 },
+        },
+      ],
     });
   }
 
@@ -993,15 +1049,7 @@ class ProceduralSoundEngine {
    * - "portal": Warm studio resolution chord with L-Cut reverb tail
    */
   playLineMorphCue(
-    stage:
-      | "sweep"
-      | "rebound"
-      | "astrolabe"
-      | "spin"
-      | "shatter"
-      | "word"
-      | "prism"
-      | "portal",
+    stage: "sweep" | "rebound" | "astrolabe" | "spin" | "shatter" | "word" | "prism" | "portal",
     wordIndex = 0
   ) {
     if (!this.enabled) return;
@@ -1388,5 +1436,10 @@ export function designFromLegacy(r: LegacyRecipe): SoundDesign {
       release: Math.min(0.3, dur),
     });
   }
-  return { duration: dur + 0.1, gain: 0.85, reverb: { decay: Math.min(1.6, dur * 1.4), mix: 0.16 }, layers };
+  return {
+    duration: dur + 0.1,
+    gain: 0.85,
+    reverb: { decay: Math.min(1.6, dur * 1.4), mix: 0.16 },
+    layers,
+  };
 }

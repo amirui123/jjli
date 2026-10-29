@@ -86,7 +86,6 @@ await page.waitForTimeout(600);
 await scan(page, "state:accent-picker-open", "home");
 
 await page.keyboard.press("Escape");
-const a11yBtn = page.locator("header button").filter({ has: page.locator("svg") });
 await page.keyboard.press("Escape");
 await page.waitForTimeout(300);
 

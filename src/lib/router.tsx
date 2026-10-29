@@ -8,15 +8,7 @@ import { TOOLKIT_STATS } from "../data/toolkitStats";
 import { faCount, faNum } from "./format";
 
 export type RouteId =
-  | "home"
-  | "dashboard"
-  | "fonts"
-  | "motion"
-  | "components"
-  | "sounds"
-  | "skills"
-  | "engines"
-  | "ai";
+  "home" | "dashboard" | "fonts" | "motion" | "components" | "sounds" | "skills" | "engines" | "ai";
 
 export interface RouteMeta {
   id: RouteId;

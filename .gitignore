@@ -19,8 +19,11 @@ share/*
 
 # local audit toolchain (browser binary, shared libs, python venv) — rebuilt by `npm run tool:setup`
 .tooling/
-# audit output (screenshots, reports) is uploaded as a CI artifact, not committed
+# audit output (screenshots, raw captures) is tool output, not source.
+# The Markdown reports themselves are tracked explicitly with `git add -f`.
 audit/
+# backstop creates its runtime scratch dir on first run
+backstop_data/
 # playwright artefacts
 playwright-report/
 test-results/

@@ -118,7 +118,8 @@ export const SHADERS: ShaderDef[] = [
     nameFa: "باران ماتریکس حروف فارسی",
     nameEn: "Persian Matrix Rain",
     category: "hacker",
-    descFa: "باران سه‌لایهٔ ماتریکس با حروف واقعی الفبای فارسی، ارقام و واژه‌های نورانی + سرِ درخشان فسفری",
+    descFa:
+      "باران سه‌لایهٔ ماتریکس با حروف واقعی الفبای فارسی، ارقام و واژه‌های نورانی + سرِ درخشان فسفری",
     preset: { speed: 0.75, scale: 1.15, hue: 0.34, warp: 1.0 },
     scene: `
 vec3 matrixLayer(vec2 p, float t, float density, float speedMul, float seedOff) {
@@ -215,7 +216,8 @@ vec3 scene(vec2 p, float t) {
     nameFa: "ترمینال هکری CRT و گلیچ حروف",
     nameEn: "Persian CRT Glitch Terminal",
     category: "hacker",
-    descFa: "مانیتور خمیده CRT با جدایش کروماتیک RGB، برش گلیچ افقی، حروف فارسی ترمینال و بلوک‌های ویروس قرمز",
+    descFa:
+      "مانیتور خمیده CRT با جدایش کروماتیک RGB، برش گلیچ افقی، حروف فارسی ترمینال و بلوک‌های ویروس قرمز",
     preset: { speed: 0.7, scale: 1.05, hue: 0.32, warp: 1.25 },
     scene: `
 float sampleTerminal(vec2 q, float t) {
@@ -259,7 +261,8 @@ vec3 scene(vec2 p, float t) {
     nameFa: "گرداب تایپوگرافی جنبشی فارسی",
     nameEn: "Kinetic Persian Glyph Vortex",
     category: "hacker",
-    descFa: "حلقه‌های هم‌مرکز از حروف و واژه‌های فارسی که با سرعت‌های متضاد به دور هستهٔ اسطرلاب می‌چرخند",
+    descFa:
+      "حلقه‌های هم‌مرکز از حروف و واژه‌های فارسی که با سرعت‌های متضاد به دور هستهٔ اسطرلاب می‌چرخند",
     preset: { speed: 0.55, scale: 1.25, hue: 0.1, warp: 1.15 },
     scene: `
 vec3 scene(vec2 p, float t) {
@@ -295,7 +298,8 @@ vec3 scene(vec2 p, float t) {
     nameFa: "رادار هولوگرافیک و تله‌متری فارسی",
     nameEn: "Cyber Radar & Persian HUD",
     category: "hacker",
-    descFa: "پرتو اسکن رادار سایبرپانک، دوایر مدرج اسطرلابی و روشن‌شدن ارقام و کدهای فارسی با عبور موج رادار",
+    descFa:
+      "پرتو اسکن رادار سایبرپانک، دوایر مدرج اسطرلابی و روشن‌شدن ارقام و کدهای فارسی با عبور موج رادار",
     preset: { speed: 0.65, scale: 1.2, hue: 0.46, warp: 1.0 },
     scene: `
 vec3 scene(vec2 p, float t) {

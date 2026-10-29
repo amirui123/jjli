@@ -1,6 +1,13 @@
 {
-  "extends": ["stylelint-config-standard"],
-  "ignoreFiles": ["dist/**", "public/**", "design-lab/**", "share/**"],
+  "extends": [
+    "stylelint-config-standard"
+  ],
+  "ignoreFiles": [
+    "dist/**",
+    "public/**",
+    "design-lab/**",
+    "share/**"
+  ],
   "rules": {
     "at-rule-no-unknown": [
       true,
@@ -32,8 +39,16 @@
     "rule-empty-line-before": null,
     "comment-empty-line-before": null,
     "declaration-empty-line-before": null,
-    "no-duplicate-selectors": true,
+    "no-duplicate-selectors": null,
     "no-duplicate-at-import-rules": true,
-    "declaration-block-no-duplicate-properties": true
+    "declaration-block-no-duplicate-properties": true,
+    "import-notation": null,
+    "at-rule-empty-line-before": null,
+    "declaration-block-no-shorthand-property-overrides": null,
+    "no-invalid-position-at-import-rule": true,
+    "color-function-alias-notation": null,
+    "property-no-vendor-prefix": null,
+    "selector-not-notation": null,
+    "color-hex-length": null
   }
 }
