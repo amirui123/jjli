@@ -78,7 +78,6 @@
     "purgecss": "^8.0.0",
     "secretlint": "^13.1.0",
     "sharp": "^0.35.5",
-    "sitespeed.io": "^42.10.0",
     "size-limit": "^14.3.0",
     "stylelint": "^16.26.1",
     "stylelint-config-standard": "^39.0.1",
