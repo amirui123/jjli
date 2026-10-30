@@ -24,6 +24,7 @@ import { cn } from "../ui/kit";
 import { ShaderSurface } from "../components/ShaderSurface";
 import { SHADERS } from "../engines/shaderLab";
 import { HERO_LINES, HERO_SENTENCE } from "../shell/introCopy";
+import { SEAL_EVENT, sealWillPlay } from "../shell/introSeal";
 
 const SPRING_SILK = {
   type: "spring" as const,
@@ -139,6 +140,22 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
   });
   const containerRef = useRef<HTMLDivElement | null>(null);
 
+  // When the seal is about to play, the headline holds off and performs its
+  // entrance under the opening — one motion, not two that overlap by accident.
+  const [heroRevealed, setHeroRevealed] = React.useState(() => !sealWillPlay());
+  const sawReveal = useRef(false);
+
+  React.useEffect(() => {
+    const reveal = () => {
+      setHeroRevealed(true);
+      // a replay re-runs the headline; the first reveal is the one that animates
+      if (sawReveal.current) setHeroMotionKey((k) => k + 1);
+      sawReveal.current = true;
+    };
+    window.addEventListener(SEAL_EVENT.reveal, reveal);
+    return () => window.removeEventListener(SEAL_EVENT.reveal, reveal);
+  }, []);
+
   React.useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
     const mq = window.matchMedia("(max-width: 639px)");
@@ -197,7 +214,7 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
       onReplayIntro();
       return;
     }
-    window.dispatchEvent(new CustomEvent("rtmlab:open-intro"));
+    window.dispatchEvent(new CustomEvent(SEAL_EVENT.open));
   };
 
   return (
@@ -283,7 +300,11 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
                 <motion.span
                   key={lineIndex}
                   initial={{ opacity: 0, x: fromRight ? heroSlideX : -heroSlideX }}
-                  animate={{ opacity: 1, x: 0 }}
+                  animate={
+                    heroRevealed
+                      ? { opacity: 1, x: 0 }
+                      : { opacity: 0, x: fromRight ? heroSlideX : -heroSlideX }
+                  }
                   transition={{ ...SPRING_SILK, delay: 0.16 + lineIndex * 0.14 }}
                   className={cn(
                     "block will-change-transform",
@@ -301,7 +322,7 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
           {/* 3. TOP-DROP SUBTITLE (معرفی کوتاه از بالا فرود می‌آید) */}
           <motion.p
             initial={{ opacity: 0, y: isMobile ? -20 : -40 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={heroRevealed ? { opacity: 1, y: 0 } : { opacity: 0, y: isMobile ? -20 : -40 }}
             transition={{ ...SPRING_SILK, delay: 0.44 }}
             className="mt-5 max-w-xl px-2 text-[13.5px] leading-relaxed text-zinc-400 sm:mt-6 sm:text-[16px]"
           >
