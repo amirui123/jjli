@@ -13,7 +13,7 @@ import { defineConfig, devices } from "@playwright/test";
 const CHROME = process.env.CHROME_PATH || "/tmp/chromium";
 const LIB_DIR = new URL("./.tooling/browser-libs", import.meta.url).pathname;
 
-/** The app's own escape hatch: a "jsdom" UA makes IntroHost skip the intro film. */
+/** The app's own escape hatch: a "jsdom" UA makes the entry sequence skip itself. */
 const UA =
   "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) jsdom Chromium/153 Safari/537.36";
 
@@ -52,7 +52,7 @@ export default defineConfig({
   },
   projects: [
     // NOTE: `userAgent` must be set per project — spreading a device descriptor
-    // replaces the top-level userAgent, which would re-enable the intro film and
+    // replaces the top-level userAgent, which would re-enable the entry sequence and
     // cover every element (that is exactly how these tests first failed).
     {
       name: "chromium-desktop",

@@ -1,6 +1,7 @@
 import React, { Suspense, lazy, useEffect } from "react";
 import { MotionConfig } from "framer-motion";
 import { AppShell } from "./shell/AppShell";
+import { IntroSeal } from "./components/IntroSeal";
 import { AppSettingsProvider } from "./lib/store";
 import { ROUTES, useRouter } from "./lib/router";
 import { ToastProvider } from "./ui/Toast";
@@ -16,7 +17,6 @@ const SkillsStudio = lazy(() => import("./pages/SkillsStudio"));
 const EnginesStudio = lazy(() => import("./pages/EnginesStudio"));
 const AiStudio = lazy(() => import("./pages/AiStudio"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const IntroHost = lazy(() => import("./components/IntroFilm"));
 
 const PAGES: Record<string, React.LazyExoticComponent<React.FC>> = {
   home: Landing,
@@ -81,9 +81,8 @@ export const App: React.FC = () => (
     <AppSettingsProvider>
       <ToastProvider>
         <Router />
-        <Suspense fallback={null}>
-          <IntroHost />
-        </Suspense>
+        {/* eager on purpose: a lazy chunk would let the page paint first */}
+        <IntroSeal />
       </ToastProvider>
     </AppSettingsProvider>
   </MotionConfig>

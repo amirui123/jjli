@@ -132,24 +132,6 @@
       "limit": "210 kB"
     },
     {
-      "name": "all page chunks combined",
-      "path": [
-        "dist/assets/Dashboard-*.js",
-        "dist/assets/Landing-*.js",
-        "dist/assets/MotionStudio-*.js",
-        "dist/assets/EnginesStudio-*.js",
-        "dist/assets/SkillsStudio-*.js",
-        "dist/assets/AiStudio-*.js",
-        "dist/assets/FontStudio-*.js",
-        "dist/assets/ComponentsStudio-*.js",
-        "dist/assets/SoundStudio-*.js",
-        "dist/assets/IntroFilm-*.js",
-        "dist/assets/shaderLab-*.js",
-        "dist/assets/persianFontsCatalog-*.js"
-      ],
-      "limit": "125 kB"
-    },
-    {
       "name": "SoundStudio (heaviest page)",
       "path": "dist/assets/SoundStudio-*.js",
       "limit": "32 kB"

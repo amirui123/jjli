@@ -121,7 +121,7 @@ Both this application and this documentation were engineered directly from the s
 3. **Judging Standard &amp; Performance Budget — [`awwwards-engineering`](public/vault/skills/01-motion-and-awwwards__awwwards-engineering.md)**
 
    > _"You need one unforgettable signature moment—not twenty scattered effects—and performance accounts for 30% of the final score."_
-   - **Signature Moment (`IntroFilm.tsx`):** A **tapped five-beat entrance**, ~13 s worst case, skippable on every frame with `رد کردن` or `Esc` — (1) a bespoke smiling Shamse medallion says _«سلام، چطوری؟»_, (2) a magnetic point invites _«بزن روی این نقطه»_ and unlocks Web Audio on that tap, (3) the tap detonates a **full-frame bloom** — white-hot core, gold and lapis shockwave rings, a horizontal light lash and 46 embers, (4) the new hero sentence typesets itself, **every word springing into its own DOM-measured slot** (x/y/rotate/blur), with a gold pool of light opening behind each line and a ribbon of light sweeping across it, (5) a curved Bezier curtain splits from a gold→white→lapis seam and the page scales 0.96→1 into place.
+   - **Signature Moment (`IntroSeal.tsx`):** A **gold seal that falls, strikes the sheet and is pulled off**, ~1.9s, skippable from the first beat with `رد کردن` or `Esc` — the signet prints the site's own «م» inside an eight-fold girih, the strike throws two pressure fronts and a shock of light, and the mark it leaves then opens the page itself while the hero performs its entrance underneath. One continuous motion, not a preloader followed by a page.
    - **Dedicated Mobile Architecture:** Instead of squeezing a 3-column desktop screen onto a phone, every studio adapts into a 3-tab mobile workspace (`Preview / Settings / Catalog`) with `≥ 40px` touch targets, `16px` inputs (preventing forced iOS zoom), and `safe-area-inset-bottom` padding.
 
 4. **Kinetic Choreography &amp; Restraint — [`animation-systems`](public/vault/skills/03-art-direction-and-taste__mengto-web-design-systems__animation-systems.md)**
@@ -204,7 +204,7 @@ jjli/
 │   └── ai/                            # 40 QLoRA instruction-tuning pairs & system prompts
 ├── src/
 │   ├── App.tsx                        # Lazy route splitting, ErrorBoundary & MotionConfig
-│   ├── components/IntroFilm.tsx       # 6-Act procedural cinema entrance choreography
+│   ├── components/IntroSeal.tsx       # «مُهر» entry sequence: fall → strike → lift → reveal
 │   ├── components/ShaderSurface.tsx   # Lifecycle-managed WebGL canvas with GPU cleanup
 │   ├── data/                          # Typed manifests (designLabManifest, skillsManifest, etc.)
 │   ├── engines/                       # Web Audio synth, 18 GLSL shaders & 20-rule RTL auditor
@@ -244,7 +244,7 @@ Generated via `node scripts/build-single-file.mjs`, `share/rtl-motion-lab-standa
 #### Multi-Layer Quality &amp; Health Verification
 
 1. **Strict Type &amp; Lint Gate (`./node_modules/.bin/tsc --noEmit && npm run lint`):** Enforces zero TypeScript errors, strict React hook dependencies, and accessibility rules.
-2. **35-Point (`7 × 5`) Engineering Audit Matrix:** Verifies event symmetry, WebGL GPU buffer/shader disposal, 6-Act `IntroFilm` trajectory math, `60-30-10` color-psychology assets, spring ODE stability, 20-rule RTL auditing, WAV binary encoding, and disk integrity across all `4,037` vault files.
+2. **35-Point (`7 × 5`) Engineering Audit Matrix:** Verifies event symmetry, WebGL GPU buffer/shader disposal, the `IntroSeal` cue-sheet timing, `60-30-10` color-psychology assets, spring ODE stability, 20-rule RTL auditing, WAV binary encoding, and disk integrity across all `4,037` vault files.
 3. **10-Route Headless DOM Smoke Suite (`node scripts/smoke-test.mjs`):** Mounts all 10 routes (`/`, `/dashboard`, `/studio/fonts`, `/studio/motion`, `/studio/components`, `/studio/sounds`, `/studio/skills`, `/studio/engines`, `/studio/ai`, and `/nope`) in `jsdom`, verifying single-`<h1>` hierarchy, accessible button labels, 3-rail studio structure, and cross-page `localStorage` persistence.
 
 ---

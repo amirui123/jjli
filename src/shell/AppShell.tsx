@@ -39,6 +39,7 @@ import {
 import { cn } from "../ui/kit";
 import { soundEngine } from "../engines/soundEngine";
 import { FOOTER_COUPLET } from "./introCopy";
+import { SEAL_EVENT } from "./introSeal";
 
 const PSYCHOLOGY_NOTES: Record<string, string> = {
   saffron: "کانون گرم توجه · کنتراست طلایی",
@@ -422,7 +423,7 @@ const TopBar: React.FC = () => {
                       type="button"
                       onClick={() => {
                         setTuningOpen(false);
-                        window.dispatchEvent(new CustomEvent("rtmlab:open-intro"));
+                        window.dispatchEvent(new CustomEvent(SEAL_EVENT.open));
                       }}
                       className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-2 text-[11.5px] text-zinc-300 transition-colors hover:border-white/20 hover:text-white"
                     >
