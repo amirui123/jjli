@@ -1,0 +1,33 @@
+/* Font Studio Tokens — The Stage Concept */
+:root {
+  --bg-base: #08080A;
+  --bg-surface-1: #0E0E12;
+  --bg-surface-2: #16161B;
+  --bg-inspector-top: #15151B;
+  --bg-inspector-bottom: #0D0D11;
+  --bg-canvas-radial: radial-gradient(ellipse at 50% 38%, #14423B 0%, #0B1716 40%, #08080A 78%);
+  --border-base: #23232B;
+  --border-accent: #2A2A33;
+  --border-inspector: #26262E;
+  --border-canvas: #1D2D2A;
+  --text-main: #F1F1F5;
+  --text-muted: #9D9DAA;
+  --teal-primary: #2DD4BF;
+  --teal-active: #5EEAD4;
+  --teal-bg-active: #0F3A35;
+  --gold-primary: #E6B84B;
+  --radius-sm: 14px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+  --touch-target: 44px;
+  --chip-height: 34px;
+  --font-ui: "Vazirmatn", sans-serif;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  :root { --radius-lg: 18px; }
+}
+@media (max-width: 768px) {
+  :root { --radius-lg: 14px; }
+}
