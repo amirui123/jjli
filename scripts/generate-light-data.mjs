@@ -4,8 +4,7 @@
  * download the 220 KB skill manifest or the 120 KB sound manifest just to
  * render a headline and a marquee.
  *
- *   src/data/toolkitStats.ts   — real counters + skill titles (for the marquee)
- *   src/data/featuredSounds.ts — 8 real recipes for instant audition
+ *   src/data/toolkitStats.ts   — lightweight counters for landing and dashboard
  */
 import fs from "node:fs";
 import { build } from "esbuild";
@@ -24,6 +23,7 @@ async function loadModule(entry) {
 
 const { ALL_SKILLS_MANIFEST } = await loadModule("src/data/skillsManifest.ts");
 const { ALL_BRAND_DESIGNS_MANIFEST } = await loadModule("src/data/skillsManifest.ts");
+const { ALL_SOUND_RECIPES_MANIFEST } = await loadModule("src/data/soundsManifest.ts");
 const { PERSIAN_FONT_CATALOG } = await loadModule("src/data/persianFontsCatalog.ts");
 const { REGISTRY_FILES } = await loadModule("src/data/registryFiles.ts");
 
