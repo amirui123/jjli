@@ -69,7 +69,6 @@ export const TOOLKIT_STATS = {
 
 fs.writeFileSync("src/data/toolkitStats.ts", stats);
 
-
 console.log(
   `✅ stats: ${ALL_SKILLS_MANIFEST.length} skills · ${ALL_BRAND_DESIGNS_MANIFEST.length} brands · ${TOTAL_SOUNDS} sounds · ${PERSIAN_FONT_CATALOG.length} fonts`
 );
