@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "generate": "node scripts/generate-toolkit-manifest.mjs && node scripts/generate-public-vault.mjs && node scripts/generate-font-files.mjs && node scripts/generate-component-chunks.mjs && node scripts/generate-light-data.mjs",
+    "generate": "node scripts/sync-design-lab.mjs && node scripts/generate-toolkit-manifest.mjs && node scripts/generate-public-vault.mjs && node scripts/generate-font-files.mjs && node scripts/generate-component-chunks.mjs && node scripts/generate-light-data.mjs",
     "postinstall": "node scripts/ensure-esbuild.mjs",
     "dev": "npm run generate && vite --host 0.0.0.0 --port 5173",
     "build": "npm run generate && vite build",
