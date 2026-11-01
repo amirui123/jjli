@@ -303,8 +303,8 @@ function mod97Decimal(value: string): number {
 
 /** Validate a complete Iranian IBAN (IR + 2 check digits + 22-digit BBAN). */
 export function validateIranianSheba(input: string): boolean {
-  const iban = toEnglishDigits(input).replace(/[\\s-]/g, "").toUpperCase();
-  if (!/^IR\\d{24}$/.test(iban)) return false;
+  const iban = toEnglishDigits(input).replace(/[\s-]/g, "").toUpperCase();
+  if (!/^IR\d{24}$/.test(iban)) return false;
   const rearranged = `${iban.slice(4)}${iban.slice(0, 4)}`;
   const numeric = rearranged.replace(/[A-Z]/g, (letter) =>
     String(letter.charCodeAt(0) - 55)
@@ -317,8 +317,8 @@ export function validateIranianSheba(input: string): boolean {
  * A card PAN is not sufficient to reconstruct an account number or an IBAN.
  */
 export function generateIranianShebaFromBban(input: string): string {
-  const bban = toEnglishDigits(input).replace(/[\\s-]/g, "");
-  if (!/^\\d{22}$/.test(bban)) {
+  const bban = toEnglishDigits(input).replace(/[\s-]/g, "");
+  if (!/^\d{22}$/.test(bban)) {
     throw new RangeError("BBAN must contain exactly 22 digits");
   }
   const checkDigits = String(98 - mod97Decimal(`${bban}18270000`)).padStart(2, "0");
@@ -409,19 +409,19 @@ export function cleanupPersianText(raw: string): {
   // 2. Insert ZWNJ after می / نمی using Unicode Arabic-script boundaries.
   // JavaScript's \\b is ASCII-word based and does not recognize Persian letters.
   text = text.replace(
-    /(^|[^\\p{L}\\p{N}_])(ن?می)\\s+([\\p{Script=Arabic}\\p{M}]+)/gu,
+    /(^|[^\p{L}\p{N}_])(ن?می)\s+([\p{Script=Arabic}\p{M}]+)/gu,
     (_, prefix, p1, p2) => {
       fixesCount++;
-      return `${prefix}${p1}\\u200C${p2}`;
+      return `${prefix}${p1}\u200C${p2}`;
     }
   );
 
   // 3. Join plural/comparative suffixes when separated by whitespace.
   text = text.replace(
-    /([\\p{Script=Arabic}\\p{M}])\\s+(ها|های|ترین|تر)(?=\\s|[،؛.!؟:]|$)/gu,
+    /([\p{Script=Arabic}\p{M}])\s+(ها|های|ترین|تر)(?=\\s|[،؛.!؟:]|$)/gu,
     (_, word, suffix) => {
       fixesCount++;
-      return `${word}\\u200C${suffix}`;
+      return `${word}\u200C${suffix}`;
     }
   );
 
@@ -497,9 +497,9 @@ export function auditRtlMotionCode(code: string): {
       titleFa: "شکستن حروف فارسی با split('') — قطع شدن اتصال حروف و نیم‌فاصله!",
       rule: "Persian Script Integrity",
       match: '.split("")',
-      fixFa: "تبدیل به split(/\\s+/) برای حفظ اتصال حروف فارسی و نیم‌فاصله (ZWNJ)",
+      fixFa: "تبدیل به split(/\s+/) برای حفظ اتصال حروف فارسی و نیم‌فاصله (ZWNJ)",
     });
-    fixedCode = fixedCode.replace(/\.split\(\s*["']['"]\s*\)/g, ".split(/\\s+/)");
+    fixedCode = fixedCode.replace(/\.split\(\s*["']['"]\s*\)/g, ".split(/\s+/)");
   }
 
   if (/\btracking-(wide|wider|widest)\b/.test(code)) {
