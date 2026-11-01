@@ -487,4 +487,5 @@ export const IntroSeal: React.FC = () => {
   );
 };
 
+// @alias
 export default IntroSeal;
