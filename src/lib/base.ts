@@ -23,6 +23,7 @@ export function publicUrl(path: string): string {
 }
 
 /** Absolute URL for the current document (used by previews that need one). */
+// @public
 export function absoluteUrl(path: string): string {
   const url = publicUrl(path);
   if (typeof window === "undefined") return url;
