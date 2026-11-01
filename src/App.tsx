@@ -94,4 +94,5 @@ export const App: React.FC = () => (
   </AppSettingsProvider>
 );
 
+// @alias
 export default App;
