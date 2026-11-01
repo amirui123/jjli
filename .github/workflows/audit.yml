@@ -42,6 +42,19 @@ jobs:
         run: npx html-validate index.html
       - name: Prettier
         run: npm run lint:format
+      - name: Export Prettier-formatted sources for debugging
+        if: always()
+        run: |
+          mkdir -p prettier-output
+          npx prettier src/engines/persianEngines.ts > prettier-output/persianEngines.ts
+          npx prettier src/pages/AiStudio.tsx > prettier-output/AiStudio.tsx
+      - name: Upload Prettier output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prettier-output
+          path: prettier-output/
+          retention-days: 1
       - name: Knip (dead code)
         run: npx knip
       - name: Secrets
