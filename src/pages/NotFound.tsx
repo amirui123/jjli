@@ -35,4 +35,5 @@ export const NotFound: React.FC = () => (
   </div>
 );
 
+// @alias
 export default NotFound;
