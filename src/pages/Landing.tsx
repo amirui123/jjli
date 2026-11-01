@@ -16,6 +16,7 @@ import {
 import { PERSIAN_FONT_CATALOG } from "../data/persianFontsCatalog";
 import { TOOLKIT_STATS } from "../data/toolkitStats";
 import { DESIGN_LAB_PILLARS, DESIGN_LAB_TOTAL_FILES } from "../data/designLabManifest";
+import { designLabFileUrl } from "../lib/designLabPath";
 import { navigate } from "../lib/router";
 import { writePersisted } from "../lib/store";
 import { soundEngine } from "../engines/soundEngine";
@@ -199,7 +200,7 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
     const firstFile = firstSc?.files[0];
     const firstUrl =
       pillar && firstSc && firstFile
-        ? `/design-lab/${pillar.id}/${firstSc.id}/${firstFile[0]}`
+        ? designLabFileUrl(pillar.id, firstSc.id, firstFile[0])
         : undefined;
     writePersisted("studio-skills-pick-v2", {
       pillarId,
