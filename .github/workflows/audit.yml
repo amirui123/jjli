@@ -108,7 +108,18 @@ jobs:
       - name: Start static server
         run: |
           PORT=4173 node scripts/serve-static.mjs &
-          npx wait-on http://127.0.0.1:4173 --timeout 60000
+          node --input-type=module -e '
+            const url = "http://127.0.0.1:4173";
+            const deadline = Date.now() + 60000;
+            while (Date.now() < deadline) {
+              try {
+                const response = await fetch(url);
+                if (response.ok) process.exit(0);
+              } catch {}
+              await new Promise((resolve) => setTimeout(resolve, 300));
+            }
+            throw new Error("Static server did not become ready within 60 seconds");
+          '
       - name: LHCI autorun (thresholds in lighthouserc.json)
         run: npx lhci autorun --config lighthouserc.json
         env:
