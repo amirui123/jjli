@@ -838,5 +838,5 @@ ${preset?.hintFa ?? ""}
   );
 };
 
-// @alias
+/** @alias */
 export default MotionStudio;
