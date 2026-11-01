@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Activity, Gauge, Play, Waves, Zap } from "lucide-react";
 import { usePersisted, useAppSettings } from "../lib/store";
 import {
@@ -113,7 +113,12 @@ const Graph: React.FC<{ samples: number[]; accent: string }> = ({ samples, accen
 export const MotionStudio: React.FC = () => {
   const [raw, set, reset] = usePersisted<MotionSettings>("studio-motion", DEFAULT);
   const s = { ...DEFAULT, ...raw };
-  const { motionScale } = useAppSettings();
+  const { motionScale, settings } = useAppSettings();
+  const prefersReducedMotion = useReducedMotion() === true;
+  const durationScale =
+    prefersReducedMotion || settings.reduceMotion || settings.motionLevel === 1
+      ? 0.1
+      : motionScale;
   const [replay, setReplay] = useState(0);
 
   const analysis = useMemo(
@@ -128,7 +133,7 @@ export const MotionStudio: React.FC = () => {
       ? { type: "spring" as const, stiffness: s.stiffness, damping: s.damping, mass: s.mass }
       : {
           type: "tween" as const,
-          duration: s.durationS / motionScale,
+          duration: Math.max(0.01, s.durationS * durationScale),
           ease: s.bezier as [number, number, number, number],
         };
 
