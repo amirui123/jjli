@@ -497,9 +497,9 @@ export function auditRtlMotionCode(code: string): {
       titleFa: "شکستن حروف فارسی با split('') — قطع شدن اتصال حروف و نیم‌فاصله!",
       rule: "Persian Script Integrity",
       match: '.split("")',
-      fixFa: "تبدیل به split(/\s+/) برای حفظ اتصال حروف فارسی و نیم‌فاصله (ZWNJ)",
+      fixFa: "تبدیل به split(/\\s+/) برای حفظ اتصال حروف فارسی و نیم‌فاصله (ZWNJ)",
     });
-    fixedCode = fixedCode.replace(/\.split\(\s*["']['"]\s*\)/g, ".split(/\s+/)");
+    fixedCode = fixedCode.replace(/\.split\(\s*["']['"]\s*\)/g, ".split(/\\s+/)");
   }
 
   if (/\btracking-(wide|wider|widest)\b/.test(code)) {
