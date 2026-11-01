@@ -90,7 +90,7 @@ export function springToCssLinear(analysis: SpringAnalysis, points = 24): string
 }
 
 /** SVG path for the position/time graph. */
-// @public
+/** @public */
 export function springPath(analysis: SpringAnalysis, width: number, height: number): string {
   const s = analysis.samples;
   if (s.length < 2) return "";
@@ -106,7 +106,7 @@ export function springPath(analysis: SpringAnalysis, width: number, height: numb
     .join(" ");
 }
 
-// @public
+/** @public */
 export const SPRING_PRESETS: {
   id: string;
   labelFa: string;
