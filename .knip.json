@@ -1,24 +1,21 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "entry": [
-    "src/main.tsx",
     "src/dev/smoke.tsx",
     "scripts/*.mjs",
     "tools/*.mjs",
     "e2e/**/*.spec.ts",
-    "eslint.config.js",
-    "vite.config.ts",
-    "playwright.config.ts",
     "src/data/soundsManifest.ts"
   ],
   "project": [
     "src/**/*.{ts,tsx,css}",
     "scripts/**/*.mjs",
     "tools/**/*.mjs",
-    "e2e/**/*.ts",
-    "eslint.config.js",
-    "vite.config.ts",
-    "playwright.config.ts"
+    "e2e/**/*.ts"
   ],
-  "ignoreExportsUsedInFile": true
+  "ignoreExportsUsedInFile": true,
+  "ignoreDependencies": [
+    "@secretlint/secretlint-rule-preset-recommend",
+    "lighthouse"
+  ]
 }
