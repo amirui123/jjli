@@ -14,9 +14,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createRequire } from "node:module";
 
-const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(__dirname, "../..");
 export const LIB_DIR = path.join(ROOT, ".tooling/browser-libs");
@@ -106,9 +104,3 @@ export function writeText(file, text) {
   fs.writeFileSync(file, text);
 }
 
-/** npm bin shim so we never depend on a global install. */
-export function bin(name) {
-  return path.join(ROOT, "node_modules/.bin", name);
-}
-
-export const require_pkg = require;
