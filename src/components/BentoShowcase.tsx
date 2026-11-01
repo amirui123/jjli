@@ -700,7 +700,7 @@ export const UniversalComponentPreview: React.FC<{
 /* ============================================================================
    Main 6-Card Interactive Bento Grid Showcase
    ============================================================================ */
-// @public
+/** @public */
 export const BentoShowcaseGrid: React.FC<{
   onOpenInStudio: (componentId: string) => void;
 }> = ({ onOpenInStudio }) => {
