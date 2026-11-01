@@ -40,5 +40,5 @@ export const HERO_SENTENCE = HERO_LINES.map((line) => line.words.map((w) => w.te
 );
 
 /** The couplet as it appears in the footer brand block. */
-// @alias
+/** @alias */
 export const FOOTER_COUPLET = HERO_SENTENCE;
