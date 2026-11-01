@@ -8,7 +8,8 @@
     "e2e/**/*.spec.ts",
     "eslint.config.js",
     "vite.config.ts",
-    "playwright.config.ts"
+    "playwright.config.ts",
+    "src/data/soundsManifest.ts"
   ],
   "project": [
     "src/**/*.{ts,tsx,css}",
