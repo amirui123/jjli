@@ -1251,5 +1251,5 @@ function activeFilename(
   return `${brand?.id ?? "brand"}-DESIGN.md`;
 }
 
-// @alias
+/** @alias */
 export default SkillsStudio;
