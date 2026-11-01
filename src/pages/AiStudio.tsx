@@ -1031,4 +1031,5 @@ print("Training complete. Adapter saved to ./rtl-motion-lora")`;
   );
 };
 
+// @alias
 export default AiStudio;
