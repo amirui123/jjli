@@ -113,10 +113,10 @@ const Graph: React.FC<{ samples: number[]; accent: string }> = ({ samples, accen
 export const MotionStudio: React.FC = () => {
   const [raw, set, reset] = usePersisted<MotionSettings>("studio-motion", DEFAULT);
   const s = { ...DEFAULT, ...raw };
-  const { motionScale, settings } = useAppSettings();
+  const { motionScale, settings: appSettings } = useAppSettings();
   const prefersReducedMotion = useReducedMotion() === true;
   const durationScale =
-    prefersReducedMotion || settings.reduceMotion || settings.motionLevel === 1
+    prefersReducedMotion || appSettings.reduceMotion || appSettings.motionLevel === 1
       ? 0.1
       : motionScale;
   const [replay, setReplay] = useState(0);
