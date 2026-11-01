@@ -2,7 +2,7 @@ import React, { Suspense, lazy, useEffect } from "react";
 import { MotionConfig } from "framer-motion";
 import { AppShell } from "./shell/AppShell";
 import { IntroSeal } from "./components/IntroSeal";
-import { AppSettingsProvider } from "./lib/store";
+import { AppSettingsProvider, useAppSettings } from "./lib/store";
 import { ROUTES, useRouter } from "./lib/router";
 import { ToastProvider } from "./ui/Toast";
 import { ErrorBoundary } from "./ui/ErrorBoundary";
@@ -76,16 +76,22 @@ const Router: React.FC = () => {
   );
 };
 
+const MotionPolicy: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { settings } = useAppSettings();
+  const reduceMotion = settings.reduceMotion || settings.motionLevel === 1;
+  return <MotionConfig reducedMotion={reduceMotion ? "always" : "user"}>{children}</MotionConfig>;
+};
+
 export const App: React.FC = () => (
-  <MotionConfig reducedMotion="never">
-    <AppSettingsProvider>
+  <AppSettingsProvider>
+    <MotionPolicy>
       <ToastProvider>
         <Router />
         {/* eager on purpose: a lazy chunk would let the page paint first */}
         <IntroSeal />
       </ToastProvider>
-    </AppSettingsProvider>
-  </MotionConfig>
+    </MotionPolicy>
+  </AppSettingsProvider>
 );
 
 export default App;
