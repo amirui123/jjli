@@ -25,12 +25,8 @@ jobs:
   static:
     name: Static analysis
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -46,31 +42,6 @@ jobs:
         run: npx html-validate index.html
       - name: Prettier
         run: npm run lint:format
-      - name: Apply Prettier formatting to this PR branch
-        if: failure() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        run: |
-          npx prettier --write src/engines/persianEngines.ts src/pages/AiStudio.tsx
-          if git diff --quiet -- src/engines/persianEngines.ts src/pages/AiStudio.tsx; then
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/engines/persianEngines.ts src/pages/AiStudio.tsx
-          git commit -m "style: apply canonical Prettier formatting"
-          git push origin "HEAD:$GITHUB_HEAD_REF"
-      - name: Export Prettier-formatted sources for debugging
-        if: always()
-        run: |
-          mkdir -p prettier-output
-          npx prettier src/engines/persianEngines.ts > prettier-output/persianEngines.ts
-          npx prettier src/pages/AiStudio.tsx > prettier-output/AiStudio.tsx
-      - name: Upload Prettier output
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: prettier-output
-          path: prettier-output/
-          retention-days: 1
       - name: Knip (dead code)
         run: npx knip
       - name: Secrets
