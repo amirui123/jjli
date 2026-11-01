@@ -16,7 +16,7 @@ test.describe("Persian engine regressions", () => {
   test("generates and validates a 26-character Iranian IBAN from a real BBAN", () => {
     const bban = "0561234567890123456789";
     const iban = generateIranianShebaFromBban(bban);
-    expect(iban).toMatch(/^IR\\d{24}$/);
+    expect(iban).toMatch(/^IR\d{24}$/);
     expect(iban).toHaveLength(26);
     expect(validateIranianSheba(iban)).toBe(true);
     expect(validateIranianSheba(`${iban.slice(0, -1)}0`)).toBe(false);
