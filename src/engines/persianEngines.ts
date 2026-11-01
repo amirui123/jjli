@@ -306,9 +306,7 @@ export function validateIranianSheba(input: string): boolean {
   const iban = toEnglishDigits(input).replace(/[\s-]/g, "").toUpperCase();
   if (!/^IR\d{24}$/.test(iban)) return false;
   const rearranged = `${iban.slice(4)}${iban.slice(0, 4)}`;
-  const numeric = rearranged.replace(/[A-Z]/g, (letter) =>
-    String(letter.charCodeAt(0) - 55)
-  );
+  const numeric = rearranged.replace(/[A-Z]/g, (letter) => String(letter.charCodeAt(0) - 55));
   return mod97Decimal(numeric) === 1;
 }
 

@@ -676,7 +676,11 @@ print("Training complete. Adapter saved to ./rtl-motion-lora")`;
                         ? 7
                         : 6.7;
                     const multiplier =
-                      tuning.quantMode === "8bit-int8" ? 2.0 : tuning.quantMode === "bf16" ? 4.8 : 1.35;
+                      tuning.quantMode === "8bit-int8"
+                        ? 2.0
+                        : tuning.quantMode === "bf16"
+                          ? 4.8
+                          : 1.35;
                     const overhead = tuning.quantMode === "4bit-nf4" ? 2 : 3;
                     return `~${Math.ceil(paramsB * multiplier + overhead)}GB`;
                   })(),
