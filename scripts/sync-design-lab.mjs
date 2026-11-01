@@ -17,11 +17,29 @@ if (!fs.existsSync(SOURCE) || !fs.statSync(SOURCE).isDirectory()) {
 }
 
 fs.rmSync(DESTINATION, { recursive: true, force: true });
-fs.mkdirSync(path.dirname(DESTINATION), { recursive: true });
-fs.cpSync(SOURCE, DESTINATION, {
-  recursive: true,
-  filter: (entry) => ![".DS_Store", "Thumbs.db"].includes(path.basename(entry)),
-});
+fs.mkdirSync(DESTINATION, { recursive: true });
+
+/**
+ * Copy only regular files and directories. The vault contains a few optional
+ * symlinks whose targets are not committed; carrying those links into Vite's
+ * public directory makes its recursive copy fail with ENOENT.
+ */
+function copyRegularTree(sourceDir, destinationDir) {
+  for (const entry of fs.readdirSync(sourceDir, { withFileTypes: true })) {
+    if ([".DS_Store", "Thumbs.db"].includes(entry.name)) continue;
+    const sourcePath = path.join(sourceDir, entry.name);
+    const destinationPath = path.join(destinationDir, entry.name);
+    if (entry.isDirectory()) {
+      fs.mkdirSync(destinationPath, { recursive: true });
+      copyRegularTree(sourcePath, destinationPath);
+    } else if (entry.isFile()) {
+      fs.copyFileSync(sourcePath, destinationPath);
+    }
+    // Symlinks and special entries are intentionally excluded.
+  }
+}
+
+copyRegularTree(SOURCE, DESTINATION);
 
 function countFiles(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).reduce((count, entry) => {
