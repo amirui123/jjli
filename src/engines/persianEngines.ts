@@ -321,7 +321,7 @@ export function generateIranianShebaFromBban(input: string): string {
   if (!/^\d{22}$/.test(bban)) {
     throw new RangeError("BBAN must contain exactly 22 digits");
   }
-  const checkDigits = String(98 - mod97Decimal(`${bban}18270000`)).padStart(2, "0");
+  const checkDigits = String(98 - mod97Decimal(`${bban}182700`)).padStart(2, "0");
   return `IR${checkDigits}${bban}`;
 }
 
