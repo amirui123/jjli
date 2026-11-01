@@ -158,13 +158,6 @@ export const ALL_BRAND_DESIGNS_MANIFEST: BrandDesignManifestItem[] = ${JSON.stri
 fs.writeFileSync(path.join(DATA_DIR, "skillsManifest.ts"), skillsTs, "utf8");
 
 /* --------------------------------------------------------------- sounds */
-/* The designed library (src/data/soundLibrary.ts, `s(` factories) sits on top
-   of the 200 vendored recipes, so every public counter adds both. */
-const SOUND_LIBRARY_FILE = path.join(REPO, "src/data/soundLibrary.ts");
-const designedSoundCount = fs.existsSync(SOUND_LIBRARY_FILE)
-  ? (fs.readFileSync(SOUND_LIBRARY_FILE, "utf8").match(/^ {2}s\(/gm) || []).length
-  : 0;
-const totalSounds = soundRecipes.length + designedSoundCount;
 const soundsTs =
   header(`${soundRecipes.length} procedural sound recipes`) +
   `export interface SoundRecipeItem {
