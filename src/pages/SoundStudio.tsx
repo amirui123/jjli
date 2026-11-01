@@ -845,4 +845,5 @@ function saveTextLibrary() {
   return true;
 }
 
+// @alias
 export default SoundStudio;
