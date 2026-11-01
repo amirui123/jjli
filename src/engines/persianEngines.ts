@@ -290,20 +290,49 @@ export function validateIranianNationalCode(input: string): {
 }
 
 /**
- * Iranian Sheba (IBAN) ISO-7064 Modulo-97 Validator & Generator
+ * ISO 7064 MOD 97-10 over a decimal string, streamed to avoid large integers.
  */
-export function generateShebaFromCard(cardInput: string): string {
-  const bank = detectIranianBank(cardInput);
-  const digits = toEnglishDigits(cardInput).replace(/\D/g, "").padEnd(16, "0").slice(0, 16);
-  const bban = `${bank.shebaCode}01000${digits}`; // 22 digits
-  // Compute ISO 7064 Mod-97 for IR (I=18, R=27 -> 182700)
-  const numericStr = `${bban}182700`;
+function mod97Decimal(value: string): number {
   let remainder = 0;
-  for (let i = 0; i < numericStr.length; i++) {
-    remainder = (remainder * 10 + Number(numericStr[i])) % 97;
+  for (const digit of value) {
+    if (digit < "0" || digit > "9") throw new Error("Expected a decimal string");
+    remainder = (remainder * 10 + Number(digit)) % 97;
   }
-  const checkDigits = String(98 - remainder).padStart(2, "0");
+  return remainder;
+}
+
+/** Validate a complete Iranian IBAN (IR + 2 check digits + 22-digit BBAN). */
+export function validateIranianSheba(input: string): boolean {
+  const iban = toEnglishDigits(input).replace(/[\\s-]/g, "").toUpperCase();
+  if (!/^IR\\d{24}$/.test(iban)) return false;
+  const rearranged = `${iban.slice(4)}${iban.slice(0, 4)}`;
+  const numeric = rearranged.replace(/[A-Z]/g, (letter) =>
+    String(letter.charCodeAt(0) - 55)
+  );
+  return mod97Decimal(numeric) === 1;
+}
+
+/**
+ * Generate an Iranian IBAN from a real 22-digit BBAN supplied by the bank.
+ * A card PAN is not sufficient to reconstruct an account number or an IBAN.
+ */
+export function generateIranianShebaFromBban(input: string): string {
+  const bban = toEnglishDigits(input).replace(/[\\s-]/g, "");
+  if (!/^\\d{22}$/.test(bban)) {
+    throw new RangeError("BBAN must contain exactly 22 digits");
+  }
+  const checkDigits = String(98 - mod97Decimal(`${bban}18270000`)).padStart(2, "0");
   return `IR${checkDigits}${bban}`;
+}
+
+/**
+ * @deprecated A card number cannot be converted to an IBAN. Supply the BBAN
+ * issued by the bank to generateIranianShebaFromBban instead.
+ */
+export function generateShebaFromCard(_cardInput: string): string {
+  throw new Error(
+    "شماره کارت برای استخراج شبای واقعی کافی نیست؛ BBAN یا شماره حساب صادرشده توسط بانک لازم است."
+  );
 }
 
 /**
@@ -377,17 +406,24 @@ export function cleanupPersianText(raw: string): {
   if (arabicMatches) fixesCount += arabicMatches.length;
   text = text.replace(/ي/g, "ی").replace(/ك/g, "ک");
 
-  // 2. Insert ZWNJ (\u200C) after می / نمی before verbs
-  text = text.replace(/\b(ن?می)\s+([آابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی]+)/g, (_, p1, p2) => {
-    fixesCount++;
-    return `${p1}\u200C${p2}`;
-  });
+  // 2. Insert ZWNJ after می / نمی using Unicode Arabic-script boundaries.
+  // JavaScript's \\b is ASCII-word based and does not recognize Persian letters.
+  text = text.replace(
+    /(^|[^\\p{L}\\p{N}_])(ن?می)\\s+([\\p{Script=Arabic}\\p{M}]+)/gu,
+    (_, prefix, p1, p2) => {
+      fixesCount++;
+      return `${prefix}${p1}\\u200C${p2}`;
+    }
+  );
 
-  // 3. Insert ZWNJ before plural ها / های and comparative تر / ترین
-  text = text.replace(/([آابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی])\s+(های?|ترین?)\b/g, (_, w, suf) => {
-    fixesCount++;
-    return `${w}\u200C${suf}`;
-  });
+  // 3. Join plural/comparative suffixes when separated by whitespace.
+  text = text.replace(
+    /([\\p{Script=Arabic}\\p{M}])\\s+(ها|های|ترین|تر)(?=\\s|[،؛.!؟:]|$)/gu,
+    (_, word, suffix) => {
+      fixesCount++;
+      return `${word}\\u200C${suffix}`;
+    }
+  );
 
   // 4. Convert English digits to Persian digits
   text = text.replace(/\d/g, (d) => {
