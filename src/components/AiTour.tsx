@@ -324,4 +324,5 @@ export const AiTour: React.FC = () => {
   );
 };
 
+/** @alias */
 export default AiTour;

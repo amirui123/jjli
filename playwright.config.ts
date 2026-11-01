@@ -35,20 +35,27 @@ export default defineConfig({
     userAgent: UA,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
-    launchOptions: {
-      executablePath: CHROME,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--no-zygote",
-        "--use-gl=angle",
-        "--use-angle=swiftshader",
-        "--enable-unsafe-swiftshader",
-        "--font-render-hinting=none",
-      ],
-      env: { ...process.env, LD_LIBRARY_PATH: `${LIB_DIR}:${process.env.LD_LIBRARY_PATH ?? ""}` },
-    },
+    // CI installs Playwright-managed Chromium. Local audit runs may use the
+    // smaller custom browser extracted by `npm run tool:setup`.
+    launchOptions: process.env.CI
+      ? {}
+      : {
+          executablePath: process.env.CHROME_PATH || CHROME,
+          args: [
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--disable-dev-shm-usage",
+            "--no-zygote",
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader",
+            "--font-render-hinting=none",
+          ],
+          env: {
+            ...process.env,
+            LD_LIBRARY_PATH: `${LIB_DIR}:${process.env.LD_LIBRARY_PATH ?? ""}`,
+          },
+        },
   },
   projects: [
     // NOTE: `userAgent` must be set per project — spreading a device descriptor

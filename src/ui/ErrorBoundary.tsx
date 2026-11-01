@@ -70,4 +70,5 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
   }
 }
 
+/** @alias */
 export default ErrorBoundary;

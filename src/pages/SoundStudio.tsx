@@ -346,7 +346,7 @@ export const SoundStudio: React.FC = () => {
     }, 450);
 
     /* طول واقعی صدا (با استرچ و دنباله ریورب) — نه عدد دستی */
-    const total = Math.max(0.12, audibleDuration(item.design, options));
+    const total = Math.max(0.12, audibleDuration(designToPlay, options));
     setPlaying(true);
     setElapsed(0);
     const started = performance.now();
@@ -396,17 +396,20 @@ export const SoundStudio: React.FC = () => {
   };
 
   const downloadKit = async () => {
-    const wav = await soundEngine.renderDesignWav(selected.design, options).catch(() => null);
+    const wav = await soundEngine.renderDesignWav(customizedDesign, options).catch(() => null);
     return saveKit(`rtl-sound-${selected.id}`, [
       ...(wav ? [{ name: `${selected.id}.wav`, content: wav }] : []),
-      { name: "design.json", content: JSON.stringify({ ...selected, options }, null, 2) },
+      {
+        name: "design.json",
+        content: JSON.stringify({ ...selected, design: customizedDesign, options }, null, 2),
+      },
       {
         name: "usage.tsx",
         content: `import { soundEngine } from "@/engines/soundEngine";
-import { SOUND_LIBRARY } from "@/data/soundLibrary";
 
-const item = SOUND_LIBRARY.find((x) => x.id === "${selected.id}")!;
-soundEngine.playDesign(item.design, ${JSON.stringify(options)});`,
+const design = ${JSON.stringify(customizedDesign, null, 2)};
+const options = ${JSON.stringify(options, null, 2)};
+soundEngine.playDesign(design, options);`,
       },
     ]);
   };
@@ -842,4 +845,5 @@ function saveTextLibrary() {
   return true;
 }
 
+/** @alias */
 export default SoundStudio;

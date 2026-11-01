@@ -35,7 +35,7 @@ for (const preset of ["mobile", "desktop"]) {
     ];
     if (preset === "desktop") args.push("--preset=desktop");
     try {
-      execFileSync(path.join(ROOT, "node_modules/.bin/lighthouse"), args, {
+      execFileSync("lighthouse", args, {
         stdio: "pipe",
         timeout: 240_000,
         env: {

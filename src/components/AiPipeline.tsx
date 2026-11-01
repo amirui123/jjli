@@ -160,4 +160,5 @@ export const AiPipeline: React.FC<{
   );
 };
 
+/** @alias */
 export default AiPipeline;

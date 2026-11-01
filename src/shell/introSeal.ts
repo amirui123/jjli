@@ -69,11 +69,6 @@ export const SEAL_EASE = {
   sheet: [0.32, 0, 0.14, 1] as Bezier,
 } as const;
 
-export const SEAL_STAGGER = {
-  /** Offset between the gold pressure ring and its ivory echo. */
-  ringEcho: 0.06,
-} as const;
-
 /** Session flag: the seal plays once per session, then repeat visits are instant. */
 export const SEAL_SESSION_KEY = "rtmlab.v1.seal-seen";
 

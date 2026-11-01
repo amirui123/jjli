@@ -5,6 +5,7 @@ import {
   type AnimationPlaybackControls,
   type Easing,
 } from "framer-motion";
+import { useAppSettings } from "../lib/store";
 import {
   SEAL_COLORS,
   SEAL_COPY,
@@ -305,7 +306,9 @@ const Stage: React.FC<{ scope: React.RefObject<HTMLDivElement>; fall: number }> 
 /* ---------------------------------------------------------------- component */
 
 export const IntroSeal: React.FC = () => {
-  const reduced = useReducedMotion() === true;
+  const { settings } = useAppSettings();
+  const reduced =
+    useReducedMotion() === true || settings.reduceMotion || settings.motionLevel === 1;
   const [active, setActive] = useState(shouldAutoPlay);
   const [ready, setReady] = useState(false);
   const [runId, setRunId] = useState(0);
@@ -484,4 +487,5 @@ export const IntroSeal: React.FC = () => {
   );
 };
 
+/** @alias */
 export default IntroSeal;

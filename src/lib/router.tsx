@@ -183,10 +183,12 @@ export function useRouter(): { path: string; route: RouteId; meta: RouteMeta } {
   return { path, route: matchId(path), meta: routeMeta(matchId(path)) };
 }
 
+/** @public */
 export function useNavigate() {
   return useCallback((path: string) => navigate(path), []);
 }
 
+/** @public */
 export function href(path: string) {
   return `#${path.startsWith("/") ? path : `/${path}`}`;
 }

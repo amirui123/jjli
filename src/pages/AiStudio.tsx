@@ -145,7 +145,7 @@ export const AiStudio: React.FC = () => {
     return `# نقش (${targetIde})
 تو یک مهندس ارشد رابط کاربری فارسی (RTL-first) و متخصص موشن ۱۲۰ فریم هستی.
 پرسونای بصری: ${aestheticPersona}
-خروجی فقط کد TypeScript + React 19 + Tailwind v4 + framer-motion باشد.
+خروجی فقط کد TypeScript + React 18 + Tailwind v4 + framer-motion باشد.
 
 # درخواست
 ${kind.label} — ${kind.hint}${customTask.trim() ? `\nهدف اختصاصی پروژه: ${customTask.trim()}` : ""}
@@ -183,26 +183,66 @@ ${promptDetail >= 3 ? "- شامل تست‌های واحد، حالت‌های �
     enforceOledSafe,
   ]);
 
-  const pythonSnippet = `from datasets import load_dataset
-from peft import LoraConfig, get_peft_model
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+  const pythonSnippet = `# Install once: pip install torch transformers datasets peft accelerate bitsandbytes
+from datasets import load_dataset
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    BitsAndBytesConfig,
+    DataCollatorForLanguageModeling,
+    Trainer,
+    TrainingArguments,
+)
 import torch
 
 BASE = "${tuning.baseModel}"
 QUANT_MODE = "${tuning.quantMode ?? "4bit-nf4"}"
+MAX_SEQ_LENGTH = ${tuning.seqLen}
 
-bnb = BitsAndBytesConfig(
-    load_in_4bit=${(tuning.quantMode ?? "4bit-nf4") === "4bit-nf4" ? "True" : "False"},
-    load_in_8bit=${tuning.quantMode === "8bit-int8" ? "True" : "False"},
-    bnb_4bit_quant_type="nf4",
-    bnb_4bit_compute_dtype=torch.bfloat16,
-    bnb_4bit_use_double_quant=True,
+if not torch.cuda.is_available() and QUANT_MODE in ("4bit-nf4", "8bit-int8"):
+    raise RuntimeError("4-bit/8-bit bitsandbytes training requires a CUDA GPU.")
+
+BF16_SUPPORTED = (
+    torch.cuda.is_available()
+    and getattr(torch.cuda, "is_bf16_supported", lambda: False)()
 )
+if QUANT_MODE == "bf16" and not BF16_SUPPORTED:
+    raise RuntimeError("BF16 mode requires a CUDA GPU with BF16 support.")
+
+COMPUTE_DTYPE = (
+    torch.bfloat16 if BF16_SUPPORTED
+    else torch.float16 if torch.cuda.is_available()
+    else torch.float32
+)
+
+model_kwargs = {
+    "device_map": "auto",
+    "trust_remote_code": True,
+    "torch_dtype": COMPUTE_DTYPE,
+}
+quantization_config = None
+if QUANT_MODE == "4bit-nf4":
+    quantization_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=COMPUTE_DTYPE,
+        bnb_4bit_use_double_quant=True,
+    )
+elif QUANT_MODE == "8bit-int8":
+    quantization_config = BitsAndBytesConfig(load_in_8bit=True)
+
+if quantization_config is not None:
+    model_kwargs["quantization_config"] = quantization_config
 
 tokenizer = AutoTokenizer.from_pretrained(BASE, trust_remote_code=True)
-model = AutoModelForCausalLM.from_pretrained(
-    BASE, quantization_config=bnb, device_map="auto", trust_remote_code=True
-)
+if tokenizer.pad_token is None:
+    tokenizer.pad_token = tokenizer.eos_token
+
+model = AutoModelForCausalLM.from_pretrained(BASE, **model_kwargs)
+if quantization_config is not None:
+    model = prepare_model_for_kbit_training(model)
+model.config.use_cache = False
 
 lora = LoraConfig(
     r=${tuning.rank},
@@ -213,10 +253,68 @@ lora = LoraConfig(
     target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
 )
 model = get_peft_model(model, lora)
+model.print_trainable_parameters()
 
 ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
-# max_seq_length=${tuning.seqLen} · epochs=${tuning.epochs} · lr=${tuning.lr} · batch=${tuning.batch}
-`;
+if len(ds) == 0:
+    raise RuntimeError("The training dataset is empty.")
+
+def render_chat(example):
+    messages = example.get("messages")
+    if not messages:
+        raise ValueError("Each dataset row must contain a non-empty messages array.")
+    return {
+        "text": tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=False,
+        )
+    }
+
+text_ds = ds.map(render_chat, remove_columns=ds.column_names)
+
+def tokenize_batch(batch):
+    return tokenizer(
+        batch["text"],
+        truncation=True,
+        max_length=MAX_SEQ_LENGTH,
+    )
+
+tokenized_ds = text_ds.map(
+    tokenize_batch,
+    batched=True,
+    remove_columns=text_ds.column_names,
+)
+
+collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
+training_args = TrainingArguments(
+    output_dir="./rtl-motion-lora",
+    num_train_epochs=${tuning.epochs},
+    learning_rate=${tuning.lr},
+    per_device_train_batch_size=${tuning.batch},
+    gradient_accumulation_steps=1,
+    logging_steps=10,
+    save_strategy="epoch",
+    save_total_limit=2,
+    bf16=BF16_SUPPORTED,
+    fp16=torch.cuda.is_available() and not BF16_SUPPORTED,
+    gradient_checkpointing=True,
+    optim="adamw_torch",
+    report_to="none",
+    remove_unused_columns=False,
+    dataloader_pin_memory=torch.cuda.is_available(),
+)
+
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    train_dataset=tokenized_ds,
+    data_collator=collator,
+)
+trainer.train()
+trainer.save_model("./rtl-motion-lora")
+tokenizer.save_pretrained("./rtl-motion-lora")
+print("Training complete. Adapter saved to ./rtl-motion-lora")`;
 
   const currentPair = dataset?.pairs[pairIdx];
 
@@ -571,11 +669,21 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
               {[
                 {
                   k: "VRAM تقریبی",
-                  v: tuning.baseModel.includes("7B")
-                    ? "~9GB"
-                    : tuning.baseModel.includes("1.5B")
-                      ? "~4GB"
-                      : "~11GB",
+                  v: (() => {
+                    const paramsB = tuning.baseModel.includes("1.5B")
+                      ? 1.5
+                      : tuning.baseModel.includes("7B")
+                        ? 7
+                        : 6.7;
+                    const multiplier =
+                      tuning.quantMode === "8bit-int8"
+                        ? 2.0
+                        : tuning.quantMode === "bf16"
+                          ? 4.8
+                          : 1.35;
+                    const overhead = tuning.quantMode === "4bit-nf4" ? 2 : 3;
+                    return `~${Math.ceil(paramsB * multiplier + overhead)}GB`;
+                  })(),
                   icon: Gauge,
                 },
                 {
@@ -585,10 +693,16 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
                 },
                 {
                   k: "گام تقریبی",
-                  v: faNum(Math.round((40 / tuning.batch) * tuning.epochs)),
+                  v: faNum(Math.ceil((dataset?.total ?? 40) / tuning.batch) * tuning.epochs),
                   icon: Database,
                 },
-                { k: "حافظه دیتاست", v: "0.33MB", icon: FileJson2 },
+                {
+                  k: "حافظه دیتاست",
+                  v: dataset
+                    ? `${(JSON.stringify(dataset.pairs).length / (1024 * 1024)).toFixed(2)}MB`
+                    : "—",
+                  icon: FileJson2,
+                },
               ].map((x) => (
                 <div
                   key={x.k}
@@ -917,4 +1031,5 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
   );
 };
 
+/** @alias */
 export default AiStudio;

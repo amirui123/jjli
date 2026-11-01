@@ -25,6 +25,7 @@ import {
 import { DESIGN_LAB_PILLARS, DESIGN_LAB_TOTAL_FILES } from "../data/designLabManifest";
 import { PERSIAN_FONT_CATALOG } from "../data/persianFontsCatalog";
 import { publicUrl } from "../lib/base";
+import { designLabFileUrl, normalizeDesignLabUrl } from "../lib/designLabPath";
 import { ACCENTS, useAppSettings, useDebounced, usePersisted } from "../lib/store";
 
 const textFetchCache = new Map<string, Promise<string>>();
@@ -132,7 +133,7 @@ export const SkillsStudio: React.FC = () => {
     brand: string;
   }>("studio-skills-pick-v2", {
     pillarId: "all",
-    vaultUrl: "/design-lab/00-INDEX-AND-BLUEPRINTS/01-MASTER-VAULT-INDEX.md",
+    vaultUrl: designLabFileUrl("00-INDEX-AND-BLUEPRINTS", "root", "01-MASTER-VAULT-INDEX.md"),
     skill: ALL_SKILLS_MANIFEST[0]?.id ?? "",
     brand: ALL_BRAND_DESIGNS_MANIFEST[0]?.id ?? "",
   });
@@ -158,7 +159,7 @@ export const SkillsStudio: React.FC = () => {
 
   const debouncedQ = useDebounced(q, 110);
 
-  // Build flat index of all 4,023 files in design-lab
+  // Build the flat index from the generated Design Lab manifest.
   const allVaultRows = useMemo<VaultFileRow[]>(() => {
     const out: VaultFileRow[] = [];
     for (const p of DESIGN_LAB_PILLARS) {
@@ -179,7 +180,7 @@ export const SkillsStudio: React.FC = () => {
             fileName,
             ext,
             bytes,
-            fullUrl: `/design-lab/${p.id}/${sc.id}/${relPath}`,
+            fullUrl: designLabFileUrl(p.id, sc.id, relPath),
           });
         }
       }
@@ -192,7 +193,7 @@ export const SkillsStudio: React.FC = () => {
     [selectedPillarId]
   );
 
-  // Filtered 4,023 vault files
+  // Filtered files from the current manifest.
   const filteredVaultRows = useMemo(() => {
     const term = debouncedQ.trim().toLowerCase();
     return allVaultRows.filter((row) => {
@@ -237,7 +238,7 @@ export const SkillsStudio: React.FC = () => {
 
   const selectedVaultRow = useMemo(
     () =>
-      allVaultRows.find((r) => r.fullUrl === pick.vaultUrl) ??
+      allVaultRows.find((r) => r.fullUrl === normalizeDesignLabUrl(pick.vaultUrl)) ??
       filteredVaultRows[0] ??
       allVaultRows[0],
     [allVaultRows, filteredVaultRows, pick.vaultUrl]
@@ -575,7 +576,7 @@ ${(fileContent || "").slice(0, 2800)}
             )}
           </div>
 
-          {/* Virtualized List for all 4,023 Vault Files */}
+          {/* Virtualized list for all files in the generated vault. */}
           {tab === "vault4000" && (
             <div
               ref={scrollRef}
@@ -1250,4 +1251,5 @@ function activeFilename(
   return `${brand?.id ?? "brand"}-DESIGN.md`;
 }
 
+/** @alias */
 export default SkillsStudio;

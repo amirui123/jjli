@@ -1,44 +1,21 @@
 {
-  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "$schema": "https://unpkg.com/knip@5/schema.json",
   "entry": [
-    "src/main.tsx",
     "src/dev/smoke.tsx",
     "scripts/*.mjs",
     "tools/*.mjs",
-    "e2e/**/*.spec.ts"
+    "e2e/**/*.spec.ts",
+    "src/data/soundsManifest.ts"
   ],
   "project": [
-    "src/**/*.{ts,tsx}",
+    "src/**/*.{ts,tsx,css}",
     "scripts/**/*.mjs",
-    "tools/**/*.mjs"
+    "tools/**/*.mjs",
+    "e2e/**/*.ts"
   ],
-  "ignore": [
-    "design-lab/**",
-    "public/**",
-    "share/**",
-    "dist/**",
-    "audit/**"
-  ],
+  "ignoreExportsUsedInFile": true,
   "ignoreDependencies": [
-    "@sparticuz/chromium",
-    "@axe-core/playwright",
-    "@lhci/cli",
-    "lhci",
-    "pa11y-ci",
-    "backstopjs",
-    "secretlint",
     "@secretlint/secretlint-rule-preset-recommend",
-    "stylelint-config-standard",
-    "vite-bundle-analyzer",
-    "sharp",
-    "axe-core",
-    "purgecss",
-    "linkinator",
-    "prettier",
-    "html-validate",
-    "knip",
-    "size-limit",
-    "@size-limit/file"
-  ],
-  "ignoreExportsUsedInFile": true
+    "lighthouse"
+  ]
 }

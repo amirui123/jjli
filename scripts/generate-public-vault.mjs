@@ -34,7 +34,9 @@ function registrySummary() {
   if (open < 0 || close < open) return { registries: [], components: 0 };
   try {
     const rows = JSON.parse(raw.slice(open + 2, close + 1));
-    const registries = rows.map((r) => ({ id: r.id, total: r.totalFiles ?? 0 }));
+    // "components" counts source entries, while totalFiles also includes
+    // manifests and metadata files. Keep those metrics distinct.
+    const registries = rows.map((r) => ({ id: r.id, total: r.sourceFiles ?? 0 }));
     const components = registries.reduce((a, r) => a + r.total, 0);
     return { registries, components };
   } catch {

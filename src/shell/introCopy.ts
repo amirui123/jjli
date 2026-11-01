@@ -34,13 +34,11 @@ export const HERO_LINES: HeadlineLine[] = [
   },
 ];
 
-/** Flat word list, reading order (right to left, line by line). */
-export const HERO_WORDS: HeadlineWord[] = HERO_LINES.flatMap((line) => line.words);
-
 /** One-line rendering for places that cannot show two lines (marquee, footer). */
 export const HERO_SENTENCE = HERO_LINES.map((line) => line.words.map((w) => w.text).join(" ")).join(
   " — "
 );
 
 /** The couplet as it appears in the footer brand block. */
+/** @alias */
 export const FOOTER_COUPLET = HERO_SENTENCE;

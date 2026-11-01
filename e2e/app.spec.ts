@@ -19,16 +19,7 @@ const ROUTES = [
   { id: "ai", path: "/studio/ai", heading: /هوش مصنوعی/ },
 ];
 
-/**
- * Known, already-reported defects. Tests stay green (so new breakage is visible)
- * but the allow-list must shrink to zero as the bugs are fixed.
- *   1. skills page: the "root" subcategory is rendered as a real folder, so the
- *      first vault file 404s. Reported in audit/before/report.
- */
-const KNOWN_CONSOLE_NOISE: { page?: string; match: RegExp }[] = [
-  { page: "skills", match: /design-lab\/00-INDEX-AND-BLUEPRINTS\/root\// },
-  { page: "skills", match: /^Failed to load resource: the server responded with a status of 404/ },
-];
+/** Unexpected browser/network errors are never whitelisted. */
 
 /**
  * The app animates continuously by design (marquees, shimmers, aurora blobs,
@@ -65,9 +56,7 @@ function watchConsole(page: Page) {
 }
 
 function unexpected(pageId: string) {
-  return errors.filter(
-    (e) => !KNOWN_CONSOLE_NOISE.some((k) => (!k.page || k.page === pageId) && k.match.test(e.text))
-  );
+  return errors.filter((e) => e.page === pageId);
 }
 
 test.beforeEach(() => {
@@ -93,6 +82,16 @@ for (const route of ROUTES) {
     expect(bad, `console/network errors on ${route.path}`).toEqual([]);
   });
 }
+
+test("skills: root vault documents load from the real directory", async ({ page }) => {
+  const responsePromise = page.waitForResponse((response) =>
+    response.url().includes("/design-lab/00-INDEX-AND-BLUEPRINTS/01-MASTER-VAULT-INDEX.md")
+  );
+  await open(page, "/studio/skills");
+  const response = await responsePromise;
+  expect(response.status()).toBe(200);
+  expect(response.url()).not.toContain("/root/");
+});
 
 test("unknown route shows the 404 page", async ({ page }) => {
   currentPage = "404";
