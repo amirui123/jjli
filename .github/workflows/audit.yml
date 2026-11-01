@@ -40,6 +40,8 @@ jobs:
         run: npx stylelint "src/**/*.css"
       - name: HTML validation
         run: npx html-validate index.html
+      - name: Temporary Prettier output for generator
+        run: npx prettier scripts/generate-light-data.mjs
       - name: Prettier
         run: npm run lint:format
       - name: Knip (dead code)
