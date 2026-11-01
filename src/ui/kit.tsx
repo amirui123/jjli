@@ -251,7 +251,7 @@ export const SearchField: React.FC<{
   </div>
 );
 
-// @public
+/** @public */
 export const Select: React.FC<{
   value: string;
   onChange: (v: string) => void;
@@ -438,7 +438,7 @@ export const Spinner: React.FC<{ className?: string; label?: string }> = ({ clas
   </div>
 );
 
-// @public
+/** @public */
 export const EmptyState: React.FC<{
   title: string;
   hint?: string;
@@ -451,7 +451,7 @@ export const EmptyState: React.FC<{
   </div>
 );
 
-// @public
+/** @public */
 export const Stat: React.FC<{
   value: React.ReactNode;
   label: string;
@@ -473,7 +473,7 @@ export const Stat: React.FC<{
   </button>
 );
 
-// @public
+/** @public */
 export function useInterval(cb: () => void, ms: number | null) {
   const ref = useRef(cb);
   ref.current = cb;
@@ -498,7 +498,7 @@ export function useMediaQuery(query: string) {
   return matches;
 }
 
-// @public
+/** @public */
 export function useCopyState(ms = 1600) {
   const [copied, setCopied] = useState(false);
   const trigger = useCallback(
