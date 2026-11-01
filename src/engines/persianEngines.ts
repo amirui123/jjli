@@ -247,7 +247,7 @@ export function validateShetabLuhn(cardInput: string): boolean {
 /**
  * Iranian National Code (کد ملی) Modulo-11 Validator
  */
-// @public
+/** @public */
 export function validateIranianNationalCode(input: string): {
   valid: boolean;
   cityFa: string;
@@ -371,7 +371,7 @@ function threeDigitsToFa(n: number): string {
   return parts.join(" و ");
 }
 
-// @public
+/** @public */
 export function numberToPersianWords(input: string | number): string {
   const clean = toEnglishDigits(String(input)).replace(/\D/g, "").slice(0, 15);
   if (!clean || Number(clean) === 0) return "صفر تومان";
@@ -815,7 +815,7 @@ export const ACCENT_PALETTES: Record<
   },
 };
 
-// @public
+/** @public */
 export function mutateComponentCode(baseCode: string, config: StudioPhysicsConfig): string {
   const palette = ACCENT_PALETTES[config.accentName];
   return baseCode
