@@ -1019,5 +1019,5 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
   );
 };
 
-// @alias
+/** @alias */
 export default FontStudio;
