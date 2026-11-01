@@ -764,4 +764,5 @@ export const Landing: React.FC<{ onReplayIntro?: () => void }> = ({ onReplayIntr
   );
 };
 
+// @alias
 export default Landing;
