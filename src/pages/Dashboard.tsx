@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { TOOLKIT_STATS } from "../data/toolkitStats";
 import { DESIGN_LAB_PILLARS, DESIGN_LAB_TOTAL_FILES } from "../data/designLabManifest";
+import { designLabFileUrl } from "../lib/designLabPath";
 import { SHADERS } from "../engines/shaderLab";
 import { navigate } from "../lib/router";
 import { ACCENTS, useAppSettings, writePersisted } from "../lib/store";
@@ -250,7 +251,7 @@ export const Dashboard: React.FC = () => {
     const firstFile = firstSc?.files[0];
     const firstUrl =
       pillar && firstSc && firstFile
-        ? `/design-lab/${pillar.id}/${firstSc.id}/${firstFile[0]}`
+        ? designLabFileUrl(pillar.id, firstSc.id, firstFile[0])
         : undefined;
     writePersisted("studio-skills-pick-v2", {
       pillarId,
