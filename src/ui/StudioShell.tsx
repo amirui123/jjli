@@ -254,6 +254,9 @@ export const StudioShell: React.FC<{
       role="separator"
       aria-orientation="vertical"
       aria-label={side === "list" ? "تغییر عرض فهرست" : "تغییر عرض تنظیمات"}
+      aria-valuenow={side === "list" ? listW : settingsW}
+      aria-valuemin={bounds(side).min}
+      aria-valuemax={bounds(side).max}
       tabIndex={0}
       onPointerDown={(e) => {
         e.preventDefault();
