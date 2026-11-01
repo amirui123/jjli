@@ -70,7 +70,7 @@ export async function fetchAsBlob(input: string): Promise<Blob | null> {
   }
 }
 
-// @public
+/** @public */
 export function slugify(input: string): string {
   return input
     .toLowerCase()
