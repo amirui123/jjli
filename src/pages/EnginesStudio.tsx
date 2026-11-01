@@ -959,5 +959,5 @@ uniforms:
   );
 };
 
-// @alias
+/** @alias */
 export default EnginesStudio;
