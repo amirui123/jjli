@@ -418,7 +418,7 @@ export function cleanupPersianText(raw: string): {
 
   // 3. Join plural/comparative suffixes when separated by whitespace.
   text = text.replace(
-    /([\p{Script=Arabic}\p{M}])\s+(ها|های|ترین|تر)(?=\\s|[،؛.!؟:]|$)/gu,
+    /([\p{Script=Arabic}\p{M}])\s+(ها|های|ترین|تر)(?=\s|[،؛.!؟:]|$)/gu,
     (_, word, suffix) => {
       fixesCount++;
       return `${word}\u200C${suffix}`;
