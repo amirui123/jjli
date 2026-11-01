@@ -859,4 +859,5 @@ export const STUDIO_COMPONENT_TOKENS = {
   );
 };
 
+// @alias
 export default ComponentsStudio;
