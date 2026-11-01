@@ -755,5 +755,5 @@ export const Dashboard: React.FC = () => {
   );
 };
 
-// @alias
+/** @alias */
 export default Dashboard;
