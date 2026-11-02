@@ -309,20 +309,20 @@ export const ShaderSurface: React.FC<Props> = ({
       cancelFrame: (id) => cancelAnimationFrame(id),
       isActive,
       draw: (now) => {
-      const s = stateRef.current;
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, glyphTexture);
-      gl.uniform2f(u.res, canvas.width, canvas.height);
-      gl.uniform1f(u.time, (now - started) / 1000);
-      gl.uniform1f(u.speed, s.speed);
-      gl.uniform1f(u.scale, s.scale);
-      gl.uniform1f(u.hue, s.hue);
-      gl.uniform1f(u.warp, s.warp);
-      gl.uniform1f(u.grain, s.grain);
-      gl.uniform2f(u.mouse, mouseRef.current[0], mouseRef.current[1]);
-      const [r, g, b] = accentRef.current;
-      gl.uniform3f(u.accent, r, g, b);
-      gl.drawArrays(gl.TRIANGLES, 0, 3);
+        const s = stateRef.current;
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, glyphTexture);
+        gl.uniform2f(u.res, canvas.width, canvas.height);
+        gl.uniform1f(u.time, (now - started) / 1000);
+        gl.uniform1f(u.speed, s.speed);
+        gl.uniform1f(u.scale, s.scale);
+        gl.uniform1f(u.hue, s.hue);
+        gl.uniform1f(u.warp, s.warp);
+        gl.uniform1f(u.grain, s.grain);
+        gl.uniform2f(u.mouse, mouseRef.current[0], mouseRef.current[1]);
+        const [r, g, b] = accentRef.current;
+        gl.uniform3f(u.accent, r, g, b);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
       },
     });
     frameLoopRef.current = loop;
@@ -330,10 +330,13 @@ export const ShaderSurface: React.FC<Props> = ({
     document.addEventListener("visibilitychange", onVisibilityChange);
     const io =
       typeof IntersectionObserver !== "undefined"
-        ? new IntersectionObserver(([entry]) => {
-            visible = Boolean(entry?.isIntersecting);
-            loop.refresh();
-          }, { threshold: 0.02 })
+        ? new IntersectionObserver(
+            ([entry]) => {
+              visible = Boolean(entry?.isIntersecting);
+              loop.refresh();
+            },
+            { threshold: 0.02 }
+          )
         : null;
     io?.observe(canvas);
     loop.refresh();
