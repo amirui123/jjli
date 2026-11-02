@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { VERTEX_SHADER, SHADER_PRELUDE, FRAGMENT_MAIN, type ShaderDef } from "../engines/shaderLab";
 import { cn } from "../ui/kit";
-import { ShaderFrameLoop } from "../engines/shaderFrameLoop";
+import { ShaderFrameLoop } from "../engines/shaderFrameLoop.mjs";
 
 interface Props {
   def: ShaderDef;
