@@ -539,3 +539,25 @@ test("static server blocks encoded traversal and symlink escapes", async () => {
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
 });
+
+test("sound studio exports a valid two-channel PCM WAV", async ({ page }) => {
+  currentPage = "stereo-wav";
+  watchConsole(page);
+  await open(page, "/studio/sounds");
+
+  const [download] = await Promise.all([
+    page.waitForEvent("download", { timeout: 20_000 }),
+    page.getByRole("button", { name: "WAV", exact: true }).click(),
+  ]);
+  const filePath = await download.path();
+  expect(filePath).toBeTruthy();
+
+  const wav = fs.readFileSync(filePath!);
+  expect(wav.toString("ascii", 0, 4)).toBe("RIFF");
+  expect(wav.toString("ascii", 8, 12)).toBe("WAVE");
+  expect(wav.readUInt16LE(20)).toBe(1);
+  expect(wav.readUInt16LE(22)).toBe(2);
+  expect(wav.readUInt16LE(34)).toBe(16);
+  expect(wav.readUInt32LE(40)).toBe(wav.length - 44);
+  expect(unexpected("stereo-wav")).toEqual([]);
+});
