@@ -14,7 +14,7 @@ test("accepts normal descendants and rejects sibling-prefix tricks", () => {
 
 test("rejects traversal, absolute paths, drive paths and backslashes", () => {
   const root = path.resolve("/tmp/rtl-root");
-  for (const candidate of ["../secret", "assets/../../secret", "/etc/passwd", "C:/Windows/win.ini", "assets\\secret", "assets/%2e%2e/secret", ""]) {
+  for (const candidate of ["../secret", "assets/../../secret", "/etc/passwd", "C:/Windows/win.ini", "assets\\secret", decodeURIComponent("assets/%2e%2e/secret"), ""]) {
     assert.equal(resolvePathWithin(root, candidate), null, candidate);
   }
 });
