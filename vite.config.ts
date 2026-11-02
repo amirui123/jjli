@@ -52,7 +52,7 @@ function serveDesignLabRaw() {
         } catch {
           next();
         }
-      });;
+      });
     },
   };
 }
