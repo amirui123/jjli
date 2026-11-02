@@ -550,9 +550,9 @@ test("sound studio exports a valid two-channel PCM WAV", async ({ page }) => {
     page.getByRole("button", { name: "WAV", exact: true }).click(),
   ]);
   const filePath = await download.path();
-  expect(filePath).toBeTruthy();
+  if (!filePath) throw new Error("Downloaded WAV file path is unavailable");
 
-  const wav = fs.readFileSync(filePath!);
+  const wav = fs.readFileSync(filePath);
   expect(wav.toString("ascii", 0, 4)).toBe("RIFF");
   expect(wav.toString("ascii", 8, 12)).toBe("WAVE");
   expect(wav.readUInt16LE(20)).toBe(1);
