@@ -95,7 +95,9 @@ const server = http.createServer((req, res) => {
   try {
     const urlPath = decodeURIComponent((req.url || "/").split("?")[0]);
     const relativePath = urlPath.replace(/^\/+/, "");
-    const filePath = relativePath ? resolvePathWithin(ROOT, relativePath) : path.join(ROOT, "index.html");
+    const filePath = relativePath
+      ? resolvePathWithin(ROOT, relativePath)
+      : path.join(ROOT, "index.html");
     if (!filePath) {
       res.writeHead(403).end("Forbidden");
       return;
