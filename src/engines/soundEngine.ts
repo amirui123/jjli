@@ -159,7 +159,6 @@ export function audibleDuration(design: SoundDesign, options: PlayOptions = {}):
   return Math.max(0.05, end);
 }
 
-
 /** Short, deterministic pink/brown-ish noise buffer (built once per context). */
 function noiseBuffer(ctx: BaseAudioContext, color: "white" | "pink" | "brown", seconds: number) {
   const len = Math.max(128, Math.floor(ctx.sampleRate * seconds));
