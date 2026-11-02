@@ -5,12 +5,9 @@ export function isPathInside(root, candidate) {
   const absoluteCandidate = path.resolve(candidate);
   const relative = path.relative(absoluteRoot, absoluteCandidate);
 
-  return (
-    relative === "" ||
-    (relative !== ".." &&
-      !relative.startsWith(`..${path.sep}`) &&
-      !path.isAbsolute(relative))
-  );
+  const isRoot = relative === "";
+  const isParent = relative === ".." || relative.startsWith(`..${path.sep}`);
+  return isRoot || (!isParent && !path.isAbsolute(relative));
 }
 
 export function resolvePathWithin(root, relativePath) {
