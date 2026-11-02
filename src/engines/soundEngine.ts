@@ -10,6 +10,8 @@
  * sketch (which is why several of them used to sound broken or identical).
  */
 
+import { encodeWav } from "./wavEncoder.mjs";
+
 /* ------------------------------------------------------------------ types */
 
 export type SoundCategory = "ui" | "impact" | "sweep" | "air" | "texture" | "cinematic" | "notify";
@@ -155,42 +157,6 @@ export function audibleDuration(design: SoundDesign, options: PlayOptions = {}):
     end += Math.min(2.5, design.reverb.decay * 0.6 * design.reverb.mix);
   }
   return Math.max(0.05, end);
-}
-
-function encodeWav(buffer: AudioBuffer): Blob {
-  const numChannels = 1;
-  const sampleRate = buffer.sampleRate;
-  const samples = buffer.getChannelData(0);
-  const dataSize = samples.length * 2;
-  const out = new ArrayBuffer(44 + dataSize);
-  const view = new DataView(out);
-
-  const writeStr = (offset: number, str: string) => {
-    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
-  };
-
-  writeStr(0, "RIFF");
-  view.setUint32(4, 36 + dataSize, true);
-  writeStr(8, "WAVE");
-  writeStr(12, "fmt ");
-  view.setUint32(16, 16, true);
-  view.setUint16(20, 1, true);
-  view.setUint16(22, numChannels, true);
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * numChannels * 2, true);
-  view.setUint16(32, numChannels * 2, true);
-  view.setUint16(34, 16, true);
-  writeStr(36, "data");
-  view.setUint32(40, dataSize, true);
-
-  let offset = 44;
-  for (let i = 0; i < samples.length; i++) {
-    const s = Math.max(-1, Math.min(1, samples[i]));
-    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
-    offset += 2;
-  }
-
-  return new Blob([out], { type: "audio/wav" });
 }
 
 /** Short, deterministic pink/brown-ish noise buffer (built once per context). */
@@ -680,7 +646,8 @@ class ProceduralSoundEngine {
     const stretch = clamp(options.stretch ?? 1, 0.25, 4);
     const seconds = clamp(audibleDuration(design, { ...options, stretch }) + 0.15, 0.2, 40);
     const sampleRate = 44100;
-    const offline = new OfflineCtor(1, Math.ceil(sampleRate * seconds), sampleRate);
+    // Stereo is required because the sound DSL supports per-layer pan and stereo reverb.
+    const offline = new OfflineCtor(2, Math.ceil(sampleRate * seconds), sampleRate);
     this.render(offline, offline.destination, design, { ...options, stretch }, 0, false);
     const buffer = await offline.startRendering();
     /* Exported WAVs must never clip, whatever gain/pitch combination the user

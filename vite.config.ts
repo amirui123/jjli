@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { isPathInside, resolvePathWithin } from "./scripts/lib/path-security.mjs";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
@@ -23,27 +24,34 @@ function serveDesignLabRaw() {
       };
     }) {
       server.middlewares.use((req, res, next) => {
-        const rawUrl = (req.url || "").split("?")[0];
-        const idx = rawUrl.indexOf("/design-lab/");
-        if (idx === -1) return next();
-        let rel = "";
+        const rawUrl = (req.url || "/").split("?")[0];
+        let decodedUrl: string;
         try {
-          rel = decodeURIComponent(rawUrl.slice(idx + 1));
+          decodedUrl = decodeURIComponent(rawUrl);
         } catch {
-          return next();
-        }
-        const full = path.resolve(process.cwd(), rel);
-        if (!full.startsWith(path.resolve(process.cwd(), "design-lab"))) {
-          return next();
-        }
-        if (fs.existsSync(full) && fs.statSync(full).isFile()) {
-          res.setHeader("Content-Type", "text/plain; charset=utf-8");
-          res.setHeader("Cache-Control", "public, max-age=3600");
-          res.statusCode = 200;
-          res.end(fs.readFileSync(full));
+          res.statusCode = 400;
+          res.end("Bad request");
           return;
         }
-        next();
+        const route = decodedUrl.indexOf("/design-lab/");
+        if (route === -1) return next();
+        const relative = decodedUrl.slice(route + 1);
+        const root = path.resolve(process.cwd(), "design-lab");
+        const candidate = resolvePathWithin(process.cwd(), relative);
+        if (!candidate || !isPathInside(root, candidate)) return next();
+        try {
+          const realRoot = fs.realpathSync(root);
+          const realFile = fs.realpathSync(candidate);
+          if (!isPathInside(realRoot, realFile)) return next();
+          const stat = fs.statSync(realFile);
+          if (!stat.isFile()) return next();
+          res.setHeader("Content-Type", "text/plain; charset=utf-8");
+          res.setHeader("Cache-Control", "no-store");
+          res.statusCode = 200;
+          res.end(fs.readFileSync(realFile));
+        } catch {
+          next();
+        }
       });
     },
   };
@@ -87,17 +95,17 @@ export default defineConfig({
     },
   },
   server: {
-    host: "0.0.0.0",
+    host: "127.0.0.1",
     port: 5173,
-    allowedHosts: true,
-    cors: true,
+    allowedHosts: ["localhost", "127.0.0.1"],
+    cors: false,
     watch: {
       ignored: ["**/design-lab/**"],
     },
   },
   preview: {
-    host: "0.0.0.0",
+    host: "127.0.0.1",
     port: 5173,
-    allowedHosts: true,
+    allowedHosts: ["localhost", "127.0.0.1"],
   },
 });

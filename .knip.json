@@ -16,6 +16,9 @@
   "ignoreExportsUsedInFile": true,
   "ignoreDependencies": [
     "@secretlint/secretlint-rule-preset-recommend",
-    "lighthouse"
+    "lighthouse",
+    "lottie-web",
+    "motion",
+    "tempus"
   ]
 }

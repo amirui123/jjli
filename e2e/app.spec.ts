@@ -6,6 +6,9 @@
  * Note: the browser comes from `npm run tool:setup` (see playwright.config.ts).
  */
 import { test, expect, type Page } from "@playwright/test";
+import fs from "node:fs";
+import http from "node:http";
+import path from "node:path";
 
 const ROUTES = [
   { id: "home", path: "/", heading: /هر واژه/ },
@@ -503,4 +506,58 @@ test.describe("intro seal", () => {
     expect(Date.now() - started).toBeLessThan(2_500);
     await ctx.close();
   });
+});
+
+test("static server blocks encoded traversal and symlink escapes", async () => {
+  const requestStatus = (requestPath: string) =>
+    new Promise<number>((resolve, reject) => {
+      const request = http.request(
+        { hostname: "127.0.0.1", port: 4173, path: requestPath, method: "GET" },
+        (response) => {
+          response.resume();
+          resolve(response.statusCode ?? 0);
+        }
+      );
+      request.on("error", reject);
+      request.end();
+    });
+
+  expect(await requestStatus("/%2e%2e/package.json")).toBe(403);
+
+  const tempDir = fs.mkdtempSync(path.join(process.cwd(), "dist", "__audit_symlink_escape_"));
+  const linkPath = path.join(tempDir, "outside");
+  try {
+    try {
+      fs.symlinkSync("/etc", linkPath, "dir");
+    } catch (error) {
+      test.skip(true, `symlink creation unavailable: ${String(error)}`);
+      return;
+    }
+    const requestPath = `/${path.basename(tempDir)}/outside/passwd`;
+    expect(await requestStatus(requestPath)).toBe(403);
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test("sound studio exports a valid two-channel PCM WAV", async ({ page }) => {
+  currentPage = "stereo-wav";
+  watchConsole(page);
+  await open(page, "/studio/sounds");
+
+  const [download] = await Promise.all([
+    page.waitForEvent("download", { timeout: 20_000 }),
+    page.getByRole("button", { name: "WAV", exact: true }).click(),
+  ]);
+  const filePath = await download.path();
+  if (!filePath) throw new Error("Downloaded WAV file path is unavailable");
+
+  const wav = fs.readFileSync(filePath);
+  expect(wav.toString("ascii", 0, 4)).toBe("RIFF");
+  expect(wav.toString("ascii", 8, 12)).toBe("WAVE");
+  expect(wav.readUInt16LE(20)).toBe(1);
+  expect(wav.readUInt16LE(22)).toBe(2);
+  expect(wav.readUInt16LE(34)).toBe(16);
+  expect(wav.readUInt32LE(40)).toBe(wav.length - 44);
+  expect(unexpected("stereo-wav")).toEqual([]);
 });

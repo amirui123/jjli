@@ -32,6 +32,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Focused unit regressions
+        run: npm run test:unit
       - name: TypeScript (strict)
         run: npm run typecheck
       - name: ESLint (+ jsx-a11y)
@@ -48,6 +50,24 @@ jobs:
         run: npx secretlint "**/*"
       - name: Dependencies (runtime only)
         run: npm audit --omit=dev
+      - name: Full dependency-tree advisory report
+        if: always()
+        run: |
+          mkdir -p audit
+          npm audit --json > audit/npm-audit-before-fix.json || true
+          node scripts/report-npm-audit.mjs audit/npm-audit-before-fix.json
+          npm audit fix --package-lock-only || true
+          npm audit --json > audit/npm-audit-after-safe-fix.json || true
+          node scripts/report-npm-audit.mjs audit/npm-audit-after-safe-fix.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: full-dependency-audit
+          path: |
+            audit/npm-audit-before-fix.json
+            audit/npm-audit-after-safe-fix.json
+            package-lock.json
+          retention-days: 7
 
   build-and-size:
     name: Build & bundle budget
