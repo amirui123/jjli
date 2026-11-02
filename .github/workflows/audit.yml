@@ -32,6 +32,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Focused unit regressions
+        run: npm run test:unit
       - name: TypeScript (strict)
         run: npm run typecheck
       - name: ESLint (+ jsx-a11y)
