@@ -303,11 +303,13 @@ export const ShaderSurface: React.FC<Props> = ({
 
     let visible = true;
     const isActive = () => visible && !stateRef.current.paused && !document.hidden;
+    const started = performance.now();
     const loop = new ShaderFrameLoop({
       requestFrame: (callback) => requestAnimationFrame(callback),
       cancelFrame: (id) => cancelAnimationFrame(id),
       isActive,
       draw: (now) => {
+      const s = stateRef.current;
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, glyphTexture);
       gl.uniform2f(u.res, canvas.width, canvas.height);
