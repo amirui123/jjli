@@ -199,6 +199,8 @@ import torch
 BASE = "${tuning.baseModel}"
 QUANT_MODE = "${tuning.quantMode ?? "4bit-nf4"}"
 MAX_SEQ_LENGTH = ${tuning.seqLen}
+# Only enable after reviewing and trusting the model repository's Python code.
+TRUST_REMOTE_CODE = False
 
 if not torch.cuda.is_available() and QUANT_MODE in ("4bit-nf4", "8bit-int8"):
     raise RuntimeError("4-bit/8-bit bitsandbytes training requires a CUDA GPU.")
@@ -218,7 +220,7 @@ COMPUTE_DTYPE = (
 
 model_kwargs = {
     "device_map": "auto",
-    "trust_remote_code": True,
+    "trust_remote_code": TRUST_REMOTE_CODE,
     "torch_dtype": COMPUTE_DTYPE,
 }
 quantization_config = None
@@ -235,7 +237,7 @@ elif QUANT_MODE == "8bit-int8":
 if quantization_config is not None:
     model_kwargs["quantization_config"] = quantization_config
 
-tokenizer = AutoTokenizer.from_pretrained(BASE, trust_remote_code=True)
+tokenizer = AutoTokenizer.from_pretrained(BASE, trust_remote_code=TRUST_REMOTE_CODE)
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
 
