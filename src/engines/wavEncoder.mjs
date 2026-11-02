@@ -2,14 +2,18 @@
 export function encodeWav(buffer) {
   const numChannels = Math.max(1, Math.min(2, buffer.numberOfChannels));
   const sampleRate = buffer.sampleRate;
-  const channels = Array.from({ length: numChannels }, (_, channel) => buffer.getChannelData(channel));
+  const channels = Array.from({ length: numChannels }, (_, channel) =>
+    buffer.getChannelData(channel)
+  );
   const frameCount = buffer.length;
   const dataSize = frameCount * numChannels * 2;
   const out = new ArrayBuffer(44 + dataSize);
   const view = new DataView(out);
 
   const writeStr = (offset, str) => {
-    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+    for (let i = 0; i < str.length; i++) {
+      view.setUint8(offset + i, str.charCodeAt(i));
+    }
   };
 
   writeStr(0, "RIFF");
