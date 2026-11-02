@@ -10,6 +10,8 @@
  * sketch (which is why several of them used to sound broken or identical).
  */
 
+import { encodeWav } from "./wavEncoder.mjs";
+
 /* ------------------------------------------------------------------ types */
 
 export type SoundCategory = "ui" | "impact" | "sweep" | "air" | "texture" | "cinematic" | "notify";
