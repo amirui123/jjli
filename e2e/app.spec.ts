@@ -8,7 +8,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import fs from "node:fs";
 import http from "node:http";
-import os from "node:os";
 import path from "node:path";
 
 const ROUTES = [
