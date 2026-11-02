@@ -40,5 +40,5 @@ export function encodeWav(buffer) {
     }
   }
 
-  return new Blob([out], { type: "audio/wav" });
+  return new globalThis.Blob([out], { type: "audio/wav" });
 }
