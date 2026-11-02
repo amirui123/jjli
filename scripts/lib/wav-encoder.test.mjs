@@ -14,9 +14,7 @@ function audioBuffer(channels, sampleRate = 44100) {
 }
 
 test("writes stereo PCM header and interleaves left/right samples", async () => {
-  const blob = encodeWav(
-    audioBuffer([new Float32Array([-1, 0.5]), new Float32Array([1, -0.5])])
-  );
+  const blob = encodeWav(audioBuffer([new Float32Array([-1, 0.5]), new Float32Array([1, -0.5])]));
 
   assert.equal(blob.type, "audio/wav");
   const bytes = await blob.arrayBuffer();
