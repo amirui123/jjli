@@ -31,10 +31,7 @@ test("rejects traversal, absolute paths, drive paths and backslashes", () => {
 
 test("resolves ordinary relative paths under the root", () => {
   const root = path.resolve("/tmp/rtl-root");
-  assert.equal(
-    resolvePathWithin(root, "assets/app.js"),
-    path.join(root, "assets", "app.js")
-  );
+  assert.equal(resolvePathWithin(root, "assets/app.js"), path.join(root, "assets", "app.js"));
 });
 
 test("rejects symlinks whose real target escapes the static root", (t) => {
