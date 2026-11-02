@@ -158,10 +158,11 @@ export function audibleDuration(design: SoundDesign, options: PlayOptions = {}):
 }
 
 function encodeWav(buffer: AudioBuffer): Blob {
-  const numChannels = 1;
+  const numChannels = Math.max(1, Math.min(2, buffer.numberOfChannels));
   const sampleRate = buffer.sampleRate;
-  const samples = buffer.getChannelData(0);
-  const dataSize = samples.length * 2;
+  const channels = Array.from({ length: numChannels }, (_, channel) => buffer.getChannelData(channel));
+  const frameCount = buffer.length;
+  const dataSize = frameCount * numChannels * 2;
   const out = new ArrayBuffer(44 + dataSize);
   const view = new DataView(out);
 
@@ -184,10 +185,13 @@ function encodeWav(buffer: AudioBuffer): Blob {
   view.setUint32(40, dataSize, true);
 
   let offset = 44;
-  for (let i = 0; i < samples.length; i++) {
-    const s = Math.max(-1, Math.min(1, samples[i]));
-    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
-    offset += 2;
+  for (let frame = 0; frame < frameCount; frame++) {
+    for (let channel = 0; channel < numChannels; channel++) {
+      const sample = channels[channel]?.[frame] ?? 0;
+      const s = Math.max(-1, Math.min(1, sample));
+      view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+      offset += 2;
+    }
   }
 
   return new Blob([out], { type: "audio/wav" });
@@ -680,7 +684,8 @@ class ProceduralSoundEngine {
     const stretch = clamp(options.stretch ?? 1, 0.25, 4);
     const seconds = clamp(audibleDuration(design, { ...options, stretch }) + 0.15, 0.2, 40);
     const sampleRate = 44100;
-    const offline = new OfflineCtor(1, Math.ceil(sampleRate * seconds), sampleRate);
+    // Stereo is required because the sound DSL supports per-layer pan and stereo reverb.
+    const offline = new OfflineCtor(2, Math.ceil(sampleRate * seconds), sampleRate);
     this.render(offline, offline.destination, design, { ...options, stretch }, 0, false);
     const buffer = await offline.startRendering();
     /* Exported WAVs must never clip, whatever gain/pitch combination the user
