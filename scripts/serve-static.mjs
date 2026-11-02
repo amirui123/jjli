@@ -14,7 +14,8 @@ import { isPathInside, resolvePathWithin } from "./lib/path-security.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../dist");
 const PORT = Number(process.env.PORT || 5173);
-const HOST = process.env.HOST || "127.0.0.1";
+// Production static hosting must accept traffic from the container network.
+const HOST = process.env.HOST || "0.0.0.0";
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
