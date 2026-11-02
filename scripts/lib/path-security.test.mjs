@@ -14,14 +14,27 @@ test("accepts normal descendants and rejects sibling-prefix tricks", () => {
 
 test("rejects traversal, absolute paths, drive paths and backslashes", () => {
   const root = path.resolve("/tmp/rtl-root");
-  for (const candidate of ["../secret", "assets/../../secret", "/etc/passwd", "C:/Windows/win.ini", "assets\\secret", decodeURIComponent("assets/%2e%2e/secret"), ""]) {
+  const candidates = [
+    "../secret",
+    "assets/../../secret",
+    decodeURIComponent("assets/%2e%2e/secret"),
+    "/etc/passwd",
+    "C:/Windows/win.ini",
+    "assets\\secret",
+    "",
+  ];
+
+  for (const candidate of candidates) {
     assert.equal(resolvePathWithin(root, candidate), null, candidate);
   }
 });
 
 test("resolves ordinary relative paths under the root", () => {
   const root = path.resolve("/tmp/rtl-root");
-  assert.equal(resolvePathWithin(root, "assets/app.js"), path.join(root, "assets", "app.js"));
+  assert.equal(
+    resolvePathWithin(root, "assets/app.js"),
+    path.join(root, "assets", "app.js")
+  );
 });
 
 test("rejects symlinks whose real target escapes the static root", (t) => {
@@ -31,12 +44,15 @@ test("rejects symlinks whose real target escapes the static root", (t) => {
   fs.mkdirSync(root);
   fs.mkdirSync(outside);
   fs.writeFileSync(path.join(outside, "secret.txt"), "secret");
+
   try {
     fs.symlinkSync(outside, path.join(root, "linked"), "dir");
   } catch (error) {
     t.skip(`symlinks unavailable: ${error.message}`);
+    fs.rmSync(temp, { recursive: true, force: true });
     return;
   }
+
   const candidate = resolvePathWithin(root, "linked/secret.txt");
   assert.ok(candidate);
   assert.equal(isPathInside(fs.realpathSync(root), fs.realpathSync(candidate)), false);
