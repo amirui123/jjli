@@ -39,7 +39,8 @@
     "visual:reference": "backstop reference --config backstop.json",
     "visual:test": "backstop test --config backstop.json",
     "lhci": "lhci autorun --config lighthouserc.json",
-    "health": "npm run typecheck && npm run lint:eslint && npm run build && npm run audit:size"
+    "health": "npm run typecheck && npm run lint:eslint && npm run build && npm run audit:size",
+    "test:unit": "node --test scripts/lib/*.test.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",
