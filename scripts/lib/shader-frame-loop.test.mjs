@@ -8,6 +8,7 @@ function harness() {
   const cancelled = [];
   let active = true;
   let draws = 0;
+
   const loop = new ShaderFrameLoop({
     requestFrame(callback) {
       const id = ++nextId;
@@ -19,12 +20,21 @@ function harness() {
       pending.delete(id);
     },
     isActive: () => active,
-    draw: () => { draws += 1; },
+    draw: () => {
+      draws += 1;
+    },
   });
+
   return {
-    loop, pending, cancelled,
-    setActive(value) { active = value; },
-    get draws() { return draws; },
+    loop,
+    pending,
+    cancelled,
+    setActive(value) {
+      active = value;
+    },
+    get draws() {
+      return draws;
+    },
     tick(id = pending.keys().next().value) {
       const callback = pending.get(id);
       assert.ok(callback, `frame ${id} should be pending`);
