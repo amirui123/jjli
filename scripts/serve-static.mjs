@@ -95,7 +95,7 @@ const server = http.createServer((req, res) => {
   try {
     const urlPath = decodeURIComponent((req.url || "/").split("?")[0]);
     const relativePath = urlPath.replace(/^\/+/, "");
-    let filePath = relativePath ? resolvePathWithin(ROOT, relativePath) : path.join(ROOT, "index.html");
+    const filePath = relativePath ? resolvePathWithin(ROOT, relativePath) : path.join(ROOT, "index.html");
     if (!filePath) {
       res.writeHead(403).end("Forbidden");
       return;
@@ -134,7 +134,7 @@ const server = http.createServer((req, res) => {
 
     res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
     res.end("Not found");
-  } catch (error) {
+  } catch {
     res.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
     res.end("Internal server error");
   }
