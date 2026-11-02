@@ -9,10 +9,12 @@ import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
+import { isPathInside, resolvePathWithin } from "./lib/path-security.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../dist");
 const PORT = Number(process.env.PORT || 5173);
+const HOST = process.env.HOST || "127.0.0.1";
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -91,19 +93,33 @@ function send(req, res, filePath, status = 200) {
 const server = http.createServer((req, res) => {
   try {
     const urlPath = decodeURIComponent((req.url || "/").split("?")[0]);
-    let filePath = path.join(ROOT, urlPath);
-    if (!filePath.startsWith(ROOT)) {
+    const relativePath = urlPath.replace(/^\\/+/, "");
+    let filePath = relativePath ? resolvePathWithin(ROOT, relativePath) : path.join(ROOT, "index.html");
+    if (!filePath) {
       res.writeHead(403).end("Forbidden");
       return;
     }
 
-    if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
-      filePath = path.join(filePath, "index.html");
-    }
-
-    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-      send(req, res, filePath);
-      return;
+    try {
+      const realRoot = fs.realpathSync(ROOT);
+      let realFile = fs.realpathSync(filePath);
+      if (!isPathInside(realRoot, realFile)) {
+        res.writeHead(403).end("Forbidden");
+        return;
+      }
+      if (fs.statSync(realFile).isDirectory()) {
+        realFile = fs.realpathSync(path.join(realFile, "index.html"));
+        if (!isPathInside(realRoot, realFile)) {
+          res.writeHead(403).end("Forbidden");
+          return;
+        }
+      }
+      if (fs.statSync(realFile).isFile()) {
+        send(req, res, realFile);
+        return;
+      }
+    } catch (error) {
+      if (error?.code !== "ENOENT" && error?.code !== "ENOTDIR") throw error;
     }
 
     // Only a browser navigation gets the SPA shell; missing assets are real 404s.
@@ -111,7 +127,7 @@ const server = http.createServer((req, res) => {
       String(req.headers.accept || "").includes("text/html") && !path.extname(urlPath);
 
     if (isNavigation) {
-      send(req, res, path.join(ROOT, "index.html"));
+      send(req, res, fs.realpathSync(path.join(ROOT, "index.html")));
       return;
     }
 
@@ -119,10 +135,10 @@ const server = http.createServer((req, res) => {
     res.end("Not found");
   } catch (error) {
     res.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
-    res.end(`Internal error: ${String(error)}`);
+    res.end("Internal server error");
   }
 });
 
-server.listen(PORT, "0.0.0.0", () => {
-  console.log(`RTL Motion Lab static build serving at http://0.0.0.0:${PORT}`);
+server.listen(PORT, HOST, () => {
+  console.log(`RTL Motion Lab static build serving at http://${HOST}:${PORT}`);
 });
