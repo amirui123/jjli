@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { VERTEX_SHADER, SHADER_PRELUDE, FRAGMENT_MAIN, type ShaderDef } from "../engines/shaderLab";
 import { cn } from "../ui/kit";
+import { ShaderFrameLoop } from "../engines/shaderFrameLoop";
 
 interface Props {
   def: ShaderDef;
@@ -185,6 +186,7 @@ export const ShaderSurface: React.FC<Props> = ({
   const stateRef = useRef({ speed, scale, hue, warp, grain, paused, interactive });
   const mouseRef = useRef<[number, number]>([0, 0]);
   const accentRef = useRef<[number, number, number]>([0.91, 0.7, 0.23]);
+  const frameLoopRef = useRef<ShaderFrameLoop | null>(null);
 
   stateRef.current = { speed, scale, hue, warp, grain, paused, interactive };
 
@@ -300,20 +302,12 @@ export const ShaderSurface: React.FC<Props> = ({
     ro?.observe(canvas);
 
     let visible = true;
-    const io =
-      typeof IntersectionObserver !== "undefined"
-        ? new IntersectionObserver(([entry]) => (visible = entry.isIntersecting), {
-            threshold: 0.02,
-          })
-        : null;
-    io?.observe(canvas);
-
-    let raf = 0;
-    const started = performance.now();
-    const draw = (now: number) => {
-      raf = requestAnimationFrame(draw);
-      const s = stateRef.current;
-      if (!visible || s.paused || document.hidden) return;
+    const isActive = () => visible && !stateRef.current.paused && !document.hidden;
+    const loop = new ShaderFrameLoop({
+      requestFrame: (callback) => requestAnimationFrame(callback),
+      cancelFrame: (id) => cancelAnimationFrame(id),
+      isActive,
+      draw: (now) => {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, glyphTexture);
       gl.uniform2f(u.res, canvas.width, canvas.height);
@@ -327,8 +321,20 @@ export const ShaderSurface: React.FC<Props> = ({
       const [r, g, b] = accentRef.current;
       gl.uniform3f(u.accent, r, g, b);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
-    };
-    raf = requestAnimationFrame(draw);
+      },
+    });
+    frameLoopRef.current = loop;
+    const onVisibilityChange = () => loop.refresh();
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    const io =
+      typeof IntersectionObserver !== "undefined"
+        ? new IntersectionObserver(([entry]) => {
+            visible = Boolean(entry?.isIntersecting);
+            loop.refresh();
+          }, { threshold: 0.02 })
+        : null;
+    io?.observe(canvas);
+    loop.refresh();
 
     const onMove = (event: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
@@ -344,7 +350,9 @@ export const ShaderSurface: React.FC<Props> = ({
     }
 
     return () => {
-      cancelAnimationFrame(raf);
+      loop.dispose();
+      if (frameLoopRef.current === loop) frameLoopRef.current = null;
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       ro?.disconnect();
       io?.disconnect();
       canvas.removeEventListener("pointerdown", onMove);
@@ -359,6 +367,10 @@ export const ShaderSurface: React.FC<Props> = ({
       if (fs) gl.deleteShader(fs);
     };
   }, [def.id, def.scene, interactive, glyphText, glyphFont, onError]);
+
+  useEffect(() => {
+    frameLoopRef.current?.refresh();
+  }, [paused]);
 
   return (
     <div className={cn("relative h-full w-full overflow-hidden bg-[#07070B]", className)}>
