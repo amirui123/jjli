@@ -371,9 +371,9 @@ export const STUDIO_COMPONENT_TOKENS = {
   return (
     <StudioShell
       variant="blueprint"
-      eyebrow="BLUEPRINT COMPONENT & REGISTRY WORKBENCH"
-      title="استودیو مونتاژ کامپوننت و کاوشگر سورس"
-      description={`${faCount(TOTAL_SOURCE)} فایل سورس واقعی در ${faNum(REGISTRY_FILES.length)} رجیستری متن‌باز به‌همراه ۶ ویجت تعاملی بومی — تست کن و سورس را مستقیم دانلود کن.`}
+      eyebrow="نمونه‌های آماده‌ی سایت"
+      title="اجزای آماده برای طراحی سایت"
+      description="یک نمونه را انتخاب کن، پیش‌نمایشش را ببین و فایل یا کد موردنیازت را دریافت کن."
       icon={Layers}
       stats={
         <>

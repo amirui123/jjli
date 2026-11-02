@@ -755,9 +755,10 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
     <>
       <AiTour />
       <StudioShell
-        eyebrow="AI STUDIO"
-      title="استودیو هوش مصنوعی"
-      description={`پرامپت‌ساز تخصصی RTL، مرورگر ${faNum(dataset?.total ?? 40)} جفت داده آموزشی و پیکربندی QLoRA — همه از دارایی واقعی مخزن و قابل دانلود.`}
+        variant="neural-forge"
+        eyebrow="ایده و نوشتن"
+      title="کمک‌یار ایده و طراحی"
+      description="موضوعت را انتخاب کن و از کمک‌یار برای آماده‌کردن ایده یا متن اولیه استفاده کن."
       icon={Brain}
       stats={
         <>
@@ -768,8 +769,6 @@ ds = load_dataset("json", data_files="rtl_motion_dataset.jsonl", split="train")
       actions={
         <DownloadButton label="کیت آموزش" filename="rtl-motion-dataset.zip" onDownload={downloadDatasetKit} />
       }
-      listWidth="228px"
-      settingsWidth="292px"
       list={list}
       stage={stage}
       settings={settings}

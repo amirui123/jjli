@@ -115,10 +115,8 @@ const TopBar: React.FC = () => {
                 <span className="block text-[12.5px] font-bold leading-tight text-zinc-100 transition-colors group-hover:text-white">
                   آزمایشگاه موشن فارسی
                 </span>
-                <span className="flex items-center gap-1.5 font-mono text-[9.5px] tracking-wide text-zinc-500">
-                  <span>RTL MOTION LAB</span>
-                  <span className="hidden h-1 w-1 rounded-full bg-emerald-400 sm:inline-block" />
-                  <span className="hidden text-[9px] text-emerald-400/90 sm:inline">60FPS</span>
+                <span className="hidden text-[10.5px] leading-tight text-zinc-400 sm:block">
+                  ابزارهای ساده برای طراحی فارسی
                 </span>
               </span>
             </button>
@@ -130,7 +128,7 @@ const TopBar: React.FC = () => {
             onMouseLeave={() => setHoveredNav(null)}
             className="hidden items-center gap-0.5 rounded-2xl border border-white/[0.08] bg-[#0B0D14]/90 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.07)] xl:flex"
           >
-            {ROUTES.map((r) => {
+            {ROUTES.filter((r) => ["home", "dashboard", "fonts", "components"].includes(r.id)).map((r) => {
               const active = meta.id === r.id;
               const isHovered = hoveredNav === r.id;
               return (
@@ -191,7 +189,7 @@ const TopBar: React.FC = () => {
               className="tap-icon flex h-8 w-8 items-center justify-center rounded-xl border border-white/[0.09] bg-white/[0.03] text-zinc-300 transition-all hover:border-[color:var(--accent)]/40 hover:bg-white/[0.06] hover:text-white sm:h-8 sm:w-auto sm:gap-2 sm:px-2.5 sm:text-[11px]"
             >
               <Command className="h-3.5 w-3.5 text-[color:var(--accent)]" />
-              <span className="hidden sm:inline">جستجو و پرش</span>
+              <span className="hidden sm:inline">جستجو</span>
               <kbd className="hidden rounded border border-white/10 bg-black/50 px-1.5 py-0.5 font-mono text-[9px] text-zinc-400 sm:inline">
                 ⌘K
               </kbd>
@@ -428,7 +426,7 @@ const TopBar: React.FC = () => {
                   setPaletteOpen((v) => !v);
                 }}
                 onMouseEnter={playSubtleHover}
-                className="tap-icon flex h-8 w-8 items-center justify-center rounded-xl border border-white/[0.09] bg-white/[0.03] transition-all hover:border-white/25"
+                className="tap-icon hidden h-8 w-8 items-center justify-center rounded-xl border border-white/[0.09] bg-white/[0.03] transition-all hover:border-white/25 md:flex"
                 aria-label="رنگ پلتفرم"
                 title="پالت روانشناسی رنگ (60-30-10 OKLCH)"
               >
@@ -533,7 +531,7 @@ const TopBar: React.FC = () => {
               onMouseEnter={playSubtleHover}
               aria-label="تماشای معرفی سایت"
               title="پخش موشن سینمایی ورود (خط به واژه)"
-              className="tap-icon flex h-8 w-8 items-center justify-center rounded-xl border border-white/[0.09] bg-white/[0.03] text-zinc-300 transition-colors hover:border-[color:var(--accent)]/40 hover:text-white"
+              className="tap-icon hidden h-8 w-8 items-center justify-center rounded-xl border border-white/[0.09] bg-white/[0.03] text-zinc-300 transition-colors hover:border-[color:var(--accent)]/40 hover:text-white lg:flex"
             >
               <Clapperboard className="h-3.5 w-3.5" />
             </button>
@@ -551,7 +549,7 @@ const TopBar: React.FC = () => {
               }}
               onMouseEnter={playSubtleHover}
               className={cn(
-                "tap-icon flex h-8 w-8 items-center justify-center rounded-xl border transition-colors",
+                "tap-icon hidden h-8 w-8 items-center justify-center rounded-xl border transition-colors sm:flex",
                 settings.sound
                   ? "border-[color:var(--accent)]/35 bg-[color:var(--accent)]/12 text-[color:var(--accent)]"
                   : "border-white/[0.09] bg-white/[0.03] text-zinc-500"
@@ -585,10 +583,12 @@ const TopBar: React.FC = () => {
                 if (settings.sound) soundEngine.playSnap();
                 setMobileSheetOpen(true);
               }}
-              aria-label="منوی جامع موبایل و استودیوها"
-              className="tap-icon flex h-8 w-8 items-center justify-center rounded-xl border border-[color:var(--accent)]/35 bg-[color:var(--accent)]/12 text-[color:var(--accent)] xl:hidden"
+              aria-label="نمایش همه ابزارها"
+              title="همه ابزارها"
+              className="tap-icon flex h-9 w-9 items-center justify-center rounded-xl border border-[color:var(--accent)]/35 bg-[color:var(--accent)]/12 text-[color:var(--accent)] transition-colors hover:bg-[color:var(--accent)]/20 sm:w-auto sm:gap-2 sm:px-3"
             >
-              <LayoutGrid className="h-3.5 w-3.5" />
+              <LayoutGrid className="h-4 w-4" />
+              <span className="hidden text-[12px] font-medium text-zinc-200 sm:inline">همه ابزارها</span>
             </button>
           </div>
         </div>
@@ -602,7 +602,10 @@ const TopBar: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setMobileSheetOpen(false)}
-            className="fixed inset-0 z-[85] flex flex-col justify-end bg-black/75 backdrop-blur-md xl:hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-label="همه ابزارها"
+            className="fixed inset-0 z-[85] flex flex-col justify-end bg-black/75 p-0 backdrop-blur-md xl:items-center xl:justify-center xl:p-6"
           >
             <motion.div
               initial={{ y: "100%" }}
@@ -610,17 +613,13 @@ const TopBar: React.FC = () => {
               exit={{ y: "100%" }}
               transition={{ type: "spring", stiffness: 360, damping: 34 }}
               onClick={(e) => e.stopPropagation()}
-              className="max-h-[86dvh] overflow-y-auto rounded-t-3xl border-t border-white/15 bg-[#0A0C12] p-4 pb-8 shadow-[0_-24px_60px_rgba(0,0,0,0.95)]"
+              className="max-h-[86dvh] w-full overflow-y-auto rounded-t-3xl border-t border-white/15 bg-[#0A0C12] p-4 pb-8 shadow-[0_-24px_60px_rgba(0,0,0,0.95)] xl:max-w-2xl xl:rounded-3xl xl:border xl:border-white/15 xl:shadow-2xl"
             >
               <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/20" />
               <div className="flex items-center justify-between pb-3">
                 <div>
-                  <div className="text-[13.5px] font-bold text-white">
-                    میز فرمان موبایل · آزمایشگاه موشن
-                  </div>
-                  <div className="text-[10.5px] text-zinc-500">
-                    طراحی ارگونومیک ویژهٔ کار با یک دست (Thumb-Zone)
-                  </div>
+                  <div className="text-[15px] font-bold text-white">همه ابزارها</div>
+                  <div className="text-[12px] text-zinc-400">کاری را که می‌خواهی انجام بده انتخاب کن.</div>
                 </div>
                 <button
                   type="button"
@@ -632,7 +631,7 @@ const TopBar: React.FC = () => {
                 </button>
               </div>
 
-              {/* 9 Studios Grid for Thumb Reach */}
+              {/* ابزارهای موجود؛ عنوان‌ها و توضیح‌ها برای شروع سریع */}
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {ROUTES.map((r) => {
                   const active = meta.id === r.id;
@@ -640,6 +639,7 @@ const TopBar: React.FC = () => {
                     <button
                       key={r.id}
                       type="button"
+                      data-route-id={r.id}
                       onClick={() => {
                         if (settings.sound) soundEngine.playSnap();
                         navigate(r.path);
@@ -664,8 +664,8 @@ const TopBar: React.FC = () => {
                       </span>
                       <span className="min-w-0">
                         <span className="block truncate text-[12px] font-bold">{r.labelFa}</span>
-                        <span className="block truncate text-[9.5px] text-zinc-500">
-                          {r.shortFa}
+                        <span className="block truncate text-[10px] text-zinc-400" title={r.descFa}>
+                          {r.descFa}
                         </span>
                       </span>
                     </button>
@@ -676,7 +676,7 @@ const TopBar: React.FC = () => {
               {/* Quick Mobile Sensory & Color Bar */}
               <div className="mt-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-3">
                 <div className="mb-2 text-[11px] font-bold text-zinc-300">
-                  کالیبراسیون سریع رنگ و تایپوگرافی
+                  انتخاب رنگ دلخواه (اختیاری)
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   {ACCENTS.map((a) => (
@@ -857,7 +857,7 @@ const BottomDock: React.FC = () => {
         className="dock-mask pointer-events-auto flex max-w-full items-center gap-1 overflow-x-auto rounded-2xl border border-white/[0.11] bg-[#07090F]/94 p-1.5 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-2xl scrollbar-none snap-x-soft"
         aria-label="ناوبری بخش‌ها"
       >
-        {ROUTES.map((r, idx) => {
+        {ROUTES.filter((r) => ["home", "dashboard", "fonts", "components"].includes(r.id)).map((r, idx) => {
           const active = meta.id === r.id;
           const dist = hoveredIdx === null ? 99 : Math.abs(hoveredIdx - idx);
           const scale = dist === 0 ? 1.12 : dist === 1 ? 1.04 : 1;
@@ -921,32 +921,24 @@ const BottomDock: React.FC = () => {
 const Footer: React.FC = () => {
   const { settings } = useAppSettings();
   return (
-    <footer className="border-t border-white/[0.07] bg-[#040508] pb-28 pt-10">
-      <div className="mx-auto flex max-w-[1440px] flex-col gap-8 px-4 sm:px-6 lg:flex-row lg:items-start lg:justify-between">
+    <footer className="border-t border-white/[0.07] bg-[#040508] pb-28 pt-8 sm:pt-10">
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-6 px-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="max-w-md">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/15 bg-[#0B0D14]">
-              <span className="font-hasti text-[14px] leading-none text-[color:var(--accent)]">
-                م
-              </span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-[#0B0D14]">
+              <span className="font-hasti text-[15px] leading-none text-[color:var(--accent)]">م</span>
             </span>
             <div>
-              <span className="block text-[13px] font-bold text-zinc-100">
-                آزمایشگاه موشن و تایپوگرافی فارسی
-              </span>
-              <span className="block font-nastaliq text-[18px] leading-[1.8] text-[color:var(--accent)]">
-                در امتدادِ نور، هر خط جان می‌گیرد
-              </span>
+              <span className="block text-[14px] font-bold text-zinc-100">آزمایشگاه موشن فارسی</span>
+              <span className="block text-[12px] text-zinc-400">ابزارهای ساده برای طراحی فارسی</span>
             </div>
           </div>
-          <p className="mt-2.5 text-[11.5px] leading-relaxed text-zinc-400">
-            پلتفرم رایگان، متن‌باز و ۶۰ فریم بر ثانیه برای مهندسی رابط‌های فارسی: ۵۰ خانواده فونت
-            اصیل، فیزیک فنر مرتبهٔ دوم، ۴٬۱۹۹ فایل کامپوننت، ۱۸ شیدر WebGL و سینت‌سایزر Web Audio —
-            کاملاً محلی در مرورگر شما.
+          <p className="mt-3 max-w-lg text-[14px] leading-7 text-zinc-400">
+            فونت، نمونه‌های آماده، حرکت و صدا را در مرورگر امتحان کن؛ بدون نصب و با پشتیبانی از نوشتار راست‌به‌چپ.
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-10 gap-y-2 sm:grid-cols-3">
+        <nav aria-label="پیوندهای ابزارها" className="grid grid-cols-2 gap-x-5 gap-y-1 sm:grid-cols-3">
           {ROUTES.slice(1).map((r) => (
             <button
               key={r.id}
@@ -954,24 +946,25 @@ const Footer: React.FC = () => {
                 if (settings.sound) soundEngine.playTick(0.9);
                 navigate(r.path);
               }}
-              className="flex items-center gap-1.5 text-start text-[11.5px] text-zinc-400 transition-colors hover:text-[color:var(--accent)]"
+              className="flex min-h-10 items-center gap-2 rounded-lg px-2 text-start text-[13px] text-zinc-300 transition-colors hover:bg-white/[0.04] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
             >
-              <span className="text-[10px]" style={{ color: r.accent }}>
+              <span aria-hidden="true" className="text-[11px]" style={{ color: r.accent }}>
                 {r.glyph}
               </span>
               <span>{r.labelFa}</span>
             </button>
           ))}
-        </div>
+        </nav>
 
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.015] p-3.5 text-[10.5px] text-zinc-500">
-          <p className="font-bold text-zinc-300">شناسنامهٔ مهندسی (Colophon)</p>
-          <p className="mt-1">React 18 · Tailwind v4 · Motion · WebGL · Web Audio</p>
-          <p className="mt-1">پالت ۶۰-۳۰-۱۰ OKLCH · ضد کشیدگی پنل‌های OLED</p>
-          <p className="mt-2 font-mono text-[9.5px] text-[color:var(--accent)]" dir="ltr">
-            {settings.accent.toUpperCase()} · {settings.displayFont} · 60FPS
-          </p>
-        </div>
+        <a
+          href="https://github.com/amirui123/jjli"
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex min-h-11 items-center gap-2 self-start rounded-xl border border-white/10 px-3 text-[13px] font-medium text-zinc-300 transition-colors hover:border-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] lg:self-center"
+        >
+          <Github aria-hidden="true" className="h-4 w-4" />
+          <span>دیدن پروژه در GitHub</span>
+        </a>
       </div>
     </footer>
   );
@@ -1002,7 +995,7 @@ const STUDIO_ROUTES = new Set([
 ]);
 
 export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { route } = useRouter();
+  const { route, path } = useRouter();
   const { settings } = useAppSettings();
   const isStudio = STUDIO_ROUTES.has(route);
 
@@ -1054,6 +1047,8 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
       <AnimatePresence mode="wait" initial={false}>
         <motion.main
           id="main"
+          data-route={route}
+          data-path={path}
           tabIndex={-1}
           key={route}
           initial={(PAGE_ENTER[route] ?? { from: { opacity: 0, y: 8 }, duration: 0.22 }).from}

@@ -436,9 +436,9 @@ ${(fileContent || "").slice(0, 2800)}
   return (
     <StudioShell
       variant="codex"
-      eyebrow={`CODEX VAULT · ${DESIGN_LAB_TOTAL_FILES} FILES IN 11 PILLARS`}
-      title="استودیو مهارت، دانش و سیستم‌های برند"
-      description={`دسترسی منظم و دسته‌بندی‌شده به ${faNum(DESIGN_LAB_TOTAL_FILES)} فایل تخصصی در ۱۱ ستون و ۴۶ زیرشاخه به‌همراه ${faNum(ALL_SKILLS_MANIFEST.length)} راهنمای منتخب و ${faNum(ALL_BRAND_DESIGNS_MANIFEST.length)} سیستم برند.`}
+      eyebrow="ایده و راهنما"
+      title="راهنما و ایده‌های طراحی"
+      description="موضوع موردنظرت را پیدا کن، نمونه‌ها را ببین و از راهنماها برای شروع کار کمک بگیر."
       icon={BookOpen}
       onReset={reset}
       stats={

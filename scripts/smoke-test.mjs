@@ -140,6 +140,19 @@ const mod = await import(`../.smoke/bundle.mjs?t=${Date.now()}`);
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
+async function waitForMainContent(expectedPath = null, minLength = 250, timeoutMs = 6000) {
+  const started = Date.now();
+  while (Date.now() - started < timeoutMs) {
+    const main = document.querySelector("main");
+    const loading = main?.querySelector('[aria-busy="true"]');
+    const textLength = main?.textContent?.trim().length ?? 0;
+    const routeMatches = !expectedPath || main?.getAttribute("data-path") === expectedPath;
+    if (main && routeMatches && !loading && textLength >= minLength) return true;
+    await wait(60);
+  }
+  return false;
+}
+
 const ROUTES = [
   ["/", "خانه"],
   ["/dashboard", "داشبورد"],
@@ -154,16 +167,20 @@ const ROUTES = [
 ];
 
 try { mod.mount(); } catch (e) { errors.push(`MOUNT: ${e?.stack}`); }
-await wait(500);
+const mounted = await waitForMainContent();
+if (!mounted) errors.push("MOUNT: app did not finish rendering its first page");
 console.log("mounted. text len:", mod.text().length);
 
 const rows = [];
 for (const [path, label] of ROUTES) {
   mod.setHash(`#${path}`);
-  await wait(650);
+  const ready = await waitForMainContent(path, path === "/nope" ? 80 : 250);
   const t = mod.text();
   rows.push({ path, label, len: t.length, head: t.slice(0, 70) });
-  if (t.length < 80) errors.push(`EMPTY ${path}: only ${t.length} chars`);
+  if (!ready || t.length < 250) {
+    const main = document.querySelector("main");
+    errors.push(`EMPTY ${path}: page did not render real content (${t.length} chars; data-path=${main?.getAttribute("data-path")}; data-route=${main?.getAttribute("data-route")})`);
+  }
 }
 
 // interaction 1: font switch changes the specimen
@@ -182,8 +199,9 @@ else {
 // studio layout: every studio must expose the three rails
 for (const studio of ["fonts", "motion", "components", "sounds", "skills", "engines", "ai"]) {
   mod.setHash(`#/studio/${studio}`);
-  await wait(450);
+  const ready = await waitForMainContent(`/studio/${studio}`, 200);
   const main = document.querySelector("main");
+  if (!ready) errors.push(`RAILS ${studio}: page content did not finish loading`);
   const rails = main?.querySelectorAll("[data-rail]").length ?? 0;
   if (rails !== 3) errors.push(`RAILS ${studio}: expected 3 rails, found ${rails}`);
   if (main && main.textContent.trim().length < 200) errors.push(`RAILS ${studio}: stage content is empty`);
@@ -257,7 +275,7 @@ else {
 // ---------------------------------------------------------------- mobile tabs
 mod.setHash("#/studio/fonts");
 await wait(600);
-const tabBar = document.querySelector('nav[aria-label="پنل‌های استودیو"]');
+const tabBar = document.querySelector('nav[aria-label$="بخش‌های ابزار"]');
 if (!tabBar) errors.push("MOBILE: studio tab bar missing");
 else {
   const buttons = [...tabBar.querySelectorAll("button")];
@@ -267,7 +285,7 @@ else {
       (el) => !el.className.split(/\s+/).includes("hidden")
     ).length;
   if (visibleRail() !== 1) errors.push(`MOBILE: expected 1 visible rail, found ${visibleRail()}`);
-  const settingsTab = buttons[1];
+  const settingsTab = buttons.find((button) => (button.textContent || "").includes("تنظیم"));
   settingsTab?.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   await wait(250);
   const settingsRail = document.querySelector('[data-rail="settings"]');
@@ -283,8 +301,9 @@ else {
 VIEWPORT_WIDTH = 390;
 mod.setHash("#/studio/fonts");
 await wait(700);
-const tabs = [...document.querySelectorAll('nav[aria-label="پنل‌های استودیو"] button')];
-tabs[2]?.dispatchEvent(new window.MouseEvent("click", { bubbles: true })); // list
+const tabs = [...document.querySelectorAll('nav[aria-label$="بخش‌های ابزار"] button')];
+const fontListTab = tabs.find((button) => (button.textContent || "").includes("فونت‌ها"));
+fontListTab?.dispatchEvent(new window.MouseEvent("click", { bubbles: true })); // font list
 await wait(250);
 const listRail = document.querySelector('[data-rail="list"]');
 if (!listRail || listRail.className.split(/\s+/).includes("hidden")) {
@@ -296,6 +315,36 @@ await wait(350);
 const stageRail = document.querySelector('[data-rail="stage"]');
 if (!stageRail || stageRail.className.split(/\s+/).includes("hidden")) {
   errors.push("MOBILE: choosing a font did not return to the preview panel");
+}
+VIEWPORT_WIDTH = 390;
+const STUDIO_PROFILES = [
+  ["fonts", "atelier", "نمونه", "stage"],
+  ["motion", "oscilloscope", "پیش‌نمایش", "stage"],
+  ["components", "blueprint", "پیش‌نمایش", "stage"],
+  ["sounds", "daw", "شنیدن", "stage"],
+  ["skills", "codex", "موضوع‌ها", "list"],
+  ["engines", "shader-deck", "جلوه", "stage"],
+  ["ai", "neural-forge", "ساخت", "settings"],
+];
+for (const [studio, expectedVariant, activeLabel, expectedRail] of STUDIO_PROFILES) {
+  mod.setHash(`#/studio/${studio}`);
+  await wait(420);
+  const shell = document.querySelector("[data-studio-variant]");
+  if (shell?.getAttribute("data-studio-variant") !== expectedVariant) {
+    errors.push(`LAYOUT ${studio}: expected ${expectedVariant}, found ${shell?.getAttribute("data-studio-variant") ?? "missing"}`);
+  }
+  const studioTabs = [...document.querySelectorAll('nav[aria-label$="بخش‌های ابزار"] button')];
+  if (studioTabs.length !== 3) errors.push(`LAYOUT ${studio}: expected 3 task tabs, found ${studioTabs.length}`);
+  const activeTab = studioTabs.find((button) => button.getAttribute("aria-pressed") === "true");
+  if (!(activeTab?.textContent || "").includes(activeLabel)) {
+    errors.push(`LAYOUT ${studio}: expected active tab ${activeLabel}`);
+  }
+  const visible = [...document.querySelectorAll("[data-rail]")].filter(
+    (el) => !el.className.split(/\s+/).includes("hidden")
+  );
+  if (visible.length !== 1 || visible[0]?.getAttribute("data-rail") !== expectedRail) {
+    errors.push(`LAYOUT ${studio}: expected initial ${expectedRail} panel`);
+  }
 }
 VIEWPORT_WIDTH = 1440;
 
@@ -317,9 +366,22 @@ const dock = document.querySelector('nav[aria-label="ناوبری بخش‌ها"
 if (!dock) errors.push("DOCK: navigation dock missing");
 else {
   const items = [...dock.querySelectorAll("button")];
-  if (items.length !== 9) errors.push(`DOCK: expected 9 sections, found ${items.length}`);
+  if (items.length !== 4) errors.push(`DOCK: expected 4 primary destinations, found ${items.length}`);
   const anonymous = items.filter((b) => !(b.getAttribute("aria-label") || "").trim());
   if (anonymous.length) errors.push(`DOCK: ${anonymous.length} section(s) without aria-label`);
+}
+
+// All destinations remain available in the explicit "all tools" menu.
+const allToolsTrigger = [...document.querySelectorAll("button")].find(
+  (b) => b.getAttribute("aria-label") === "نمایش همه ابزارها"
+);
+if (!allToolsTrigger) errors.push("NAV: all-tools menu trigger missing");
+else {
+  allToolsTrigger.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  await wait(250);
+  const dialog = document.querySelector('[role="dialog"][aria-label="همه ابزارها"]');
+  const destinations = dialog?.querySelectorAll("[data-route-id]").length ?? 0;
+  if (destinations !== 9) errors.push(`NAV: expected all 9 routes in the all-tools menu, found ${destinations}`);
 }
 
 console.error = origError;

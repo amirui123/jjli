@@ -848,9 +848,9 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
 
   return (
     <StudioShell
-      eyebrow="FONT STUDIO"
-      title="استودیو تایپوگرافی فارسی"
-      description={`جمله خودتان را بنویسید و آن را در هر ${faNum(PERSIAN_FONT_CATALOG.length)} خانواده فونت فارسی ببینید؛ تنظیمات کامل سمت چپ و دانلود فایل واقعی فونت کنار هر مورد.`}
+      eyebrow="متن و نوشته"
+      title="انتخاب و امتحان فونت فارسی"
+      description="متنت را بنویس، فونت‌های فارسی را مقایسه کن و فونت دلخواهت را برای استفاده دریافت کن."
       icon={Type}
       stats={
         <>
@@ -870,8 +870,6 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
         reset();
         soundEngine.playSnap();
       }}
-      listWidth="252px"
-      settingsWidth="308px"
       list={
         <StudioList
           title="همه فونت‌ها"

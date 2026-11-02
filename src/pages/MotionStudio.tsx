@@ -611,9 +611,10 @@ ${preset?.hintFa ?? ""}
 
   return (
     <StudioShell
-      eyebrow="MOTION STUDIO"
-      title="استودیو فیزیک حرکت"
-      description="پیش‌نمایش زنده، فهرست حرکت‌های آماده کنار آن، و تنظیمات کامل فنر سمت چپ. منحنی و کد خروجی از شبیه‌سازی واقعی ساخته می‌شوند."
+      variant="oscilloscope"
+      eyebrow="حرکت و انیمیشن"
+      title="ساخت حرکت و انیمیشن"
+      description="یک حرکت آماده را انتخاب کن، نتیجه را ببین و اگر خواستی سرعت و نرمی آن را تغییر بده."
       icon={Activity}
       stats={
         <>
@@ -628,8 +629,6 @@ ${preset?.hintFa ?? ""}
         reset();
         soundEngine.playSnap();
       }}
-      listWidth="230px"
-      settingsWidth="308px"
       list={
         <StudioList
           title="حرکت‌های آماده"

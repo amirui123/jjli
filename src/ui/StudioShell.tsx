@@ -25,67 +25,67 @@ const VARIANT_META: Record<
   }
 > = {
   atelier: {
-    badge: "ATELIER · خوشنویسی و تایپوگرافی",
+    badge: "فونت و نوشته",
     accentHex: "#E8B33A",
     headerBg:
       "radial-gradient(90% 140% at 100% 0%, rgba(232,179,58,0.16), rgba(11,13,20,0.95) 65%)",
-    step1: "۱. انتخاب فونت یا الگوی آماده",
-    step2: "۲. تنظیم سادهٔ اندازه و بوم",
-    step3: "۳. دانلود مستقیم فونت و کد",
+    step1: "۱. یک فونت یا نمونه انتخاب کن",
+    step2: "۲. اندازه و ظاهر را تنظیم کن",
+    step3: "۳. فونت یا کد را دریافت کن",
   },
   oscilloscope: {
-    badge: "OSCILLOSCOPE · آزمایشگاه فیزیک ۱۲۰Hz",
+    badge: "ساخت حرکت",
     accentHex: "#22D3EE",
     headerBg:
       "radial-gradient(90% 140% at 100% 0%, rgba(34,211,238,0.16), rgba(9,13,22,0.95) 65%)",
-    step1: "۱. انتخاب الگوریتم حرکت",
-    step2: "۲. تنظیم چابکی و نرمی فنر",
-    step3: "۳. کپی یا دانلود کد حرکت",
+    step1: "۱. یک حرکت انتخاب کن",
+    step2: "۲. سرعت و نرمی را تنظیم کن",
+    step3: "۳. حرکت را کپی یا دریافت کن",
   },
   blueprint: {
-    badge: "BLUEPRINT · مونتاژ کامپوننت و سورس",
+    badge: "اجزای آماده‌ی سایت",
     accentHex: "#34D399",
     headerBg:
       "radial-gradient(90% 140% at 100% 0%, rgba(52,211,153,0.15), rgba(9,14,20,0.95) 65%)",
-    step1: "۱. انتخاب ویجت یا رجیستری",
-    step2: "۲. تست زنده در صحنه",
-    step3: "۳. دانلود فایل TSX یا کیت",
+    step1: "۱. یک نمونه انتخاب کن",
+    step2: "۲. در پیش‌نمایش امتحانش کن",
+    step3: "۳. نمونه یا فایل را بردار",
   },
   daw: {
-    badge: "ACOUSTIC DAW · کنسول سنتز صدا و ریتم",
+    badge: "ساخت و تنظیم صدا",
     accentHex: "#FB7185",
     headerBg:
       "radial-gradient(90% 140% at 100% 0%, rgba(251,113,133,0.16), rgba(16,10,18,0.95) 65%)",
-    step1: "۱. انتخاب پد یا افکت صوتی",
-    step2: "۲. تنظیم زیر و بمی و کاراکتر",
-    step3: "۳. دانلود مستقیم فایل WAV",
+    step1: "۱. یک صدا یا افکت انتخاب کن",
+    step2: "۲. تنظیمش کن و گوش بده",
+    step3: "۳. فایل صدا را ذخیره کن",
   },
   codex: {
-    badge: "CODEX · ۱۱ ستون دانش و سیستم برند",
+    badge: "راهنما و ایده‌های طراحی",
     accentHex: "#A78BFA",
     headerBg:
       "radial-gradient(90% 140% at 100% 0%, rgba(167,139,250,0.16), rgba(13,11,22,0.95) 65%)",
-    step1: "۱. انتخاب ستون دانش یا برند",
-    step2: "۲. مطالعه و تنظیم پرامپت",
-    step3: "۳. دانلود سند کامل Markdown",
+    step1: "۱. موضوع موردنظرت را انتخاب کن",
+    step2: "۲. راهنما و نمونه‌ها را ببین",
+    step3: "۳. راهنما را ذخیره کن",
   },
   "shader-deck": {
-    badge: "GPU & PERSIAN ENGINES · شیدر و موتور بومی",
+    badge: "جلوه‌های تصویری",
     accentHex: "#38BDF8",
     headerBg:
       "radial-gradient(90% 140% at 100% 0%, rgba(56,189,248,0.16), rgba(8,13,24,0.95) 65%)",
-    step1: "۱. انتخاب شیدر یا موتور بومی",
-    step2: "۲. انتخاب مود نوری یا ورودی",
-    step3: "۳. دانلود کد GLSL / موتور",
+    step1: "۱. یک جلوه انتخاب کن",
+    step2: "۲. رنگ و نور را تغییر بده",
+    step3: "۳. نتیجه را ذخیره کن",
   },
   "neural-forge": {
-    badge: "NEURAL FORGE · پرامپت‌ساز و آموزش مدل",
+    badge: "کمک‌یار هوشمند",
     accentHex: "#F472B6",
     headerBg:
       "radial-gradient(90% 140% at 100% 0%, rgba(244,114,182,0.16), rgba(16,10,20,0.95) 65%)",
-    step1: "۱. انتخاب هدف ساخت با AI",
-    step2: "۲. تعیین فونت و مدل هدف",
-    step3: "۳. دانلود پرامپت و دیتاست",
+    step1: "۱. بگو چه چیزی می‌خواهی بسازی",
+    step2: "۲. گزینه‌ها را به دلخواهت تنظیم کن",
+    step3: "۳. متن آماده را کپی کن",
   },
 };
 
@@ -115,11 +115,86 @@ export function focusStudioPreview() {
   window.dispatchEvent(new Event(STUDIO_PREVIEW_EVENT));
 }
 
-const MOBILE_TABS: { id: MobileTab; label: string; icon: React.ElementType }[] = [
-  { id: "stage", label: "پیش‌نمایش", icon: Eye },
-  { id: "settings", label: "تنظیمات", icon: SlidersHorizontal },
-  { id: "list", label: "فهرست", icon: List },
-];
+interface StudioLayoutProfile {
+  listWidth: number;
+  settingsWidth: number;
+  initialTab: MobileTab;
+  mobileTabs: { id: MobileTab; label: string; icon: React.ElementType }[];
+}
+
+/** Each tool gets a layout tuned to its actual task, not one generic three-pane preset. */
+const STUDIO_LAYOUTS: Record<StudioVariant, StudioLayoutProfile> = {
+  atelier: {
+    listWidth: 286,
+    settingsWidth: 328,
+    initialTab: "stage",
+    mobileTabs: [
+      { id: "stage", label: "نمونه", icon: Eye },
+      { id: "list", label: "فونت‌ها", icon: List },
+      { id: "settings", label: "تنظیم", icon: SlidersHorizontal },
+    ],
+  },
+  oscilloscope: {
+    listWidth: 238,
+    settingsWidth: 332,
+    initialTab: "stage",
+    mobileTabs: [
+      { id: "stage", label: "پیش‌نمایش", icon: Eye },
+      { id: "settings", label: "حرکت", icon: SlidersHorizontal },
+      { id: "list", label: "نمونه‌ها", icon: List },
+    ],
+  },
+  blueprint: {
+    listWidth: 338,
+    settingsWidth: 286,
+    initialTab: "stage",
+    mobileTabs: [
+      { id: "list", label: "نمونه‌ها", icon: List },
+      { id: "stage", label: "پیش‌نمایش", icon: Eye },
+      { id: "settings", label: "تنظیم", icon: SlidersHorizontal },
+    ],
+  },
+  daw: {
+    listWidth: 232,
+    settingsWidth: 356,
+    initialTab: "stage",
+    mobileTabs: [
+      { id: "stage", label: "شنیدن", icon: Eye },
+      { id: "list", label: "صداها", icon: List },
+      { id: "settings", label: "تنظیم صدا", icon: SlidersHorizontal },
+    ],
+  },
+  codex: {
+    listWidth: 324,
+    settingsWidth: 292,
+    initialTab: "list",
+    mobileTabs: [
+      { id: "list", label: "موضوع‌ها", icon: List },
+      { id: "stage", label: "محتوا", icon: Eye },
+      { id: "settings", label: "خروجی", icon: SlidersHorizontal },
+    ],
+  },
+  "shader-deck": {
+    listWidth: 232,
+    settingsWidth: 334,
+    initialTab: "stage",
+    mobileTabs: [
+      { id: "stage", label: "جلوه", icon: Eye },
+      { id: "settings", label: "تنظیم", icon: SlidersHorizontal },
+      { id: "list", label: "جلوه‌ها", icon: List },
+    ],
+  },
+  "neural-forge": {
+    listWidth: 268,
+    settingsWidth: 350,
+    initialTab: "settings",
+    mobileTabs: [
+      { id: "settings", label: "ساخت", icon: SlidersHorizontal },
+      { id: "stage", label: "نتیجه", icon: Eye },
+      { id: "list", label: "نمونه‌ها", icon: List },
+    ],
+  },
+};
 
 export const StudioShell: React.FC<{
   eyebrow: string;
@@ -147,19 +222,20 @@ export const StudioShell: React.FC<{
   actions,
   onReset,
   list,
-  listWidth = "252px",
+  listWidth,
   stage,
   settings,
-  settingsWidth = "312px",
+  settingsWidth,
 }) => {
   const meta = VARIANT_META[variant];
-  const [layout, setLayout] = usePersisted<Layout>("studio-layout", {
-    list: parseInt(listWidth, 10) || 252,
-    settings: parseInt(settingsWidth, 10) || 312,
+  const profile = STUDIO_LAYOUTS[variant];
+  const [layout, setLayout] = usePersisted<Layout>(`studio-layout-${variant}`, {
+    list: parseInt(listWidth ?? "", 10) || profile.listWidth,
+    settings: parseInt(settingsWidth ?? "", 10) || profile.settingsWidth,
     focus: false,
   });
 
-  const [tab, setTab] = useState<MobileTab>("stage");
+  const [tab, setTab] = useState<MobileTab>(profile.initialTab);
 
   const gridRef = useRef<HTMLDivElement | null>(null);
   const [drag, setDrag] = useState<{
@@ -217,8 +293,8 @@ export const StudioShell: React.FC<{
   }, [drag, bounds, setLayout]);
 
   const resetWidths = useCallback(() => {
-    setLayout({ list: 252, settings: 312 });
-  }, [setLayout]);
+    setLayout({ list: profile.listWidth, settings: profile.settingsWidth });
+  }, [profile.listWidth, profile.settingsWidth, setLayout]);
 
   const pickTab = useCallback((next: MobileTab) => {
     soundEngine.playTick(0.8);
@@ -419,10 +495,10 @@ export const StudioShell: React.FC<{
 
       {/* -------------------------------------------------- mobile panel tabs */}
       <nav
-        aria-label="پنل‌های استودیو"
+        aria-label={`${meta.badge} — بخش‌های ابزار`}
         className="sticky top-14 z-20 flex shrink-0 items-center gap-1 rounded-2xl border border-white/[0.09] bg-[#090B12]/95 p-1 shadow-[0_14px_34px_-14px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl desk:hidden"
       >
-        {MOBILE_TABS.map(({ id, label, icon: TabIcon }) => {
+        {profile.mobileTabs.map(({ id, label, icon: TabIcon }) => {
           const active = tab === id;
           return (
             <button
@@ -452,7 +528,8 @@ export const StudioShell: React.FC<{
       {/* ------------------------------------------------------------ rails */}
       <div
         ref={gridRef}
-        className="grid min-h-0 flex-1 grid-cols-1 gap-3 desk:[grid-template-columns:var(--studio-cols)]"
+        data-studio-variant={variant}
+        className={`studio-layout studio-layout-${variant} grid min-h-0 flex-1 grid-cols-1 gap-3 desk:[grid-template-columns:var(--studio-cols)]`}
         style={{ ["--studio-cols" as string]: columns }}
       >
         {/* list — first in the DOM = right rail in RTL */}
