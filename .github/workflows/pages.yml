@@ -11,6 +11,7 @@ on:
   push:
     branches:
       - main
+      - arena/11d671dc-jjli
   workflow_dispatch:
 
 permissions:
