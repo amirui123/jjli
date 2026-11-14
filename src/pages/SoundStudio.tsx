@@ -664,10 +664,9 @@ soundEngine.playDesign(item.design, ${JSON.stringify(options)});`,
 
   return (
     <StudioShell
-      variant="daw"
-      eyebrow="صدا و افکت"
-      title="ساخت و امتحان صدا"
-      description="یک صدای آماده را انتخاب کن، گوش بده، تنظیمش کن و اگر دوست داشتی فایلش را ذخیره کن."
+      eyebrow="SOUND STUDIO"
+      title="استودیو صدای رویه‌ای"
+      description={`${faNum(SOUND_LIBRARY.length)} رسیپی لایه‌ای با فیلتر، ریورب و پن استریو؛ از کلیک ۸۰ میلی‌ثانیه‌ای تا فضای ۲۰ ثانیه‌ای.`}
       icon={Waves}
       stats={
         <>
@@ -683,6 +682,8 @@ soundEngine.playDesign(item.design, ${JSON.stringify(options)});`,
       list={list}
       stage={stage}
       settings={settings}
+      listWidth="252px"
+      settingsWidth="302px"
     />
   );
 };

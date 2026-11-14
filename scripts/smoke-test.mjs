@@ -275,7 +275,7 @@ else {
 // ---------------------------------------------------------------- mobile tabs
 mod.setHash("#/studio/fonts");
 await wait(600);
-const tabBar = document.querySelector('nav[aria-label$="بخش‌های ابزار"]');
+const tabBar = document.querySelector('nav[aria-label="پنل‌های استودیو"]');
 if (!tabBar) errors.push("MOBILE: studio tab bar missing");
 else {
   const buttons = [...tabBar.querySelectorAll("button")];
@@ -285,7 +285,7 @@ else {
       (el) => !el.className.split(/\s+/).includes("hidden")
     ).length;
   if (visibleRail() !== 1) errors.push(`MOBILE: expected 1 visible rail, found ${visibleRail()}`);
-  const settingsTab = buttons.find((button) => (button.textContent || "").includes("تنظیم"));
+  const settingsTab = buttons[1];
   settingsTab?.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   await wait(250);
   const settingsRail = document.querySelector('[data-rail="settings"]');
@@ -301,9 +301,8 @@ else {
 VIEWPORT_WIDTH = 390;
 mod.setHash("#/studio/fonts");
 await wait(700);
-const tabs = [...document.querySelectorAll('nav[aria-label$="بخش‌های ابزار"] button')];
-const fontListTab = tabs.find((button) => (button.textContent || "").includes("فونت‌ها"));
-fontListTab?.dispatchEvent(new window.MouseEvent("click", { bubbles: true })); // font list
+const tabs = [...document.querySelectorAll('nav[aria-label="پنل‌های استودیو"] button')];
+tabs[2]?.dispatchEvent(new window.MouseEvent("click", { bubbles: true })); // list
 await wait(250);
 const listRail = document.querySelector('[data-rail="list"]');
 if (!listRail || listRail.className.split(/\s+/).includes("hidden")) {
@@ -315,36 +314,6 @@ await wait(350);
 const stageRail = document.querySelector('[data-rail="stage"]');
 if (!stageRail || stageRail.className.split(/\s+/).includes("hidden")) {
   errors.push("MOBILE: choosing a font did not return to the preview panel");
-}
-VIEWPORT_WIDTH = 390;
-const STUDIO_PROFILES = [
-  ["fonts", "atelier", "نمونه", "stage"],
-  ["motion", "oscilloscope", "پیش‌نمایش", "stage"],
-  ["components", "blueprint", "پیش‌نمایش", "stage"],
-  ["sounds", "daw", "شنیدن", "stage"],
-  ["skills", "codex", "موضوع‌ها", "list"],
-  ["engines", "shader-deck", "جلوه", "stage"],
-  ["ai", "neural-forge", "ساخت", "settings"],
-];
-for (const [studio, expectedVariant, activeLabel, expectedRail] of STUDIO_PROFILES) {
-  mod.setHash(`#/studio/${studio}`);
-  await wait(420);
-  const shell = document.querySelector("[data-studio-variant]");
-  if (shell?.getAttribute("data-studio-variant") !== expectedVariant) {
-    errors.push(`LAYOUT ${studio}: expected ${expectedVariant}, found ${shell?.getAttribute("data-studio-variant") ?? "missing"}`);
-  }
-  const studioTabs = [...document.querySelectorAll('nav[aria-label$="بخش‌های ابزار"] button')];
-  if (studioTabs.length !== 3) errors.push(`LAYOUT ${studio}: expected 3 task tabs, found ${studioTabs.length}`);
-  const activeTab = studioTabs.find((button) => button.getAttribute("aria-pressed") === "true");
-  if (!(activeTab?.textContent || "").includes(activeLabel)) {
-    errors.push(`LAYOUT ${studio}: expected active tab ${activeLabel}`);
-  }
-  const visible = [...document.querySelectorAll("[data-rail]")].filter(
-    (el) => !el.className.split(/\s+/).includes("hidden")
-  );
-  if (visible.length !== 1 || visible[0]?.getAttribute("data-rail") !== expectedRail) {
-    errors.push(`LAYOUT ${studio}: expected initial ${expectedRail} panel`);
-  }
 }
 VIEWPORT_WIDTH = 1440;
 
@@ -366,22 +335,25 @@ const dock = document.querySelector('nav[aria-label="ناوبری بخش‌ها"
 if (!dock) errors.push("DOCK: navigation dock missing");
 else {
   const items = [...dock.querySelectorAll("button")];
-  if (items.length !== 4) errors.push(`DOCK: expected 4 primary destinations, found ${items.length}`);
+  if (items.length !== 9) errors.push(`DOCK: expected 9 sections, found ${items.length}`);
   const anonymous = items.filter((b) => !(b.getAttribute("aria-label") || "").trim());
   if (anonymous.length) errors.push(`DOCK: ${anonymous.length} section(s) without aria-label`);
 }
 
-// All destinations remain available in the explicit "all tools" menu.
-const allToolsTrigger = [...document.querySelectorAll("button")].find(
-  (b) => b.getAttribute("aria-label") === "نمایش همه ابزارها"
+// The original mobile command sheet keeps every destination available.
+VIEWPORT_WIDTH = 390;
+mod.setHash("#/");
+await wait(300);
+const mobileMenuTrigger = [...document.querySelectorAll("button")].find(
+  (button) => button.getAttribute("aria-label") === "منوی جامع موبایل و استودیوها"
 );
-if (!allToolsTrigger) errors.push("NAV: all-tools menu trigger missing");
+if (!mobileMenuTrigger) errors.push("NAV: mobile command-sheet trigger missing");
 else {
-  allToolsTrigger.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  mobileMenuTrigger.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
   await wait(250);
-  const dialog = document.querySelector('[role="dialog"][aria-label="همه ابزارها"]');
+  const dialog = document.querySelector('[role="dialog"][aria-label="منوی جامع موبایل و استودیوها"]');
   const destinations = dialog?.querySelectorAll("[data-route-id]").length ?? 0;
-  if (destinations !== 9) errors.push(`NAV: expected all 9 routes in the all-tools menu, found ${destinations}`);
+  if (destinations !== 9) errors.push(`NAV: expected all 9 routes in the mobile command sheet, found ${destinations}`);
 }
 
 console.error = origError;

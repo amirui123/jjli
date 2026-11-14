@@ -1,12 +1,15 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   AlignCenter,
   AlignJustify,
   AlignLeft,
   AlignRight,
+  Code2,
+  RotateCcw,
   Sparkles,
   Type,
+  X,
 } from "lucide-react";
 import { PERSIAN_FONT_CATALOG, type PersianFontItem } from "../data/persianFontsCatalog";
 import { fontFileFor, type FontFileInfo } from "../data/fontFiles";
@@ -23,7 +26,6 @@ import {
   Toggle,
   cn,
 } from "../ui/kit";
-import { StudioShell, StudioList, focusStudioPreview } from "../ui/StudioShell";
 import { DownloadButton } from "../ui/DownloadButton";
 import { faNum } from "../lib/format";
 import { soundEngine } from "../engines/soundEngine";
@@ -118,6 +120,22 @@ export const FontStudio: React.FC = () => {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<Category>("all");
   const [replay, setReplay] = useState(0);
+  const [codeOpen, setCodeOpen] = useState(false);
+  const [mobileTab, setMobileTab] = useState<"stage" | "settings" | "list">("stage");
+
+  useEffect(() => {
+    if (!codeOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setCodeOpen(false);
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [codeOpen]);
 
   const font = PERSIAN_FONT_CATALOG.find((f) => f.id === s.fontId) ?? PERSIAN_FONT_CATALOG[0];
   const compareFont = PERSIAN_FONT_CATALOG.find((f) => f.id === s.compareId) ?? PERSIAN_FONT_CATALOG[1];
@@ -315,59 +333,51 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
     (id: string) => {
       soundEngine.playTick(1);
       set({ fontId: id });
-      focusStudioPreview();
+      if (typeof window !== "undefined" && window.matchMedia("(max-width: 1199px)").matches) {
+        setMobileTab("stage");
+      }
     },
     [set]
   );
 
-  const rows = useMemo(
+  const fontCards = useMemo(
     () =>
       filtered.map((f) => {
         const active = s.fontId === f.id;
-        const info = fontFileFor(f.family);
         return (
-          <div
+          <button
             key={f.id}
+            type="button"
+            data-font-id={f.id}
+            aria-pressed={active}
+            onClick={() => selectFont(f.id)}
             className={cn(
-              "group relative rounded-xl border transition-colors",
+              "group relative flex w-[172px] min-w-[172px] snap-start flex-col rounded-xl border p-3 text-start transition-all",
               active
-                ? "border-[color:var(--accent)]/40 bg-[color:var(--accent)]/[0.07]"
-                : "border-transparent hover:border-white/10 hover:bg-white/[0.035]"
+                ? "border-[color:var(--accent)]/55 bg-[color:var(--accent)]/[0.09] shadow-[0_10px_28px_-18px_rgba(var(--accent-glow),0.8)]"
+                : "border-white/[0.07] bg-[#0A0C12]/80 hover:border-white/20 hover:bg-white/[0.04]"
             )}
           >
-            <button
-              data-font-id={f.id}
-              onClick={() => selectFont(f.id)}
-              className="flex w-full items-start gap-2 rounded-xl px-2.5 py-2 text-start"
-            >
-              <span className="min-w-0 flex-1">
-                <span
-                  className="block truncate text-[15px] leading-tight text-zinc-100"
-                  style={{ fontFamily: f.family }}
-                >
-                  {f.nameFa}
-                </span>
-                <span
-                  className="mt-1 block truncate text-[12px] leading-tight text-zinc-500"
-                  style={{ fontFamily: f.family }}
-                >
-                  {rowText || "نمونه متن"}
-                </span>
-              </span>
+            <span className="flex w-full items-center justify-between gap-2">
+              <span className="truncate text-[12px] font-bold text-zinc-100">{f.nameFa}</span>
               {f.isVariable && <Badge tone="accent">VF</Badge>}
-            </button>
-            <div className="absolute end-1 top-1 opacity-100 transition-opacity focus-within:opacity-100 sm:pointer-events-none sm:opacity-0 sm:group-hover:pointer-events-auto sm:group-hover:opacity-100 sm:group-focus-within:pointer-events-auto sm:group-focus-within:opacity-100">
-              <DownloadButton
-                compact
-                label="دانلود فونت"
-                filename={info?.file}
-                onDownload={() => downloadFont(f)}
-              />
-            </div>
-          </div>
+            </span>
+            <span
+              className="mt-2 line-clamp-2 min-h-10 w-full text-[15px] leading-[1.7] text-zinc-200"
+              style={{ fontFamily: f.family }}
+            >
+              {rowText || "آزمایش حروف فارسی"}
+            </span>
+            <span className="mt-2 block w-full truncate font-mono text-[9px] text-zinc-500" dir="ltr">
+              {f.nameEn}
+            </span>
+            {active && (
+              <span className="absolute inset-x-3 bottom-0 h-[2px] rounded-full bg-[color:var(--accent)]" />
+            )}
+          </button>
         );
       }),
-    [filtered, s.fontId, selectFont, rowText]
+    [filtered, rowText, s.fontId, selectFont]
   );
 
   /** Bundles every real font file + a catalog sheet into one archive. */
@@ -423,214 +433,238 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
     ]);
   }, []);
 
-  /* ---------------------------------------------------------------- stage */
+  /* ---------------------------------------------------------------- workbench */
 
   const stage = (
-    <div className="space-y-4">
-      <Panel padded={false} className="overflow-hidden desk:sticky desk:top-0 desk:z-20">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] px-3 py-2">
-          <div className="flex min-w-0 items-center gap-2">
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />
-            <span className="truncate text-[11.5px] font-medium text-zinc-200">{font.nameFa}</span>
-            <span className="hidden truncate font-mono text-[10px] text-zinc-600 sm:block" dir="ltr">
+    <Panel padded={false} className="overflow-hidden border-white/[0.09] shadow-[0_24px_70px_-44px_rgba(0,0,0,0.9)]">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.07] px-3.5 py-2.5">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="relative flex h-2.5 w-2.5 shrink-0 items-center justify-center">
+            <span className="absolute h-full w-full animate-ping rounded-full bg-emerald-400/30" />
+            <span className="relative h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          </span>
+          <div className="min-w-0">
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="truncate text-[12px] font-bold text-zinc-100">{font.nameFa}</span>
+              {file && <Badge>{file.ext}</Badge>}
+            </div>
+            <span className="hidden truncate font-mono text-[9.5px] text-zinc-500 sm:block" dir="ltr">
               {font.nameEn}
             </span>
-            {file && <Badge>{file.ext}</Badge>}
-          </div>
-          <div className="flex items-center gap-1.5">
-            <DownloadButton
-              label="دانلود فونت"
-              filename={file?.file}
-              onDownload={() => downloadFont(font)}
-              variant="solid"
-            />
-            <DownloadButton
-              label="کیت کامل"
-              filename={`rtl-motion-font-${font.id}.zip`}
-              onDownload={downloadKit}
-            />
           </div>
         </div>
+        <DownloadButton
+          compact
+          label="دانلود فونت"
+          filename={file?.file}
+          onDownload={() => downloadFont(font)}
+        />
+      </div>
 
-        {/* the visitor's own sentence drives every preview and every list row */}
-        <div className="flex flex-wrap items-center gap-1.5 border-b border-white/[0.06] px-2.5 py-2">
-          <input
-            value={s.text}
-            onChange={(e) => set({ text: e.target.value })}
-            dir="rtl"
-            placeholder="جمله خودتان را بنویسید…"
-            aria-label="متن نمونه"
-            className="min-w-[160px] flex-1 rounded-lg border border-white/[0.08] bg-black/40 px-2.5 py-1.5 text-[12px] text-zinc-200 outline-none transition-colors focus:border-[color:var(--accent)]/50"
-          />
-          <div className="flex items-center gap-1">
-            {SAMPLES.slice(0, 3).map((sample) => (
-              <button
-                key={sample.label}
-                onClick={() => set({ text: sample.text })}
-                className="hidden rounded-md border border-white/[0.07] bg-white/[0.02] px-1.5 py-1 text-[9.5px] text-zinc-400 transition-colors hover:border-white/20 hover:text-zinc-100 sm:block"
-              >
-                {sample.label}
-              </button>
-            ))}
+      <div className="flex flex-wrap items-center gap-2 border-b border-white/[0.06] px-3 py-2">
+        <input
+          value={s.text}
+          onChange={(e) => set({ text: e.target.value })}
+          dir="rtl"
+          placeholder="جمله خودتان را بنویسید…"
+          aria-label="متن نمونه"
+          className="min-w-[180px] flex-1 rounded-lg border border-white/[0.08] bg-black/40 px-3 py-2 text-[12px] text-zinc-200 outline-none transition-colors focus:border-[color:var(--accent)]/50"
+        />
+        <div className="flex items-center gap-1">
+          {SAMPLES.slice(0, 3).map((sample) => (
             <button
-              onClick={() => setReplay((r) => r + 1)}
-              title="پخش دوباره حرکت"
-              aria-label="پخش دوباره حرکت"
-              className="flex h-7 w-7 items-center justify-center rounded-md border border-[color:var(--accent)]/30 bg-[color:var(--accent)]/10 text-[color:var(--accent)]"
+              key={sample.label}
+              type="button"
+              onClick={() => set({ text: sample.text })}
+              className="hidden rounded-md border border-white/[0.07] bg-white/[0.02] px-2 py-1.5 text-[10px] text-zinc-400 transition-colors hover:border-white/20 hover:text-zinc-100 sm:block"
             >
-              <Sparkles className="h-3.5 w-3.5" />
+              {sample.label}
             </button>
-          </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => setReplay((r) => r + 1)}
+            title="پخش دوباره حرکت"
+            aria-label="پخش دوباره حرکت"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[color:var(--accent)]/30 bg-[color:var(--accent)]/10 text-[color:var(--accent)] transition-colors hover:bg-[color:var(--accent)]/20"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+          </button>
         </div>
+      </div>
 
-        <div
-          className={cn(
-            "relative flex min-h-[240px] items-center justify-center overflow-hidden p-5 sm:min-h-[290px] sm:p-8",
-            backdropClass
-          )}
-        >
-          {s.backdrop === "night" && (
+      <div
+        className={cn(
+          "relative flex min-h-[280px] items-center justify-center overflow-hidden p-5 sm:min-h-[340px] sm:p-8 desk:min-h-[clamp(300px,42vh,380px)]",
+          backdropClass
+        )}
+      >
+        {s.backdrop === "night" && (
+          <div
+            className="pointer-events-none absolute inset-0 opacity-60"
+            style={{
+              background:
+                "radial-gradient(60% 80% at 50% 0%, rgba(var(--accent-glow),0.13), transparent 70%)",
+            }}
+          />
+        )}
+        <div className="relative w-full">
+          {s.kinetic ? (
             <div
-              className="pointer-events-none absolute inset-0 opacity-60"
-              style={{
-                background:
-                  "radial-gradient(60% 80% at 50% 0%, rgba(var(--accent-glow),0.13), transparent 70%)",
-              }}
-            />
+              key={replay}
+              style={stageStyle}
+              className={cn("flex flex-wrap justify-center gap-x-4 gap-y-1", colorClass)}
+            >
+              {words.map((w, i) => (
+                <motion.span
+                  key={`${replay}-${i}`}
+                  initial={{ opacity: 0, y: 26, filter: "blur(10px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  transition={{ type: "spring", stiffness: 240 * s.speed, damping: 24, delay: i * s.stagger }}
+                  className="inline-block"
+                >
+                  {w}
+                </motion.span>
+              ))}
+            </div>
+          ) : (
+            <p
+              data-tracking
+              data-testid="font-specimen"
+              style={stageStyle}
+              className={cn("whitespace-pre-wrap break-words", colorClass)}
+            >
+              {s.text || "…"}
+            </p>
           )}
 
-          <div className="relative w-full">
-            {s.kinetic ? (
-              <div
-                key={replay}
-                style={stageStyle}
-                className={cn("flex flex-wrap justify-center gap-x-4 gap-y-1", colorClass)}
-              >
-                {words.map((w, i) => (
-                  <motion.span
-                    key={`${replay}-${i}`}
-                    initial={{ opacity: 0, y: 26, filter: "blur(10px)" }}
-                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                    transition={{ type: "spring", stiffness: 240 * s.speed, damping: 24, delay: i * s.stagger }}
-                    className="inline-block"
-                  >
-                    {w}
-                  </motion.span>
-                ))}
+          {s.compare && (
+            <div className="mt-7 border-t border-white/10 pt-5">
+              <div className="mb-2 flex items-center gap-2 text-[10px] text-zinc-500">
+                <span className="font-mono">COMPARE</span>
+                <span>{compareFont.nameFa}</span>
               </div>
-            ) : (
               <p
                 data-tracking
-                data-testid="font-specimen"
-                style={stageStyle}
-                className={cn("whitespace-pre-wrap break-words", colorClass)}
+                style={{ ...stageStyle, fontFamily: compareFont.family }}
+                className={cn("whitespace-pre-wrap break-words opacity-80", colorClass)}
               >
-                {s.text || "…"}
+                {s.text}
               </p>
-            )}
-
-            {s.compare && (
-              <div className="mt-7 border-t border-white/10 pt-5">
-                <div className="mb-2 flex items-center gap-2 text-[10px] text-zinc-500">
-                  <span className="font-mono">COMPARE</span>
-                  <span>{compareFont.nameFa}</span>
-                </div>
-                <p
-                  data-tracking
-                  style={{ ...stageStyle, fontFamily: compareFont.family }}
-                  className={cn("whitespace-pre-wrap break-words opacity-80", colorClass)}
-                >
-                  {s.text}
-                </p>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
+      </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.06] px-3 py-2 text-[10px] text-zinc-500">
-          <span className="font-mono" dir="ltr">
-            {s.size}px / {pad(s.size * s.lineHeight)}px · w{s.weight} · ls {s.tracking}px
-          </span>
-          <span>
-            {faNum(s.text.trim().split(/\s+/).filter(Boolean).length)} واژه ·{" "}
-            {faNum(s.text.replace(/\s/g, "").length)} حرف
-          </span>
-        </div>
-      </Panel>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.06] px-3.5 py-2.5 text-[10px] text-zinc-500">
+        <span className="font-mono" dir="ltr">
+          {s.size}px / {pad(s.size * s.lineHeight)}px · w{s.weight} · ls {s.tracking}px
+        </span>
+        <span>
+          {faNum(s.text.trim().split(/\s+/).filter(Boolean).length)} واژه ·{" "}
+          {faNum(s.text.replace(/\s/g, "").length)} حرف
+        </span>
+      </div>
+    </Panel>
+  );
 
-      <Panel title="نمونه کامل حروف (فارسی، انگلیسی و لیگچرهای هکری)" subtitle={`ابجد، الفبای لاتین، ارقام و لیگچرهای کد در ${font.nameFa} (${font.nameEn})`}>
-        <div className="space-y-3">
-          <div style={{ fontFamily: font.family, fontWeight: s.weight }} className="text-[clamp(18px,3vw,28px)] leading-[2] text-zinc-200">
-            ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی
-          </div>
-          <div
-            dir="ltr"
-            style={{
-              fontFamily: font.family,
-              fontWeight: s.weight,
-              fontFeatureSettings: `"liga" ${s.ligatures ? 1 : 0}, "calt" ${s.ligatures ? 1 : 0}`,
-            }}
-            className="text-[clamp(15px,2.2vw,22px)] leading-[1.65] text-emerald-300/90"
-          >
-            ABCDEFGHIJKLMNOPQRSTUVWXYZ · abcdefghijklmnopqrstuvwxyz
-          </div>
-          <div style={{ fontFamily: font.family }} className="text-[16px] leading-[2] text-zinc-400">
-            ۰۱۲۳۴۵۶۷۸۹ — 0123456789 — «گفتا که…» (۱۲٪) · 0x9E3779B9
-          </div>
-          <div className="grid grid-cols-5 gap-2 sm:grid-cols-9">
-            {["۱۲۳", "۴۵۶", "۷۸۹", "۰", "٬", "٫", "،", "؛", "؟"].map((g) => (
-              <div
-                key={g}
-                className="flex h-10 items-center justify-center rounded-lg border border-white/[0.06] bg-white/[0.02] text-[16px] text-zinc-300"
-                style={{ fontFamily: font.family }}
+  const fontPicker = (
+    <Panel
+      title="انتخاب خانوادهٔ فونت"
+      subtitle="نمونهٔ زندهٔ هر قلم را ببینید و انتخاب کنید"
+      actions={<Badge tone="accent">{faNum(filtered.length)} نتیجه</Badge>}
+      className="overflow-hidden"
+    >
+      <div className="mb-3 flex flex-col gap-2">
+        <SearchField value={q} onChange={setQ} placeholder="جستجوی نام فارسی یا لاتین…" />
+        <div className="flex flex-wrap gap-1.5">
+          {CATEGORIES.map((c) => {
+            const count = c.id === "all" ? PERSIAN_FONT_CATALOG.length : PERSIAN_FONT_CATALOG.filter((f) => f.category === c.id).length;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => setCat(c.id)}
+                aria-pressed={cat === c.id}
+                className={cn(
+                  "rounded-lg border px-2 py-1 text-[10px] transition-colors",
+                  cat === c.id
+                    ? "border-[color:var(--accent)]/40 bg-[color:var(--accent)]/12 text-[color:var(--accent)]"
+                    : "border-white/[0.07] text-zinc-500 hover:border-white/15 hover:text-zinc-200"
+                )}
               >
-                {g}
-              </div>
-            ))}
-          </div>
-          <div dir="ltr" className="grid grid-cols-3 gap-2 pt-1 sm:grid-cols-9">
-            {["=>", "!==", "===", "<=", ">=", "|>", "::", ">>=", "/**/"].map((lig) => (
-              <div
-                key={lig}
-                className="flex h-10 items-center justify-center rounded-lg border border-emerald-500/20 bg-emerald-500/[0.04] font-mono text-[14px] text-emerald-300"
-                style={{
-                  fontFamily: font.family,
-                  fontFeatureSettings: `"liga" ${s.ligatures ? 1 : 0}, "calt" ${s.ligatures ? 1 : 0}`,
-                }}
-                title="تست لیگچر کدنویسی (Coding Ligature)"
-              >
-                {lig}
-              </div>
-            ))}
-          </div>
+                {c.label} <span className="ms-1 font-mono opacity-60">{faNum(count)}</span>
+              </button>
+            );
+          })}
         </div>
-      </Panel>
+      </div>
+      {filtered.length > 0 ? (
+        <div
+          dir="rtl"
+          aria-label="فونت‌ها؛ افقی پیمایش کنید"
+          className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-2 studio-scroll"
+        >
+          {fontCards}
+        </div>
+      ) : (
+        <p className="py-8 text-center text-[11px] text-zinc-500">فونتی با این مشخصات پیدا نشد</p>
+      )}
+    </Panel>
+  );
 
-      <Panel
-        title="خروجی کد"
-        subtitle="دقیقاً همان مقادیری که در استودیو تنظیم کرده‌اید"
-        actions={
-          <Segmented
-            size="sm"
-            value={s.exportTab}
-            onChange={(v) => set({ exportTab: v })}
-            options={[
-              { value: "css", label: "CSS" },
-              { value: "tailwind", label: "Tailwind" },
-              { value: "react", label: "React" },
-              { value: "next", label: "next/font" },
-            ]}
-          />
-        }
-      >
-        <CodeBlock
-          code={exportCode}
-          language={s.exportTab === "css" ? "css" : "tsx"}
-          filename={`${font.id}.${s.exportTab === "css" ? "css" : "tsx"}`}
-          maxLines={20}
-        />
-      </Panel>
-    </div>
+  const glyphSpecimen = (
+    <Panel
+      title="آزمایشگاه حروف"
+      subtitle={`حروف، اعداد و لیگچرهای ${font.nameFa} را در یک نگاه بررسی کنید`}
+      tone="flat"
+    >
+      <div className="space-y-3">
+        <div style={{ fontFamily: font.family, fontWeight: s.weight }} className="text-[clamp(18px,3vw,28px)] leading-[2] text-zinc-200">
+          ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی
+        </div>
+        <div
+          dir="ltr"
+          style={{
+            fontFamily: font.family,
+            fontWeight: s.weight,
+            fontFeatureSettings: `"liga" ${s.ligatures ? 1 : 0}, "calt" ${s.ligatures ? 1 : 0}`,
+          }}
+          className="text-[clamp(15px,2.2vw,22px)] leading-[1.65] text-emerald-300/90"
+        >
+          ABCDEFGHIJKLMNOPQRSTUVWXYZ · abcdefghijklmnopqrstuvwxyz
+        </div>
+        <div style={{ fontFamily: font.family }} className="text-[16px] leading-[2] text-zinc-400">
+          ۰۱۲۳۴۵۶۷۸۹ — 0123456789 — «گفتا که…» (۱۲٪) · 0x9E3779B9
+        </div>
+        <div className="grid grid-cols-5 gap-2 sm:grid-cols-9">
+          {["۱۲۳", "۴۵۶", "۷۸۹", "۰", "٬", "٫", "،", "؛", "؟"].map((g) => (
+            <div
+              key={g}
+              className="flex h-10 items-center justify-center rounded-lg border border-white/[0.06] bg-white/[0.02] text-[16px] text-zinc-300"
+              style={{ fontFamily: font.family }}
+            >
+              {g}
+            </div>
+          ))}
+        </div>
+        <div dir="ltr" className="grid grid-cols-3 gap-2 pt-1 sm:grid-cols-9">
+          {["=>", "!==", "===", "<=", ">=", "|>", "::", ">>=", "/**/"].map((lig) => (
+            <div
+              key={lig}
+              className="flex h-10 items-center justify-center rounded-lg border border-emerald-500/20 bg-emerald-500/[0.04] font-mono text-[14px] text-emerald-300"
+              style={{
+                fontFamily: font.family,
+                fontFeatureSettings: `"liga" ${s.ligatures ? 1 : 0}, "calt" ${s.ligatures ? 1 : 0}`,
+              }}
+              title="تست لیگچر کدنویسی (Coding Ligature)"
+            >
+              {lig}
+            </div>
+          ))}
+        </div>
+      </div>
+    </Panel>
   );
 
   /* ------------------------------------------------------------- settings */
@@ -847,68 +881,185 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
   /* ---------------------------------------------------------------- shell */
 
   return (
-    <StudioShell
-      eyebrow="متن و نوشته"
-      title="انتخاب و امتحان فونت فارسی"
-      description="متنت را بنویس، فونت‌های فارسی را مقایسه کن و فونت دلخواهت را برای استفاده دریافت کن."
-      icon={Type}
-      stats={
-        <>
-          <Badge tone="accent">{faNum(PERSIAN_FONT_CATALOG.length)} خانواده</Badge>
-          <Badge>{faNum(PERSIAN_FONT_CATALOG.filter((f) => f.isVariable).length)} متغیر</Badge>
-        </>
-      }
-      actions={
-        <DownloadButton
-          label="دانلود کیت"
-          filename={`rtl-motion-font-${font.id}.zip`}
-          onDownload={downloadKit}
-          variant="outline"
-        />
-      }
-      onReset={() => {
-        reset();
-        soundEngine.playSnap();
-      }}
-      list={
-        <StudioList
-          title="همه فونت‌ها"
-          subtitle={`${faNum(filtered.length)} از ${faNum(PERSIAN_FONT_CATALOG.length)}`}
-          toolbar={<Badge tone="accent">{faNum(PERSIAN_FONT_CATALOG.length)}</Badge>}
-          className="min-h-[360px] desk:min-h-0"
-          footer="روی هر فونت دانلود فایل اصلی فعال است"
-        >
-          <div className="sticky top-0 z-10 -m-1.5 mb-1.5 space-y-2 bg-[#0D0D10]/95 p-1.5 backdrop-blur">
-            <SearchField value={q} onChange={setQ} placeholder="نام فونت…" />
-            <div className="flex flex-wrap gap-1">
-              {CATEGORIES.map((c) => {
-                const n = c.id === "all" ? PERSIAN_FONT_CATALOG.length : PERSIAN_FONT_CATALOG.filter((f) => f.category === c.id).length;
-                return (
-                  <button
-                    key={c.id}
-                    onClick={() => setCat(c.id)}
-                    className={cn(
-                      "rounded-md border px-1.5 py-0.5 text-[9.5px] transition-colors",
-                      cat === c.id
-                        ? "border-[color:var(--accent)]/40 bg-[color:var(--accent)]/12 text-[color:var(--accent)]"
-                        : "border-white/[0.07] text-zinc-500 hover:text-zinc-200"
-                    )}
-                  >
-                    {c.label} <span className="font-mono opacity-60">{faNum(n)}</span>
-                  </button>
-                );
-              })}
+    <div className="flex min-h-0 flex-col gap-3 desk:h-full">
+      <header className="glass-bevel flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#E8B33A]/20 bg-[radial-gradient(100%_160%_at_100%_0%,rgba(232,179,58,0.12),rgba(8,10,15,0.94)_65%)] px-4 py-3 shadow-[0_18px_44px_-38px_rgba(232,179,58,0.5)]">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#E8B33A]/30 bg-[#E8B33A]/[0.08] text-[#E8B33A] shadow-[0_0_24px_-12px_rgba(232,179,58,0.8)]">
+            <Type className="h-5 w-5" />
+          </span>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-mono text-[9px] tracking-[0.18em] text-[#E8B33A]/70">FONT STUDIO / ATELIER</span>
+              <Badge tone="accent">{faNum(PERSIAN_FONT_CATALOG.length)} خانواده</Badge>
+              <Badge>{faNum(PERSIAN_FONT_CATALOG.filter((f) => f.isVariable).length)} متغیر</Badge>
             </div>
+            <h1 className="mt-1 font-hasti text-[17px] leading-tight text-white sm:text-[20px]">کارگاه تایپوگرافی فارسی</h1>
+            <p className="mt-1 hidden text-[10.5px] text-zinc-400 sm:block">فونت را انتخاب کنید، متن را تنظیم کنید و نتیجه را زنده ببینید.</p>
           </div>
-          {rows}
-          {filtered.length === 0 && (
-            <p className="py-8 text-center text-[11px] text-zinc-600">فونتی پیدا نشد</p>
+        </div>
+        <div className="flex shrink-0 items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setCodeOpen(true)}
+            className="flex h-9 items-center gap-2 rounded-xl border border-[color:var(--accent)]/35 bg-[color:var(--accent)]/10 px-3 text-[11px] font-bold text-[color:var(--accent)] transition-colors hover:bg-[color:var(--accent)]/18"
+          >
+            <Code2 className="h-3.5 w-3.5" />
+            کد و خروجی
+          </button>
+          <DownloadButton
+            label="کیت فونت"
+            filename={`rtl-motion-font-${font.id}.zip`}
+            onDownload={downloadKit}
+            variant="outline"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              reset();
+              soundEngine.playSnap();
+            }}
+            aria-label="بازنشانی تنظیمات"
+            title="بازنشانی"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-zinc-400 transition-colors hover:border-white/20 hover:text-white"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="flex w-full flex-wrap items-center gap-1.5 border-t border-white/[0.06] pt-2 text-[9.5px] text-zinc-400 sm:text-[10px]">
+          <span className="rounded-lg border border-white/[0.08] bg-black/25 px-2 py-1">۱ · انتخاب فونت</span>
+          <span className="text-zinc-600">←</span>
+          <span className="rounded-lg border border-white/[0.08] bg-black/25 px-2 py-1">۲ · تنظیم نمونه</span>
+          <span className="text-zinc-600">←</span>
+          <span className="rounded-lg border border-[#E8B33A]/25 bg-[#E8B33A]/[0.06] px-2 py-1 text-[#E8B33A]">۳ · کپی کد یا دانلود</span>
+        </div>
+      </header>
+
+      <nav
+        aria-label="پنل‌های استودیو"
+        className="sticky top-14 z-20 flex shrink-0 items-center gap-1 rounded-2xl border border-white/[0.09] bg-[#090B12]/95 p-1 shadow-[0_14px_34px_-14px_rgba(0,0,0,0.95)] backdrop-blur-xl desk:hidden"
+      >
+        {[
+          { id: "stage", label: "پیش‌نمایش" },
+          { id: "settings", label: "تنظیمات" },
+          { id: "list", label: "فونت‌ها" },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setMobileTab(tab.id as "stage" | "settings" | "list")}
+            aria-pressed={mobileTab === tab.id}
+            className={cn(
+              "tap-target relative flex flex-1 items-center justify-center rounded-xl px-2.5 py-2 text-[11.5px] font-bold transition-all",
+              mobileTab === tab.id
+                ? "bg-[color:var(--accent)]/15 text-white ring-1 ring-inset ring-[color:var(--accent)]/35"
+                : "text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-200"
+            )}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </nav>
+
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 desk:grid-cols-[minmax(0,1.05fr)_minmax(340px,0.95fr)]">
+        <div className="order-1 flex min-h-0 flex-col gap-3 studio-scroll desk:order-none desk:overflow-y-auto desk:pe-1">
+          <section
+            data-rail="stage"
+            className={cn("min-w-0 space-y-3", mobileTab !== "stage" && "hidden desk:block")}
+          >
+            {stage}
+          </section>
+          <section
+            data-rail="list"
+            className={cn("min-w-0 space-y-3", mobileTab !== "list" && "hidden desk:block")}
+          >
+            {fontPicker}
+            {glyphSpecimen}
+          </section>
+        </div>
+
+        <aside
+          data-rail="settings"
+          className={cn(
+            "order-2 min-h-0 studio-scroll desk:order-none desk:overflow-y-auto desk:pe-1",
+            mobileTab !== "settings" && "hidden desk:block"
           )}
-        </StudioList>
-      }
-      stage={stage}
-      settings={settings}
-    />
+        >
+          <div className="sticky top-0 z-20 mb-3 flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#080A10]/95 px-3 py-2.5 shadow-[0_12px_24px_-18px_rgba(0,0,0,0.9)] backdrop-blur-xl">
+            <div>
+              <h2 className="text-[12px] font-bold text-zinc-100">تنظیمات قلم</h2>
+              <p className="mt-0.5 text-[9.5px] text-zinc-500">همهٔ تغییرها زنده اعمال می‌شوند</p>
+            </div>
+            <Badge tone="accent">{font.nameFa}</Badge>
+          </div>
+          {settings}
+        </aside>
+      </div>
+
+      {codeOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-3 backdrop-blur-md sm:p-6"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setCodeOpen(false);
+          }}
+        >
+          <motion.section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="font-code-title"
+            initial={{ opacity: 0, y: 14, scale: 0.985 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="flex max-h-[min(88dvh,760px)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-[color:var(--accent)]/25 bg-[#090B12] shadow-[0_32px_100px_-24px_rgba(0,0,0,0.95)]"
+          >
+            <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] bg-[radial-gradient(100%_150%_at_100%_0%,rgba(var(--accent-glow),0.12),transparent_70%)] px-4 py-3.5">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[color:var(--accent)]/25 bg-[color:var(--accent)]/10 text-[color:var(--accent)]">
+                  <Code2 className="h-4 w-4" />
+                </span>
+                <div>
+                  <h2 id="font-code-title" className="text-[13px] font-bold text-zinc-100">کد آمادهٔ استفاده</h2>
+                  <p className="mt-0.5 text-[10px] text-zinc-500">{font.nameFa} · بر اساس تنظیمات فعلی</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCodeOpen(false)}
+                aria-label="بستن پنجره کد"
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </header>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.07] px-4 py-3">
+              <Segmented
+                size="sm"
+                value={s.exportTab}
+                onChange={(v) => set({ exportTab: v })}
+                options={[
+                  { value: "css", label: "CSS" },
+                  { value: "tailwind", label: "Tailwind" },
+                  { value: "react", label: "React" },
+                  { value: "next", label: "Next.js" },
+                ]}
+              />
+              <CopyButton text={exportCode} label="کپی این خروجی" />
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4 studio-scroll">
+              <CodeBlock
+                code={exportCode}
+                language={s.exportTab === "css" ? "css" : "tsx"}
+                filename={`${font.id}.${s.exportTab === "css" ? "css" : "tsx"}`}
+                maxLines={24}
+              />
+            </div>
+            <footer className="flex items-center justify-between gap-2 border-t border-white/[0.07] px-4 py-2.5 text-[10px] text-zinc-500">
+              <span>می‌توانید هر نوع خروجی را جداگانه کپی کنید.</span>
+              <span className="font-mono text-[color:var(--accent)]" dir="ltr">{font.id}</span>
+            </footer>
+          </motion.section>
+        </div>
+      )}
+    </div>
   );
 };
 

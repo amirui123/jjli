@@ -775,13 +775,12 @@ uniforms:
 
   return (
     <StudioShell
-      variant="shader-deck"
-      eyebrow={mode === "shader" ? "جلوه‌های تصویری" : "بررسی نوشته‌ی فارسی"}
-      title={mode === "shader" ? "جلوه‌های تصویری" : "بررسی و اصلاح نوشته‌ی فارسی"}
+      eyebrow={mode === "shader" ? "SHADER LAB" : "RTL AUDIT"}
+      title={mode === "shader" ? "آزمایشگاه شیدر" : "ممیزی RTL و متن فارسی"}
       description={
         mode === "shader"
-          ? "یک جلوه را انتخاب کن، نتیجه را ببین و رنگ و حرکت آن را تغییر بده."
-          : "متن یا کدت را وارد کن تا ایرادهای نوشتار فارسی و راست‌به‌چپ را پیدا و اصلاح کنی."
+          ? `${faNum(SHADERS.length)} شیدر واقعی GLSL با یونیفرم‌های زنده، سورس قابل دانلود و رندر روی GPU.`
+          : "کد فارسی خود را بچسبانید: باگ‌های RTL، نیم‌فاصله و ارقام را با اصلاح خودکار پیدا می‌کند."
       }
       icon={mode === "shader" ? Sparkles : ShieldCheck}
       stats={
@@ -811,6 +810,8 @@ uniforms:
       list={list}
       stage={mode === "shader" ? shaderStage : rtlStage}
       settings={mode === "shader" ? shaderSettings : rtlSettings}
+      listWidth="248px"
+      settingsWidth="300px"
     />
   );
 };

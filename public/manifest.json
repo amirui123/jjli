@@ -1,8 +1,9 @@
 {
   "name": "RTL Music Lab",
   "short_name": "RTL Music",
-  "description": "اپلیکیشن موزیک کامل برای موبایل با RTL فارسی،.Visualizer، و نمایش专业歌詞",
-  "start_url": "/public/music-app.html",
+  "description": "پلیر موسیقی فارسی با چیدمان راست‌به‌چپ، کتابخانه و فهرست پخش، متن آهنگ و جلوه‌های بصری.",
+  "start_url": "./music-app.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#08080A",
   "theme_color": "#08080A",
