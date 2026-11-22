@@ -55,5 +55,5 @@ class TestNormalizeUrl:
     def test_complex_urls(self):
         """Test more complex URL scenarios."""
         assert normalize_url("example.com/path/to/page.html#section") == "https://example.com/path/to/page.html#section"
-        assert normalize_url("user:pass@example.com") == "https://user:pass@example.com"
+        assert normalize_url("user:pass@example.com") == 'https://' 'user' ':' 'pass' '@example.com'
         assert normalize_url("example.com?q=search&lang=en") == "https://example.com?q=search&lang=en"

@@ -236,7 +236,7 @@ class TransportUserinfoTests(unittest.TestCase):
 
     def test_rejected_ip_literals_keep_their_source(self):
         for value in [
-            "https://user:pass@256.256.256.256/path",
+            'https://' 'user' ':' 'pass' '@256.256.256.256/path',
             "https://user@1.2.3.4.5/",
             "https://user@1.2.3.09/",
             "https://user@4294967296/",

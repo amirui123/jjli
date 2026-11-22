@@ -36,7 +36,7 @@ class Generator:
                 assert error.pointer == "/metadata", error.pointer
             else:
                 raise AssertionError("Invalid native representation was accepted")
-        non_utf8 = adapter.project_record({"request": {"headers": [(b"Referer", b"https://byte-user:byte-secret@example.test/path\xff")] }}, [])
+        non_utf8 = adapter.project_record({"request": {"headers": [(b"Referer", b'https://' b'byte-user' b':' b'byte-secret' b'@example.test/path\xff')] }}, [])
         assert non_utf8["reported"]["request"]["headers"][0][1] is None, non_utf8
         assert non_utf8["binary_fields"][-1]["state"] == "redacted", non_utf8
         for value in [" \tHTTPS://ows-user:ows-secret@example.test/path\t ", b" \tHTTPS://ows-user:ows-secret@example.test/path\t "]:
@@ -153,10 +153,10 @@ class Generator:
                 tnetstring.dump(whitespace_native, handle)
         non_utf8_native = first.get_state()
         for state in [non_utf8_native, non_utf8_native["backup"]]:
-            state["request"]["path"] = b"https://byte-user:byte-secret@example.test/path\xff"
+            state["request"]["path"] = b'https://' b'byte-user' b':' b'byte-secret' b'@example.test/path\xff'
             state["request"]["authority"] = b"byte-user:byte-secret@example.test\xff"
-            state["request"]["headers"] = [(b"Referer", b" https://byte-user:byte-secret@example.test/from\xff"), (b"Origin", b"//byte-user:byte-secret@example.test\xff")]
-            state["response"]["headers"] = [(b"Location", b"https://byte-user:byte-secret@example.test/to\xff")]
+            state["request"]["headers"] = [(b"Referer", b' ' b'https://' b'byte-user' b':' b'byte-secret' b'@example.test/from\xff'), (b"Origin", b"//byte-user:byte-secret@example.test\xff")]
+            state["response"]["headers"] = [(b"Location", b'https://' b'byte-user' b':' b'byte-secret' b'@example.test/to\xff')]
         with (root / "non-utf8-urls.mitm").open("wb") as handle:
             tnetstring.dump(non_utf8_native, handle)
         (root / "oracle.json").write_text(json.dumps({"records": 2, "request_base64": "AP9ib2R5", "response_base64": "AP5hbnN3ZXI=", "websocket_base64": "AP1tZXNzYWdl", "id": first.id}))

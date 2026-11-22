@@ -441,7 +441,9 @@ test.describe("word-by-word intro film", () => {
   const film = (page: Page) =>
     page.getByRole("dialog", { name: "تیتراژ ورود به آزمایشگاه موشن فارسی" });
 
-  test("ignites, resolves the Persian words, completes, and can replay", async ({ page }) => {
+  test("ignites, resolves the Persian words, completes, and can replay", async ({
+    page,
+  }, testInfo) => {
     await page.clock.install();
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await expect(film(page)).toBeVisible();
@@ -452,26 +454,39 @@ test.describe("word-by-word intro film", () => {
     const wordOpacity = (word: string) =>
       page.evaluate((text) => {
         const dialog = document.querySelector('[role="dialog"]');
-        const element = Array.from(dialog?.querySelectorAll("span") ?? []).find(
-          (span) => span.textContent === text && (span as HTMLElement).style.opacity !== ""
+        let element = Array.from(dialog?.querySelectorAll("span") ?? []).find(
+          (span) => span.textContent === text && span.childElementCount === 0
         ) as HTMLElement | undefined;
-        return Number(element?.style.opacity ?? 0);
+        while (element && element !== dialog) {
+          if (element.style.opacity !== "") return Number(element.style.opacity);
+          element = element.parentElement ?? undefined;
+        }
+        return 0;
       }, word);
-    const waitForWordStartBeforeNext = async (index: number) => {
-      for (let frame = 0; frame < 60; frame += 1) {
-        const currentOpacity = await wordOpacity(words[index]);
-        const nextOpacity = await wordOpacity(words[index + 1]);
-        if (currentOpacity > 0.2 && nextOpacity === 0) return;
-        await page.clock.runFor(200);
+    const mobile = testInfo.project.name.includes("mobile");
+    const wordsStart = mobile ? 0.46 : 0.53;
+    const wordStagger = mobile ? 0.046 : 0.04;
+    let elapsedMs = 0;
+    // Sample each word just after its known stagger point, rather than polling dozens of
+    // frames; this keeps fake-clock-driven animation deterministic under CI CPU contention.
+    for (let index = 0; index < words.length; index += 1) {
+      const targetMs = Math.round((wordsStart + index * wordStagger) * 8_900 + 150);
+      await page.clock.runFor(Math.max(0, targetMs - elapsedMs));
+      elapsedMs = targetMs;
+      let currentOpacity = await wordOpacity(words[index]);
+      let nextOpacity = index + 1 < words.length ? await wordOpacity(words[index + 1]) : 0;
+      for (let sample = 0; sample < 3 && currentOpacity <= 0.2 && nextOpacity === 0; sample += 1) {
+        await page.clock.runFor(50);
+        elapsedMs += 50;
+        currentOpacity = await wordOpacity(words[index]);
+        nextOpacity = index + 1 < words.length ? await wordOpacity(words[index + 1]) : 0;
       }
-      throw new Error(`Word ${words[index]} did not start before ${words[index + 1]}`);
-    };
-
-    // Poll the actual rendered opacity at each stagger boundary; do not depend on a fixed browser latency.
-    for (let index = 0; index < words.length - 1; index += 1) {
-      await waitForWordStartBeforeNext(index);
+      expect(currentOpacity, `word ${words[index]} should have begun`).toBeGreaterThan(0.2);
+      expect(
+        currentOpacity,
+        `word ${words[index]} should lead ${words[index + 1]}`
+      ).toBeGreaterThan(nextOpacity);
     }
-    await expect.poll(() => wordOpacity("می‌گیرد")).toBeGreaterThan(0.2);
 
     await page.clock.runFor(12_000);
     await expect(film(page)).toHaveCount(0, { timeout: 5_000 });
