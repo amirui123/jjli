@@ -151,6 +151,19 @@ const mod = await import(`../.smoke/bundle.mjs?t=${Date.now()}`);
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
+async function waitForMainContent(expectedPath = null, minLength = 250, timeoutMs = 6000) {
+  const started = Date.now();
+  while (Date.now() - started < timeoutMs) {
+    const main = document.querySelector("main");
+    const loading = main?.querySelector('[aria-busy="true"]');
+    const textLength = main?.textContent?.trim().length ?? 0;
+    const routeMatches = !expectedPath || main?.getAttribute("data-path") === expectedPath;
+    if (main && routeMatches && !loading && textLength >= minLength) return true;
+    await wait(60);
+  }
+  return false;
+}
+
 const ROUTES = [
   ["/", "خانه"],
   ["/dashboard", "داشبورد"],
@@ -169,16 +182,22 @@ try {
 } catch (e) {
   errors.push(`MOUNT: ${e?.stack}`);
 }
-await wait(500);
+const mounted = await waitForMainContent();
+if (!mounted) errors.push("MOUNT: app did not finish rendering its first page");
 console.log("mounted. text len:", mod.text().length);
 
 const rows = [];
 for (const [path, label] of ROUTES) {
   mod.setHash(`#${path}`);
-  await wait(650);
+  const ready = await waitForMainContent(path, path === "/nope" ? 80 : 250);
   const t = mod.text();
   rows.push({ path, label, len: t.length, head: t.slice(0, 70) });
-  if (t.length < 80) errors.push(`EMPTY ${path}: only ${t.length} chars`);
+  if (!ready || t.length < 250) {
+    const main = document.querySelector("main");
+    errors.push(
+      `EMPTY ${path}: page did not render real content (${t.length} chars; data-path=${main?.getAttribute("data-path")}; data-route=${main?.getAttribute("data-route")})`
+    );
+  }
 }
 
 // interaction 1: font switch changes the specimen
@@ -197,8 +216,9 @@ else {
 // studio layout: every studio must expose the three rails
 for (const studio of ["fonts", "motion", "components", "sounds", "skills", "engines", "ai"]) {
   mod.setHash(`#/studio/${studio}`);
-  await wait(450);
+  const ready = await waitForMainContent(`/studio/${studio}`, 200);
   const main = document.querySelector("main");
+  if (!ready) errors.push(`RAILS ${studio}: page content did not finish loading`);
   const rails = main?.querySelectorAll("[data-rail]").length ?? 0;
   if (rails !== 3) errors.push(`RAILS ${studio}: expected 3 rails, found ${rails}`);
   if (main && main.textContent.trim().length < 200)
@@ -345,6 +365,25 @@ else {
   if (items.length !== 9) errors.push(`DOCK: expected 9 sections, found ${items.length}`);
   const anonymous = items.filter((b) => !(b.getAttribute("aria-label") || "").trim());
   if (anonymous.length) errors.push(`DOCK: ${anonymous.length} section(s) without aria-label`);
+}
+
+// The original mobile command sheet keeps every destination available.
+VIEWPORT_WIDTH = 390;
+mod.setHash("#/");
+await wait(300);
+const mobileMenuTrigger = [...document.querySelectorAll("button")].find(
+  (button) => button.getAttribute("aria-label") === "منوی جامع موبایل و استودیوها"
+);
+if (!mobileMenuTrigger) errors.push("NAV: mobile command-sheet trigger missing");
+else {
+  mobileMenuTrigger.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  await wait(250);
+  const dialog = document.querySelector(
+    '[role="dialog"][aria-label="منوی جامع موبایل و استودیوها"]'
+  );
+  const destinations = dialog?.querySelectorAll("[data-route-id]").length ?? 0;
+  if (destinations !== 9)
+    errors.push(`NAV: expected all 9 routes in the mobile command sheet, found ${destinations}`);
 }
 
 console.error = origError;

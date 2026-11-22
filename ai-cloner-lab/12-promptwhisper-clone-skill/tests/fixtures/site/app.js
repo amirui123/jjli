@@ -1,0 +1,10 @@
+const query = new URLSearchParams(location.search);
+if (query.has('changed')) document.body.classList.add('changed');
+const panel = document.querySelector('[role="dialog"]');
+const open = document.querySelector('[aria-label="Open menu"]');
+open.addEventListener('click', () => { panel.hidden = false; open.setAttribute('aria-expanded', 'true'); });
+document.querySelector('[aria-label="Close menu"]').addEventListener('click', () => { panel.hidden = true; open.setAttribute('aria-expanded', 'false'); });
+fetch('/api/ping');
+if (query.has('console_error')) console.error('fixture console failure');
+if (query.has('missing')) fetch('/missing-resource.json');
+if (query.has('target_request')) fetch('http://127.0.0.1:4174/api/ping');

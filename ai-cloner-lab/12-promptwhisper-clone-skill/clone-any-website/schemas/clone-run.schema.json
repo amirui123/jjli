@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/promptwhisper/clone-any-website-skill/clone-run.schema.json",
+  "title": "Clone Any Website verification run",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "target", "clone", "output", "viewports", "states", "comparison", "network"],
+  "properties": {
+    "version": { "const": 1 },
+    "target": { "$ref": "#/$defs/urlEndpoint" },
+    "clone": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url"],
+      "properties": {
+        "url": { "type": "string", "pattern": "^https?://" },
+        "start_command": { "type": "string", "minLength": 1 },
+        "working_directory": { "type": "string", "minLength": 1 },
+        "startup_timeout_ms": { "type": "integer", "minimum": 100, "maximum": 600000 }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["directory"],
+      "properties": { "directory": { "type": "string", "minLength": 1 } }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "locale": { "type": "string", "minLength": 1 },
+        "color_scheme": { "enum": ["light", "dark", "no-preference"] },
+        "reduced_motion": { "type": "boolean" },
+        "timezone_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "viewports": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "width", "height"],
+        "properties": {
+          "name": { "$ref": "#/$defs/name" },
+          "width": { "type": "integer", "minimum": 1, "maximum": 10000 },
+          "height": { "type": "integer", "minimum": 1, "maximum": 10000 },
+          "device_scale_factor": { "type": "number", "exclusiveMinimum": 0, "maximum": 4 },
+          "is_mobile": { "type": "boolean" },
+          "has_touch": { "type": "boolean" }
+        }
+      }
+    },
+    "states": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "viewport"],
+        "properties": {
+          "name": { "$ref": "#/$defs/name" },
+          "viewport": { "$ref": "#/$defs/name" },
+          "readiness": { "$ref": "#/$defs/waitSelector" },
+          "actions": { "type": "array", "items": { "$ref": "#/$defs/action" } },
+          "approximation": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pixel_threshold": { "type": "integer", "minimum": 0, "maximum": 255 },
+        "max_mismatch_ratio": { "type": "number", "minimum": 0, "maximum": 1 },
+        "max_mae": { "type": "number", "minimum": 0, "maximum": 255 },
+        "write_heatmap": { "type": "boolean" },
+        "mask": { "type": "string", "minLength": 1 },
+        "reference_crop": { "$ref": "#/$defs/crop" },
+        "candidate_crop": { "$ref": "#/$defs/crop" },
+        "resize_reference_to_candidate": { "type": "boolean" }
+      }
+    },
+    "network": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fail_on_console_error": { "type": "boolean" },
+        "fail_on_page_error": { "type": "boolean" },
+        "fail_on_request_failure": { "type": "boolean" },
+        "fail_on_http_status": { "type": "array", "uniqueItems": true, "items": { "type": "integer", "minimum": 400, "maximum": 599 } },
+        "forbid_target_origin_in_clone_runtime": { "type": "boolean" },
+        "target_capture_origin_policy": { "enum": ["report_only", "strict"] },
+        "allowed_target_origins": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^https?://" } }
+      }
+    },
+    "approximations": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+  },
+  "$defs": {
+    "name": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$", "maxLength": 100 },
+    "urlEndpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url"],
+      "properties": { "url": { "type": "string", "pattern": "^https?://" } }
+    },
+    "crop": { "type": "array", "prefixItems": [{"type":"integer","minimum":0},{"type":"integer","minimum":0},{"type":"integer","minimum":1},{"type":"integer","minimum":1}], "items": false, "minItems": 4, "maxItems": 4 },
+    "waitSelector": {
+      "type": "object", "additionalProperties": false, "required": ["selector"],
+      "properties": { "selector": {"type":"string","minLength":1}, "state": {"enum":["attached","detached","visible","hidden"]}, "timeout_ms": {"type":"integer","minimum":1,"maximum":120000} }
+    },
+    "action": {
+      "oneOf": [
+        { "type": "object", "$ref": "#/$defs/selectorAction", "properties": { "type": { "const": "click" } } },
+        { "type": "object", "$ref": "#/$defs/selectorAction", "properties": { "type": { "const": "hover" } } },
+        { "type":"object","additionalProperties":false,"required":["type","selector","value"],"properties":{"type":{"const":"fill"},"selector":{"type":"string","minLength":1},"value":{"type":"string"}} },
+        { "type":"object","additionalProperties":false,"required":["type","key"],"properties":{"type":{"const":"press"},"selector":{"type":"string","minLength":1},"key":{"type":"string","minLength":1}} },
+        { "type":"object","additionalProperties":false,"required":["type","x","y"],"properties":{"type":{"const":"scroll_to"},"x":{"type":"number"},"y":{"type":"number"}} },
+        { "type":"object","additionalProperties":false,"required":["type","delta_x","delta_y"],"properties":{"type":{"const":"scroll_by"},"delta_x":{"type":"number"},"delta_y":{"type":"number"}} },
+        { "type":"object","additionalProperties":false,"required":["type","selector"],"properties":{"type":{"const":"wait_for_selector"},"selector":{"type":"string","minLength":1},"state":{"enum":["attached","detached","visible","hidden"]},"timeout_ms":{"type":"integer","minimum":1,"maximum":120000}} },
+        { "type":"object","additionalProperties":false,"required":["type","timeout_ms"],"properties":{"type":{"const":"wait_for_timeout"},"timeout_ms":{"type":"integer","minimum":0,"maximum":120000}} },
+        { "type":"object","additionalProperties":false,"required":["type"],"properties":{"type":{"const":"wait_for_paints"},"count":{"type":"integer","minimum":1,"maximum":120}} },
+        { "type":"object","additionalProperties":false,"required":["type","selector","time"],"properties":{"type":{"const":"set_media_time"},"selector":{"type":"string","minLength":1},"time":{"type":"number","minimum":0},"timeout_ms":{"type":"integer","minimum":1,"maximum":120000},"max_timestamp_delta":{"type":"number","exclusiveMinimum":0,"maximum":5}} },
+        { "type": "object", "$ref": "#/$defs/selectorAction", "properties": { "type": { "const": "pause_media" } } },
+        { "type": "object", "$ref": "#/$defs/selectorAction", "properties": { "type": { "const": "play_media" } } }
+      ]
+    },
+    "selectorAction": { "type":"object","additionalProperties":false,"required":["type","selector"],"properties":{"type":{"type":"string"},"selector":{"type":"string","minLength":1},"timeout_ms":{"type":"integer","minimum":1,"maximum":120000}} }
+  }
+}

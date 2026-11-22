@@ -104,6 +104,29 @@ jobs:
       - run: npm run build
       - name: e2e
         run: npx playwright test
+      - name: Annotate Playwright failures
+        if: always()
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const reportPath = 'audit/before/playwright-results.json';
+          if (!fs.existsSync(reportPath)) process.exit(0);
+          const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+          const escape = (value) => String(value).replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
+          const visit = (suite) => {
+            for (const spec of suite.specs ?? []) {
+              for (const test of spec.tests ?? []) {
+                if (test.status === 'expected' || test.status === 'skipped') continue;
+                const attempt = [...(test.results ?? [])].reverse().find((result) => result.status === 'failed') ?? test.results?.at(-1);
+                const detail = attempt?.errors?.map((error) => error.message).filter(Boolean).join(' | ') || test.status;
+                const title = `${spec.title} [${test.projectName}]`;
+                console.log(`::error file=e2e/${spec.file},line=${spec.line},title=${escape(title)}::${escape(detail)}`);
+              }
+            }
+            for (const child of suite.suites ?? []) visit(child);
+          };
+          for (const suite of report.suites ?? []) visit(suite);
+          NODE
       - uses: actions/upload-artifact@v4
         if: always()
         with:

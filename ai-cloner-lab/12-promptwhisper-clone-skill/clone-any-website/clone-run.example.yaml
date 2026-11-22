@@ -1,0 +1,30 @@
+version: 1
+target: { url: https://example.com }
+clone:
+  url: http://127.0.0.1:4173
+  start_command: npm run preview
+  working_directory: ./target-project
+  startup_timeout_ms: 30000
+output: { directory: .clone-any-website/runs/example }
+environment: { locale: en-US, color_scheme: light, reduced_motion: false, timezone_id: UTC }
+viewports:
+  - { name: desktop, width: 1440, height: 900, device_scale_factor: 1 }
+  - { name: mobile, width: 390, height: 844, device_scale_factor: 1, is_mobile: true, has_touch: true }
+states:
+  - name: initial
+    viewport: desktop
+    readiness: { selector: body, state: visible }
+  - name: mobile-menu-open
+    viewport: mobile
+    actions:
+      - { type: click, selector: "[aria-label='Open menu']" }
+      - { type: wait_for_selector, selector: "[role='dialog']", state: visible }
+comparison: { pixel_threshold: 16, max_mismatch_ratio: 0.12, max_mae: 8, write_heatmap: true }
+network:
+  fail_on_console_error: true
+  fail_on_page_error: true
+  fail_on_request_failure: true
+  fail_on_http_status: [404, 500, 501, 502, 503]
+  forbid_target_origin_in_clone_runtime: true
+  target_capture_origin_policy: report_only
+  allowed_target_origins: [https://example.com]

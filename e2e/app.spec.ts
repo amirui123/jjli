@@ -31,7 +31,15 @@ const ROUTES = [
  * after load. Visual fidelity is covered by the screenshot crawl instead.
  */
 async function open(page: Page, path: string) {
+  // Routine route tests should not spend ten seconds in the interactive film.
+  // Respect reduced motion, then ignite its accessible gate and wait for exit.
+  await page.emulateMedia({ reducedMotion: "reduce" });
   const res = await page.goto(`/#${path}`, { waitUntil: "domcontentloaded" });
+  const intro = page.getByRole("dialog", { name: "تیتراژ ورود به آزمایشگاه موشن فارسی" });
+  if (await intro.isVisible().catch(() => false)) {
+    await intro.getByRole("button", { name: "شروع انیمیشن ورود با صدا" }).click();
+    await expect(intro).toHaveCount(0, { timeout: 5_000 });
+  }
   await page.addStyleTag({
     content: `*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}`,
   });
@@ -421,89 +429,90 @@ test("nastaliq gaf keeps its two dots and does not render as kaf", async ({ page
  * "jsdom", which is the app's own escape hatch), so this block opts out.
  */
 /**
- * The entry sequence — «مُهر» / The Seal.
- *
- * It plays once per session, must never trap the visitor, must never leave the
- * document locked, and must hand the page its headline rather than run beside it.
+ * The word-by-word film is an intentional, user-ignited entry sequence. It must
+ * resolve words in order, complete the portal exit, restore page scrolling, and replay.
  */
-test.describe("intro seal", () => {
+test.describe("word-by-word intro film", () => {
   test.use({
     userAgent:
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
   });
 
-  const seal = (page: Page) => page.locator('[data-testid="intro-seal"]');
+  const film = (page: Page) =>
+    page.getByRole("dialog", { name: "تیتراژ ورود به آزمایشگاه موشن فارسی" });
 
-  test("plays once, then never again in the same session", async ({ page }) => {
+  test("ignites, resolves the Persian words, completes, and can replay", async ({
+    page,
+  }, testInfo) => {
+    await page.clock.install();
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await expect(seal(page)).toBeVisible({ timeout: 5_000 });
-    await expect(seal(page)).toBeHidden({ timeout: 12_000 });
+    await expect(film(page)).toBeVisible();
 
-    // second visit in the same session boots straight into the page
-    await page.reload({ waitUntil: "domcontentloaded" });
+    await film(page).getByRole("button", { name: "شروع انیمیشن ورود با صدا" }).click();
+
+    const words = ["در", "امتدادِ", "نور،", "هر", "خط", "جان", "می‌گیرد"];
+    const wordOpacity = (word: string) =>
+      page.evaluate((text) => {
+        const dialog = document.querySelector('[role="dialog"]');
+        let element = Array.from(dialog?.querySelectorAll("span") ?? []).find(
+          (span) => span.textContent === text && span.childElementCount === 0
+        ) as HTMLElement | undefined;
+        while (element && element !== dialog) {
+          if (element.style.opacity !== "") return Number(element.style.opacity);
+          element = element.parentElement ?? undefined;
+        }
+        return 0;
+      }, word);
+    const mobile = testInfo.project.name.includes("mobile");
+    const wordsStart = mobile ? 0.46 : 0.53;
+    const wordStagger = mobile ? 0.046 : 0.04;
+    let elapsedMs = 0;
+    // Sample each word just after its known stagger point, rather than polling dozens of
+    // frames; this keeps fake-clock-driven animation deterministic under CI CPU contention.
+    for (let index = 0; index < words.length; index += 1) {
+      const targetMs = Math.round((wordsStart + index * wordStagger) * 8_900 + 150);
+      await page.clock.runFor(Math.max(0, targetMs - elapsedMs));
+      elapsedMs = targetMs;
+      let currentOpacity = await wordOpacity(words[index]);
+      let nextOpacity = index + 1 < words.length ? await wordOpacity(words[index + 1]) : 0;
+      for (let sample = 0; sample < 3 && currentOpacity <= 0.2 && nextOpacity === 0; sample += 1) {
+        await page.clock.runFor(50);
+        elapsedMs += 50;
+        currentOpacity = await wordOpacity(words[index]);
+        nextOpacity = index + 1 < words.length ? await wordOpacity(words[index + 1]) : 0;
+      }
+      expect(currentOpacity, `word ${words[index]} should have begun`).toBeGreaterThan(0.2);
+      expect(
+        currentOpacity,
+        `word ${words[index]} should lead ${words[index + 1]}`
+      ).toBeGreaterThan(nextOpacity);
+    }
+
+    // Advance in separate turns so React can commit the progress=1 update and start
+    // the portal-exit effect before the exit clock is advanced.
+    for (let frame = 0; frame < 12 && (await film(page).count()) > 0; frame += 1) {
+      await page.clock.runFor(500);
+    }
+    await expect(film(page)).toHaveCount(0, { timeout: 5_000 });
+
     await expect(page.locator('[data-testid="hero-headline"]')).toBeVisible();
-    await expect(seal(page)).toHaveCount(0);
-  });
-
-  test("can be skipped instead of waiting for the sequence", async ({ page }) => {
-    await page.goto("/", { waitUntil: "domcontentloaded" });
-    const skip = page.getByTestId("intro-skip");
-    await expect(skip).toBeVisible({ timeout: 5_000 });
-
-    // Dispatch rather than mouse-click: this asserts the handler tears the
-    // sequence down at once, without also depending on hit-testing a full-screen
-    // overlay while the hero shader renders in software.
-    const started = Date.now();
-    await skip.dispatchEvent("click");
-    await expect(seal(page)).toHaveCount(0, { timeout: 4_000 });
-    expect(Date.now() - started).toBeLessThan(4_000);
-  });
-
-  test("Escape leaves the seal and restores the document", async ({ page }) => {
-    await page.goto("/", { waitUntil: "domcontentloaded" });
-    await expect(page.getByTestId("intro-skip")).toBeVisible({ timeout: 5_000 });
-    await expect
-      .poll(() => page.evaluate(() => getComputedStyle(document.documentElement).overflow))
-      .toBe("hidden");
-
-    await page.keyboard.press("Escape");
-    await expect(seal(page)).toHaveCount(0, { timeout: 3_000 });
-    await expect
-      .poll(() => page.evaluate(() => getComputedStyle(document.documentElement).overflow))
-      .not.toBe("hidden");
-  });
-
-  test("hands the headline to the page instead of running beside it", async ({ page }) => {
-    await page.goto("/", { waitUntil: "domcontentloaded" });
-    await expect(seal(page)).toBeVisible({ timeout: 5_000 });
-    await expect(seal(page)).toBeHidden({ timeout: 12_000 });
-
-    // the headline is laid out and readable once the sheet is gone
-    const hero = page.locator('[data-testid="hero-headline"]');
-    await expect(hero).toBeVisible();
-    await expect(hero).toContainText("هر واژه");
-    await expect(hero).toContainText("نفس");
-    // and nothing is left covering it
-    await expect(page.locator('[role="dialog"]')).toHaveCount(0);
-  });
-
-  test("replays from the hero and from the appearance menu", async ({ page }) => {
-    await page.goto("/", { waitUntil: "domcontentloaded" });
-    await expect(seal(page)).toBeHidden({ timeout: 12_000 });
+    await expect(page.locator("body")).not.toHaveCSS("overflow", "hidden");
 
     await page.getByRole("button", { name: /تماشای فیلم ورودی/ }).click();
-    await expect(seal(page)).toBeVisible({ timeout: 3_000 });
-    await page.getByTestId("intro-skip").click({ force: true });
-    await expect(seal(page)).toHaveCount(0, { timeout: 3_000 });
+    await expect(film(page)).toBeVisible({ timeout: 3_000 });
   });
 
-  test("reduced motion gets a near-instant entrance", async ({ browser }) => {
-    const ctx = await browser.newContext({ reducedMotion: "reduce" });
+  test("reduced motion completes immediately after ignition", async ({ browser }) => {
+    const ctx = await browser.newContext({
+      reducedMotion: "reduce",
+      userAgent:
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+    });
     const page = await ctx.newPage();
-    const started = Date.now();
     await page.goto("/", { waitUntil: "domcontentloaded" });
-    await expect(page.locator('[data-testid="intro-seal"]')).toHaveCount(0, { timeout: 2_500 });
-    expect(Date.now() - started).toBeLessThan(2_500);
+    await film(page).getByRole("button", { name: "شروع انیمیشن ورود با صدا" }).click();
+    await expect(film(page)).toHaveCount(0, { timeout: 4_000 });
+    await expect(page.locator('[data-testid="hero-headline"]')).toBeVisible();
     await ctx.close();
   });
 });

@@ -1,0 +1,54 @@
+version: 1
+target:
+  url: http://127.0.0.1:4174
+clone:
+  url: http://127.0.0.1:4175
+  start_command: node server.mjs 4174 4175
+  working_directory: ./site
+  startup_timeout_ms: 10000
+output:
+  directory: ../../.clone-any-website/runs/fixture-smoke
+environment:
+  locale: en-US
+  color_scheme: light
+  reduced_motion: true
+  timezone_id: UTC
+viewports:
+  - name: desktop
+    width: 900
+    height: 700
+    device_scale_factor: 1
+  - name: mobile
+    width: 390
+    height: 844
+    device_scale_factor: 1
+    is_mobile: true
+    has_touch: true
+states:
+  - name: initial
+    viewport: desktop
+    readiness: { selector: body, state: visible }
+  - name: panel-open
+    viewport: desktop
+    actions:
+      - { type: click, selector: "[aria-label='Open menu']" }
+      - { type: wait_for_selector, selector: "[role='dialog']", state: visible }
+  - name: button-hover
+    viewport: desktop
+    actions:
+      - { type: hover, selector: "[aria-label='Open menu']" }
+  - name: mobile-initial
+    viewport: mobile
+comparison:
+  pixel_threshold: 0
+  max_mismatch_ratio: 0
+  max_mae: 0
+  write_heatmap: true
+network:
+  fail_on_console_error: true
+  fail_on_page_error: true
+  fail_on_request_failure: true
+  fail_on_http_status: [404, 500]
+  forbid_target_origin_in_clone_runtime: true
+  target_capture_origin_policy: strict
+  allowed_target_origins: [http://127.0.0.1:4174]

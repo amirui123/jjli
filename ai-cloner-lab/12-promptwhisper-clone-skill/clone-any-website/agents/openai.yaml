@@ -1,0 +1,4 @@
+interface:
+  display_name: "Clone Any Website"
+  short_description: "Measured reconstruction of public web experiences"
+  default_prompt: "Use $clone-any-website to inspect, rebuild, and verify this public website as clean local source."

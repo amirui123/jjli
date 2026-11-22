@@ -27,5 +27,8 @@ backstop_data/
 # playwright artefacts
 playwright-report/
 test-results/
+
+# generated from the source corpus by `npm run generate`
+public/design-lab/
 .backstopjs/
 .lighthouseci/

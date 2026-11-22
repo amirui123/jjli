@@ -13,6 +13,7 @@
     "tools/**/*.mjs",
     "e2e/**/*.ts"
   ],
+  "ignore": ["ai-cloner-lab/**"],
   "ignoreExportsUsedInFile": true,
   "ignoreDependencies": [
     "@secretlint/secretlint-rule-preset-recommend",
