@@ -116,7 +116,7 @@ jobs:
           const visit = (suite) => {
             for (const spec of suite.specs ?? []) {
               for (const test of spec.tests ?? []) {
-                if (test.status === 'expected') continue;
+                if (test.status === 'expected' || test.status === 'skipped') continue;
                 const attempt = [...(test.results ?? [])].reverse().find((result) => result.status === 'failed') ?? test.results?.at(-1);
                 const detail = attempt?.errors?.map((error) => error.message).filter(Boolean).join(' | ') || test.status;
                 const title = `${spec.title} [${test.projectName}]`;

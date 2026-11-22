@@ -488,7 +488,11 @@ test.describe("word-by-word intro film", () => {
       ).toBeGreaterThan(nextOpacity);
     }
 
-    await page.clock.runFor(12_000);
+    // Advance in separate turns so React can commit the progress=1 update and start
+    // the portal-exit effect before the exit clock is advanced.
+    for (let frame = 0; frame < 12 && (await film(page).count()) > 0; frame += 1) {
+      await page.clock.runFor(500);
+    }
     await expect(film(page)).toHaveCount(0, { timeout: 5_000 });
 
     await expect(page.locator('[data-testid="hero-headline"]')).toBeVisible();
