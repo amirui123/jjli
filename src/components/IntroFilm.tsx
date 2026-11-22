@@ -9,20 +9,47 @@ import { cn } from "../ui/kit";
 /* ---------------------------------------------------------------- constants */
 
 /**
- * Pure 6-Act Cinema Choreography Timeline (TOTAL_MS = 8900ms):
- * - [0.00 .. 0.10]: Act 1A (Sweep R->L)   — Golden beam shoots from Right (950) to Left (50)
- * - [0.10 .. 0.19]: Act 1B (Rebound L->R) — Beam rebounds Left (50) to Right (950) in a counter-wave
- * - [0.19 .. 0.31]: Act 2  (Astrolabe)    — 12-Fold Sacred Persian Girih / Astrolabe blooms & spins at center while beam loops 360° into the solid Center Bar (x=220..780, y=210)
- * - [0.31 .. 0.39]: Act 3A (Fracture)     — 6 vertical laser cuts slice the bar into 7 pieces in place with visible recoil
- * - [0.39 .. 0.46]: Act 3B (Flight)       — All 7 pieces fly along curved arcs to their exact DOM-measured word coordinates
- * - [0.46 .. 0.80]: Act 4  (Words)        — Word-by-word (Right-to-Left) transformation into IranNastaliq: «در امتدادِ نور، هر خط جان می‌گیرد»
- * - [0.80 .. 1.00]: Act 5  (Prism Finale) — After the words appear, a Cosmic Prism Shockwave + Twin Orbiting Light Ribbons sweep across the calligraphy before the Curved Horizon Portal splits open!
+ * Six-act cinema timeline (8.9s). Desktop adds a deliberate chaos → alignment → word sequence:
+ * - [0.00 .. 0.31]: Beam sweep, rebound and Persian Girih astrolabe
+ * - [0.31 .. 0.37]: Seven color-coded shards scatter from the center bar
+ * - [0.37 .. 0.44]: Shards softly reassemble into their precise line positions
+ * - [0.44 .. 0.53]: Each aligned shard arcs to its measured word slot
+ * - [0.53 .. 0.84]: Words resolve right-to-left into the complete Persian sentence
+ * - [0.84 .. 1.00]: Restrained prism finish and portal transition
+ * Mobile keeps its existing shorter fracture and flight choreography.
  */
 const TOTAL_MS = 8900;
 const PORTAL_EXIT_MS = 1550;
+const WORDS_START_DESKTOP = 0.53;
+const WORDS_START_MOBILE = 0.46;
+const WORD_STAGGER_DESKTOP = 0.04;
+const WORD_STAGGER_MOBILE = 0.046;
+const PRISM_START_DESKTOP = 0.84;
+const PRISM_START_MOBILE = 0.8;
 
 /** The 6 X-coordinates along the solid center bar (x = 780..220) where the 6 fracture cuts happen */
 const CUT_POINTS_X = [700, 620, 540, 460, 380, 300];
+
+/** Stable per-shard scatter vectors; deterministic so every replay lands identically. */
+const DESKTOP_SHARD_CHAOS = [
+  { x: 112, y: -82, angle: 34, scale: 0.74 },
+  { x: -74, y: 96, angle: -29, scale: 0.62 },
+  { x: 128, y: 58, angle: 41, scale: 0.82 },
+  { x: -136, y: -64, angle: -38, scale: 0.68 },
+  { x: 82, y: 104, angle: 31, scale: 0.76 },
+  { x: -108, y: 72, angle: -34, scale: 0.64 },
+  { x: 118, y: -94, angle: 37, scale: 0.8 },
+] as const;
+
+const DESKTOP_SHARD_COLORS = [
+  "#38BDF8",
+  "#F5B841",
+  "#FFFBEB",
+  "#38BDF8",
+  "#F5B841",
+  "#FFFBEB",
+  "#38BDF8",
+] as const;
 
 interface WordSpec {
   id: number;
@@ -367,7 +394,7 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
     const svgRect = svgEl.getBoundingClientRect();
     if (svgRect.width < 10 || svgRect.height < 10) return;
 
-    // With preserveAspectRatio="xMidYMid meet", SVG scales uniformly by the larger ratio around (500, 210)
+    // Inverse `meet` scale maps viewport pixels to viewBox units; the centers share the same origin.
     const uniformScale = Math.max(1000 / svgRect.width, 420 / svgRect.height);
     const svgCenterX = svgRect.left + svgRect.width * 0.5;
     const svgCenterY = svgRect.top + svgRect.height * 0.5;
@@ -381,7 +408,12 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
           width: w.fallbackW,
         };
       }
+      // Desktop word transforms are part of the reveal animation. Measure the true layout box,
+      // not its initial 0.55-scale / translated visual box, or shards land short of the word.
+      const previousTransform = el.style.transform;
+      if (!isMobile) el.style.transform = "none";
       const r = el.getBoundingClientRect();
+      if (!isMobile) el.style.transform = previousTransform;
       if (r.width < 2) {
         return {
           cx: isMobile ? w.fallbackXMobile : w.fallbackX,
@@ -391,7 +423,10 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
       }
       const cx = 500 + (r.left + r.width * 0.5 - svgCenterX) * uniformScale;
       const cy = 210 + (r.top + r.height * 0.52 - svgCenterY) * uniformScale;
-      const width = Math.max(48, Math.min(185, r.width * uniformScale * 0.86));
+      // Desktop measures the stationary outer slot; mobile keeps its legacy visual-width tuning.
+      const width = isMobile
+        ? Math.max(48, Math.min(185, r.width * uniformScale * 0.86))
+        : Math.max(48, Math.min(260, r.width * uniformScale));
       return { cx, cy, width };
     });
 
@@ -453,15 +488,19 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
   const astrolabeRot = astrolabeRaw * 120;
 
   /**
-   * ACT 3A (progress 0.31 -> 0.39): VISIBLE FRACTURE IN PLACE!
+   * Desktop ACT 3: scatter (0.31..0.37), gather (0.37..0.44), then fly (0.44..0.53).
+   * Mobile deliberately retains the original fracture (0.31..0.39) and flight (0.39..0.46).
    */
-  const fractureRaw = Math.min(1, Math.max(0, (progress - 0.31) / 0.08));
+  const fractureRaw = Math.min(1, Math.max(0, (progress - 0.31) / (isMobile ? 0.08 : 0.06)));
   const fractureEased = 1 - Math.pow(1 - fractureRaw, 3.2);
+  const alignRaw = isMobile
+    ? 1
+    : Math.min(1, Math.max(0, (progress - 0.37) / 0.07));
+  const alignEased = alignRaw * alignRaw * (3 - 2 * alignRaw);
 
-  /**
-   * ACT 3B (progress 0.39 -> 0.46): EACH PIECE TRAVELS TO ITS OWN WORD SLOT!
-   */
-  const travelRaw = Math.min(1, Math.max(0, (progress - 0.39) / 0.07));
+  const travelStart = isMobile ? 0.39 : 0.44;
+  const travelDuration = isMobile ? 0.07 : 0.09;
+  const travelRaw = Math.min(1, Math.max(0, (progress - travelStart) / travelDuration));
   const travelEased =
     travelRaw <= 0
       ? 0
@@ -469,10 +508,14 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
       ? 4 * Math.pow(travelRaw, 3)
       : 1 - Math.pow(-2 * travelRaw + 2, 3) / 2;
 
+  const wordsStart = isMobile ? WORDS_START_MOBILE : WORDS_START_DESKTOP;
+  const wordStagger = isMobile ? WORD_STAGGER_MOBILE : WORD_STAGGER_DESKTOP;
+  const prismStart = isMobile ? PRISM_START_MOBILE : PRISM_START_DESKTOP;
+
   /**
-   * ACT 5 (progress 0.80 -> 1.00): POST-WORD COSMIC PRISM WAVE & CALLIGRAPHIC CROWN!
+   * ACT 5: POST-WORD PRISM WAVE & CALLIGRAPHIC CROWN!
    */
-  const prismRaw = Math.min(1, Math.max(0, (progress - 0.80) / 0.19));
+  const prismRaw = Math.min(1, Math.max(0, (progress - prismStart) / (1 - prismStart)));
   const prismBell = prismRaw <= 0 ? 0 : Math.sin(prismRaw * Math.PI);
   const crownSweepX = 880 - prismRaw * 760;
 
@@ -611,11 +654,12 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
             </g>
           )}
 
-          {/* ACT 3A: The 6 Laser Cut Sparks that visibly slice the bar into 7 pieces at progress = 0.31 */}
-          {progress >= 0.31 && progress <= 0.39 && (
+          {/* Six laser cuts ignite the seven color-coded shards. */}
+          {progress >= 0.31 && progress <= (isMobile ? 0.39 : 0.37) && (
             <g filter={svgFilter}>
               {CUT_POINTS_X.map((cutX, cIdx) => {
-                const sparkP = Math.min(1, Math.max(0, (progress - 0.31) / 0.075));
+                const cutDuration = isMobile ? 0.075 : 0.06;
+                const sparkP = Math.min(1, Math.max(0, (progress - 0.31) / cutDuration));
                 const sparkOpacity = Math.sin(sparkP * Math.PI);
                 const halfSlash = (14 + sparkP * 34) * strokeBoost;
                 return (
@@ -640,10 +684,9 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
             </g>
           )}
 
-          {/* ACTS 3A, 3B & 4:
-              - 0.31..0.39: The unbroken bar visibly cracks into 7 separated pieces!
-              - 0.39..0.46: Each piece travels to the EXACT position of its word!
-              - 0.46..0.80: One by one, each piece transforms into its IranNastaliq word! */}
+          {/* ACTS 3 & 4:
+              Desktop: seven colored shards scatter, re-align into the bar, arc to word slots, then become words.
+              Mobile: preserve the original fracture → word-flight timing and layout. */}
           {progress >= 0.31 &&
             WORDS.map((w, idx) => {
               const slot = measuredSlots?.[idx] ?? {
@@ -651,38 +694,51 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
                 cy: isMobile ? w.fallbackYMobile : 210,
                 width: w.fallbackW,
               };
-
-              const wordStart = 0.46 + idx * 0.046;
+              const wordStart = wordsStart + idx * wordStagger;
+              const morphDuration = isMobile ? 0.048 : 0.055;
               const solidifyP = Math.min(
                 1,
-                Math.max(0, (progress - wordStart) / 0.048)
+                Math.max(0, (progress - wordStart) / morphDuration)
               );
-
-              const shardOpacity =
-                solidifyP >= 1
-                  ? 0
-                  : 1 - Math.pow(solidifyP, 1.5);
-
+              const shardOpacity = solidifyP >= 1 ? 0 : 1 - Math.pow(solidifyP, 1.5);
               if (shardOpacity <= 0.01) return null;
 
-              const spreadFromCenter = (w.barCenterX - 500) * 1.18 + 500;
-              const fracturedX =
-                w.barCenterX + (spreadFromCenter - w.barCenterX) * fractureEased;
-              const fracturedY = 210 + w.recoilY * strokeBoost * fractureEased;
-              const fracturedAngle = w.recoilAngle * fractureEased;
-              const fracturedWidth = 80 - 26 * fractureEased;
+              const chaos = DESKTOP_SHARD_CHAOS[idx] ?? DESKTOP_SHARD_CHAOS[0];
+              const scatteredX = w.barCenterX + chaos.x * fractureEased;
+              const scatteredY = 210 + chaos.y * fractureEased;
+              const scatteredAngle = chaos.angle * fractureEased;
+              const scatteredWidth = (80 - 12 * fractureEased) * chaos.scale;
+              const alignedX = scatteredX + (w.barCenterX - scatteredX) * alignEased;
+              const alignedY = scatteredY + (210 - scatteredY) * alignEased;
+              const alignedAngle = scatteredAngle * (1 - alignEased);
+              const alignedWidth = scatteredWidth + (80 - scatteredWidth) * alignEased;
 
-              const currX = fracturedX + (slot.cx - fracturedX) * travelEased;
+              // Keep the established mobile motion; desktop gets the new chaos → magnetic alignment beat.
+              const mobileSpreadX = (w.barCenterX - 500) * 1.18 + 500;
+              const mobileX = w.barCenterX + (mobileSpreadX - w.barCenterX) * fractureEased;
+              const mobileY = 210 + w.recoilY * strokeBoost * fractureEased;
+              const mobileAngle = w.recoilAngle * fractureEased;
+              const mobileWidth = 80 - 26 * fractureEased;
+              const startX = isMobile ? mobileX : alignedX;
+              const startY = isMobile ? mobileY : alignedY;
+              const startAngle = isMobile ? mobileAngle : alignedAngle;
+              const startWidth = isMobile ? mobileWidth : alignedWidth;
+
+              const currX = startX + (slot.cx - startX) * travelEased;
               const flightArcY =
                 Math.sin(travelEased * Math.PI) * (idx % 2 === 0 ? -32 : 32) * strokeBoost;
-              const currY =
-                fracturedY + (slot.cy - fracturedY) * travelEased + flightArcY;
-              const currAngle = fracturedAngle * (1 - travelEased);
+              const currY = startY + (slot.cy - startY) * travelEased + flightArcY;
+              const currAngle = startAngle * (1 - travelEased);
               const currWidth =
-                (fracturedWidth + (slot.width - fracturedWidth) * travelEased) *
+                (startWidth + (slot.width - startWidth) * travelEased) *
                 (1 - solidifyP * 0.65);
               const halfLen = currWidth * 0.5;
               const strokeW = (3.8 + solidifyP * 3.5) * strokeBoost;
+              const shardColor = isMobile
+                ? w.gold || solidifyP > 0.05
+                  ? "#F5B841"
+                  : "#FFFBEB"
+                : (DESKTOP_SHARD_COLORS[idx] ?? "#F5B841");
 
               return (
                 <g
@@ -696,7 +752,8 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
                     y1="0"
                     x2={halfLen.toFixed(1)}
                     y2="0"
-                    stroke="rgba(245, 184, 65, 0.42)"
+                    stroke={shardColor}
+                    strokeOpacity={isMobile ? 0.42 : 0.3}
                     strokeWidth={strokeW + 5.5 * strokeBoost}
                     strokeLinecap="round"
                   />
@@ -705,7 +762,7 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
                     y1="0"
                     x2={halfLen.toFixed(1)}
                     y2="0"
-                    stroke={w.gold || solidifyP > 0.05 ? "#F5B841" : "#FFFBEB"}
+                    stroke={shardColor}
                     strokeWidth={strokeW}
                     strokeLinecap="round"
                   />
@@ -713,7 +770,7 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
               );
             })}
 
-          {/* ACT 5: POST-WORD COSMIC PRISM WAVE, VOLUMETRIC RAYS & CALLIGRAPHIC CROWN RIBBON (progress 0.80 -> 1.00) */}
+          {/* ACT 5: POST-WORD COSMIC PRISM WAVE, VOLUMETRIC RAYS & CALLIGRAPHIC CROWN RIBBON */}
           {prismBell > 0.01 && (
             <g
               style={{ opacity: prismBell * (1 - splitEase) }}
@@ -767,10 +824,11 @@ const LineToWordsStage: React.FC<LineToWordsStageProps> = ({ progress, exitProgr
           className="relative z-10 flex w-full flex-wrap items-center justify-center gap-x-2.5 gap-y-0 px-2 text-center sm:gap-x-5 sm:gap-y-2 sm:px-4"
         >
           {WORDS.map((w, idx) => {
-            const wordStart = 0.46 + idx * 0.046;
+            const wordStart = wordsStart + idx * wordStagger;
+            const wordMorphDuration = isMobile ? 0.052 : 0.06;
             const solidifyP = Math.min(
               1,
-              Math.max(0, (progress - wordStart) / 0.052)
+              Math.max(0, (progress - wordStart) / wordMorphDuration)
             );
             const eased =
               solidifyP <= 0
@@ -957,8 +1015,10 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
       soundEngine.playLineMorphCue("shatter");
     }
 
+    const wordsStart = isMobile ? WORDS_START_MOBILE : WORDS_START_DESKTOP;
+    const wordStagger = isMobile ? WORD_STAGGER_MOBILE : WORD_STAGGER_DESKTOP;
     WORDS.forEach((_, idx) => {
-      const wordTrigger = 0.46 + idx * 0.046;
+      const wordTrigger = wordsStart + idx * wordStagger;
       const key = `word-${idx}`;
       if (progress >= wordTrigger && !firedCuesRef.current.has(key)) {
         firedCuesRef.current.add(key);
@@ -966,11 +1026,12 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
       }
     });
 
-    if (progress >= 0.80 && !firedCuesRef.current.has("prism")) {
+    const prismStart = isMobile ? PRISM_START_MOBILE : PRISM_START_DESKTOP;
+    if (progress >= prismStart && !firedCuesRef.current.has("prism")) {
       firedCuesRef.current.add("prism");
       soundEngine.playLineMorphCue("prism");
     }
-  }, [ignited, progress]);
+  }, [ignited, isMobile, progress]);
 
   // Continuous 60/120fps rAF timeline
   useEffect(() => {
