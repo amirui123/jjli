@@ -49,15 +49,20 @@ const step = (msg) => console.log("[single] " + msg);
 /* ------------------------------------------------------------- 1. vite build */
 
 step("building the app as one bundle (vite.single.config.ts)");
-execFileSync(process.execPath, [path.join(ROOT, "node_modules/vite/bin/vite.js"), "build", "--config", "vite.single.config.ts"], {
-  cwd: ROOT,
-  stdio: "inherit",
-});
+execFileSync(
+  process.execPath,
+  [path.join(ROOT, "node_modules/vite/bin/vite.js"), "build", "--config", "vite.single.config.ts"],
+  {
+    cwd: ROOT,
+    stdio: "inherit",
+  }
+);
 
 const distIndex = fs.readFileSync(path.join(DIST, "index.html"), "utf8");
 const jsFile = distIndex.match(/<script[^>]*src="([^"]+\.js)"[^>]*>/)?.[1];
 const cssFile = distIndex.match(/<link[^>]*href="([^"]+\.css)"[^>]*>/)?.[1];
-if (!jsFile || !cssFile) throw new Error("could not find the built js/css in dist-single/index.html");
+if (!jsFile || !cssFile)
+  throw new Error("could not find the built js/css in dist-single/index.html");
 
 const js = fs.readFileSync(path.join(DIST, jsFile.replace(/^\//, "")), "utf8");
 let css = fs.readFileSync(path.join(DIST, cssFile.replace(/^\//, "")), "utf8");
@@ -131,9 +136,13 @@ for (const file of walk(path.join(ROOT, "public"))) {
 
 const missingFonts = fonts.filter((f) => !assets[f.url]);
 if (missingFonts.length) {
-  throw new Error("fonts referenced by css but missing from public/: " + missingFonts.map((f) => f.url).join(", "));
+  throw new Error(
+    "fonts referenced by css but missing from public/: " + missingFonts.map((f) => f.url).join(", ")
+  );
 }
-step(`assets: ${Object.keys(assets).length} files · ${mb(bytesRaw)} raw → ${mb(bytesPacked)} embedded`);
+step(
+  `assets: ${Object.keys(assets).length} files · ${mb(bytesRaw)} raw → ${mb(bytesPacked)} embedded`
+);
 
 /* ----------------------------------------------------------- 4. bootstrap */
 
@@ -266,9 +275,7 @@ const bootstrapCode =
 /* --------------------------------------------------------------- 5. markup */
 
 const favicon = assets["/favicon.svg"];
-const faviconHref = favicon
-  ? "data:image/svg+xml;base64," + favicon[2]
-  : "";
+const faviconHref = favicon ? "data:image/svg+xml;base64," + favicon[2] : "";
 
 const escapedJs = js.replace(/<\/script/gi, "<\\/script");
 const escapedCss = css.replace(/<\/style/gi, "<\\/style");

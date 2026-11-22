@@ -22,18 +22,11 @@ import {
   type BrandDesignManifestItem,
   type SkillManifestItem,
 } from "../data/skillsManifest";
-import {
-  DESIGN_LAB_PILLARS,
-  DESIGN_LAB_TOTAL_FILES,
-} from "../data/designLabManifest";
+import { DESIGN_LAB_PILLARS, DESIGN_LAB_TOTAL_FILES } from "../data/designLabManifest";
 import { PERSIAN_FONT_CATALOG } from "../data/persianFontsCatalog";
 import { publicUrl } from "../lib/base";
-import {
-  ACCENTS,
-  useAppSettings,
-  useDebounced,
-  usePersisted,
-} from "../lib/store";
+import { designLabFileUrl, normalizeDesignLabUrl } from "../lib/designLabPath";
+import { ACCENTS, useAppSettings, useDebounced, usePersisted } from "../lib/store";
 
 const textFetchCache = new Map<string, Promise<string>>();
 
@@ -140,7 +133,7 @@ export const SkillsStudio: React.FC = () => {
     brand: string;
   }>("studio-skills-pick-v2", {
     pillarId: "all",
-    vaultUrl: "/design-lab/00-INDEX-AND-BLUEPRINTS/01-MASTER-VAULT-INDEX.md",
+    vaultUrl: designLabFileUrl("00-INDEX-AND-BLUEPRINTS", "root", "01-MASTER-VAULT-INDEX.md"),
     skill: ALL_SKILLS_MANIFEST[0]?.id ?? "",
     brand: ALL_BRAND_DESIGNS_MANIFEST[0]?.id ?? "",
   });
@@ -166,7 +159,7 @@ export const SkillsStudio: React.FC = () => {
 
   const debouncedQ = useDebounced(q, 110);
 
-  // Build flat index of all 4,023 files in design-lab
+  // Build the flat index from the generated Design Lab manifest.
   const allVaultRows = useMemo<VaultFileRow[]>(() => {
     const out: VaultFileRow[] = [];
     for (const p of DESIGN_LAB_PILLARS) {
@@ -187,7 +180,7 @@ export const SkillsStudio: React.FC = () => {
             fileName,
             ext,
             bytes,
-            fullUrl: `/design-lab/${p.id}/${sc.id}/${relPath}`,
+            fullUrl: designLabFileUrl(p.id, sc.id, relPath),
           });
         }
       }
@@ -200,7 +193,7 @@ export const SkillsStudio: React.FC = () => {
     [selectedPillarId]
   );
 
-  // Filtered 4,023 vault files
+  // Filtered files from the current manifest.
   const filteredVaultRows = useMemo(() => {
     const term = debouncedQ.trim().toLowerCase();
     return allVaultRows.filter((row) => {
@@ -245,7 +238,7 @@ export const SkillsStudio: React.FC = () => {
 
   const selectedVaultRow = useMemo(
     () =>
-      allVaultRows.find((r) => r.fullUrl === pick.vaultUrl) ??
+      allVaultRows.find((r) => r.fullUrl === normalizeDesignLabUrl(pick.vaultUrl)) ??
       filteredVaultRows[0] ??
       allVaultRows[0],
     [allVaultRows, filteredVaultRows, pick.vaultUrl]
@@ -294,11 +287,12 @@ export const SkillsStudio: React.FC = () => {
     if (tab === "vault4000" && selectedVaultRow) {
       loadText(selectedVaultRow.fullUrl)
         .then((txt) => alive && setFileContent(txt))
-        .catch(() =>
-          alive &&
-          setFileContent(
-            `# ${selectedVaultRow.fileName}\n\nمسیر در مخزن: \`${selectedVaultRow.fullUrl}\`\nدسته: ${selectedVaultRow.pillarTitleFa} / ${selectedVaultRow.subcatTitleFa}`
-          )
+        .catch(
+          () =>
+            alive &&
+            setFileContent(
+              `# ${selectedVaultRow.fileName}\n\nمسیر در مخزن: \`${selectedVaultRow.fullUrl}\`\nدسته: ${selectedVaultRow.pillarTitleFa} / ${selectedVaultRow.subcatTitleFa}`
+            )
         )
         .finally(() => alive && setLoading(false));
     } else if (tab === "skills179" && selectedSkill) {
@@ -330,10 +324,7 @@ export const SkillsStudio: React.FC = () => {
   }, []);
 
   const startIdx = Math.max(0, Math.floor(scrollTop / ROW_H) - 6);
-  const endIdx = Math.min(
-    filteredVaultRows.length,
-    startIdx + Math.ceil(viewH / ROW_H) + 14
-  );
+  const endIdx = Math.min(filteredVaultRows.length, startIdx + Math.ceil(viewH / ROW_H) + 14);
 
   // Build customized AI Prompt from the active file + user's customization settings
   const customizedPrompt = useMemo(() => {
@@ -366,7 +357,7 @@ export const SkillsStudio: React.FC = () => {
       tab === "vault4000"
         ? `${selectedVaultRow?.fileName} (${selectedVaultRow?.subcatTitleFa})`
         : tab === "skills179"
-          ? selectedSkill?.title ?? ""
+          ? (selectedSkill?.title ?? "")
           : `سیستم برند ${selectedBrand?.title ?? ""}`;
 
     const rules: string[] = [];
@@ -426,12 +417,10 @@ ${(fileContent || "").slice(0, 2800)}
     ]);
   }, [currentFileName, customizedPrompt, fileContent, s]);
 
-  const readFont =
-    PERSIAN_FONT_CATALOG.find((f) => f.id === s.fontId) ?? PERSIAN_FONT_CATALOG[0];
+  const readFont = PERSIAN_FONT_CATALOG.find((f) => f.id === s.fontId) ?? PERSIAN_FONT_CATALOG[0];
 
   const isMarkdownFile =
-    tab !== "vault4000" ||
-    ["md", "mdx", "txt", ""].includes(selectedVaultRow?.ext ?? "md");
+    tab !== "vault4000" || ["md", "mdx", "txt", ""].includes(selectedVaultRow?.ext ?? "md");
 
   return (
     <StudioShell
@@ -532,9 +521,7 @@ ${(fileContent || "").slice(0, 2800)}
                 : `سیستم‌های برند (${faNum(filteredBrands84.length)})`
           }
           subtitle={
-            tab === "vault4000" && activePillarObj
-              ? activePillarObj.titleFa
-              : "جستجو و انتخاب سریع"
+            tab === "vault4000" && activePillarObj ? activePillarObj.titleFa : "جستجو و انتخاب سریع"
           }
           className="min-h-[440px] desk:min-h-0"
           listClassName="flex min-h-0 flex-col overflow-hidden p-1.5"
@@ -589,7 +576,7 @@ ${(fileContent || "").slice(0, 2800)}
             )}
           </div>
 
-          {/* Virtualized List for all 4,023 Vault Files */}
+          {/* Virtualized list for all files in the generated vault. */}
           {tab === "vault4000" && (
             <div
               ref={scrollRef}
@@ -634,10 +621,7 @@ ${(fileContent || "").slice(0, 2800)}
                             <FileCode2 className="h-3.5 w-3.5 shrink-0 text-cyan-400" />
                           )}
                           <div className="min-w-0 flex-1">
-                            <div
-                              className="truncate font-mono text-[10.5px] font-medium"
-                              dir="ltr"
-                            >
+                            <div className="truncate font-mono text-[10.5px] font-medium" dir="ltr">
                               {row.fileName}
                             </div>
                             <div className="truncate text-[9px] text-zinc-500">
@@ -880,8 +864,7 @@ ${(fileContent || "").slice(0, 2800)}
                             setSelectedSubcatId(sc.id);
                             setScrollTop(0);
                             const firstInSub = allVaultRows.find(
-                              (r) =>
-                                r.pillarId === activePillarObj.id && r.subcatId === sc.id
+                              (r) => r.pillarId === activePillarObj.id && r.subcatId === sc.id
                             );
                             if (firstInSub) {
                               setPick({ ...pick, vaultUrl: firstInSub.fullUrl });
@@ -926,8 +909,7 @@ ${(fileContent || "").slice(0, 2800)}
                 type="button"
                 onClick={() => {
                   const hex = selectedBrand.colors[0]?.toLowerCase() ?? "";
-                  const match =
-                    ACCENTS.find((a) => a.hex.toLowerCase() === hex) ?? ACCENTS[0];
+                  const match = ACCENTS.find((a) => a.hex.toLowerCase() === hex) ?? ACCENTS[0];
                   update({ accent: match.id, customAccent: hex || match.hex });
                   soundEngine.playSuccess();
                 }}
@@ -951,7 +933,10 @@ ${(fileContent || "").slice(0, 2800)}
                     { value: "prompt", label: "۲. پرامپت هوش مصنوعی" },
                   ]}
                 />
-                <span className="hidden truncate font-mono text-[11px] text-zinc-400 sm:inline" dir="ltr">
+                <span
+                  className="hidden truncate font-mono text-[11px] text-zinc-400 sm:inline"
+                  dir="ltr"
+                >
                   {tab === "vault4000"
                     ? selectedVaultRow?.fileName
                     : tab === "skills179"
@@ -994,11 +979,7 @@ ${(fileContent || "").slice(0, 2800)}
                   label={stageView === "prompt" ? "کپی پرامپت" : "کپی متن"}
                   compact
                 />
-                <DownloadButton
-                  compact
-                  label="دانلود فایل"
-                  onDownload={downloadCurrentFile}
-                />
+                <DownloadButton compact label="دانلود فایل" onDownload={downloadCurrentFile} />
               </div>
             }
           >
@@ -1008,7 +989,8 @@ ${(fileContent || "").slice(0, 2800)}
                   <span className="flex items-center gap-1.5">
                     <Wand2 className="h-4 w-4 text-violet-300" />
                     <span>
-                      این پرامپت از روی فایل فعلی و تنظیمات ستون چپ برای Claude / Cursor آماده شده است.
+                      این پرامپت از روی فایل فعلی و تنظیمات ستون چپ برای Claude / Cursor آماده شده
+                      است.
                     </span>
                   </span>
                   <CopyButton text={customizedPrompt} label="کپی پرامپت کامل" compact />
@@ -1142,9 +1124,7 @@ ${(fileContent || "").slice(0, 2800)}
                 </div>
 
                 <div>
-                  <span className="mb-1 block text-[10.5px] text-zinc-400">
-                    قالب خروجی پرامپت:
-                  </span>
+                  <span className="mb-1 block text-[10.5px] text-zinc-400">قالب خروجی پرامپت:</span>
                   <Segmented
                     className="w-full"
                     size="sm"
@@ -1271,4 +1251,5 @@ function activeFilename(
   return `${brand?.id ?? "brand"}-DESIGN.md`;
 }
 
+/** @alias */
 export default SkillsStudio;

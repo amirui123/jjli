@@ -8,15 +8,7 @@ import { TOOLKIT_STATS } from "../data/toolkitStats";
 import { faCount, faNum } from "./format";
 
 export type RouteId =
-  | "home"
-  | "dashboard"
-  | "fonts"
-  | "motion"
-  | "components"
-  | "sounds"
-  | "skills"
-  | "engines"
-  | "ai";
+  "home" | "dashboard" | "fonts" | "motion" | "components" | "sounds" | "skills" | "engines" | "ai";
 
 export interface RouteMeta {
   id: RouteId;
@@ -191,10 +183,12 @@ export function useRouter(): { path: string; route: RouteId; meta: RouteMeta } {
   return { path, route: matchId(path), meta: routeMeta(matchId(path)) };
 }
 
+/** @public */
 export function useNavigate() {
   return useCallback((path: string) => navigate(path), []);
 }
 
+/** @public */
 export function href(path: string) {
   return `#${path.startsWith("/") ? path : `/${path}`}`;
 }

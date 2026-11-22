@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Check, ChevronDown, Copy, Loader2, Search, X } from "lucide-react";
@@ -37,8 +31,8 @@ export const Panel: React.FC<{
       tone === "flat"
         ? "border-white/[0.06] bg-white/[0.015]"
         : tone === "inset"
-        ? "border-white/[0.05] bg-black/40"
-        : "border-white/[0.07] bg-[#0D0D10]/90",
+          ? "border-white/[0.05] bg-black/40"
+          : "border-white/[0.07] bg-[#0D0D10]/90",
       "backdrop-blur-sm",
       className
     )}
@@ -47,14 +41,10 @@ export const Panel: React.FC<{
       <header className="flex items-start justify-between gap-3 border-b border-white/[0.06] px-4 py-3">
         <div className="min-w-0">
           {title && (
-            <h3 className="truncate text-[13px] font-bold tracking-tight text-zinc-100">
-              {title}
-            </h3>
+            <h3 className="truncate text-[13px] font-bold tracking-tight text-zinc-100">{title}</h3>
           )}
           {subtitle && (
-            <p className="mt-0.5 truncate text-[11px] leading-relaxed text-zinc-500">
-              {subtitle}
-            </p>
+            <p className="mt-0.5 truncate text-[11px] leading-relaxed text-zinc-500">{subtitle}</p>
           )}
         </div>
         {actions && <div className="flex shrink-0 items-center gap-1.5">{actions}</div>}
@@ -95,7 +85,10 @@ export const Slider: React.FC<{
         </span>
       </div>
 
-      <div className="group/range relative h-4 rounded-md focus-within:ring-2 focus-within:ring-[color:var(--accent)]/40" dir="ltr">
+      <div
+        className="group/range relative h-4 rounded-md focus-within:ring-2 focus-within:ring-[color:var(--accent)]/40"
+        dir="ltr"
+      >
         <div className="pointer-events-none absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-white/10" />
         <div
           className="pointer-events-none absolute top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-[color:var(--accent)]"
@@ -154,9 +147,7 @@ export const Toggle: React.FC<{
       <span
         className={cn(
           "absolute top-[2px] h-[12px] w-[12px] rounded-full transition-all duration-200",
-          checked
-            ? "start-[2px] translate-x-0 bg-[color:var(--accent)]"
-            : "start-[2px] bg-zinc-500"
+          checked ? "start-[2px] translate-x-0 bg-[color:var(--accent)]" : "start-[2px] bg-zinc-500"
         )}
         style={checked ? { transform: "translateX(-16px)" } : undefined}
       />
@@ -213,7 +204,8 @@ export const Badge: React.FC<{
   <span
     className={cn(
       "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[10px] leading-none",
-      tone === "accent" && "border-[color:var(--accent)]/30 bg-[color:var(--accent)]/10 text-[color:var(--accent)]",
+      tone === "accent" &&
+        "border-[color:var(--accent)]/30 bg-[color:var(--accent)]/10 text-[color:var(--accent)]",
       tone === "success" && "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
       tone === "warn" && "border-amber-500/30 bg-amber-500/10 text-amber-300",
       tone === "danger" && "border-rose-500/30 bg-rose-500/10 text-rose-300",
@@ -259,6 +251,7 @@ export const SearchField: React.FC<{
   </div>
 );
 
+/** @public */
 export const Select: React.FC<{
   value: string;
   onChange: (v: string) => void;
@@ -364,14 +357,28 @@ export const CodeBlock: React.FC<{
   filename?: string;
   toolbar?: React.ReactNode;
   fontSize?: number;
-}> = ({ code, language = "tsx", maxLines = 260, className, showCopy = true, filename, toolbar, fontSize }) => {
+}> = ({
+  code,
+  language = "tsx",
+  maxLines = 260,
+  className,
+  showCopy = true,
+  filename,
+  toolbar,
+  fontSize,
+}) => {
   const [expanded, setExpanded] = useState(false);
   const lines = useMemo(() => code.replace(/\t/g, "  ").split("\n"), [code]);
   const visible = expanded ? lines : lines.slice(0, maxLines);
   const html = useMemo(() => visible.map(highlight), [visible]);
 
   return (
-    <div className={cn("overflow-hidden rounded-xl border border-white/[0.07] bg-[#08080A]", className)}>
+    <div
+      className={cn(
+        "overflow-hidden rounded-xl border border-white/[0.07] bg-[#08080A]",
+        className
+      )}
+    >
       <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] bg-white/[0.015] px-3 py-1.5">
         <div className="flex min-w-0 items-center gap-2">
           <span className="flex gap-1">
@@ -424,16 +431,14 @@ export const CodeBlock: React.FC<{
 
 /* --------------------------------------------------------------------- misc */
 
-export const Spinner: React.FC<{ className?: string; label?: string }> = ({
-  className,
-  label,
-}) => (
+export const Spinner: React.FC<{ className?: string; label?: string }> = ({ className, label }) => (
   <div className={cn("flex items-center justify-center gap-2 text-zinc-500", className)}>
     <Loader2 className="h-4 w-4 animate-spin" />
     <span className="text-[11px]">{label ?? "در حال بارگذاری…"}</span>
   </div>
 );
 
+/** @public */
 export const EmptyState: React.FC<{
   title: string;
   hint?: string;
@@ -446,6 +451,7 @@ export const EmptyState: React.FC<{
   </div>
 );
 
+/** @public */
 export const Stat: React.FC<{
   value: React.ReactNode;
   label: string;
@@ -467,6 +473,7 @@ export const Stat: React.FC<{
   </button>
 );
 
+/** @public */
 export function useInterval(cb: () => void, ms: number | null) {
   const ref = useRef(cb);
   ref.current = cb;
@@ -491,6 +498,7 @@ export function useMediaQuery(query: string) {
   return matches;
 }
 
+/** @public */
 export function useCopyState(ms = 1600) {
   const [copied, setCopied] = useState(false);
   const trigger = useCallback(

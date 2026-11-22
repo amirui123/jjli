@@ -1,0 +1,95 @@
+# Stack-specific rules written for this project (complement the official semgrep-rules).
+rules:
+  - id: rtl.dangerous-inner-html
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: >-
+      dangerouslySetInnerHTML with a non-constant expression can become XSS.
+      Prefer building nodes in JSX, or sanitise first.
+    metadata:
+      category: security
+      cwe: "CWE-79: Improper Neutralization of Input During Web Page Generation"
+      owasp: "A03:2021 - Injection"
+    pattern: <$EL dangerouslySetInnerHTML={$X} />
+
+  - id: rtl.eval-and-friends
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: Dynamic code execution (eval / new Function) is never needed in this app.
+    metadata:
+      category: security
+      cwe: "CWE-95: Improper Neutralization of Directives in Dynamically Evaluated Code"
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)
+
+  - id: rtl.unsafe-target-blank
+    languages: [typescript, javascript]
+    severity: WARNING
+    message: target="_blank" needs rel="noopener noreferrer".
+    metadata:
+      category: security
+      cwe: "CWE-1022: Use of Web Link to Untrusted Target with window.opener Access"
+    pattern-either:
+      - pattern: <a target="_blank" ... />
+      - pattern: <a ... target="_blank" />
+    pattern-not: <a ... rel=... target="_blank" ... />
+
+  - id: rtl.localstorage-secret
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: Never persist credentials/tokens in localStorage (readable by any XSS).
+    metadata:
+      category: security
+      cwe: "CWE-922: Insecure Storage of Sensitive Information"
+    patterns:
+      - pattern: localStorage.setItem($K, $V)
+      - metavariable-regex:
+          metavariable: $K
+          regex: (?i).*(token|secret|password|apikey|api_key|bearer|credential).*
+
+  - id: rtl.physical-spacing-classes
+    languages: [generic]
+    severity: WARNING
+    message: >-
+      Physical spacing utility in an RTL app — use the logical form
+      (ml->ms, mr->me, pl->ps, pr->pe).
+    metadata:
+      category: correctness
+      technology: tailwindcss
+    paths:
+      include: ["*.tsx", "*.ts"]
+    pattern-regex: '(?<![\w-])(?:[a-z0-9:/\[\]\.-]*:)?(?:ml|mr|pl|pr)-[0-9a-z\[\.]+'
+
+  - id: rtl.physical-position-classes
+    languages: [generic]
+    severity: WARNING
+    message: Physical left/right offset breaks in RTL — use start-*/end-*.
+    metadata:
+      category: correctness
+      technology: tailwindcss
+    paths:
+      include: ["*.tsx", "*.ts"]
+    pattern-regex: '(?<![\w-])(?:[a-z0-9:/\[\]\.-]*:)?(?:left|right)-[0-9a-z\[\.]+'
+
+  - id: rtl.letter-spacing-on-persian
+    languages: [generic]
+    severity: WARNING
+    message: Positive letter-spacing/tracking breaks Persian letter joining.
+    metadata:
+      category: correctness
+    paths:
+      include: ["*.tsx", "*.ts", "*.css"]
+    pattern-regex: 'tracking-(?:wide|wider|widest)|letter-spacing:\s*[0-9.]+(?!px\s*!?important\s*0)'
+
+  - id: rtl.fetch-without-base
+    languages: [typescript]
+    severity: INFO
+    message: >-
+      Raw fetch on a root-absolute path breaks under GitHub Pages sub-path
+      deployment. Wrap it in publicUrl() from src/lib/base.ts.
+    metadata:
+      category: correctness
+    patterns:
+      - pattern: fetch("/...")
+      - pattern-not-inside: publicUrl(...)

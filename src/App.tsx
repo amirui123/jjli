@@ -1,7 +1,8 @@
 import React, { Suspense, lazy, useEffect } from "react";
 import { MotionConfig } from "framer-motion";
 import { AppShell } from "./shell/AppShell";
-import { AppSettingsProvider } from "./lib/store";
+
+import { AppSettingsProvider, useAppSettings } from "./lib/store";
 import { ROUTES, useRouter } from "./lib/router";
 import { ToastProvider } from "./ui/Toast";
 import { ErrorBoundary } from "./ui/ErrorBoundary";
@@ -59,10 +60,10 @@ const PageSkeleton: React.FC = () => (
 const Router: React.FC = () => {
   const { route, path, meta } = useRouter();
   const known = path === "/" || ROUTES.some((r) => r.path === path.replace(/\/+$/, ""));
-  const Page = known ? PAGES[meta.id] ?? NotFound : NotFound;
+  const Page = known ? (PAGES[meta.id] ?? NotFound) : NotFound;
 
   useEffect(() => {
-    document.title = `${known ? TITLES[meta.id] ?? "استودیو" : "صفحه پیدا نشد"} | آزمایشگاه موشن فارسی`;
+    document.title = `${known ? (TITLES[meta.id] ?? "استودیو") : "صفحه پیدا نشد"} | آزمایشگاه موشن فارسی`;
   }, [meta.id, known]);
 
   return (
@@ -76,17 +77,24 @@ const Router: React.FC = () => {
   );
 };
 
+const MotionPolicy: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { settings } = useAppSettings();
+  const reduceMotion = settings.reduceMotion || settings.motionLevel === 1;
+  return <MotionConfig reducedMotion={reduceMotion ? "always" : "user"}>{children}</MotionConfig>;
+};
+
 export const App: React.FC = () => (
-  <MotionConfig reducedMotion="user">
-    <AppSettingsProvider>
+  <AppSettingsProvider>
+    <MotionPolicy>
       <ToastProvider>
         <Router />
         <Suspense fallback={null}>
           <IntroHost />
         </Suspense>
       </ToastProvider>
-    </AppSettingsProvider>
-  </MotionConfig>
+    </MotionPolicy>
+  </AppSettingsProvider>
 );
 
+/** @alias */
 export default App;

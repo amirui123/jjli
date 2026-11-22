@@ -70,14 +70,7 @@ export const InteractiveCobeGlobe: React.FC<{
     const radius = size * 0.39;
 
     // Pre-allocated gradients outside 60fps loop to avoid per-frame GC pressure
-    const glow = ctx.createRadialGradient(
-      cx,
-      cy,
-      radius * 0.65,
-      cx,
-      cy,
-      radius * 1.22
-    );
+    const glow = ctx.createRadialGradient(cx, cy, radius * 0.65, cx, cy, radius * 1.22);
     glow.addColorStop(0, "rgba(99, 102, 241, 0.08)");
     glow.addColorStop(0.6, "rgba(6, 182, 212, 0.14)");
     glow.addColorStop(1, "rgba(9, 9, 11, 0)");
@@ -155,7 +148,7 @@ export const InteractiveCobeGlobe: React.FC<{
           visibleHubs.push({ x: px, y: py, name: hub.name });
 
           // Pulse ring
-          const pulseRadius = 3 + ((Math.sin(tick * 2) + 1) * 4.5);
+          const pulseRadius = 3 + (Math.sin(tick * 2) + 1) * 4.5;
           ctx.strokeStyle = accentHex;
           ctx.globalAlpha = 0.45;
           ctx.lineWidth = 1.2;
@@ -249,9 +242,7 @@ export const InteractiveCobeGlobe: React.FC<{
 /**
  * Siri / AI Voice Harmonic Shader Orb (SmoothUI / Effect-UI inspired)
  */
-export const SiriShaderOrb: React.FC<{ active?: boolean }> = ({
-  active = true,
-}) => {
+export const SiriShaderOrb: React.FC<{ active?: boolean }> = ({ active = true }) => {
   return (
     <div className="relative flex h-24 w-24 items-center justify-center">
       <div

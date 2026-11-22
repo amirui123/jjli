@@ -17,7 +17,15 @@ export const DownloadButton: React.FC<{
   variant?: "solid" | "ghost" | "outline";
   className?: string;
   title?: string;
-}> = ({ onDownload, label = "دانلود", filename, compact, variant = "outline", className, title }) => {
+}> = ({
+  onDownload,
+  label = "دانلود",
+  filename,
+  compact,
+  variant = "outline",
+  className,
+  title,
+}) => {
   const [state, setState] = useState<State>("idle");
   const toast = useToast();
 
@@ -50,7 +58,8 @@ export const DownloadButton: React.FC<{
           "border-[color:var(--accent)]/50 bg-[color:var(--accent)] text-black hover:brightness-110",
         variant === "outline" &&
           "border-white/12 bg-white/[0.03] text-zinc-300 hover:border-[color:var(--accent)]/50 hover:text-white",
-        variant === "ghost" && "border-transparent bg-transparent text-zinc-500 hover:text-zinc-100",
+        variant === "ghost" &&
+          "border-transparent bg-transparent text-zinc-500 hover:text-zinc-100",
         state === "done" && "border-emerald-500/50 bg-emerald-500/15 text-emerald-300",
         className
       )}
@@ -71,7 +80,9 @@ export const DownloadButton: React.FC<{
           ) : (
             <Download className="h-3 w-3 transition-transform group-hover:translate-y-0.5" />
           )}
-          {!compact && <span>{state === "done" ? "دانلود شد" : state === "busy" ? "…" : label}</span>}
+          {!compact && (
+            <span>{state === "done" ? "دانلود شد" : state === "busy" ? "…" : label}</span>
+          )}
         </motion.span>
       </AnimatePresence>
     </button>

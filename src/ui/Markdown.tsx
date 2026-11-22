@@ -11,13 +11,19 @@ export const Markdown: React.FC<{ source: string; className?: string }> = ({
 }) => {
   const blocks = useMemo(() => parse(source), [source]);
   return (
-    <div className={cn("markdown-body space-y-2.5 text-[12px] leading-[1.9] text-zinc-300", className)} dir="rtl">
+    <div
+      className={cn("markdown-body space-y-2.5 text-[12px] leading-[1.9] text-zinc-300", className)}
+      dir="rtl"
+    >
       {blocks.map((b, i) => {
         switch (b.type) {
           // documents are embedded inside a panel, so their headings start at h2
           case "h1":
             return (
-              <h2 key={i} className="mt-1 border-b border-white/[0.07] pb-2 text-[17px] font-bold text-white">
+              <h2
+                key={i}
+                className="mt-1 border-b border-white/[0.07] pb-2 text-[17px] font-bold text-white"
+              >
                 {b.text}
               </h2>
             );
@@ -45,7 +51,10 @@ export const Markdown: React.FC<{ source: string; className?: string }> = ({
             );
           case "quote":
             return (
-              <blockquote key={i} className="border-s-2 border-[color:var(--accent)]/50 bg-white/[0.02] px-3 py-1.5 text-[11.5px] text-zinc-400">
+              <blockquote
+                key={i}
+                className="border-s-2 border-[color:var(--accent)]/50 bg-white/[0.02] px-3 py-1.5 text-[11.5px] text-zinc-400"
+              >
                 {b.text}
               </blockquote>
             );
@@ -185,7 +194,11 @@ function inline(text: string): React.ReactNode {
       );
     } else if (token.startsWith("`")) {
       nodes.push(
-        <code key={key++} dir="ltr" className="rounded bg-white/[0.06] px-1 py-0.5 font-mono text-[10.5px] text-teal-200">
+        <code
+          key={key++}
+          dir="ltr"
+          className="rounded bg-white/[0.06] px-1 py-0.5 font-mono text-[10.5px] text-teal-200"
+        >
           {token.slice(1, -1)}
         </code>
       );

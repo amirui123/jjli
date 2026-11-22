@@ -25,7 +25,7 @@ function dosDateTime(d = new Date()) {
   const time =
     ((d.getHours() & 0x1f) << 11) |
     ((d.getMinutes() & 0x3f) << 5) |
-    ((Math.floor(d.getSeconds() / 2)) & 0x1f);
+    (Math.floor(d.getSeconds() / 2) & 0x1f);
   const date =
     (((d.getFullYear() - 1980) & 0x7f) << 9) |
     (((d.getMonth() + 1) & 0xf) << 5) |
@@ -47,8 +47,7 @@ export function createZip(entries: ZipEntry[]): Blob {
 
   for (const entry of entries) {
     const nameBytes = encoder.encode(entry.name);
-    const data =
-      typeof entry.data === "string" ? encoder.encode(entry.data) : entry.data;
+    const data = typeof entry.data === "string" ? encoder.encode(entry.data) : entry.data;
     const crc = crc32(data);
 
     const local = new Uint8Array(30 + nameBytes.length);

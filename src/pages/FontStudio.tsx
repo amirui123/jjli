@@ -138,7 +138,8 @@ export const FontStudio: React.FC = () => {
   }, [codeOpen]);
 
   const font = PERSIAN_FONT_CATALOG.find((f) => f.id === s.fontId) ?? PERSIAN_FONT_CATALOG[0];
-  const compareFont = PERSIAN_FONT_CATALOG.find((f) => f.id === s.compareId) ?? PERSIAN_FONT_CATALOG[1];
+  const compareFont =
+    PERSIAN_FONT_CATALOG.find((f) => f.id === s.compareId) ?? PERSIAN_FONT_CATALOG[1];
   const file = fontFileFor(font.family);
 
   const filtered = useMemo(() => {
@@ -169,9 +170,7 @@ export const FontStudio: React.FC = () => {
     fontFeatureSettings: `"liga" ${s.ligatures ? 1 : 0}, "calt" ${s.ligatures ? 1 : 0}, "ss01" ${s.ss01 ? 1 : 0}, "kern" 1`,
     fontVariantNumeric: s.tabular ? "tabular-nums" : "normal",
     textShadow:
-      (s.glowRadius ?? 0) > 0
-        ? `0 0 ${s.glowRadius}px rgba(245, 197, 66, 0.55)`
-        : undefined,
+      (s.glowRadius ?? 0) > 0 ? `0 0 ${s.glowRadius}px rgba(245, 197, 66, 0.55)` : undefined,
     WebkitTextStroke: s.strokeOutline ? "1.3px #F5C542" : undefined,
     backgroundImage: s.goldFoil
       ? "linear-gradient(135deg, #FEF3C7 0%, #F59E0B 50%, #D97706 100%)"
@@ -184,19 +183,19 @@ export const FontStudio: React.FC = () => {
     s.color === "light"
       ? "text-zinc-50"
       : s.color === "accent"
-      ? "text-[color:var(--accent)]"
-      : s.color === "warm"
-      ? "text-[#F0D9A8]"
-      : "text-[#191410]";
+        ? "text-[color:var(--accent)]"
+        : s.color === "warm"
+          ? "text-[#F0D9A8]"
+          : "text-[#191410]";
 
   const backdropClass =
     s.backdrop === "night"
       ? "bg-[#0A0A0C]"
       : s.backdrop === "paper"
-      ? "paper"
-      : s.backdrop === "ink"
-      ? "bg-[#141210]"
-      : "bg-[#0A0A0C] bg-engineering-grid";
+        ? "paper"
+        : s.backdrop === "ink"
+          ? "bg-[#141210]"
+          : "bg-[#0A0A0C] bg-engineering-grid";
 
   /* ------------------------------------------------------------- snippets */
 
@@ -220,14 +219,22 @@ export const FontStudio: React.FC = () => {
   word-spacing: ${s.wordSpacing}px;
   font-variation-settings: "wght" ${s.weight}, "GRAD" ${s.gradAxis ?? 0};
   font-feature-settings: "ss01" ${s.ss01 ? 1 : 0}, "liga" ${s.ligatures ? 1 : 0}, "calt" ${s.ligatures ? 1 : 0};${
-    (s.glowRadius ?? 0) > 0 ? `\n  text-shadow: 0 0 ${s.glowRadius}px rgba(245, 197, 66, 0.55);` : ""
+    (s.glowRadius ?? 0) > 0
+      ? `\n  text-shadow: 0 0 ${s.glowRadius}px rgba(245, 197, 66, 0.55);`
+      : ""
   }${s.strokeOutline ? `\n  -webkit-text-stroke: 1.3px #F5C542;\n  color: transparent;` : ""}
 }`;
 
   const tailwindSnippet = `<h1
   dir="rtl"
   className="text-[${s.size}px] font-[${s.weight}] leading-[${pad(s.lineHeight)}] tracking-[${s.tracking}px] ${
-    s.align === "center" ? "text-center" : s.align === "start" ? "text-start" : s.align === "end" ? "text-end" : "text-justify"
+    s.align === "center"
+      ? "text-center"
+      : s.align === "start"
+        ? "text-start"
+        : s.align === "end"
+          ? "text-end"
+          : "text-justify"
   }"
   style={{ fontFamily: '"${font.nameEn}", "Vazirmatn", sans-serif' }}
 >
@@ -276,9 +283,12 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
   fallback: ["Vazirmatn", "sans-serif"],
 });`;
 
-  const exportCode = { css: cssSnippet, tailwind: tailwindSnippet, react: reactSnippet, next: nextSnippet }[
-    s.exportTab
-  ];
+  const exportCode = {
+    css: cssSnippet,
+    tailwind: tailwindSnippet,
+    react: reactSnippet,
+    next: nextSnippet,
+  }[s.exportTab];
 
   /* ------------------------------------------------------------- downloads */
 
@@ -368,7 +378,10 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
             >
               {rowText || "آزمایش حروف فارسی"}
             </span>
-            <span className="mt-2 block w-full truncate font-mono text-[9px] text-zinc-500" dir="ltr">
+            <span
+              className="mt-2 block w-full truncate font-mono text-[9px] text-zinc-500"
+              dir="ltr"
+            >
               {f.nameEn}
             </span>
             {active && (
@@ -403,7 +416,10 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
       .join("\n\n");
     return saveKit("rtl-motion-all-fonts", [
       ...ok.map(({ info, blob }) => ({ name: info.file, content: blob })),
-      { name: "fonts.css", content: `/* ${ok.length} خانواده فونت فارسی — RTL Motion Lab */\n\n${sheet}\n` },
+      {
+        name: "fonts.css",
+        content: `/* ${ok.length} خانواده فونت فارسی — RTL Motion Lab */\n\n${sheet}\n`,
+      },
       {
         name: "catalog.json",
         content: JSON.stringify(
@@ -436,7 +452,10 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
   /* ---------------------------------------------------------------- workbench */
 
   const stage = (
-    <Panel padded={false} className="overflow-hidden border-white/[0.09] shadow-[0_24px_70px_-44px_rgba(0,0,0,0.9)]">
+    <Panel
+      padded={false}
+      className="overflow-hidden border-white/[0.09] shadow-[0_24px_70px_-44px_rgba(0,0,0,0.9)]"
+    >
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.07] px-3.5 py-2.5">
         <div className="flex min-w-0 items-center gap-2.5">
           <span className="relative flex h-2.5 w-2.5 shrink-0 items-center justify-center">
@@ -448,7 +467,10 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
               <span className="truncate text-[12px] font-bold text-zinc-100">{font.nameFa}</span>
               {file && <Badge>{file.ext}</Badge>}
             </div>
-            <span className="hidden truncate font-mono text-[9.5px] text-zinc-500 sm:block" dir="ltr">
+            <span
+              className="hidden truncate font-mono text-[9.5px] text-zinc-500 sm:block"
+              dir="ltr"
+            >
               {font.nameEn}
             </span>
           </div>
@@ -520,7 +542,12 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
                   key={`${replay}-${i}`}
                   initial={{ opacity: 0, y: 26, filter: "blur(10px)" }}
                   animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  transition={{ type: "spring", stiffness: 240 * s.speed, damping: 24, delay: i * s.stagger }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 240 * s.speed,
+                    damping: 24,
+                    delay: i * s.stagger,
+                  }}
                   className="inline-block"
                 >
                   {w}
@@ -579,7 +606,10 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
         <SearchField value={q} onChange={setQ} placeholder="جستجوی نام فارسی یا لاتین…" />
         <div className="flex flex-wrap gap-1.5">
           {CATEGORIES.map((c) => {
-            const count = c.id === "all" ? PERSIAN_FONT_CATALOG.length : PERSIAN_FONT_CATALOG.filter((f) => f.category === c.id).length;
+            const count =
+              c.id === "all"
+                ? PERSIAN_FONT_CATALOG.length
+                : PERSIAN_FONT_CATALOG.filter((f) => f.category === c.id).length;
             return (
               <button
                 key={c.id}
@@ -620,7 +650,10 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
       tone="flat"
     >
       <div className="space-y-3">
-        <div style={{ fontFamily: font.family, fontWeight: s.weight }} className="text-[clamp(18px,3vw,28px)] leading-[2] text-zinc-200">
+        <div
+          style={{ fontFamily: font.family, fontWeight: s.weight }}
+          className="text-[clamp(18px,3vw,28px)] leading-[2] text-zinc-200"
+        >
           ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی
         </div>
         <div
@@ -697,7 +730,11 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
         </div>
       </Panel>
 
-      <Panel tone="inset" title="آرشیو کامل" subtitle={`همه ${faNum(PERSIAN_FONT_CATALOG.length)} فایل فونت + fonts.css`}>
+      <Panel
+        tone="inset"
+        title="آرشیو کامل"
+        subtitle={`همه ${faNum(PERSIAN_FONT_CATALOG.length)} فایل فونت + fonts.css`}
+      >
         <DownloadButton
           label="دانلود همه فونت‌ها"
           filename="rtl-motion-all-fonts.zip"
@@ -709,7 +746,14 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
 
       <Panel title="تایپوگرافی" subtitle="کنترل کامل قلم">
         <div className="space-y-3.5">
-          <Slider label="اندازه قلم" value={s.size} min={12} max={140} unit="px" onChange={(v) => set({ size: v })} />
+          <Slider
+            label="اندازه قلم"
+            value={s.size}
+            min={12}
+            max={140}
+            unit="px"
+            onChange={(v) => set({ size: v })}
+          />
           <Slider
             label="وزن"
             value={s.weight}
@@ -717,11 +761,42 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
             max={900}
             step={100}
             onChange={(v) => set({ weight: v })}
-            hint={font.isVariable ? "این فونت محور وزن متغیر دارد" : "فونت ثابت — نزدیک‌ترین وزن جایگزین می‌شود"}
+            hint={
+              font.isVariable
+                ? "این فونت محور وزن متغیر دارد"
+                : "فونت ثابت — نزدیک‌ترین وزن جایگزین می‌شود"
+            }
           />
-          <Slider label="ارتفاع خط" value={s.lineHeight} min={1} max={3} step={0.05} format={(v) => v.toFixed(2)} onChange={(v) => set({ lineHeight: v })} />
-          <Slider label="فاصله حروف" value={s.tracking} min={-2} max={8} step={0.1} unit="px" format={(v) => v.toFixed(1)} onChange={(v) => set({ tracking: v })} hint="برای فارسی صفر توصیه می‌شود" />
-          <Slider label="فاصله واژه‌ها" value={s.wordSpacing} min={-2} max={14} step={0.5} unit="px" format={(v) => v.toFixed(1)} onChange={(v) => set({ wordSpacing: v })} />
+          <Slider
+            label="ارتفاع خط"
+            value={s.lineHeight}
+            min={1}
+            max={3}
+            step={0.05}
+            format={(v) => v.toFixed(2)}
+            onChange={(v) => set({ lineHeight: v })}
+          />
+          <Slider
+            label="فاصله حروف"
+            value={s.tracking}
+            min={-2}
+            max={8}
+            step={0.1}
+            unit="px"
+            format={(v) => v.toFixed(1)}
+            onChange={(v) => set({ tracking: v })}
+            hint="برای فارسی صفر توصیه می‌شود"
+          />
+          <Slider
+            label="فاصله واژه‌ها"
+            value={s.wordSpacing}
+            min={-2}
+            max={14}
+            step={0.5}
+            unit="px"
+            format={(v) => v.toFixed(1)}
+            onChange={(v) => set({ wordSpacing: v })}
+          />
         </div>
       </Panel>
 
@@ -828,23 +903,58 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
 
       <Panel title="ویژگی‌های فونت">
         <div className="space-y-2">
-          <Toggle label="لیگاتورها (liga/calt)" checked={s.ligatures} onChange={(v) => set({ ligatures: v })} />
-          <Toggle label="جایگزین سبک ss01" checked={s.ss01} onChange={(v) => set({ ss01: v })} hint="اعداد و فرم‌های فارسی" />
+          <Toggle
+            label="لیگاتورها (liga/calt)"
+            checked={s.ligatures}
+            onChange={(v) => set({ ligatures: v })}
+          />
+          <Toggle
+            label="جایگزین سبک ss01"
+            checked={s.ss01}
+            onChange={(v) => set({ ss01: v })}
+            hint="اعداد و فرم‌های فارسی"
+          />
           <Toggle label="ارقام جدولی" checked={s.tabular} onChange={(v) => set({ tabular: v })} />
         </div>
       </Panel>
 
       <Panel title="حرکت جنبشی">
         <div className="space-y-3">
-          <Toggle label="فعال‌سازی انیمیشن واژه‌ها" checked={s.kinetic} onChange={(v) => set({ kinetic: v })} />
-          <Slider label="سرعت فنر" value={s.speed} min={0.3} max={2.5} step={0.1} format={(v) => `${v.toFixed(1)}×`} onChange={(v) => set({ speed: v })} />
-          <Slider label="تأخیر پله‌ای" value={s.stagger} min={0} max={0.3} step={0.01} unit="s" format={(v) => v.toFixed(2)} onChange={(v) => set({ stagger: v })} />
+          <Toggle
+            label="فعال‌سازی انیمیشن واژه‌ها"
+            checked={s.kinetic}
+            onChange={(v) => set({ kinetic: v })}
+          />
+          <Slider
+            label="سرعت فنر"
+            value={s.speed}
+            min={0.3}
+            max={2.5}
+            step={0.1}
+            format={(v) => `${v.toFixed(1)}×`}
+            onChange={(v) => set({ speed: v })}
+          />
+          <Slider
+            label="تأخیر پله‌ای"
+            value={s.stagger}
+            min={0}
+            max={0.3}
+            step={0.01}
+            unit="s"
+            format={(v) => v.toFixed(2)}
+            onChange={(v) => set({ stagger: v })}
+          />
         </div>
       </Panel>
 
       <Panel title="مقایسه">
         <div className="space-y-2">
-          <Toggle label="حالت مقایسه" checked={s.compare} onChange={(v) => set({ compare: v })} hint="نمایش هم‌زمان با فونت دوم" />
+          <Toggle
+            label="حالت مقایسه"
+            checked={s.compare}
+            onChange={(v) => set({ compare: v })}
+            hint="نمایش هم‌زمان با فونت دوم"
+          />
           {s.compare && (
             <div className="max-h-36 space-y-0.5 overflow-y-auto rounded-lg border border-white/[0.06] p-1">
               {PERSIAN_FONT_CATALOG.filter((f) => f.id !== s.fontId).map((f) => (
@@ -853,7 +963,9 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
                   onClick={() => set({ compareId: f.id })}
                   className={cn(
                     "block w-full truncate rounded px-2 py-1 text-start text-[13px] transition-colors",
-                    s.compareId === f.id ? "bg-white/10 text-white" : "text-zinc-400 hover:bg-white/5"
+                    s.compareId === f.id
+                      ? "bg-white/10 text-white"
+                      : "text-zinc-400 hover:bg-white/5"
                   )}
                   style={{ fontFamily: f.family }}
                 >
@@ -889,12 +1001,18 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
           </span>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono text-[9px] tracking-[0.18em] text-[#E8B33A]/70">FONT STUDIO / ATELIER</span>
+              <span className="font-mono text-[9px] tracking-[0.18em] text-[#E8B33A]/70">
+                FONT STUDIO / ATELIER
+              </span>
               <Badge tone="accent">{faNum(PERSIAN_FONT_CATALOG.length)} خانواده</Badge>
               <Badge>{faNum(PERSIAN_FONT_CATALOG.filter((f) => f.isVariable).length)} متغیر</Badge>
             </div>
-            <h1 className="mt-1 font-hasti text-[17px] leading-tight text-white sm:text-[20px]">کارگاه تایپوگرافی فارسی</h1>
-            <p className="mt-1 hidden text-[10.5px] text-zinc-400 sm:block">فونت را انتخاب کنید، متن را تنظیم کنید و نتیجه را زنده ببینید.</p>
+            <h1 className="mt-1 font-hasti text-[17px] leading-tight text-white sm:text-[20px]">
+              کارگاه تایپوگرافی فارسی
+            </h1>
+            <p className="mt-1 hidden text-[10.5px] text-zinc-400 sm:block">
+              فونت را انتخاب کنید، متن را تنظیم کنید و نتیجه را زنده ببینید.
+            </p>
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
@@ -926,11 +1044,17 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
           </button>
         </div>
         <div className="flex w-full flex-wrap items-center gap-1.5 border-t border-white/[0.06] pt-2 text-[9.5px] text-zinc-400 sm:text-[10px]">
-          <span className="rounded-lg border border-white/[0.08] bg-black/25 px-2 py-1">۱ · انتخاب فونت</span>
+          <span className="rounded-lg border border-white/[0.08] bg-black/25 px-2 py-1">
+            ۱ · انتخاب فونت
+          </span>
           <span className="text-zinc-600">←</span>
-          <span className="rounded-lg border border-white/[0.08] bg-black/25 px-2 py-1">۲ · تنظیم نمونه</span>
+          <span className="rounded-lg border border-white/[0.08] bg-black/25 px-2 py-1">
+            ۲ · تنظیم نمونه
+          </span>
           <span className="text-zinc-600">←</span>
-          <span className="rounded-lg border border-[#E8B33A]/25 bg-[#E8B33A]/[0.06] px-2 py-1 text-[#E8B33A]">۳ · کپی کد یا دانلود</span>
+          <span className="rounded-lg border border-[#E8B33A]/25 bg-[#E8B33A]/[0.06] px-2 py-1 text-[#E8B33A]">
+            ۳ · کپی کد یا دانلود
+          </span>
         </div>
       </header>
 
@@ -1017,8 +1141,12 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
                   <Code2 className="h-4 w-4" />
                 </span>
                 <div>
-                  <h2 id="font-code-title" className="text-[13px] font-bold text-zinc-100">کد آمادهٔ استفاده</h2>
-                  <p className="mt-0.5 text-[10px] text-zinc-500">{font.nameFa} · بر اساس تنظیمات فعلی</p>
+                  <h2 id="font-code-title" className="text-[13px] font-bold text-zinc-100">
+                    کد آمادهٔ استفاده
+                  </h2>
+                  <p className="mt-0.5 text-[10px] text-zinc-500">
+                    {font.nameFa} · بر اساس تنظیمات فعلی
+                  </p>
                 </div>
               </div>
               <button
@@ -1054,7 +1182,9 @@ export const ${font.id.replace(/[^\w]/g, "_")} = localFont({
             </div>
             <footer className="flex items-center justify-between gap-2 border-t border-white/[0.07] px-4 py-2.5 text-[10px] text-zinc-500">
               <span>می‌توانید هر نوع خروجی را جداگانه کپی کنید.</span>
-              <span className="font-mono text-[color:var(--accent)]" dir="ltr">{font.id}</span>
+              <span className="font-mono text-[color:var(--accent)]" dir="ltr">
+                {font.id}
+              </span>
             </footer>
           </motion.section>
         </div>

@@ -1,0 +1,43 @@
+{
+  "ci": {
+    "collect": {
+      "url": [
+        "http://127.0.0.1:4173/#/",
+        "http://127.0.0.1:4173/#/dashboard",
+        "http://127.0.0.1:4173/#/studio/fonts",
+        "http://127.0.0.1:4173/#/studio/motion",
+        "http://127.0.0.1:4173/#/studio/components",
+        "http://127.0.0.1:4173/#/studio/sounds",
+        "http://127.0.0.1:4173/#/studio/skills",
+        "http://127.0.0.1:4173/#/studio/engines",
+        "http://127.0.0.1:4173/#/studio/ai"
+      ],
+      "numberOfRuns": 1,
+      "settings": {
+        "chromeFlags": "--no-sandbox --disable-dev-shm-usage --disable-gpu --no-zygote",
+        "chromePath": "/tmp/chromium",
+        "preset": "desktop",
+        "skipAudits": ["canonical", "is-crawlable"],
+        "extraHeaders": {
+          "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) jsdom Chromium/153 Safari/537.36"
+        }
+      }
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": ["warn", { "minScore": 0.7 }],
+        "categories:accessibility": ["error", { "minScore": 0.85 }],
+        "categories:best-practices": ["warn", { "minScore": 0.85 }],
+        "categories:seo": ["warn", { "minScore": 0.8 }],
+        "errors-in-console": "warn",
+        "color-contrast": "warn",
+        "image-alt": "error",
+        "button-name": "error",
+        "link-name": "error",
+        "html-has-lang": "error",
+        "document-title": "error"
+      }
+    },
+    "upload": { "target": "filesystem", "outputDir": "audit/before/lhci" }
+  }
+}

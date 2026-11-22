@@ -8,7 +8,7 @@
 
 # RTL Motion Lab
 
-### *"Motion is the native language of the interface."*
+### _"Motion is the native language of the interface."_
 
 A **100% free, open-source, zero-backend browser workbench** for designing and engineering world-class Right-to-Left (RTL) interfaces:<br />
 **4,049** Design-Lab Vault Files (`11` Pillars) · **93** Persian, Arabic &amp; English Font Families · **4,199** Component Sources · **285** Synthesized Sounds · **179** Engineering Skill Docs · **84** Brand Design Systems · **26** Live WebGL Shaders (with 64-Cell Persian Glyph Atlas)
@@ -33,6 +33,7 @@ A **100% free, open-source, zero-backend browser workbench** for designing and e
 The entire workbench opens instantly in your browser directly from GitHub Pages—**no sign-up, no backend server, and no API keys required**:
 
 > ### 🌐 **[https://amirui123.github.io/jjli/](https://amirui123.github.io/jjli/)**
+>
 > **One URL, one complete engineering OS** — responsive across desktop and mobile, natively Right-to-Left, and offline-capable.
 
 To run the full platform locally on your machine:
@@ -93,13 +94,13 @@ Every studio is a self-contained, **zero-page-scroll desktop workbench** built a
 
 Grounded in the engineering review framework from [`emil-kowalski/emil-design-eng`](public/vault/skills/01-motion-and-awwwards__emil-kowalski__emil-design-eng.md), every architectural decision in RTL Motion Lab solves a concrete failure mode in modern RTL web development:
 
-| Before (Common RTL Web Practice) | After (Inside RTL Motion Lab) | Why It Matters |
-| :--- | :--- | :--- |
-| **Picking fonts from static PNGs** without testing weight or variable axes | **Live testing of 50 font families (`89` real font files)** on custom copy + production `@font-face` export | True legibility and visual voice only emerge when interacting with real size, line-height, and variable weight axes |
-| **Using `transition: all 300ms ease`** on every UI element | **Numerical differential-equation spring solver** (`stiffness / damping / mass`) with exact settling telemetry | Real-world objects never move at constant linear velocity; physical springs remain interruptible and redirectable mid-flight |
-| **Forcing LTR templates into RTL** with manual `left` / `right` overrides | **100% CSS Logical Properties (`ms/me/ps/pe/start/end`)** + automated 20-rule RTL static analysis &amp; auto-fix | Patchwork RTL breaks on edge cases; logical properties, ZWNJ (`نیم‌فاصله`), Persian numerals, and zero positive `letter-spacing` must be systematic |
-| **Loading dozens of MP3 files** for button clicks and UI alerts | **Real-time synthesis of 285 sound effects** in the browser via Web Audio API + on-the-fly `.wav` generation | Eliminates audio network requests, guarantees zero-latency tactile feedback, and unlocks live pitch/filter/envelope shaping |
-| **Running heavy animations on high-frequency actions** &amp; burning the GPU | **Zero-animation instant Command Palette (`⌘K`)** + automatic off-screen pause (`IntersectionObserver`) &amp; GPU disposal for WebGL | Actions triggered dozens of times a day must never lag, and off-screen shaders must never drain laptop or phone batteries |
+| Before (Common RTL Web Practice)                                             | After (Inside RTL Motion Lab)                                                                                                        | Why It Matters                                                                                                                                      |
+| :--------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Picking fonts from static PNGs** without testing weight or variable axes   | **Live testing of 50 font families (`89` real font files)** on custom copy + production `@font-face` export                          | True legibility and visual voice only emerge when interacting with real size, line-height, and variable weight axes                                 |
+| **Using `transition: all 300ms ease`** on every UI element                   | **Numerical differential-equation spring solver** (`stiffness / damping / mass`) with exact settling telemetry                       | Real-world objects never move at constant linear velocity; physical springs remain interruptible and redirectable mid-flight                        |
+| **Forcing LTR templates into RTL** with manual `left` / `right` overrides    | **100% CSS Logical Properties (`ms/me/ps/pe/start/end`)** + automated 20-rule RTL static analysis &amp; auto-fix                     | Patchwork RTL breaks on edge cases; logical properties, ZWNJ (`نیم‌فاصله`), Persian numerals, and zero positive `letter-spacing` must be systematic |
+| **Loading dozens of MP3 files** for button clicks and UI alerts              | **Real-time synthesis of 285 sound effects** in the browser via Web Audio API + on-the-fly `.wav` generation                         | Eliminates audio network requests, guarantees zero-latency tactile feedback, and unlocks live pitch/filter/envelope shaping                         |
+| **Running heavy animations on high-frequency actions** &amp; burning the GPU | **Zero-animation instant Command Palette (`⌘K`)** + automatic off-screen pause (`IntersectionObserver`) &amp; GPU disposal for WebGL | Actions triggered dozens of times a day must never lag, and off-screen shaders must never drain laptop or phone batteries                           |
 
 ---
 
@@ -108,16 +109,19 @@ Grounded in the engineering review framework from [`emil-kowalski/emil-design-en
 Both this application and this documentation were engineered directly from the skill blueprints and brand design systems stored inside the repository (`public/vault/` and `design-lab/`):
 
 1. **The Philosophy of Invisible Details — [`emil-kowalski/emil-design-eng`](public/vault/skills/01-motion-and-awwwards__emil-kowalski__emil-design-eng.md)**
-   > *"Taste is not innate—it is trained. Details users never consciously notice compound together to create the unmistakable feeling of craft."*
+
+   > _"Taste is not innate—it is trained. Details users never consciously notice compound together to create the unmistakable feeling of craft."_
    - **Frequency Decision Matrix:** High-frequency keyboard shortcuts (`⌘K`, `F` for Focus Mode, `Esc`) open with zero decorative delay; interactive triggers respond on pointer-down with tactile `scale(0.97)` feedback.
 
 2. **Fluid Physics &amp; Interruptibility — [`emil-kowalski/apple-design`](public/vault/skills/01-motion-and-awwwards__emil-kowalski__apple-design.md)**
-   > *"Treat animation as a live conversation between the user's hand and the object—never as a pre-recorded movie."*
+
+   > _"Treat animation as a live conversation between the user's hand and the object—never as a pre-recorded movie."_
    - In Motion Studio, transitions are modeled via initial velocity, damping ratio (`ζ`), and frequency response so any motion can be caught and reversed mid-flight without snapping.
 
 3. **Judging Standard &amp; Performance Budget — [`awwwards-engineering`](public/vault/skills/01-motion-and-awwwards__awwwards-engineering.md)**
-   > *"You need one unforgettable signature moment—not twenty scattered effects—and performance accounts for 30% of the final score."*
-   - **Signature Moment (`IntroFilm.tsx`):** A **6-Act Procedural Cinema Entrance** — (Act 0) magnetic star point unlocking Web Audio at Frame 0, (Act I) Right-to-Left golden beam sweep &amp; Left-to-Right turquoise counter-rebound, (Act II) 12-fold sacred Persian Girih / Astrolabe supernova condensing into a center light bar, (Act III) 6-point laser fracture into 7 shards &amp; ballistic flight to DOM-measured word slots, (Act IV) word-by-word crystallization into `IranNastaliq` (*«در امتدادِ نور، هر خط جان می‌گیرد»*), and (Act V) cosmic prism shockwave &amp; curved Bezier center-split portal reveal.
+
+   > _"You need one unforgettable signature moment—not twenty scattered effects—and performance accounts for 30% of the final score."_
+   - **Signature Moment (`IntroSeal.tsx`):** A **gold seal that falls, strikes the sheet and is pulled off**, ~1.9s, skippable from the first beat with `رد کردن` or `Esc` — the signet prints the site's own «م» inside an eight-fold girih, the strike throws two pressure fronts and a shock of light, and the mark it leaves then opens the page itself while the hero performs its entrance underneath. One continuous motion, not a preloader followed by a page.
    - **Dedicated Mobile Architecture:** Instead of squeezing a 3-column desktop screen onto a phone, every studio adapts into a 3-tab mobile workspace (`Preview / Settings / Catalog`) with `≥ 40px` touch targets, `16px` inputs (preventing forced iOS zoom), and `safe-area-inset-bottom` padding.
 
 4. **Kinetic Choreography &amp; Restraint — [`animation-systems`](public/vault/skills/03-art-direction-and-taste__mengto-web-design-systems__animation-systems.md)**
@@ -141,18 +145,18 @@ Both this application and this documentation were engineered directly from the s
 
 Not a single counter in the UI or in this document is hand-typed decoration; every metric is automatically indexed and verified against disk in `src/data/toolkitStats.ts` and `src/data/designLabManifest.ts`:
 
-| Asset / Platform Module | Exact Measured Count | Technical Implementation Details |
-| :--- | :--- | :--- |
-| **11-Pillar Design-Lab Vault** | **4,049 Files (`29.91 MB`)** | Organized across **11 Pillars** (`00` to `10`) and **50 subcategories** in `/design-lab/`, self-indexed in `src/data/designLabManifest.ts` |
-| **Persian, Arabic &amp; English Fonts** | **93 Families** | **132 physical font files** (`woff2` / `woff` / `ttf`) mapped across `src/data/fontFiles.ts` with `font-display: swap` and coding ligatures |
-| **Component Source Code** | **4,199 Component Sources** | **4,888 total files** (including `4,068` `.tsx` files) partitioned into lazy-loaded JSON chunks inside `public/regcode/chunks/` |
-| **Open-Source Registries** | **12 Registries** | Smooth UI (`1,175`) · Effect UI (`1,081`) · Persian Blocks (`1,030`) · Animate UI (`540`) · Tailark (`243`) · React Bits (`218`) · Fancy (`149`) · Cult UI (`141`) · Kokonut UI (`102`) · Eldora UI (`97`) · Magic UI (`79`) · Motion Primitives (`33`) |
-| **Curated Skill Blueprints (`SKILL.md`)** | **179 Documents** | `21` Motion &amp; Awwwards · `39` 3D &amp; WebGL · `108` Art Direction &amp; Taste · `10` UI Systems · `1` Comprehensive Persian &amp; RTL Spec |
-| **Brand Design Systems (`DESIGN.md`)** | **84 Brand Systems** | Includes Linear, Vercel, Claude, Apple, Stripe, Raycast, Framer, Figma, Supabase, Cursor, and 74 additional global engineering brands |
-| **Procedural Sound Recipes** | **285 Audio Recipes** | `85` multi-layer DSL sound designs (`soundLibrary.ts`) + `200` procedural synth effects (`soundsManifest.ts`) with 16-bit PCM `.wav` export |
-| **Live Graphics Shaders** | **26 GLSL Shaders** | Includes 8 Persian-Glyph Hacker/Matrix/CRT shaders (`u_glyphTex` 8×8 Canvas Atlas), uniform sliders, `IntersectionObserver` pause, and full GPU disposal |
-| **Native Iranian Engines** | **18 Banks + 20 RTL Rules** | BIN/Sheba (IBAN mod-97) detection, Luhn card validation, National ID checksum verification, number-to-Persian-words, and 20-rule RTL static auditor |
-| **AI Fine-Tuning Dataset** | **40 Instruction Pairs** | Real component-derived JSONL training pairs, system prompt compiler, interactive pipeline graph, and QLoRA config export in `public/ai/` |
+| Asset / Platform Module                   | Exact Measured Count         | Technical Implementation Details                                                                                                                                                                                                                        |
+| :---------------------------------------- | :--------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **11-Pillar Design-Lab Vault**            | **4,049 Files (`29.91 MB`)** | Organized across **11 Pillars** (`00` to `10`) and **50 subcategories** in `/design-lab/`, self-indexed in `src/data/designLabManifest.ts`                                                                                                              |
+| **Persian, Arabic &amp; English Fonts**   | **93 Families**              | **132 physical font files** (`woff2` / `woff` / `ttf`) mapped across `src/data/fontFiles.ts` with `font-display: swap` and coding ligatures                                                                                                             |
+| **Component Source Code**                 | **4,199 Component Sources**  | **4,888 total files** (including `4,068` `.tsx` files) partitioned into lazy-loaded JSON chunks inside `public/regcode/chunks/`                                                                                                                         |
+| **Open-Source Registries**                | **12 Registries**            | Smooth UI (`1,175`) · Effect UI (`1,081`) · Persian Blocks (`1,030`) · Animate UI (`540`) · Tailark (`243`) · React Bits (`218`) · Fancy (`149`) · Cult UI (`141`) · Kokonut UI (`102`) · Eldora UI (`97`) · Magic UI (`79`) · Motion Primitives (`33`) |
+| **Curated Skill Blueprints (`SKILL.md`)** | **179 Documents**            | `21` Motion &amp; Awwwards · `39` 3D &amp; WebGL · `108` Art Direction &amp; Taste · `10` UI Systems · `1` Comprehensive Persian &amp; RTL Spec                                                                                                         |
+| **Brand Design Systems (`DESIGN.md`)**    | **84 Brand Systems**         | Includes Linear, Vercel, Claude, Apple, Stripe, Raycast, Framer, Figma, Supabase, Cursor, and 74 additional global engineering brands                                                                                                                   |
+| **Procedural Sound Recipes**              | **285 Audio Recipes**        | `85` multi-layer DSL sound designs (`soundLibrary.ts`) + `200` procedural synth effects (`soundsManifest.ts`) with 16-bit PCM `.wav` export                                                                                                             |
+| **Live Graphics Shaders**                 | **26 GLSL Shaders**          | Includes 8 Persian-Glyph Hacker/Matrix/CRT shaders (`u_glyphTex` 8×8 Canvas Atlas), uniform sliders, `IntersectionObserver` pause, and full GPU disposal                                                                                                |
+| **Native Iranian Engines**                | **18 Banks + 20 RTL Rules**  | BIN/Sheba (IBAN mod-97) detection, Luhn card validation, National ID checksum verification, number-to-Persian-words, and 20-rule RTL static auditor                                                                                                     |
+| **AI Fine-Tuning Dataset**                | **40 Instruction Pairs**     | Real component-derived JSONL training pairs, system prompt compiler, interactive pipeline graph, and QLoRA config export in `public/ai/`                                                                                                                |
 
 ---
 
@@ -200,7 +204,7 @@ jjli/
 │   └── ai/                            # 40 QLoRA instruction-tuning pairs & system prompts
 ├── src/
 │   ├── App.tsx                        # Lazy route splitting, ErrorBoundary & MotionConfig
-│   ├── components/IntroFilm.tsx       # 6-Act procedural cinema entrance choreography
+│   ├── components/IntroSeal.tsx       # «مُهر» entry sequence: fall → strike → lift → reveal
 │   ├── components/ShaderSurface.tsx   # Lifecycle-managed WebGL canvas with GPU cleanup
 │   ├── data/                          # Typed manifests (designLabManifest, skillsManifest, etc.)
 │   ├── engines/                       # Web Audio synth, 18 GLSL shaders & 20-rule RTL auditor
@@ -240,7 +244,7 @@ Generated via `node scripts/build-single-file.mjs`, `share/rtl-motion-lab-standa
 #### Multi-Layer Quality &amp; Health Verification
 
 1. **Strict Type &amp; Lint Gate (`./node_modules/.bin/tsc --noEmit && npm run lint`):** Enforces zero TypeScript errors, strict React hook dependencies, and accessibility rules.
-2. **35-Point (`7 × 5`) Engineering Audit Matrix:** Verifies event symmetry, WebGL GPU buffer/shader disposal, 6-Act `IntroFilm` trajectory math, `60-30-10` color-psychology assets, spring ODE stability, 20-rule RTL auditing, WAV binary encoding, and disk integrity across all `4,037` vault files.
+2. **35-Point (`7 × 5`) Engineering Audit Matrix:** Verifies event symmetry, WebGL GPU buffer/shader disposal, the `IntroSeal` cue-sheet timing, `60-30-10` color-psychology assets, spring ODE stability, 20-rule RTL auditing, WAV binary encoding, and disk integrity across all `4,037` vault files.
 3. **10-Route Headless DOM Smoke Suite (`node scripts/smoke-test.mjs`):** Mounts all 10 routes (`/`, `/dashboard`, `/studio/fonts`, `/studio/motion`, `/studio/components`, `/studio/sounds`, `/studio/skills`, `/studio/engines`, `/studio/ai`, and `/nope`) in `jsdom`, verifying single-`<h1>` hierarchy, accessible button labels, 3-rail studio structure, and cross-page `localStorage` persistence.
 
 ---

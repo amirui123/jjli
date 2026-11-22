@@ -24,7 +24,6 @@ export interface DesignLabPillar {
 }
 
 export const DESIGN_LAB_TOTAL_FILES = 4049;
-export const DESIGN_LAB_TOTAL_BYTES = 31364819;
 
 export const DESIGN_LAB_PILLARS: DesignLabPillar[] = [
   {

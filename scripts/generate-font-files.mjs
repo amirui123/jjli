@@ -51,11 +51,7 @@ export interface FontFileInfo {
   weight: string;
 }
 
-export const FONT_FILE_BY_FAMILY: Record<string, FontFileInfo> = ${JSON.stringify(
-  map,
-  null,
-  2
-)};
+export const FONT_FILE_BY_FAMILY: Record<string, FontFileInfo> = ${JSON.stringify(map, null, 2)};
 
 export function fontFileFor(family: string): FontFileInfo | null {
   const first = family.split(",")[0].replace(/["']/g, "").trim();

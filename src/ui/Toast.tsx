@@ -37,7 +37,10 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const push = useCallback<ToastApi["push"]>((title, opts) => {
     const id = ++seq.current;
-    setItems((prev) => [...prev.slice(-2), { id, title, desc: opts?.desc, tone: opts?.tone ?? "info" }]);
+    setItems((prev) => [
+      ...prev.slice(-2),
+      { id, title, desc: opts?.desc, tone: opts?.tone ?? "info" },
+    ]);
     window.setTimeout(() => {
       setItems((prev) => prev.filter((t) => t.id !== id));
     }, 2800);
@@ -48,7 +51,12 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <ToastCtx.Provider value={api}>
       {children}
-      <div role="status" aria-live="polite" aria-atomic="false" className="pointer-events-none fixed bottom-24 start-1/2 z-[90] flex w-[min(92vw,380px)] -translate-x-1/2 flex-col gap-2 sm:start-4 sm:translate-x-0 sm:items-start">
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="false"
+        className="pointer-events-none fixed bottom-24 start-1/2 z-[90] flex w-[min(92vw,380px)] -translate-x-1/2 flex-col gap-2 sm:start-4 sm:translate-x-0 sm:items-start"
+      >
         <AnimatePresence initial={false}>
           {items.map((t) => {
             const Icon = ICONS[t.tone];

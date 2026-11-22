@@ -1,0 +1,545 @@
+/**
+ * Permanent end-to-end suite (not a one-off audit script).
+ * Every assertion here encodes behaviour the project promises in its README.
+ *
+ * Run: npm run test:e2e
+ * Note: the browser comes from `npm run tool:setup` (see playwright.config.ts).
+ */
+import { test, expect, type Page } from "@playwright/test";
+import fs from "node:fs";
+import http from "node:http";
+import path from "node:path";
+
+const ROUTES = [
+  { id: "home", path: "/", heading: /هر واژه/ },
+  { id: "dashboard", path: "/dashboard", heading: /داشبورد|تله‌متری|نمای/i },
+  { id: "fonts", path: "/studio/fonts", heading: /فونت/ },
+  { id: "motion", path: "/studio/motion", heading: /حرکت|موشن/ },
+  { id: "components", path: "/studio/components", heading: /کامپوننت/ },
+  { id: "sounds", path: "/studio/sounds", heading: /صدا/ },
+  { id: "skills", path: "/studio/skills", heading: /مهارت|دانش/ },
+  { id: "engines", path: "/studio/engines", heading: /شیدر/ },
+  { id: "ai", path: "/studio/ai", heading: /هوش مصنوعی/ },
+];
+
+/** Unexpected browser/network errors are never whitelisted. */
+
+/**
+ * The app animates continuously by design (marquees, shimmers, aurora blobs,
+ * spring-driven pills). Playwright refuses to click an element whose bounding
+ * box keeps moving, so for interaction tests we freeze CSS animation/transition
+ * after load. Visual fidelity is covered by the screenshot crawl instead.
+ */
+async function open(page: Page, path: string) {
+  // Routine route tests should not spend ten seconds in the interactive film.
+  // Respect reduced motion, then ignite its accessible gate and wait for exit.
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const res = await page.goto(`/#${path}`, { waitUntil: "domcontentloaded" });
+  const intro = page.getByRole("dialog", { name: "تیتراژ ورود به آزمایشگاه موشن فارسی" });
+  if (await intro.isVisible().catch(() => false)) {
+    await intro.getByRole("button", { name: "شروع انیمیشن ورود با صدا" }).click();
+    await expect(intro).toHaveCount(0, { timeout: 5_000 });
+  }
+  await page.addStyleTag({
+    content: `*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}`,
+  });
+  await page.waitForTimeout(300);
+  return res;
+}
+
+const errors: { page: string; text: string }[] = [];
+let currentPage = "";
+
+function watchConsole(page: Page) {
+  const push = (text: string) => errors.push({ page: currentPage, text });
+  page.on("console", (m) => {
+    if (m.type() === "error") push(m.text().slice(0, 240));
+  });
+  page.on("pageerror", (e) => push(`pageerror: ${e.message.slice(0, 240)}`));
+  page.on("requestfailed", (r) => {
+    // SPA route changes cancel in-flight lazy-chunk requests; that is not a defect.
+    if (/ERR_ABORTED/.test(r.failure()?.errorText ?? "")) return;
+    push(`requestfailed: ${r.url().slice(0, 200)}`);
+  });
+  page.on("response", (r) => {
+    if (r.status() >= 400) push(`http ${r.status()}: ${r.url().slice(0, 200)}`);
+  });
+}
+
+function unexpected(pageId: string) {
+  return errors.filter((e) => e.page === pageId);
+}
+
+test.beforeEach(() => {
+  errors.length = 0;
+});
+
+for (const route of ROUTES) {
+  test(`${route.id}: renders, has one h1 and no console errors`, async ({ page }) => {
+    currentPage = route.id;
+    watchConsole(page);
+    const res = await open(page, route.path);
+    expect(res?.status(), "document responds 200").toBeLessThan(400);
+
+    await expect(page.locator("main h1").first()).toBeVisible();
+    await expect(page.locator("main")).toContainText(route.heading);
+
+    if (route.path.startsWith("/studio/")) {
+      await expect(page.locator("[data-rail]")).toHaveCount(3);
+    }
+
+    await page.waitForTimeout(1500);
+    const bad = unexpected(route.id);
+    expect(bad, `console/network errors on ${route.path}`).toEqual([]);
+  });
+}
+
+test("skills: root vault documents load from the real directory", async ({ page }) => {
+  const responsePromise = page.waitForResponse((response) =>
+    response.url().includes("/design-lab/00-INDEX-AND-BLUEPRINTS/01-MASTER-VAULT-INDEX.md")
+  );
+  await open(page, "/studio/skills");
+  const response = await responsePromise;
+  expect(response.status()).toBe(200);
+  expect(response.url()).not.toContain("/root/");
+});
+
+test("unknown route shows the 404 page", async ({ page }) => {
+  currentPage = "404";
+  await open(page, "/this-does-not-exist");
+  const main = page.locator("main");
+  await expect(main).toContainText(/گم شدی|وجود ندارد/);
+  // the 404 page must offer a way home
+  await expect(main.getByRole("button", { name: /بازگشت به خانه/ })).toBeVisible();
+});
+
+test("command palette opens with Ctrl+K and filters routes", async ({ page }) => {
+  currentPage = "palette";
+  await open(page, "/");
+  await page.keyboard.press("Control+k");
+
+  const input = page.getByRole("combobox");
+  await expect(input).toBeVisible();
+  await input.fill("فونت");
+  const results = page.locator("#command-results");
+  await expect(results).toContainText(/فونت/);
+
+  await page.keyboard.press("Escape");
+  await expect(input).toBeHidden();
+});
+
+test("bottom dock navigates between all nine sections", async ({ page }) => {
+  currentPage = "dock";
+  await open(page, "/");
+  const dock = page.locator('nav[aria-label="ناوبری بخش‌ها"]');
+  await expect(dock.locator("button")).toHaveCount(9);
+
+  await dock.locator('button[aria-label="استودیو موشن"]').click();
+  await expect(page).toHaveURL(/#\/studio\/motion/);
+});
+
+/**
+ * The dock is the only navigation surface in the shell (the old duplicate
+ * section rail in the top bar was removed), so it has to keep magnification,
+ * label visibility and no-overflow behaviour at every viewport.
+ */
+test("top bar carries no section nav and the dock magnifies on hover", async ({
+  page,
+}, testInfo) => {
+  currentPage = "chrome";
+  await open(page, "/");
+  const isMobile = testInfo.project.name.includes("mobile");
+
+  // no duplicated section navigation anywhere in the header
+  const header = page.locator("header").first();
+  await expect(header.locator('a[href^="#/studio"], button[aria-label^="استودیو"]')).toHaveCount(0);
+
+  // breadcrumb still tells the user where they are (desktop/tablet only)
+  if (!isMobile) {
+    await expect(header.getByRole("navigation", { name: "مسیر فعلی" })).toBeVisible();
+  }
+
+  const dock = page.locator('nav[aria-label="ناوبری بخش‌ها"]');
+  await expect(dock).toBeVisible();
+  await expect(dock.locator("button").first()).toBeVisible();
+
+  // nothing may overflow horizontally (the old shell was 10/10 pages broken at 320px)
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - window.innerWidth
+  );
+  expect(overflow).toBeLessThanOrEqual(0);
+
+  if (!isMobile) {
+    const item = dock.locator("button").nth(3);
+    const before = await item.boundingBox();
+    await item.hover();
+    await expect
+      .poll(async () => (await item.boundingBox())?.height ?? 0, { timeout: 4_000 })
+      .toBeGreaterThan((before?.height ?? 0) + 2);
+  }
+});
+
+test("display settings switch visual state in RTL", async ({ page }) => {
+  currentPage = "appearance";
+  await open(page, "/dashboard");
+  await page.locator('button[aria-label="تنظیمات نمایش"]').first().click();
+
+  const toggle = page.locator("#toggle-contrast");
+  const knobOffset = () =>
+    toggle.locator("span[aria-hidden] > span").evaluate((el) => {
+      const track = (el.parentElement ?? el).getBoundingClientRect();
+      const knob = el.getBoundingClientRect();
+      // distance from the *start* edge — in RTL the track's start edge is its right edge
+      return Math.round(track.right - knob.right);
+    });
+
+  await expect(toggle).toHaveAttribute("aria-checked", "false");
+  const off = await knobOffset();
+  // off sits at the reading-start edge (the right edge in RTL)
+  expect(off).toBeLessThan(6);
+  await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-checked", "true");
+  // "on" slides the knob to the reading-end edge — ~22px on a 36px track
+  await expect.poll(knobOffset).toBeGreaterThan(off + 10);
+});
+
+test("accent picker applies the theme to CSS custom properties", async ({ page }) => {
+  currentPage = "accent";
+  await open(page, "/dashboard");
+
+  await page.locator('button[aria-label="رنگ پلتفرم"]').first().click();
+  const turquoise = page.getByRole("button", { name: /فیروزه/ }).first();
+  await expect(turquoise).toBeVisible();
+  await turquoise.click();
+
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()
+      )
+    )
+    .toBe("#2DD4BF");
+});
+
+test("font studio specimen changes when a different font is picked", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.includes("mobile"), "desktop rail layout only");
+  currentPage = "fonts";
+  await open(page, "/studio/fonts");
+
+  const specimen = page.locator('[data-testid="font-specimen"]');
+  await expect(specimen).toBeVisible();
+  const before = await specimen.getAttribute("style");
+
+  const row = page.locator("[data-font-id]").nth(2);
+  await row.scrollIntoViewIfNeeded();
+  await row.click();
+
+  await expect
+    .poll(async () => (await specimen.getAttribute("style")) ?? "")
+    .not.toBe(before ?? "");
+});
+
+test("studio rails respond to the keyboard focus-mode shortcut", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.includes("mobile"), "desktop rail layout only");
+  currentPage = "focus";
+  await open(page, "/studio/motion");
+  await expect(page.locator("[data-rail]")).toHaveCount(3);
+
+  await page.locator("main").click({ position: { x: 4, y: 4 } });
+  await page.keyboard.press("f");
+  await expect(page.locator('[role="separator"]').first()).toBeHidden();
+  await page.keyboard.press("Escape");
+  await expect(page.locator('[role="separator"]').first()).toBeVisible();
+});
+
+test("mobile: studio becomes a three-tab sheet and returns to preview after a pick", async ({
+  page,
+}, testInfo) => {
+  test.skip(!testInfo.project.name.includes("mobile"), "mobile project only");
+  currentPage = "mobile";
+  await open(page, "/studio/fonts");
+
+  const tabs = page.locator('nav[aria-label="پنل‌های استودیو"] button');
+  await expect(tabs).toHaveCount(3);
+
+  await tabs.nth(2).click(); // list
+  const listRail = page.locator('[data-rail="list"]');
+  await expect(listRail).toBeVisible();
+
+  await page.locator("[data-font-id]").first().click();
+  await expect(page.locator('[data-rail="stage"]')).toBeVisible();
+});
+
+/**
+ * Nastaliq ascenders and descenders stack ~2em tall, so a two-line headline
+ * needs at least ~2.0em of leading. It shipped with a hard-coded 1.68 for every
+ * display font, which made the second line physically collide with the first
+ * one (the tail of «هر» ran into «نور،»). The headline must now take its leading
+ * from the font catalog, and each font must keep its own value.
+ */
+test("hero headline uses the leading that its display font needs", async ({ page }) => {
+  currentPage = "hero";
+  await open(page, "/");
+  const headline = page.locator('[data-testid="hero-headline"]');
+  await expect(headline).toBeVisible();
+
+  const metrics = await headline.evaluate((el) => {
+    const s = getComputedStyle(el);
+    return {
+      family: s.fontFamily.split(",")[0].replace(/"/g, ""),
+      size: parseFloat(s.fontSize),
+      leading: parseFloat(s.lineHeight) / parseFloat(s.fontSize),
+    };
+  });
+
+  // default hero font is IranNastaliq, whose own metrics need ~2.4em
+  expect(metrics.family).toBe("IranNastaliq");
+  expect(metrics.leading).toBeGreaterThanOrEqual(2.3);
+
+  // the two lines must not share a single pixel row of ink
+  const box = await headline.boundingBox();
+  const shot = await page.screenshot({ clip: box ?? undefined });
+  const pixels = await page.evaluate(async (pngB64) => {
+    const img = new Image();
+    img.src = `data:image/png;base64,${pngB64}`;
+    await img.decode();
+    const c = document.createElement("canvas");
+    c.width = img.width;
+    c.height = img.height;
+    const ctx = c.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    const { data } = ctx.getImageData(0, 0, img.width, img.height);
+    const rows = new Array(img.height).fill(0);
+    for (let y = 0; y < img.height; y++) {
+      for (let x = 0; x < img.width; x++) {
+        const i = (y * img.width + x) * 4;
+        if (data[i] > 36 || data[i + 1] > 36 || data[i + 2] > 36) rows[y]++;
+      }
+    }
+    let best = 0;
+    let run = 0;
+    for (const n of rows) {
+      run = n === 0 ? run + 1 : 0;
+      if (run > best) best = run;
+    }
+    return { tallestEmptyBand: best, height: img.height };
+  }, shot.toString("base64"));
+
+  // a real gap between the two lines is at least a tenth of the block
+  expect(pixels.tallestEmptyBand).toBeGreaterThan(pixels.height * 0.08);
+});
+
+/**
+ * «گ» must not render as «ک».
+ *
+ * IranNastaliq draws the second dot of گ as a short stroke that sits beside the
+ * ک head-stroke. In the upstream woff2 it never rises above that head-stroke, so
+ * the glyph's silhouette is identical to ک and «می‌گیرد» reads as «می‌کیرد» —
+ * the defect the user reported. The shipped font now carries the dot 200 font
+ * units further up-left, which makes گ reach measurably higher than ک.
+ *
+ * The check is geometric rather than perceptual: at a given size, the topmost
+ * ink of گ must clear the topmost ink of ک by at least 5% of the font size.
+ * With the upstream font that difference is exactly 0 px, so this is a real
+ * regression guard for "someone re-downloaded the font".
+ */
+test("nastaliq gaf keeps its two dots and does not render as kaf", async ({ page }) => {
+  currentPage = "gaf-dots";
+  await open(page, "/");
+
+  const SIZE = 160;
+  await page.evaluate(async (size) => {
+    await document.fonts.ready;
+    const hero = document.querySelector('[data-testid="hero-headline"]');
+    const family = hero ? getComputedStyle(hero).fontFamily : "";
+    const probe = document.createElement("div");
+    probe.id = "gaf-probe";
+    probe.style.cssText = [
+      "position:fixed",
+      "left:0",
+      "top:0",
+      "width:620px",
+      "height:560px",
+      "z-index:999999",
+      "background:#000",
+      "color:#fff",
+      "direction:rtl",
+      "text-align:center",
+      `font-family:${family}`,
+      `font-size:${size}px`,
+      "line-height:3.2",
+    ].join(";");
+    probe.textContent = "\u06AF";
+    document.body.appendChild(probe);
+  }, SIZE);
+
+  const probe = page.locator("#gaf-probe");
+  const box = await probe.boundingBox();
+  if (!box) throw new Error("gaf probe did not render");
+
+  const gafShot = await page.screenshot({ clip: box });
+  await page.evaluate(() => {
+    const el = document.getElementById("gaf-probe");
+    if (el) el.textContent = "\u06A9";
+  });
+  await page.waitForTimeout(120);
+  const kafShot = await page.screenshot({ clip: box });
+
+  const tops = await page.evaluate(
+    async ([a, b]) => {
+      const topInk = async (b64: string) => {
+        const img = new Image();
+        img.src = `data:image/png;base64,${b64}`;
+        await img.decode();
+        const c = document.createElement("canvas");
+        c.width = img.width;
+        c.height = img.height;
+        const ctx = c.getContext("2d");
+        if (!ctx) return img.height;
+        ctx.drawImage(img, 0, 0);
+        const { data } = ctx.getImageData(0, 0, img.width, img.height);
+        for (let y = 0; y < img.height; y++) {
+          for (let x = 0; x < img.width; x++) {
+            if (data[(y * img.width + x) * 4] > 110) return y;
+          }
+        }
+        return img.height;
+      };
+      return { gafTop: await topInk(a), kafTop: await topInk(b) };
+    },
+    [gafShot.toString("base64"), kafShot.toString("base64")]
+  );
+
+  // both glyphs must have rendered at all
+  expect(tops.gafTop).toBeLessThan(560);
+  expect(tops.kafTop).toBeLessThan(560);
+
+  // گ's second dot must reach above ک's head-stroke
+  const rise = tops.kafTop - tops.gafTop;
+  expect(rise).toBeGreaterThan(SIZE * 0.05);
+});
+
+/**
+ * The entrance film used to run for ~10.5s with no way out: `onClose("skip")`
+ * existed on the prop type but was never called, and there was no control or
+ * Escape handler. It now carries a «رد کردن» affordance on every frame, so the
+ * visitor is never trapped behind the motion.
+ *
+ * The film only mounts for a real browser UA (the suite's default UA is
+ * "jsdom", which is the app's own escape hatch), so this block opts out.
+ */
+/**
+ * The word-by-word film is an intentional, user-ignited entry sequence. It must
+ * resolve words in order, complete the portal exit, restore page scrolling, and replay.
+ */
+test.describe("word-by-word intro film", () => {
+  test.use({
+    userAgent:
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+  });
+
+  const film = (page: Page) =>
+    page.getByRole("dialog", { name: "تیتراژ ورود به آزمایشگاه موشن فارسی" });
+
+  test("ignites, resolves the Persian words, completes, and can replay", async ({
+    page,
+  }, testInfo) => {
+    await page.clock.install();
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await expect(film(page)).toBeVisible();
+
+    await film(page).getByRole("button", { name: "شروع انیمیشن ورود با صدا" }).click();
+
+    // Advance the actual rAF-driven timeline without depending on software-GPU speed.
+    const mobile = testInfo.project.name.includes("mobile");
+    await page.clock.runFor(mobile ? 4_000 : 4_700);
+    const wordOpacity = (word: string) =>
+      film(page)
+        .getByText(word, { exact: true })
+        .first()
+        .evaluate((element) => {
+          let span = element as HTMLElement;
+          while (span && !span.style.opacity) span = span.parentElement as HTMLElement;
+          return Number(span?.style.opacity ?? 0);
+        });
+    expect(await wordOpacity("در")).toBeGreaterThan(0.2);
+    expect(await wordOpacity("امتدادِ")).toBe(0);
+
+    await page.clock.runFor(8_000);
+    await expect(film(page)).toHaveCount(0, { timeout: 5_000 });
+
+    await expect(page.locator('[data-testid="hero-headline"]')).toBeVisible();
+    await expect(page.locator("body")).not.toHaveCSS("overflow", "hidden");
+
+    await page.getByRole("button", { name: /تماشای فیلم ورودی/ }).click();
+    await expect(film(page)).toBeVisible({ timeout: 3_000 });
+  });
+
+  test("reduced motion completes immediately after ignition", async ({ browser }) => {
+    const ctx = await browser.newContext({
+      reducedMotion: "reduce",
+      userAgent:
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+    });
+    const page = await ctx.newPage();
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await film(page).getByRole("button", { name: "شروع انیمیشن ورود با صدا" }).click();
+    await expect(film(page)).toHaveCount(0, { timeout: 4_000 });
+    await expect(page.locator('[data-testid="hero-headline"]')).toBeVisible();
+    await ctx.close();
+  });
+});
+
+test("static server blocks encoded traversal and symlink escapes", async () => {
+  const requestStatus = (requestPath: string) =>
+    new Promise<number>((resolve, reject) => {
+      const request = http.request(
+        { hostname: "127.0.0.1", port: 4173, path: requestPath, method: "GET" },
+        (response) => {
+          response.resume();
+          resolve(response.statusCode ?? 0);
+        }
+      );
+      request.on("error", reject);
+      request.end();
+    });
+
+  expect(await requestStatus("/%2e%2e/package.json")).toBe(403);
+
+  const tempDir = fs.mkdtempSync(path.join(process.cwd(), "dist", "__audit_symlink_escape_"));
+  const linkPath = path.join(tempDir, "outside");
+  try {
+    try {
+      fs.symlinkSync("/etc", linkPath, "dir");
+    } catch (error) {
+      test.skip(true, `symlink creation unavailable: ${String(error)}`);
+      return;
+    }
+    const requestPath = `/${path.basename(tempDir)}/outside/passwd`;
+    expect(await requestStatus(requestPath)).toBe(403);
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test("sound studio exports a valid two-channel PCM WAV", async ({ page }) => {
+  currentPage = "stereo-wav";
+  watchConsole(page);
+  await open(page, "/studio/sounds");
+
+  const [download] = await Promise.all([
+    page.waitForEvent("download", { timeout: 20_000 }),
+    page.getByRole("button", { name: "WAV", exact: true }).click(),
+  ]);
+  const filePath = await download.path();
+  if (!filePath) throw new Error("Downloaded WAV file path is unavailable");
+
+  const wav = fs.readFileSync(filePath);
+  expect(wav.toString("ascii", 0, 4)).toBe("RIFF");
+  expect(wav.toString("ascii", 8, 12)).toBe("WAVE");
+  expect(wav.readUInt16LE(20)).toBe(1);
+  expect(wav.readUInt16LE(22)).toBe(2);
+  expect(wav.readUInt16LE(34)).toBe(16);
+  expect(wav.readUInt32LE(40)).toBe(wav.length - 44);
+  expect(unexpected("stereo-wav")).toEqual([]);
+});

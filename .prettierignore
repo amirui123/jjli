@@ -1,0 +1,12 @@
+dist/
+dist-*/
+node_modules/
+public/
+design-lab/
+share/
+audit/
+playwright-report/
+test-results/
+package-lock.json
+src/data/
+docs/PROJECT-MAP.fa.md

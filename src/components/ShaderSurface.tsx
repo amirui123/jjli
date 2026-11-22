@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { VERTEX_SHADER, SHADER_PRELUDE, FRAGMENT_MAIN, type ShaderDef } from "../engines/shaderLab";
 import { cn } from "../ui/kit";
+import { ShaderFrameLoop } from "../engines/shaderFrameLoop.mjs";
 
 interface Props {
   def: ShaderDef;
@@ -19,24 +20,83 @@ interface Props {
 
 const DEFAULT_PERSIAN_GLYPHS: readonly string[] = [
   // 0..31: 32 Persian letters
-  "آ", "ب", "پ", "ت", "ث", "ج", "چ", "ح",
-  "خ", "د", "ذ", "ر", "ز", "ژ", "س", "ش",
-  "ص", "ض", "ط", "ظ", "ع", "غ", "ف", "ق",
-  "ک", "گ", "ل", "م", "ن", "و", "ه", "ی",
+  "آ",
+  "ب",
+  "پ",
+  "ت",
+  "ث",
+  "ج",
+  "چ",
+  "ح",
+  "خ",
+  "د",
+  "ذ",
+  "ر",
+  "ز",
+  "ژ",
+  "س",
+  "ش",
+  "ص",
+  "ض",
+  "ط",
+  "ظ",
+  "ع",
+  "غ",
+  "ف",
+  "ق",
+  "ک",
+  "گ",
+  "ل",
+  "م",
+  "ن",
+  "و",
+  "ه",
+  "ی",
   // 32..41: 10 Persian digits
-  "۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹",
+  "۰",
+  "۱",
+  "۲",
+  "۳",
+  "۴",
+  "۵",
+  "۶",
+  "۷",
+  "۸",
+  "۹",
   // 42..55: 14 Persian calligraphic & hacker short words/ligatures
-  "نور", "خط", "جان", "کد", "رمز", "حق", "هو",
-  "لا", "موج", "شب", "صفر", "یک", "مرز", "روح",
+  "نور",
+  "خط",
+  "جان",
+  "کد",
+  "رمز",
+  "حق",
+  "هو",
+  "لا",
+  "موج",
+  "شب",
+  "صفر",
+  "یک",
+  "مرز",
+  "روح",
   // 56..63: 8 Cyber / Hacker terminal symbols
-  "⌘", "✦", "⚡", "◈", "∆", "Ω", "∑", "∞",
+  "⌘",
+  "✦",
+  "⚡",
+  "◈",
+  "∆",
+  "Ω",
+  "∑",
+  "∞",
 ];
 
 /**
  * Generates an 8x8 (64-cell, 512x512) high-contrast glyph texture atlas
  * containing real Persian letters, digits, words, and optional user text.
  */
-function buildPersianGlyphAtlas(customText?: string, fontFamily = '"Vazirmatn", "Hasti", sans-serif'): HTMLCanvasElement {
+function buildPersianGlyphAtlas(
+  customText?: string,
+  fontFamily = '"Vazirmatn", "Hasti", sans-serif'
+): HTMLCanvasElement {
   const canvas = document.createElement("canvas");
   canvas.width = 512;
   canvas.height = 512;
@@ -126,6 +186,7 @@ export const ShaderSurface: React.FC<Props> = ({
   const stateRef = useRef({ speed, scale, hue, warp, grain, paused, interactive });
   const mouseRef = useRef<[number, number]>([0, 0]);
   const accentRef = useRef<[number, number, number]>([0.91, 0.7, 0.23]);
+  const frameLoopRef = useRef<ShaderFrameLoop | null>(null);
 
   stateRef.current = { speed, scale, hue, warp, grain, paused, interactive };
 
@@ -136,7 +197,11 @@ export const ShaderSurface: React.FC<Props> = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const gl = canvas.getContext("webgl", { antialias: false, alpha: false, powerPreference: "high-performance" });
+    const gl = canvas.getContext("webgl", {
+      antialias: false,
+      alpha: false,
+      powerPreference: "high-performance",
+    });
     if (!gl) {
       const message = "WebGL در این مرورگر در دسترس نیست";
       setFailed(message);
@@ -233,38 +298,48 @@ export const ShaderSurface: React.FC<Props> = ({
     };
     resize();
 
-    const ro =
-      typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => resize()) : null;
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => resize()) : null;
     ro?.observe(canvas);
 
     let visible = true;
+    const isActive = () => visible && !stateRef.current.paused && !document.hidden;
+    const started = performance.now();
+    const loop = new ShaderFrameLoop({
+      requestFrame: (callback) => requestAnimationFrame(callback),
+      cancelFrame: (id) => cancelAnimationFrame(id),
+      isActive,
+      draw: (now) => {
+        const s = stateRef.current;
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, glyphTexture);
+        gl.uniform2f(u.res, canvas.width, canvas.height);
+        gl.uniform1f(u.time, (now - started) / 1000);
+        gl.uniform1f(u.speed, s.speed);
+        gl.uniform1f(u.scale, s.scale);
+        gl.uniform1f(u.hue, s.hue);
+        gl.uniform1f(u.warp, s.warp);
+        gl.uniform1f(u.grain, s.grain);
+        gl.uniform2f(u.mouse, mouseRef.current[0], mouseRef.current[1]);
+        const [r, g, b] = accentRef.current;
+        gl.uniform3f(u.accent, r, g, b);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+      },
+    });
+    frameLoopRef.current = loop;
+    const onVisibilityChange = () => loop.refresh();
+    document.addEventListener("visibilitychange", onVisibilityChange);
     const io =
       typeof IntersectionObserver !== "undefined"
-        ? new IntersectionObserver(([entry]) => (visible = entry.isIntersecting), { threshold: 0.02 })
+        ? new IntersectionObserver(
+            ([entry]) => {
+              visible = Boolean(entry?.isIntersecting);
+              loop.refresh();
+            },
+            { threshold: 0.02 }
+          )
         : null;
     io?.observe(canvas);
-
-    let raf = 0;
-    const started = performance.now();
-    const draw = (now: number) => {
-      raf = requestAnimationFrame(draw);
-      const s = stateRef.current;
-      if (!visible || s.paused || document.hidden) return;
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, glyphTexture);
-      gl.uniform2f(u.res, canvas.width, canvas.height);
-      gl.uniform1f(u.time, (now - started) / 1000);
-      gl.uniform1f(u.speed, s.speed);
-      gl.uniform1f(u.scale, s.scale);
-      gl.uniform1f(u.hue, s.hue);
-      gl.uniform1f(u.warp, s.warp);
-      gl.uniform1f(u.grain, s.grain);
-      gl.uniform2f(u.mouse, mouseRef.current[0], mouseRef.current[1]);
-      const [r, g, b] = accentRef.current;
-      gl.uniform3f(u.accent, r, g, b);
-      gl.drawArrays(gl.TRIANGLES, 0, 3);
-    };
-    raf = requestAnimationFrame(draw);
+    loop.refresh();
 
     const onMove = (event: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
@@ -280,7 +355,9 @@ export const ShaderSurface: React.FC<Props> = ({
     }
 
     return () => {
-      cancelAnimationFrame(raf);
+      loop.dispose();
+      if (frameLoopRef.current === loop) frameLoopRef.current = null;
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       ro?.disconnect();
       io?.disconnect();
       canvas.removeEventListener("pointerdown", onMove);
@@ -295,6 +372,10 @@ export const ShaderSurface: React.FC<Props> = ({
       if (fs) gl.deleteShader(fs);
     };
   }, [def.id, def.scene, interactive, glyphText, glyphFont, onError]);
+
+  useEffect(() => {
+    frameLoopRef.current?.refresh();
+  }, [paused]);
 
   return (
     <div className={cn("relative h-full w-full overflow-hidden bg-[#07070B]", className)}>
