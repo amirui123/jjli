@@ -441,31 +441,39 @@ test.describe("word-by-word intro film", () => {
   const film = (page: Page) =>
     page.getByRole("dialog", { name: "تیتراژ ورود به آزمایشگاه موشن فارسی" });
 
-  test("ignites, resolves the Persian words, completes, and can replay", async ({
-    page,
-  }, testInfo) => {
+  test("ignites, resolves the Persian words, completes, and can replay", async ({ page }) => {
     await page.clock.install();
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await expect(film(page)).toBeVisible();
 
     await film(page).getByRole("button", { name: "شروع انیمیشن ورود با صدا" }).click();
 
-    // Advance the actual rAF-driven timeline without depending on software-GPU speed.
-    const mobile = testInfo.project.name.includes("mobile");
-    await page.clock.runFor(mobile ? 4_000 : 4_700);
+    const words = ["در", "امتدادِ", "نور،", "هر", "خط", "جان", "می‌گیرد"];
     const wordOpacity = (word: string) =>
-      film(page)
-        .getByText(word, { exact: true })
-        .first()
-        .evaluate((element) => {
-          let span = element as HTMLElement;
-          while (span && !span.style.opacity) span = span.parentElement as HTMLElement;
-          return Number(span?.style.opacity ?? 0);
-        });
-    expect(await wordOpacity("در")).toBeGreaterThan(0.2);
-    expect(await wordOpacity("امتدادِ")).toBe(0);
+      page.evaluate((text) => {
+        const dialog = document.querySelector('[role="dialog"]');
+        const element = Array.from(dialog?.querySelectorAll("span") ?? []).find(
+          (span) => span.textContent === text && (span as HTMLElement).style.opacity !== ""
+        ) as HTMLElement | undefined;
+        return Number(element?.style.opacity ?? 0);
+      }, word);
+    const waitForWordStartBeforeNext = async (index: number) => {
+      for (let frame = 0; frame < 60; frame += 1) {
+        const currentOpacity = await wordOpacity(words[index]);
+        const nextOpacity = await wordOpacity(words[index + 1]);
+        if (currentOpacity > 0.2 && nextOpacity === 0) return;
+        await page.clock.runFor(200);
+      }
+      throw new Error(`Word ${words[index]} did not start before ${words[index + 1]}`);
+    };
 
-    await page.clock.runFor(8_000);
+    // Poll the actual rendered opacity at each stagger boundary; do not depend on a fixed browser latency.
+    for (let index = 0; index < words.length - 1; index += 1) {
+      await waitForWordStartBeforeNext(index);
+    }
+    await expect.poll(() => wordOpacity("می‌گیرد")).toBeGreaterThan(0.2);
+
+    await page.clock.runFor(12_000);
     await expect(film(page)).toHaveCount(0, { timeout: 5_000 });
 
     await expect(page.locator('[data-testid="hero-headline"]')).toBeVisible();

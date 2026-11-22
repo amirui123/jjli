@@ -1215,7 +1215,7 @@ const IntroFilm: React.FC<IntroFilmProps> = ({ onClose }) => {
 
 /* -------------------------------------------------------------------- Host */
 
-export const IntroHost: React.FC = () => {
+const IntroHost: React.FC = () => {
   const isAutomatedSmoke =
     typeof navigator !== "undefined" && /jsdom/i.test(navigator.userAgent || "");
 

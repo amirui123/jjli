@@ -115,7 +115,7 @@ function downloadFont(font: PersianFontItem) {
   return saveUrl(file.url, file.file);
 }
 
-export const FontStudio: React.FC = () => {
+const FontStudio: React.FC = () => {
   const [s, set, reset] = usePersisted<FontSettings>("studio-fonts", DEFAULT);
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<Category>("all");
